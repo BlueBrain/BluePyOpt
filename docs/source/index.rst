@@ -5,7 +5,7 @@
 
 BluePyOpt
 ========
-Neuroscientific model optimisation python library
+BlueBrain Python Optimisation Library
 
 .. toctree::
    :maxdepth: 3
