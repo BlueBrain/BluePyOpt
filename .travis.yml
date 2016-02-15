@@ -20,6 +20,6 @@ deploy:
     secure: jHnj/T6sANjIHvvJenBwThkpFZRb9lyAirzt1aXwuBWYiFQ8ojrapIOr/wf5hAtMgAPMGUgdV315g53ZawKFBuHmTuDuhnFyqyH07wha/licvga3o7juPFaIIvYN5SeOGygvrxCtMKx5p/VzWuhf04pKJMqGqE2lj4RDwwmGIjY=
 before_install:
       - pip install codecov
-      - ./install_neuron.sh
+      - ./.travis_install_neuron.sh
 after_success:
       - codecov
