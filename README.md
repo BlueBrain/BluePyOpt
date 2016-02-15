@@ -16,3 +16,7 @@ http://neuron.yale.edu/
 To install BluePyOpt, run:
 
 pip install . --upgrade
+
+API documentation
+==================
+The API documentation can be found [here](http://bluebrain.github.io/BluePyOpt)
