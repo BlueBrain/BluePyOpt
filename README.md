@@ -29,7 +29,7 @@ Installation
 After installing Neuron and DEAP, run the following command:
 
 ```bash
-pip install git+git://github.com/BlueBrain/BluePyOpt
+pip install bluepyopt
 ```
 
 Quick Start
