@@ -30,3 +30,6 @@ before_script:
       - export PYTHONPATH=$PYTHONPATH:${NRN_INSTALL_DIR}/lib/python
 after_success:
       - codecov
+addons:
+    code_climate:
+        repo_token: 94713078b6ae3fe8344e80649ea189e2e0d0cb78e707edf169b3ff9d3765da46
