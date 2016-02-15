@@ -1,6 +1,6 @@
 all: install
 install:
-	pip install . --upgrade
+	pip install -r requirements.txt . --upgrade
 doc: install
 	pip install sphinx sphinx-autobuild
 	cd docs; $(MAKE) clean; $(MAKE) html

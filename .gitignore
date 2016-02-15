@@ -1,2 +1,3 @@
 *.pyc
 x86_64
+/bluepyopt.egg-info/
