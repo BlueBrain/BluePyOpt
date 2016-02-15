@@ -1,0 +1,162 @@
+{
+    "bAP": {
+        "soma": {
+            "AP_width": [
+                2.0,
+                0.5
+            ],
+            "AP_height": [
+                25.0,
+                5.0
+            ],
+            "Spikecount": [
+                1.0,
+                0.01
+            ]
+        },
+        "dend1": {
+            "AP_amplitude_from_voltagebase": [
+                45,
+                10
+            ]
+        },
+        "dend2": {
+            "AP_amplitude_from_voltagebase": [
+                36,
+                9.33
+            ]
+        }
+    },
+    "Step3": {
+        "soma": {
+            "AP_height": [
+                19.7207,
+                3.7204
+            ],
+            "AHP_slow_time": [
+                0.1968,
+                0.0112
+            ],
+            "ISI_CV": [
+                0.0737,
+                0.0292
+            ],
+            "doublet_ISI": [
+                22.75,
+                4.14
+            ],
+            "adaptation_index2": [
+                0.0055,
+                0.0015
+            ],
+            "mean_frequency": [
+                17.5,
+                0.8
+            ],
+            "AHP_depth_abs_slow": [
+                -61.1513,
+                2.3385
+            ],
+            "AP_width": [
+                3.5347,
+                0.8788
+            ],
+            "time_to_first_spike": [
+                10.5,
+                1.36
+            ],
+            "AHP_depth_abs": [
+                -57.0905,
+                2.3427
+            ]
+        }
+    },
+    "Step2": {
+        "soma": {
+            "AP_height": [
+                27.1003,
+                3.1463
+            ],
+            "AHP_slow_time": [
+                0.1676,
+                0.0339
+            ],
+            "ISI_CV": [
+                0.0674,
+                0.075
+            ],
+            "doublet_ISI": [
+                44.0,
+                7.1327
+            ],
+            "adaptation_index2": [
+                0.005,
+                0.0067
+            ],
+            "mean_frequency": [
+                8.5,
+                0.9796
+            ],
+            "AHP_depth_abs_slow": [
+                -60.2471,
+                1.8972
+            ],
+            "AP_width": [
+                2.7917,
+                0.7499
+            ],
+            "time_to_first_spike": [
+                19.75,
+                2.8776
+            ],
+            "AHP_depth_abs": [
+                -59.9055,
+                1.8329
+            ]
+        }
+    },
+    "Step1": {
+        "soma": {
+            "AP_height": [
+                25.0141,
+                3.1463
+            ],
+            "AHP_slow_time": [
+                0.1599,
+                0.0483
+            ],
+            "ISI_CV": [
+                0.109,
+                0.1217
+            ],
+            "doublet_ISI": [
+                62.75,
+                9.6667
+            ],
+            "adaptation_index2": [
+                0.0047,
+                0.0514
+            ],
+            "mean_frequency": [
+                6,
+                1.2222
+            ],
+            "AHP_depth_abs_slow": [
+                -61.1513,
+                2.3385
+            ],
+            "AP_width": [
+                3.5312,
+                0.8592
+            ],
+            "time_to_first_spike": [
+                27.25,
+                5.7222
+            ],
+            "AHP_depth_abs": [
+                -60.3636,
+                2.3018
+            ]
+        }
+    }
+}
