@@ -1,0 +1,20 @@
+languages:
+  Python: true
+engines:
+  pep8:
+    enabled: true
+  radon:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - python
+  fixme:
+    enabled: true
+exclude_paths:
+- versioneer.py
+- bluepyopt/_version.py
+- docs/source/conf.py
+- bluepyopt/tests
+- examples
