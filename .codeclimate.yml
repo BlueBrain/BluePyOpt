@@ -6,15 +6,6 @@ engines:
     checks:
         E501:
             enabled: false
-  radon:
-    enabled: true
-  duplication:
-    enabled: true
-    config:
-      languages:
-      - python
-  fixme:
-    enabled: true
 exclude_paths:
     - versioneer.py
     - bluepyopt/_version.py

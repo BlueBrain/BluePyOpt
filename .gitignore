@@ -5,3 +5,4 @@ coverage.xml
 /bluepyopt.egg-info/
 /build/
 /dist/
+.DS_Store
