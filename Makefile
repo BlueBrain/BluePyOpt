@@ -4,6 +4,14 @@ install:
 doc: install
 	pip install sphinx sphinx-autobuild
 	cd docs; $(MAKE) clean; $(MAKE) html
+doc_upload: doc
+	cd docs/build/html && \
+	touch .nojekyll && \
+	git init . && \
+	git add . && \
+	git commit -m "Updating docs" && \
+	git push "git@github.com:BlueBrain/BluePyOpt.git" master:gh-pages --force && \
+	rm -rf .git	
 docopen: doc
 	open docs/build/html/index.html
 docpdf: install
