@@ -14,3 +14,5 @@ make -j4 install
 
 export PATH="${INSTALL_DIR}/x86_64/bin":${PATH}
 export PYTHONPATH="${INSTALL_DIR}/lib/python":${PYTHONPATH}
+
+python -c 'import neuron'
