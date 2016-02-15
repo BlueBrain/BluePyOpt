@@ -30,8 +30,7 @@ import setuptools
 setuptools.setup(
     name="bluepyopt",
     version="0.0.1",
-    # install_requires=['numpy>=1.6'],
-    install_requires=[],
+    install_requires=['numpy>=1.6', 'pandas'],
     packages=setuptools.find_packages(),
     author="BlueBrain Project, EPFL",
     author_email="werner.vangeit@epfl.ch",
