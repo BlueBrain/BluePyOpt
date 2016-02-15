@@ -64,7 +64,9 @@ class CellEvaluator(object):
 
     def param_dict(self, param_array):
         """Convert param_array in param_dict"""
-        param_dict = dict((k, v) for k, v in zip(self.param_names, param_array))
+        param_dict = dict(
+            (name, array) for name, array in zip(self.param_names,
+                                                 param_array))
         return param_dict
 
     def objective_dict(self, objective_array):
@@ -72,8 +74,9 @@ class CellEvaluator(object):
         objective_names = [objective.name
                            for objective in self.fitness_calculator.objectives]
 
-        objective_dict = dict((k, v)
-                              for k, v in zip(objective_names, objective_array))
+        objective_dict = dict(
+            (name, array) for name, array in zip(objective_names,
+                                                 objective_array))
 
         return objective_dict
 

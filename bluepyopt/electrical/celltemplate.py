@@ -53,8 +53,8 @@ class CellTemplate(object):
         self.mechanisms = mechs
 
         # Model params
-        self.params = collections.OrderedDict()
-        self.params = dict((param.name, param) for param in params)
+        self.params = collections.OrderedDict((param.name, param)
+                                              for param in params)
 
         # Cell instantiation in simulator
         self.icell = None
@@ -128,7 +128,8 @@ class CellTemplate(object):
 
         bpopt.neuron.h.tstop = protocol.total_duration
         bpopt.neuron.h.cvode_active(1)
-        logger.debug('Running protocol %s for %.6g ms', protocol.name, protocol.total_duration)
+        logger.debug('Running protocol %s for %.6g ms',
+                     protocol.name, protocol.total_duration)
         bpopt.neuron.h.run()
         responses = protocol.responses
 
