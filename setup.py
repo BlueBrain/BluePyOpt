@@ -2,7 +2,7 @@
 """BluePyOpt  setup """
 
 """
-Copyright (c) 2015, EPFL/Blue Brain Project
+Copyright (c) 2016, EPFL/Blue Brain Project
 
  This file is part of eFEL <https://github.com/BlueBrain/BluePyOpt>
 
