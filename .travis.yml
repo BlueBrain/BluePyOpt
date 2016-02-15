@@ -25,7 +25,7 @@ before_install:
 before_script:
       - NRN_INSTALL_DIR=$HOME/local/nrn
       - ./.travis_install_neuron.sh ${NRN_INSTALL_DIR} 
-      - PATH=$PATH:${NRN_INSTALL_DIR}/x86_64/bin
-      - PYTHONPATH=$PYTHONPATH:${NRN_INSTALL_DIR}/lib/python
+      - export PATH=$PATH:${NRN_INSTALL_DIR}/x86_64/bin
+      - export PYTHONPATH=$PYTHONPATH:${NRN_INSTALL_DIR}/lib/python
 after_success:
       - codecov
