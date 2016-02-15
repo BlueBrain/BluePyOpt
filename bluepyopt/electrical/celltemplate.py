@@ -27,6 +27,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # TODO rename this to 'CellModel' ?
 
 import collections
+import textwrap
 import logging
 
 import bluepyopt as bpopt
@@ -48,14 +49,12 @@ class CellTemplate(object):
 
         self.name = name
 
-        # morphology
         self.morphology = morph
-        # mechanisms
         self.mechanisms = mechs
+
         # Model params
-        self.params = collections.OrderedDict()
-        for param in params:
-            self.params[param.name] = param
+        self.params = collections.OrderedDict((param.name, param)
+                                              for param in params)
 
         # Cell instantiation in simulator
         self.icell = None
@@ -81,18 +80,19 @@ class CellTemplate(object):
 
         # TODO minize hardcoded definition
         # E.g. sectionlist can be procedurally generated
-        template_content = 'begintemplate %s\n' \
-            'objref all, apical, basal, somatic, axonal\n' \
-            'proc init() {\n' \
-            'all 	= new SectionList()\n' \
-            'somatic = new SectionList()\n' \
-            'basal 	= new SectionList()\n' \
-            'apical 	= new SectionList()\n' \
-            'axonal 	= new SectionList()\n' \
-            'forall delete_section()\n' \
-            '}\n' \
-            'create soma[1], dend[1], apic[1], axon[1]\n' \
-            'endtemplate %s\n' % (name, name)
+        template_content = textwrap.dedent('''\
+            begintemplate %s
+                objref all, apical, basal, somatic, axonal
+                proc init() {
+                    all = new SectionList()
+                    somatic = new SectionList()
+                    basal = new SectionList()
+                    apical = new SectionList()
+                    axonal = new SectionList()
+                    forall delete_section()
+                }
+                create soma[1], dend[1], apic[1], axon[1]
+            endtemplate %s''') % (name=name)
 
         bpopt.neuron.h(template_content)
 
@@ -128,10 +128,8 @@ class CellTemplate(object):
 
         bpopt.neuron.h.tstop = protocol.total_duration
         bpopt.neuron.h.cvode_active(1)
-        logger.debug(
-            'Running protocol %s for %.6g ms',
-            protocol.name,
-            protocol.total_duration)
+        logger.debug('Running protocol %s for %.6g ms',
+                     protocol.name, protocol.total_duration)
         bpopt.neuron.h.run()
         responses = protocol.responses
 
@@ -154,6 +152,7 @@ class CellTemplate(object):
     def check_nonfrozen_params(self, param_names):
         """Check if all nonfrozen params are set"""
 
+        #TODO: list all non-frozen parameters
         for param_name, param in self.params.items():
             if not param.frozen:
                 raise Exception(
@@ -194,17 +193,23 @@ class CellTemplate(object):
 
     def __str__(self):
         """Return string representation"""
+        INDENT = ' ' * 2
+        lines = []
 
-        content = '%s:\n' % self.name
+        def out(indent_count, string):
+            '''add output to lines'''
+            lines.append(INDENT * indent_count + string)
 
-        content += '  morphology:\n'
-        content += '    %s\n' % str(self.morphology)
+        add(0, self.name + ':')
+        add(1, 'morphology:')
+        add(2, str(self.morphology))
 
-        content += '  mechanisms:\n'
+        add(1, 'mechanisms:')
         for mechanism in self.mechanisms:
-            content += '    %s\n' % mechanism
-        content += '  params:\n'
-        for param in self.params.values():
-            content += '    %s\n' % param
+            add(2, str(mechanism))
 
-        return content
+        add(1, 'params:')
+        for param in self.params.values():
+            add(2, str(param))
+
+        return '\n'.join(lines)

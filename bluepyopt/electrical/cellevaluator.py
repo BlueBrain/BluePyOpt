@@ -58,30 +58,25 @@ class CellEvaluator(object):
     @property
     def params(self):
         """Return params of this evaluation"""
-
-        params = []
-        for param_name in self.param_names:
-            params.append(self.cell_template.params[param_name])
-
+        params = [self.cell_template.params[param_name])
+                  for param_name in self.param_names]
         return params
 
     def param_dict(self, param_array):
         """Convert param_array in param_dict"""
-        param_dict = {}
-        for param_name, param_value in \
-                zip(self.param_names, param_array):
-            param_dict[param_name] = param_value
-
+        param_dict = dict(
+            (name, array) for name, array in zip(self.param_names,
+                                                 param_array))
         return param_dict
 
     def objective_dict(self, objective_array):
         """Convert objective_array in objective_dict"""
-        objective_dict = {}
         objective_names = [objective.name
                            for objective in self.fitness_calculator.objectives]
-        for objective_name, objective_value in \
-                zip(objective_names, objective_array):
-            objective_dict[objective_name] = objective_value
+
+        objective_dict = dict(
+            (name, array) for name, array in zip(objective_names,
+                                                 objective_array))
 
         return objective_dict
 
