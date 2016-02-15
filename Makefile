@@ -18,11 +18,10 @@ docpdf: install
 	pip install sphinx sphinx-autobuild
 	cd docs; $(MAKE) clean; $(MAKE) latexpdf
 test: install
-	pip install nose
-	# TODO create one big test for this
-	nosetests -s -v -x -w bluepyopt/tests/
-	cd examples/l5pc; nrnivmodl mechanisms;  	
-	nosetests -s -v -x -w examples/tests/
+	pip install nose coverage --upgrade
+	cd examples/l5pc && nrnivmodl mechanisms
+	cd bluepyopt/tests; nosetests -s -v -x --with-coverage --cover-xml \
+		--cover-package bluepyopt
 example: install
 	cd examples/simplecell && \
 	python ./opt_simplecell.py

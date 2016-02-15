@@ -5,6 +5,15 @@ import os
 import nose.tools as nt
 
 
+l5pc_dir = '../../examples/l5pc'
+
+old_cwd = os.getcwd()
+os.chdir(l5pc_dir)
+import bluepyopt
+bluepyopt.neuron.h.nrn_load_dll('x86_64/.libs/libnrnmech.so')
+os.chdir(old_cwd)
+
+
 def load_from_json(filename):
     """Load structure from json"""
 
@@ -40,7 +49,7 @@ class TestL5PCTemplate(object):
     def setup(self):
         """Set up class"""
         self.old_cwd = os.getcwd()
-        os.chdir('../l5pc')
+        os.chdir(l5pc_dir)
 
         import examples.l5pc.l5pc_template
 
@@ -49,7 +58,6 @@ class TestL5PCTemplate(object):
     def test_create(self):
         """L5PC: test creation of l5pc template"""
 
-        import bluepyopt
         l5pc_cell = self.l5pc_template.create()
         nt.assert_is_instance(
             l5pc_cell,
@@ -71,7 +79,7 @@ class TestL5PCEvaluator(object):
     def setup(self):
         """Set up class"""
         self.old_cwd = os.getcwd()
-        os.chdir('../l5pc')
+        os.chdir(l5pc_dir)
 
         import examples.l5pc.l5pc_evaluator
         self.l5pc_evaluator = examples.l5pc.l5pc_evaluator
@@ -81,7 +89,6 @@ class TestL5PCEvaluator(object):
 
         l5pc_evaluator = self.l5pc_evaluator.create()
 
-        import bluepyopt
         nt.assert_is_instance(
             l5pc_evaluator,
             bluepyopt.electrical.cellevaluator.CellEvaluator)
