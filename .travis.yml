@@ -1,0 +1,24 @@
+language: python
+python:
+  - '2.7'
+install: pip install pip --upgrade
+script: make test
+notifications:
+  webhooks:
+    urls:
+        - https://webhooks.gitter.im/e/6129e0ab91805bbac8c1
+    on_success: change
+    on_failure: change
+    on_start: false
+cache:
+    directories:
+      - $HOME/.cache/pip
+deploy:
+  provider: pypi
+  user: wvangeit
+  password:
+    secure: jHnj/T6sANjIHvvJenBwThkpFZRb9lyAirzt1aXwuBWYiFQ8ojrapIOr/wf5hAtMgAPMGUgdV315g53ZawKFBuHmTuDuhnFyqyH07wha/licvga3o7juPFaIIvYN5SeOGygvrxCtMKx5p/VzWuhf04pKJMqGqE2lj4RDwwmGIjY=
+before_install:
+      - pip install codecov
+after_success:
+      - codecov
