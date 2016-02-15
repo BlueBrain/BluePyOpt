@@ -1,6 +1,6 @@
 all: install
 install:
-	pip install . --upgrade
+	pip install -r requirements.txt . --upgrade
 doc: install
 	pip install sphinx sphinx-autobuild
 	cd docs; $(MAKE) clean; $(MAKE) html
@@ -21,8 +21,8 @@ test: install
 	pip install nose
 	# TODO create one big test for this
 	nosetests -s -v -x -w bluepyopt/tests/
-	# cd examples/l5pc; nrnivmodl mechanisms;  	
-	# nosetests -s -v -x -w examples/tests/
+	cd examples/l5pc; nrnivmodl mechanisms;  	
+	nosetests -s -v -x -w examples/tests/
 example: install
 	cd examples/simplecell && \
 	python ./opt_simplecell.py

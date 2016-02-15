@@ -27,7 +27,7 @@ setuptools.setup(
     name="bluepyopt",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    install_requires=['numpy>=1.6', 'pandas'],
+    install_requires=['numpy>=1.6', 'pandas', 'efel>=2.6'],
     packages=setuptools.find_packages(),
     author="BlueBrain Project, EPFL",
     author_email="werner.vangeit@epfl.ch",

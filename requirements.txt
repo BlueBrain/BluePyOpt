@@ -1,0 +1,2 @@
+-e .
+http://github.com/BlueBrain/deap/tarball/bbp-specific

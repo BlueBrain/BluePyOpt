@@ -22,9 +22,11 @@ deploy:
     secure: jHnj/T6sANjIHvvJenBwThkpFZRb9lyAirzt1aXwuBWYiFQ8ojrapIOr/wf5hAtMgAPMGUgdV315g53ZawKFBuHmTuDuhnFyqyH07wha/licvga3o7juPFaIIvYN5SeOGygvrxCtMKx5p/VzWuhf04pKJMqGqE2lj4RDwwmGIjY=
 before_install:
       - pip install codecov
+before_script:
+      - SRC_DIR=$HOME/local/src
       - NRN_INSTALL_DIR=$HOME/local/nrn
-      - ./.travis_install_neuron.sh ${NRN_INSTALL_DIR} 
-      - PATH=$PATH:${NRN_INSTALL_DIR}/x86_64/bin
-      - PYTHONPATH=$PYTHONPATH:${NRN_INSTALL_DIR}/lib/python
+      - ./.travis_install_neuron.sh ${SRC_DIR} ${NRN_INSTALL_DIR} 
+      - export PATH=$PATH:${NRN_INSTALL_DIR}/x86_64/bin
+      - export PYTHONPATH=$PYTHONPATH:${NRN_INSTALL_DIR}/lib/python
 after_success:
       - codecov
