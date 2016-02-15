@@ -6,6 +6,8 @@ engines:
     checks:
         E501:
             enabled: false
+        E402:
+            enabled: false
 exclude_paths:
     - versioneer.py
     - bluepyopt/_version.py
