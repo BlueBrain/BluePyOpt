@@ -2,7 +2,7 @@
 
 set -ex
 
-INSTALL_DIR=$HOME/local/nrn
+INSTALL_DIR=$1
 
 mkdir -p src
 cd src
