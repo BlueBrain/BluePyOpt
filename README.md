@@ -1,3 +1,8 @@
+[![Build Status](https://travis-ci.org/BlueBrain/BluePyOpt.svg?branch=master)](https://travis-ci.org/BlueBrain/BluePyOpt)
+
+Introduction
+============
+
 Bluebrain Python Optimisation Library
 
 This software is currently in an *ALPHA* stage. Use at your own risk.
