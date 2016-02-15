@@ -19,13 +19,13 @@ deploy:
   provider: pypi
   user: wvangeit
   password:
-    secure: jHnj/T6sANjIHvvJenBwThkpFZRb9lyAirzt1aXwuBWYiFQ8ojrapIOr/wf5hAtMgAPMGUgdV315g53ZawKFBuHmTuDuhnFyqyH07wha/licvga3o7juPFaIIvYN5SeOGygvrxCtMKx5p/VzWuhf04pKJMqGqE2lj4RDwwmGIjY=
+    secure: XMYSJZshb2hge9UsMxbHP3l3NbwfjaVDj0OqkDsUyAgzBB7OIb3mEpj4JTMT4AFiy7ZPmYHT4M0WTCDiFkETBAAh3/nTuC7kY3rc3T6FAGzTfCcEaDnPr1B6KLwIAq9AH1BKxBUzDQJ95QPRHdJyr31MJo7xbTaQc9s8QEnVjP3r7+Ah2Jp9/NoaQYCF0mb/sw/+OjptENoDOKE4qJnwpYDVP0PZxk7kC4tz5sXsLaGV8W6f78gLsOwtCe3mgZNu5jd5JdRi46B/wLmCnCqyyEE7Y8hrWHN3yNtKhsN0UOQJwBVLstwEtrmXzK3Wy32fcbAEO7TlZowBl6oRRXTYyhMzKUc6PjJjCyeYe41tmPDAcrTHbOtfg/yYspD7YubD3+P342CFc/6Ox9mmETX60T3/09pQdW7dvN5wZFB7h6Gm0iOQApxk+jnuuZdKP/mQO9cxFclUTc5rCZP+WYsaylhyLZpwvl98oK7mAQydtypGvbJpyO9B85+QBqDNcn2+WZhhs/a6lOQvuBlGQRg8Y2eRKHWeEamjEdXe7Q75GVJbAwExOzqr3kcyqDm6GhXLkqFL2i94ezL4L1KYVa8Pt1A7rJ2scNQCvoSnWXMdpgvsB6NX76ZxYerFBIsuEZwehQvCRLNbR2brkm77s+Lf22kpOJuSPLXG85hKCYqTQj8=
 before_install:
       - pip install codecov
 before_script:
       - SRC_DIR=$HOME/local/src
       - NRN_INSTALL_DIR=$HOME/local/nrn
-      - ./.travis_install_neuron.sh ${SRC_DIR} ${NRN_INSTALL_DIR} 
+      - ./.travis_install_neuron.sh ${SRC_DIR} ${NRN_INSTALL_DIR}
       - export PATH=$PATH:${NRN_INSTALL_DIR}/x86_64/bin
       - export PYTHONPATH=$PYTHONPATH:${NRN_INSTALL_DIR}/lib/python
 after_success:

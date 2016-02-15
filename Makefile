@@ -30,6 +30,9 @@ pypi: test
 example: install
 	cd examples/simplecell && \
 	python ./opt_simplecell.py
+clean:
+	rm -rf build
+	rm -rf docs/build
 l5pc_start: install
 	cd examples/l5pc && \
 	nrnivmodl mechanisms && \
@@ -42,3 +45,6 @@ l5pc_analyse: install
 	cd examples/l5pc && \
 	nrnivmodl mechanisms && \
 	python ./opt_l5pc.py --analyse
+push: clean test doc_upload
+	git push
+	git push --tags
