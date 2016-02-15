@@ -22,6 +22,11 @@ test: install
 	cd examples/l5pc && nrnivmodl mechanisms
 	cd bluepyopt/tests; nosetests -s -v -x --with-coverage --cover-xml \
 		--cover-package bluepyopt
+pypi: test
+	pip install twine --upgrade
+	rm -rf dist
+	python setup.py sdist bdist
+	twine upload dist/*
 example: install
 	cd examples/simplecell && \
 	python ./opt_simplecell.py
