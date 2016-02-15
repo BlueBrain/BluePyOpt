@@ -1,6 +1,6 @@
 all: install
 install:
-	pip install . --upgrade --force-reinstall
+	pip install . --upgrade
 doc: install
 	pip install sphinx sphinx-autobuild
 	cd docs; $(MAKE) clean; $(MAKE) html

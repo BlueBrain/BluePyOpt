@@ -19,6 +19,9 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
 
 from .api import *  # NOQA
 from .importer import neuron  # NOQA

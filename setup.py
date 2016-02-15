@@ -21,15 +21,12 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 
 import setuptools
-
-# try:
-#     from setuptools import setup, Extension
-# except ImportError:
-# from distutils.core import setup, Extension  # pylint: disable=E0611,F0401
+import versioneer
 
 setuptools.setup(
     name="bluepyopt",
-    version="0.0.1",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     install_requires=['numpy>=1.6', 'pandas'],
     packages=setuptools.find_packages(),
     author="BlueBrain Project, EPFL",
