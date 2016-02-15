@@ -1,0 +1,2 @@
+include versioneer.py
+include bluepyopt/_version.py
