@@ -28,11 +28,13 @@ logger = logging.getLogger(__name__)
 
 
 class Stimulus(object):
-
     """Stimulus protocol"""
-
     def __init__(self):
         """Constructor"""
+        pass
+
+    def destroy(self):
+        """Destroy stimulus"""
         pass
 
 # TODO Add 'current' to the name

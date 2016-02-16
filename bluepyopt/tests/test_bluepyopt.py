@@ -33,4 +33,4 @@ def test_import():
 def test_neuron_import():
     """BluePyOpt: test if bluepyopt.neuron import was successful"""
     import bluepyopt.importer  # NOQA
-    nt.assert_is_instance(bluepyopt.importer.neuron, types.ModuleType)
+    nt.ok_(isinstance(bluepyopt.importer.neuron, types.ModuleType))

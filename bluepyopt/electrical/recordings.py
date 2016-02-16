@@ -29,21 +29,20 @@ logger = logging.getLogger(__name__)
 
 
 class Recording(object):
-
     """Response to stimulus"""
-
     def __init__(self, name=None, value=None, frozen=None):
         """Constructor"""
-
         self.name = name
         self.value = value
         self.frozen = frozen
 
+    def destroy(self):
+        """Destroy recording"""
+        pass
+
 
 class CompRecording(Recording):
-
     """Response to stimulus"""
-
     def __init__(
             self,
             name=None,

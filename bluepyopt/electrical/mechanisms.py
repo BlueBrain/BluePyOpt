@@ -32,13 +32,15 @@ logger = logging.getLogger(__name__)
 
 
 class Mechanism(object):
-
     """Base parameter class"""
 
     def __init__(self, name):
         """Constructor"""
-
         self.name = name
+
+    def destroy(self):
+        """Destroy mechanism instantiation"""
+        pass
 
 
 class NrnMODMechanism(Mechanism):
@@ -69,11 +71,6 @@ class NrnMODMechanism(Mechanism):
                 isec.insert(self.prefix)
             logger.debug('Inserted %s in %s',
                          self.prefix, self.locations)
-
-    def destroy(self):
-        """Destroy mechanism instantiation"""
-
-        pass
 
     def __str__(self):
         """String representation"""

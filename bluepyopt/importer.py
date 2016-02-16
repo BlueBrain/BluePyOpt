@@ -31,7 +31,7 @@ import os
 import imp
 import ctypes
 
-hoc_so = os.path.join(imp.find_module('neuron')[1] + '/hoc.so')
+hoc_so = os.path.join(imp.find_module('neuron')[1], 'hoc.so')
 
 nrndll = ctypes.cdll[hoc_so]
 ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1

@@ -30,12 +30,13 @@ import bluepyopt as nrp
 
 
 class Morphology(object):
-
     """Morphology class"""
-
     def __init__(self):
         """Constructor"""
+        pass
 
+    def destroy(self):
+        """Destroy morphology instantiation"""
         pass
 
 
@@ -98,10 +99,6 @@ class NrnFileMorphology(Morphology):
         # set
         # (in case e.g. Ra was changed)
         NrnFileMorphology.set_nseg(cell.icell)
-
-    def destroy(self):
-        """Destroy morphology instantiation"""
-        pass
 
     @staticmethod
     def set_nseg(icell):
