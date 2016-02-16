@@ -38,17 +38,6 @@ logger = logging.getLogger('__main__')
 # settings of the algorithm can be stored in objects of these classes
 
 
-# TODO investigate and rewrite this pickle method
-'''
-def _pickle_method(m):
-    """Override pickle method"""
-    if m.im_self is None:
-        return getattr, (m.im_class, m.im_func.func_name)
-    else:
-        return getattr, (m.im_self, m.im_func.func_name)
-
-copy_reg.pickle(types.MethodType, _pickle_method)
-'''
 
 
 class Optimisation(object):
@@ -205,6 +194,13 @@ class Optimisation(object):
         if self.use_scoop:
             from scoop import futures
             self.toolbox.register("map", futures.map)
+
+            def _reduce_method(meth):
+                """Overwrite reduce"""
+                return (getattr, (meth.__self__, meth.__func__.__name__))
+            import copy_reg
+            import types
+            copy_reg.pickle(types.MethodType, _reduce_method)
 
         # import multiprocessing
 

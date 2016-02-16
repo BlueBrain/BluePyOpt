@@ -95,18 +95,19 @@ class CellEvaluator(object):
 
         # TODO clean this up
 
+        if self.isolate_protocols:
+            import multiprocessing
+
+            # TODO this should only be executed once
+
+            def _reduce_method(meth):
+                """Overwrite reduce"""
+                return (getattr, (meth.__self__, meth.__func__.__name__))
+
+            copy_reg.pickle(types.MethodType, _reduce_method)
+
         for protocol_name, protocol in self.fitness_protocols.iteritems():
             if self.isolate_protocols:
-                import multiprocessing
-
-                # TODO this should only be executed once
-
-                def _reduce_method(meth):
-                    """Overwrite reduce"""
-                    return (getattr, (meth.__self__, meth.__func__.__name__))
-
-                copy_reg.pickle(types.MethodType, _reduce_method)
-
                 # This multiprocessing makes sure that Neuron starts in a clean
                 # state every time we run a protocol
                 pool = multiprocessing.Pool(1, maxtasksperchild=1)
