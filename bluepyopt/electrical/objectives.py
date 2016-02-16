@@ -49,6 +49,7 @@ class SingletonObjective(Objective):
 
         Objective.__init__(self, name, [feature])
 
+    @property
     def calculate_score(self, responses):
         """Objective score"""
 
