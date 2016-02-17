@@ -4,11 +4,11 @@ import os
 
 import nose.tools as nt
 
-
-l5pc_dir = '../../examples/l5pc'
+L5PC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                         '../../examples/l5pc'))
 
 old_cwd = os.getcwd()
-os.chdir(l5pc_dir)
+os.chdir(L5PC_PATH)
 import bluepyopt
 bluepyopt.neuron.h.nrn_load_dll('x86_64/.libs/libnrnmech.so')
 os.chdir(old_cwd)
@@ -49,7 +49,7 @@ class TestL5PCTemplate(object):
     def setup(self):
         """Set up class"""
         self.old_cwd = os.getcwd()
-        os.chdir(l5pc_dir)
+        os.chdir(L5PC_PATH)
 
         import examples.l5pc.l5pc_template
 
@@ -79,7 +79,7 @@ class TestL5PCEvaluator(object):
     def setup(self):
         """Set up class"""
         self.old_cwd = os.getcwd()
-        os.chdir(l5pc_dir)
+        os.chdir(L5PC_PATH)
 
         import examples.l5pc.l5pc_evaluator
         self.l5pc_evaluator = examples.l5pc.l5pc_evaluator
