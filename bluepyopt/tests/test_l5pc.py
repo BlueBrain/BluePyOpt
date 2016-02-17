@@ -1,17 +1,20 @@
 """Test l5pc example"""
 
 import os
+import sys
 
 import nose.tools as nt
 
 L5PC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '../../examples/l5pc'))
 
-old_cwd = os.getcwd()
-os.chdir(L5PC_PATH)
+sys.path.insert(0, L5PC_PATH)
+
 import bluepyopt
-bluepyopt.neuron.h.nrn_load_dll('x86_64/.libs/libnrnmech.so')
-os.chdir(old_cwd)
+bluepyopt.neuron.h.nrn_load_dll(
+    os.path.join(
+        L5PC_PATH,
+        'x86_64/.libs/libnrnmech.so'))
 
 
 def load_from_json(filename):
@@ -35,7 +38,9 @@ def dump_to_json(content, filename):
 def test_import():
     """L5PC: test import"""
 
-    import examples.l5pc  # NOQA
+    import l5pc_template  # NOQA
+    import l5pc_evaluator  # NOQA
+    import opt_l5pc  # NOQA
 
 
 class TestL5PCTemplate(object):
@@ -43,29 +48,22 @@ class TestL5PCTemplate(object):
     """Test L5PC template"""
 
     def __init__(self):
-        self.old_cwd = None
-        self.l5pc_template = None
+        self.l5pc_cell = None
 
     def setup(self):
         """Set up class"""
-        self.old_cwd = os.getcwd()
-        os.chdir(L5PC_PATH)
+        sys.path.insert(0, L5PC_PATH)
 
-        import examples.l5pc.l5pc_template
+        import l5pc_template  # NOQA
 
-        self.l5pc_template = examples.l5pc.l5pc_template
-
-    def test_create(self):
-        """L5PC: test creation of l5pc template"""
-
-        l5pc_cell = self.l5pc_template.create()
+        self.l5pc_cell = l5pc_template.create()
         nt.assert_is_instance(
-            l5pc_cell,
+            self.l5pc_cell,
             bluepyopt.electrical.celltemplate.CellTemplate)
 
     def teardown(self):
         """Teardown"""
-        os.chdir(self.old_cwd)
+        pass
 
 
 class TestL5PCEvaluator(object):
@@ -73,30 +71,21 @@ class TestL5PCEvaluator(object):
     """Test L5PC evaluator"""
 
     def __init__(self):
-        self.old_cwd = None
         self.l5pc_evaluator = None
 
     def setup(self):
         """Set up class"""
-        self.old_cwd = os.getcwd()
-        os.chdir(L5PC_PATH)
 
-        import examples.l5pc.l5pc_evaluator
-        self.l5pc_evaluator = examples.l5pc.l5pc_evaluator
+        import l5pc_evaluator  # NOQA
 
-    def test_create(self):
-        """L5PC: test creation of l5pc evaluator"""
-
-        l5pc_evaluator = self.l5pc_evaluator.create()
+        self.l5pc_evaluator = l5pc_evaluator.create()
 
         nt.assert_is_instance(
-            l5pc_evaluator,
+            self.l5pc_evaluator,
             bluepyopt.electrical.cellevaluator.CellEvaluator)
 
     def test_eval(self):
         """L5PC: test evaluation of l5pc evaluator"""
-
-        l5pc_evaluator = self.l5pc_evaluator.create()
 
         # Parameters in release circuit model
         parameters = {
@@ -125,7 +114,7 @@ class TestL5PCEvaluator(object):
             'gCa_LVAstbar_Ca_LVAst.somatic': 0.000333
         }
 
-        result = l5pc_evaluator.evaluate_with_dicts(
+        result = self.l5pc_evaluator.evaluate_with_dicts(
             param_dict=parameters)
 
         expected_results = load_from_json('expected_results.json')
@@ -140,4 +129,4 @@ class TestL5PCEvaluator(object):
 
     def teardown(self):
         """Teardown"""
-        os.chdir(self.old_cwd)
+        pass

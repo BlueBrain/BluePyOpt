@@ -20,11 +20,13 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 # pylint: disable=R0914
 
-import l5pc_template
+import os
+import l5pc_template  # NOQA
 
 import bluepyopt.electrical as nrpel
 import bluepyopt.electrical.cellevaluator as ce
 
+script_dir = os.path.dirname(__file__)
 
 # TODO store definition dicts in json
 # TODO rename 'score' into 'objective'
@@ -35,7 +37,7 @@ def define_protocols():
     """Define protocols"""
 
     import json
-    with open('protocols.json', 'r') as protocol_file:
+    with open(os.path.join(script_dir, 'protocols.json'), 'r') as protocol_file:
         protocol_definitions = json.load(protocol_file)
 
     protocols = {}
@@ -96,7 +98,7 @@ def define_fitness_calculator(protocols):
     """Define fitness calculator"""
 
     import json
-    with open('features.json', 'r') as protocol_file:
+    with open(os.path.join(script_dir, 'features.json'), 'r') as protocol_file:
         feature_definitions = json.load(protocol_file)
 
     # TODO: add bAP stimulus
