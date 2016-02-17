@@ -42,6 +42,9 @@ def test_import():
     import l5pc_evaluator  # NOQA
     import opt_l5pc  # NOQA
 
+    # Delete the optimisation inside the module
+    del opt_l5pc.opt
+
 
 class TestL5PCTemplate(object):
 
