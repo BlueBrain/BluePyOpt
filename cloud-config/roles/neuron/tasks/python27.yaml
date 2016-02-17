@@ -1,0 +1,38 @@
+---
+#NOTE: need zlib1g-dev, libssl-dev package on ubuntu/debian
+
+- name: Create directories
+  file: path={{ item }} state=directory
+  with_items:
+    - "{{ workspace }}"
+    - "{{ build_dir }}/python27"
+
+- name: Get Source
+  get_url: url={{ python27_url }} dest="{{ build_dir }}/python27/python-{{ python27_version }}.tar.gz"
+
+- name: Untar source
+  unarchive: copy=no src="{{ build_dir }}/python27/python-{{ python27_version }}.tar.gz" dest="{{ build_dir }}/python27"
+  args:
+    creates: "{{ build_dir }}/python27/Python-{{ python27_version }}/configure"
+
+- name: Configure Python
+  shell: ./configure --prefix=`readlink -f {{ install_dir }}`
+  args:
+    chdir: "{{ build_dir }}/python27/Python-{{ python27_version }}"
+    creates: "{{ build_dir }}/python27/Python-{{ python27_version }}/config.log"
+
+- name: Build & Install Python
+  #Note: could use -j here, but this gets oom-killed often
+  shell: make install
+  args:
+    chdir: "{{ build_dir }}/python27/Python-{{ python27_version }}"
+    creates: "{{ install_dir }}/bin/python2.7"
+
+- name: Create virtualenv
+  shell: "/usr/bin/virtualenv -p {{ install_dir }}/bin/python {{ venv }}"
+  args:
+    creates: "{{ venv }}/bin/python2.7"
+
+- name: Register pythonbin
+  shell: readlink -f {{ install_dir }}/bin/
+  register: pythonbin

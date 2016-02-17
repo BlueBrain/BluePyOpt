@@ -1,0 +1,31 @@
+user_name: neuron
+workspace: ~/workspace
+venv: "{{workspace}}/venv"
+build_dir: "{{workspace}}/build"
+install_dir: "{{workspace}}/install"
+
+using_headnode: true
+
+neuron_build: "{{workspace}}/build/neuron"
+neuron_url: http://www.neuron.yale.edu/ftp/neuron/versions/v7.4/nrn-7.4.tar.gz
+neuron_version: 7.4
+neuron_config: >-
+                ./configure
+                --prefix=`readlink -f {{ install_dir }}`/nrnpython
+                --with-nrnpython
+                --without-paranrn
+                --without-x
+                --without-iv
+                have_cython=no
+                BUILD_RX3D=0
+
+# if only an old version of python is available, you may need to set this true:
+python27_build: false
+python27_url: https://www.python.org/ftp/python/2.7.11/Python-2.7.11.tgz
+python27_version: 2.7.11
+
+pip_version: 7.1.2
+numpy_version: 1.10.4
+efel_version: 2.10.7
+scoop_version: 0.7.1.1
+jupyter_version: 1.0.0

@@ -1,0 +1,8 @@
+- name: Get eFEL Source
+  git: repo=https://github.com/BlueBrain/eFEL.git dest=~/workspace/eFEL
+
+- name: Compile models
+  shell: "{{ install_dir }}/nrnpython/x86_64/bin/nrnivmodl mechanisms"
+  args:
+    chdir: "{{ workspace }}/eFEL/examples/deap/GranuleCell1"
+    creates: "{{ workspace }}/eFEL/examples/deap/GranuleCell1/x86_64"

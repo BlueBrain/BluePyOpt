@@ -1,0 +1,11 @@
+---
+- name: Configure User
+  user: name={{ user_name }} generate_ssh_key=yes
+
+- name: Downloading pub key
+  fetch: src=/home/{{ user_name }}/.ssh/id_rsa.pub dest=id_rsa.tmp flat=yes
+
+- name: Save SCOOP hostlist
+  become: yes
+  become_user: "{{ user_name }}"
+  copy: content="{{ groups['neuron-optimizer-worker'] | join('\n') }}" dest=/home/{{ user_name }}/scoop_workers
