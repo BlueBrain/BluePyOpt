@@ -1,5 +1,3 @@
-languages:
-  Python: true
 engines:
   pep8:
     enabled: true
@@ -8,6 +6,9 @@ engines:
             enabled: false
         E402:
             enabled: false
+ratings:
+    paths:
+        - "**.py"
 exclude_paths:
     - versioneer.py
     - bluepyopt/_version.py
