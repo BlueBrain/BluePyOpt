@@ -20,21 +20,24 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 # pylint: disable=R0914
 
+import os
 import collections
 
 import bluepyopt.electrical as nrpel
 import bluepyopt.electrical.celltemplate as ct
 
+script_dir = os.path.dirname(__file__)
 
 # TODO store definition dicts in json
 # TODO rename 'score' into 'objective'
 # TODO add functionality to read settings of every object from config format
 
+
 def define_mechanisms():
     """Define mechanisms"""
 
     import json
-    with open('mechanisms.json') as mech_file:
+    with open(os.path.join(script_dir, 'mechanisms.json')) as mech_file:
         mech_definitions = json.load(mech_file)
 
     mechanisms = []
@@ -68,7 +71,8 @@ def define_parameters():
     # Fixed section parameters
     # TODO check the order of executions of all parameters
 
-    with open('fixed_params.json', 'r') as fixed_params_file:
+    with open(os.path.join(script_dir, 'fixed_params.json'), 'r') as \
+            fixed_params_file:
         fixed_params_definitions = json.load(
             fixed_params_file,
             object_pairs_hook=collections.OrderedDict)
@@ -102,7 +106,7 @@ def define_parameters():
     #                    values = parameter description array
     # - Parameter description array: prefix, parameter name, minbound, maxbound
 
-    with open('params.json', 'r') as parameter_file:
+    with open(os.path.join(script_dir, 'params.json'), 'r') as parameter_file:
         parameter_definitions = json.load(
             parameter_file,
             object_pairs_hook=collections.OrderedDict)
@@ -130,8 +134,11 @@ def define_parameters():
 def define_morphology():
     """Define morphology"""
 
-    return nrpel.morphologies.NrnFileMorphology('morphology/C060114A7.asc',
-                                                do_replace_axon=True)
+    return nrpel.morphologies.NrnFileMorphology(
+        os.path.join(
+            script_dir,
+            'morphology/C060114A7.asc'),
+        do_replace_axon=True)
 
 
 def create():

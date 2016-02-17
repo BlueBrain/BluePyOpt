@@ -1,7 +1,5 @@
 *.pyc
 x86_64
-.coverage
-coverage.xml
 /bluepyopt.egg-info/
 /build/
 /dist/

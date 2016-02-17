@@ -24,7 +24,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # TODO take into account that one might want to run protocols on different
 # machines
-# TODO rename this to 'CellModel' ?
+# TODO rename this to 'CellModel' -> definitely
 
 import collections
 import logging
