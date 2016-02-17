@@ -1,0 +1,95 @@
+- name: Setup Ubuntu machines
+  vars:
+    region: us-west-2
+    ami_image: ami-187c9978 # http://cloud-images.ubuntu.com/trusty/current/
+    instance_type: t2.nano
+    worker_instances: 2
+
+  hosts: localhost
+  tasks:
+    - name: Create Keypair
+      ec2_key: 
+        name: single_cell_opt
+        region: "{{ region }}"
+      register: keypair
+
+    - name: Write key to file
+      copy:
+        dest: ./single_cell_opt.pem
+        content: "{{ keypair.key.private_key }}"
+        mode: 0600
+      when: keypair.changed
+
+    - name: Setup VPC
+      ec2_vpc:
+        state: present
+        cidr_block: 10.0.0.0/24
+        region: "{{ region }}"
+        resource_tags: 
+          Environment: single_cell_opt
+        subnets:
+          - cidr: 10.0.0.0/24
+        internet_gateway: yes
+        route_tables:
+          - subnets:
+              - 10.0.0.0/24
+            routes:
+              - dest: 0.0.0.0/0
+                gw: igw
+        wait: yes
+      register: vpc
+
+    - name: Single Cell Optimization Security group
+      ec2_group:
+        name: single_cell_opt
+        description: Allow SSH, all exit and all intra-vpc
+        vpc_id: "{{ vpc.vpc_id }}"
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: all
+            cidr_ip: 10.0.0.0/24
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+
+    - name: Start the head instance
+      ec2:
+        image: "{{ ami_image }}"
+        region: "{{ region }}"
+        instance_type: "{{ instance_type }}"
+        key_name: "{{ keypair.key.name }}"
+        vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+        group: [single_cell_opt, ]
+        assign_public_ip: yes
+        instance_tags: { type: single_cell_opt_head }
+        exact_count: 1
+        count_tag: { type: single_cell_opt_head }
+        wait: yes
+      register: ec2head
+
+    - name: Wait for SSH server
+      wait_for: host={{ item.public_dns_name }} port=22 search_regex=OpenSSH
+      with_items: ec2head.instances
+
+    - name: Start the worker instances
+      ec2:
+        image: "{{ ami_image }}"
+        region: "{{ region }}"
+        instance_type: "{{ instance_type }}"
+        key_name: "{{ keypair.key.name }}"
+        vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+        group: [single_cell_opt, ]
+        assign_public_ip: yes
+        instance_tags: { type: single_cell_opt_worker }
+        exact_count: "{{ worker_instances }}"
+        count_tag: { type: single_cell_opt_worker }
+        wait: yes
+      register: ec2workers
+
+    - name: Wait for SSH server
+      wait_for: host={{ item.public_dns_name }} port=22 search_regex=OpenSSH
+      with_items: ec2workers.instances

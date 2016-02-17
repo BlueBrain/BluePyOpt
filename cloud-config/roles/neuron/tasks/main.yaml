@@ -1,0 +1,47 @@
+---
+- include: python27.yaml
+  when: "{{ python27_build }}"
+
+- set_fact: extra_path="{{ pythonbin.stdout + ':' }}"
+  when: python27_build
+
+- set_fact: extra_path=""
+  when: not python27_build
+
+- name: Create directories
+  file: path={{ item }} state=directory
+  with_items:
+    - "{{ workspace }}"
+    - "{{ neuron_build }}"
+
+- name: Get Source
+  get_url: url={{ neuron_url }} dest={{ neuron_build }}/nrn-{{ neuron_version }}.tar.gz
+
+- name: Untar source
+  unarchive: copy=no src={{ neuron_build }}/nrn-{{ neuron_version }}.tar.gz dest={{ neuron_build }}
+  args:
+    creates: "{{ neuron_build }}/nrn-{{ neuron_version }}/configure"
+
+- name: Configure Neuron
+  shell: "{{ neuron_config }}"
+  environment:
+    PATH: "{{ extra_path }}{{ ansible_env.PATH }}"
+  args:
+    chdir: "{{ neuron_build }}/nrn-{{ neuron_version }}"
+    creates: "{{ neuron_build }}/nrn-{{ neuron_version }}/config.log"
+
+- name: Build Neuron
+  #Note: could use -j here, but this gets oom-killed often
+  shell: make install
+  args:
+    chdir: "{{ neuron_build }}/nrn-{{ neuron_version }}"
+    creates: "{{ install_dir }}/nrnpython"
+
+- name: Install numpy
+  pip: name=numpy version="{{ numpy_version }}" virtualenv="{{ venv }}"
+
+- name: Install nrnpython
+  shell: "{{ venv }}/bin/python setup.py install"
+  args:
+    chdir: "{{ neuron_build }}/nrn-{{ neuron_version }}/src/nrnpython"
+    creates: "{{ venv }}/lib/python2.7/site-packages/neuron"

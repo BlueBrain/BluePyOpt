@@ -1,0 +1,20 @@
+---
+- name: Install Neuron Optimizer Framework Worker
+  hosts: neuron-optimizer-worker
+
+  vars_files:
+   - vars.yaml
+
+  roles:
+    - neuron
+    - deap
+
+#- name: Granule Example
+#  hosts: neuron-optimizer-worker-granule
+#  sudo: true
+#
+#  vars_files:
+#   - vars.yaml
+#
+#  roles:
+#    - granule-example
