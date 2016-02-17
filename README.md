@@ -32,6 +32,13 @@ After installing Neuron and DEAP, run the following command:
 pip install bluepyopt
 ```
 
+Cloud infrastructure
+====================
+
+We provide instruction on how to set up an optimisation environment on cloud
+infrastructure or cluster computers 
+[here](https://github.com/BlueBrain/BluePyOpt/tree/master/cloud-config)
+
 Quick Start
 ===========
 
