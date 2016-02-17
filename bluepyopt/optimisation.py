@@ -19,6 +19,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# pylint: disable=R0912
+
 
 import random
 
@@ -36,8 +38,6 @@ logger = logging.getLogger('__main__')
 # TODO decide which variables go in constructor, which ones go in 'run' function
 # TODO abstract the algorithm by creating a class for every algorithm, that way
 # settings of the algorithm can be stored in objects of these classes
-
-
 
 
 class Optimisation(object):
