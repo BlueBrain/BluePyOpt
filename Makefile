@@ -23,7 +23,7 @@ test: install
 	cd examples/l5pc && nrnivmodl mechanisms
 	cd examples/simplecell && \
 		jupyter nbconvert --to python simplecell.ipynb && \
-		sed '/get_ipython/d;/plt\./d;/plot_responses/d' simplecell.py >simplecell.tmp && \
+		sed '/get_ipython/d;/plt\./d;/plot_responses/d;/import matplotlib/d' simplecell.py >simplecell.tmp && \
 		mv simplecell.tmp simplecell.py
 	cd bluepyopt/tests; nosetests -s -v -x --with-coverage --cover-xml \
 		--cover-package bluepyopt
