@@ -1,0 +1,29 @@
+---
+
+- name: Upgrade pip
+  pip: name=pip version="{{ pip_version }}" virtualenv={{ venv }}
+
+- name: Install numpy
+  pip: name=numpy version="{{ numpy_version }}" virtualenv={{ venv }}
+
+- name: Install Jupyter
+  pip: name=jupyter version="{{ jupyter_version }}" virtualenv={{ venv }}
+
+#Note: using the BBP version of DEAP, as it includes the updated IBEA tools
+- name: Install deap
+  pip: name='git+https://github.com/BlueBrain/deap#egg=deap' virtualenv={{ venv }}
+
+- name: Install efel
+  pip: name=efel version="{{ efel_version }}" virtualenv={{ venv }}
+
+- name: Install scoop
+  pip: name=scoop version="{{ scoop_version }}" virtualenv={{ venv }}
+
+- name: Install scoop
+  pip: name=scoop version="{{ scoop_version }}" virtualenv={{ venv }}
+
+- name: Install ssh key
+  authorized_key:
+    user: "{{ user_name }}"
+    key: "{{ lookup('file', 'id_rsa.tmp') }}"
+  when: "{{ using_headnode }}"

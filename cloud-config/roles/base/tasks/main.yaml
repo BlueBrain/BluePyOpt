@@ -1,0 +1,20 @@
+---
+- name: update apt cache
+  apt: update_cache=yes
+
+- name: Install base packages
+  apt: name={{ item }} force=yes state=installed
+  with_items:
+    - build-essential
+    - git
+    - htop
+    - libreadline-dev
+    - libzmq3-dev
+    - ntp
+    - python-dev
+    - python-pip
+    - python-virtualenv
+  tags: packages
+
+- name: Configure User
+  user: name={{ user_name }}
