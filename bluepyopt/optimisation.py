@@ -48,10 +48,15 @@ class Optimisation(object):
 
     def __init__(self, evaluator=None, eval_function=None,
                  use_scoop=False,
+                 seed=1,
                  offspring_size=10):
         """Constructor"""
 
         Optimisation._instance_counter += 1
+
+        # Disabling for now because it clashes with scoop
+        # TODO has to be reenabled ! (until deap.creator global classes are
+        # fixed)
         if Optimisation._instance_counter > 1:
             raise Exception(
                 'At the moment only one Optimisation object is allowed '
@@ -64,6 +69,7 @@ class Optimisation(object):
         self.model_params = evaluator.params
         self.objectives = evaluator.objectives
         self.use_scoop = use_scoop
+        self.seed = seed
         self.offspring_size = offspring_size
         # Create a DEAP toolbox
         self.toolbox = deap.base.Toolbox()
@@ -123,7 +129,7 @@ class Optimisation(object):
             fitness=deap.creator.WeightedSumFitness)
 
         # Set random seed
-        random.seed(1)
+        random.seed(self.seed)
 
         # Eta parameter of crossover / mutation parameters
         # Basically defines how much they 'spread' solution around
