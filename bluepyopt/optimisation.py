@@ -57,10 +57,10 @@ class Optimisation(object):
         # Disabling for now because it clashes with scoop
         # TODO has to be reenabled ! (until deap.creator global classes are
         # fixed)
-        if Optimisation._instance_counter > 1:
-            raise Exception(
-                'At the moment only one Optimisation object is allowed '
-                'to exist simultaneously')
+        # if Optimisation._instance_counter > 1:
+        #    raise Exception(
+        #        'At the moment only one Optimisation object is allowed '
+        #        'to exist simultaneously')
 
         self.deap_classnames = []
 
