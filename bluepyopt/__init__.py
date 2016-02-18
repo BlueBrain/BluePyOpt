@@ -32,3 +32,4 @@ from .optimisation import Optimisation  # NOQA
 # TODO let objects read / write themselves using json
 # TODO create 'Variables' class
 # TODO use 'locations' instead of 'location'
+# TODO add island functionality to optimiser
