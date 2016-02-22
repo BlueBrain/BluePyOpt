@@ -62,7 +62,7 @@ class TestL5PCTemplate(object):
         self.l5pc_cell = l5pc_template.create()
         nt.assert_is_instance(
             self.l5pc_cell,
-            bluepyopt.electrical.celltemplate.CellTemplate)
+            bluepyopt.ephys.celltemplate.CellTemplate)
 
     def teardown(self):
         """Teardown"""
@@ -85,7 +85,7 @@ class TestL5PCEvaluator(object):
 
         nt.assert_is_instance(
             self.l5pc_evaluator,
-            bluepyopt.electrical.cellevaluator.CellEvaluator)
+            bluepyopt.ephys.cellevaluator.CellEvaluator)
 
     def test_eval(self):
         """L5PC: test evaluation of l5pc evaluator"""

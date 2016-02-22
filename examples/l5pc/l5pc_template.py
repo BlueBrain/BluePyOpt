@@ -23,8 +23,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import os
 import collections
 
-import bluepyopt.electrical as nrpel
-import bluepyopt.electrical.celltemplate as ct
+import bluepyopt.ephys as ephys
+import bluepyopt.ephys.celltemplate as ct
 
 script_dir = os.path.dirname(__file__)
 
@@ -42,11 +42,11 @@ def define_mechanisms():
 
     mechanisms = []
     for sectionlist, channels in mech_definitions.iteritems():
-        seclist_loc = nrpel.locations.NrnSeclistLocation(
+        seclist_loc = ephys.locations.NrnSeclistLocation(
             sectionlist,
             seclist_name=sectionlist)
         for channel in channels:
-            mechanisms.append(nrpel.mechanisms.NrnMODMechanism(
+            mechanisms.append(ephys.mechanisms.NrnMODMechanism(
                 name='%s.%s' % (channel, sectionlist),
                 mod_path=None,
                 prefix=channel,
@@ -64,8 +64,8 @@ def define_parameters():
 
     # TODO put exp equation in file
 
-    uniform_scaler = nrpel.parameterscalers.NrnSegmentLinearScaler()
-    exponential_scaler = nrpel.parameterscalers.NrnSegmentSomaDistanceScaler(
+    uniform_scaler = ephys.parameterscalers.NrnSegmentLinearScaler()
+    exponential_scaler = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
         distribution='(-0.8696 + 2.087*math.exp(({distance})*0.0031))*{value}')
 
     # Fixed section parameters
@@ -81,18 +81,18 @@ def define_parameters():
         if sectionlist == 'global':
             for param_name, value in params:
                 parameters.append(
-                    nrpel.parameters.NrnGlobalParameter(
+                    ephys.parameters.NrnGlobalParameter(
                         name=param_name,
                         param_name=param_name,
                         frozen=True,
                         value=value))
         else:
-            seclist_loc = nrpel.locations.NrnSeclistLocation(
+            seclist_loc = ephys.locations.NrnSeclistLocation(
                 sectionlist,
                 seclist_name=sectionlist)
 
             for param_name, value, dist in params:
-                parameters.append(nrpel.parameters.NrnSectionParameter(
+                parameters.append(ephys.parameters.NrnSectionParameter(
                     name='%s.%s' % (param_name, sectionlist),
                     param_name=param_name,
                     value_scaler=uniform_scaler,
@@ -112,7 +112,7 @@ def define_parameters():
             object_pairs_hook=collections.OrderedDict)
 
     for sectionlist, params in parameter_definitions.iteritems():
-        seclist_loc = nrpel.locations.NrnSeclistLocation(
+        seclist_loc = ephys.locations.NrnSeclistLocation(
             sectionlist,
             seclist_name=sectionlist)
 
@@ -121,7 +121,7 @@ def define_parameters():
                 scaler = uniform_scaler
             elif dist == 'exp':
                 scaler = exponential_scaler
-            parameters.append(nrpel.parameters.NrnRangeParameter(
+            parameters.append(ephys.parameters.NrnRangeParameter(
                 name='%s_%s.%s' % (param_name, prefix, sectionlist),
                 param_name='%s_%s' % (param_name, prefix),
                 value_scaler=scaler,
@@ -134,7 +134,7 @@ def define_parameters():
 def define_morphology():
     """Define morphology"""
 
-    return nrpel.morphologies.NrnFileMorphology(
+    return ephys.morphologies.NrnFileMorphology(
         os.path.join(
             script_dir,
             'morphology/C060114A7.asc'),

@@ -19,9 +19,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-
-# TODO find better name for 'electrical'
-
 import celltemplate  # NOQA
 import cellevaluator  # NOQA
 import mechanisms  # NOQA
