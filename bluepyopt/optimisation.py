@@ -229,7 +229,8 @@ class Optimisation(object):
         """Destroy deap class"""
 
         for classname in self.deap_classnames:
-            delattr(deap.creator, classname)
+            if hasattr(deap.creator, classname):
+                delattr(deap.creator, classname)
         Optimisation._instance_counter -= 1
 
     def run(self, max_ngen=10, continue_cp=False, cp_filename=None):

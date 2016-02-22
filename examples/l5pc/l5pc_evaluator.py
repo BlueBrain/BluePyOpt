@@ -23,8 +23,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import os
 import l5pc_template  # NOQA
 
-import bluepyopt.electrical as nrpel
-import bluepyopt.electrical.cellevaluator as ce
+import bluepyopt.ephys as ephys
+import bluepyopt.ephys.cellevaluator as ce
 
 script_dir = os.path.dirname(__file__)
 
@@ -42,7 +42,7 @@ def define_protocols():
 
     protocols = {}
 
-    soma_loc = nrpel.locations.NrnSeclistCompLocation(
+    soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma',
         seclist_name='somatic',
         sec_index=0,
@@ -50,7 +50,7 @@ def define_protocols():
 
     for protocol_name, protocol_definition in protocol_definitions.iteritems():
         # By default include somatic recording
-        somav_recording = nrpel.recordings.CompRecording(
+        somav_recording = ephys.recordings.CompRecording(
             name='%s.soma.v' %
             protocol_name,
             location=soma_loc,
@@ -61,12 +61,12 @@ def define_protocols():
         if 'extra_recordings' in protocol_definition:
             for recording_definition in protocol_definition['extra_recordings']:
                 if recording_definition['type'] == 'somadistance':
-                    location = nrpel.locations.NrnSomaDistanceCompLocation(
+                    location = ephys.locations.NrnSomaDistanceCompLocation(
                         name=recording_definition['name'],
                         soma_distance=recording_definition['somadistance'],
                         seclist_name=recording_definition['seclist_name'])
                     var = recording_definition['var']
-                    recording = nrpel.recordings.CompRecording(
+                    recording = ephys.recordings.CompRecording(
                         name='%s.%s.%s' % (protocol_name, location.name, var),
                         location=location,
                         variable=recording_definition['var'])
@@ -79,14 +79,14 @@ def define_protocols():
 
         stimuli = []
         for stimulus_definition in protocol_definition['stimuli']:
-            stimuli.append(nrpel.stimuli.NrnSquarePulse(
+            stimuli.append(ephys.stimuli.NrnSquarePulse(
                 step_amplitude=stimulus_definition['amp'],
                 step_delay=stimulus_definition['delay'],
                 step_duration=stimulus_definition['duration'],
                 location=soma_loc,
                 total_duration=stimulus_definition['totduration']))
 
-        protocols[protocol_name] = nrpel.protocols.Protocol(
+        protocols[protocol_name] = ephys.protocols.Protocol(
             protocol_name,
             stimuli,
             recordings)
@@ -122,7 +122,7 @@ def define_fitness_calculator(protocols):
                     # bAP response can be after stimulus
                     stim_end = stimulus.total_duration
 
-                feature = nrpel.efeatures.eFELFeature(
+                feature = ephys.efeatures.eFELFeature(
                     feature_name,
                     efel_feature_name=efel_feature_name,
                     recording_names=recording_names,
@@ -131,12 +131,12 @@ def define_fitness_calculator(protocols):
                     exp_mean=meanstd[0],
                     exp_std=meanstd[1],
                     threshold=threshold)
-                objective = nrpel.objectives.SingletonObjective(
+                objective = ephys.objectives.SingletonObjective(
                     feature_name,
                     feature)
                 objectives.append(objective)
 
-    fitcalc = nrpel.scorecalculators.ObjectivesScoreCalculator(objectives)
+    fitcalc = ephys.scorecalculators.ObjectivesScoreCalculator(objectives)
 
     return fitcalc
 
