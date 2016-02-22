@@ -19,9 +19,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-
-import bluepyopt as nrp
-
+from .importer import neuron
 
 class Location(object):
 
@@ -163,7 +161,7 @@ class NrnSomaDistanceCompLocation(Location):
 
         soma = cell.icell.soma[0]
 
-        nrp.neuron.h.distance(0, 0.5, sec=soma)
+        neuron.h.distance(0, 0.5, sec=soma)
 
         iseclist = getattr(cell.icell, self.seclist_name)
 
@@ -171,8 +169,8 @@ class NrnSomaDistanceCompLocation(Location):
         max_diam = 0.0
 
         for isec in iseclist:
-            start_distance = nrp.neuron.h.distance(1, 0.0, sec=isec)
-            end_distance = nrp.neuron.h.distance(1, 1.0, sec=isec)
+            start_distance = neuron.h.distance(1, 0.0, sec=isec)
+            end_distance = neuron.h.distance(1, 1.0, sec=isec)
 
             min_distance = min(start_distance, end_distance)
             max_distance = max(start_distance, end_distance)

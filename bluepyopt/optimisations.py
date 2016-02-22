@@ -46,11 +46,25 @@ class Optimisation(object):
 
     _instance_counter = 0
 
-    def __init__(self, evaluator=None, eval_function=None,
+    def __init__(self, evaluator=None):
+        """Constructor"""
+
+        self.evaluator = evaluator
+
+
+class DEAPOptimisation(Optimisation):
+
+    """DEAP Optimisation class"""
+
+    _instance_counter = 0
+
+    def __init__(self, evaluator=None,
                  use_scoop=False,
                  seed=1,
                  offspring_size=10):
         """Constructor"""
+
+        super(DEAPOptimisation, self).__init__(evaluator=evaluator)
 
         Optimisation._instance_counter += 1
 
@@ -64,10 +78,6 @@ class Optimisation(object):
 
         self.deap_classnames = []
 
-        self.evaluator = evaluator
-        self.eval_function = eval_function
-        self.model_params = evaluator.params
-        self.objectives = evaluator.objectives
         self.use_scoop = use_scoop
         self.seed = seed
         self.offspring_size = offspring_size
@@ -90,7 +100,7 @@ class Optimisation(object):
         """Set up optimisation"""
 
         # Number of objectives
-        OBJ_SIZE = len(self.objectives)
+        OBJ_SIZE = len(self.evaluator.objectives)
 
         class WeightedSumFitness(deap.base.Fitness):
 
@@ -137,14 +147,14 @@ class Optimisation(object):
         ETA = 10.0
 
         # Number of parameters
-        IND_SIZE = len(self.model_params)
+        IND_SIZE = len(self.evaluator.params)
 
         # Bounds for the parameters
 
         LOWER = []
         UPPER = []
 
-        for parameter in self.model_params:
+        for parameter in self.evaluator.params:
             LOWER.append(parameter.lower_bound)
             UPPER.append(parameter.upper_bound)
 
@@ -181,7 +191,7 @@ class Optimisation(object):
 
         # Register the evaluation function for the individuals
         # import deap_efel_eval1
-        self.toolbox.register("evaluate", self.eval_function)
+        self.toolbox.register("evaluate", self.evaluator.evaluate_with_lists)
 
         # Register the mate operator
         self.toolbox.register(

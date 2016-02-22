@@ -1,4 +1,4 @@
-"""Init script"""
+"""Tests of the main bluepyopt module"""
 
 """
 Copyright (c) 2016, EPFL/Blue Brain Project
@@ -19,23 +19,18 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-from .importer import neuron  # NOQA
+# pylint:disable=W0612
 
-import models  # NOQA
-import cellevaluator  # NOQA
-import mechanisms  # NOQA
-import locations  # NOQA
-import parameterscalers  # NOQA
-import parameters  # NOQA
-import morphologies  # NOQA
-import efeatures  # NOQA
-import objectives  # NOQA
-import protocols  # NOQA
-import responses  # NOQA
-import recordings  # NOQA
-import scorecalculators  # NOQA
-import stimuli  # NOQA
+import types
+import nose.tools as nt
 
-# TODO create all the necessary abstract methods
-# TODO check inheritance structure
-# TODO instantiate using 'simulation env' as parameter, instead of cell
+
+def test_import():
+    """ephys: test importing bluepyopt.ephys"""
+    import bluepyopt.ephys  # NOQA
+
+
+def test_neuron_import():
+    """ephys: test if bluepyopt.neuron import was successful"""
+    from bluepyopt import ephys  # NOQA
+    nt.assert_is_instance(ephys.neuron, types.ModuleType)

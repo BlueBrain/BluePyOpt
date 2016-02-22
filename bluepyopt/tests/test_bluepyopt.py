@@ -26,11 +26,5 @@ import nose.tools as nt
 
 
 def test_import():
-    """BluePyOpt: test importing bluepyopt"""
+    """bluepyopt: test importing bluepyopt"""
     import bluepyopt  # NOQA
-
-
-def test_neuron_import():
-    """BluePyOpt: test if bluepyopt.neuron import was successful"""
-    import bluepyopt.importer  # NOQA
-    nt.assert_is_instance(bluepyopt.importer.neuron, types.ModuleType)

@@ -33,14 +33,14 @@ class CellEvaluator(object):
 
     def __init__(
             self,
-            cell_template=None,
+            cell_model=None,
             param_names=None,
             fitness_protocols=None,
             fitness_calculator=None,
             isolate_protocols=True):
         """Constructor"""
 
-        self.cell_template = cell_template
+        self.cell_model = cell_model
         self.param_names = param_names
         # Stimuli used for fitness calculation
         self.fitness_protocols = fitness_protocols
@@ -61,7 +61,7 @@ class CellEvaluator(object):
 
         params = []
         for param_name in self.param_names:
-            params.append(self.cell_template.params[param_name])
+            params.append(self.cell_model.params[param_name])
 
         return params
 
@@ -89,7 +89,8 @@ class CellEvaluator(object):
         """Run evaluation with dict as input and output"""
 
         if self.fitness_calculator is None:
-            raise Exception('CellTemplate: need fitness_calculator to evaluate')
+            raise Exception(
+                'CellEvaluator: need fitness_calculator to evaluate')
 
         responses = {}
 
@@ -112,7 +113,7 @@ class CellEvaluator(object):
                 # state every time we run a protocol
                 pool = multiprocessing.Pool(1, maxtasksperchild=1)
                 responses.update(
-                    pool.apply(self.cell_template.run_protocols,
+                    pool.apply(self.cell_model.run_protocols,
                                args=[{protocol_name: protocol}],
                                kwds={'param_values': param_dict}))
 
@@ -120,7 +121,7 @@ class CellEvaluator(object):
                 pool.terminate()
                 pool.join()
             else:
-                responses.update(self.cell_template.run_protocols(
+                responses.update(self.cell_model.run_protocols(
                     {protocol_name: protocol},
                     param_values=param_dict))
 
@@ -134,3 +135,8 @@ class CellEvaluator(object):
         obj_dict = self.evaluate_with_dicts(param_dict=param_dict)
 
         return obj_dict.values()
+
+    def evaluate(self, param_list=None):
+        """Run evaluation with lists as input and outputs"""
+
+        return self.evaluate_with_lists(param_list)

@@ -1,4 +1,4 @@
-"""Init script"""
+"""Objective classes"""
 
 """
 Copyright (c) 2016, EPFL/Blue Brain Project
@@ -19,23 +19,13 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-from .importer import neuron  # NOQA
 
-import models  # NOQA
-import cellevaluator  # NOQA
-import mechanisms  # NOQA
-import locations  # NOQA
-import parameterscalers  # NOQA
-import parameters  # NOQA
-import morphologies  # NOQA
-import efeatures  # NOQA
-import objectives  # NOQA
-import protocols  # NOQA
-import responses  # NOQA
-import recordings  # NOQA
-import scorecalculators  # NOQA
-import stimuli  # NOQA
+class Objective(object):
 
-# TODO create all the necessary abstract methods
-# TODO check inheritance structure
-# TODO instantiate using 'simulation env' as parameter, instead of cell
+    """EPhys feature"""
+
+    def __init__(self, name, value=None):
+        """Constructor"""
+
+        self.name = name
+        self.value = value

@@ -29,14 +29,14 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import collections
 import logging
 
-import bluepyopt as bpopt
+from .importer import neuron
 
 logger = logging.getLogger(__name__)
 
 
-class CellTemplate(object):
+class CellModel(object):
 
-    """Simple cell class"""
+    """Cell model class"""
 
     def __init__(
             self,
@@ -94,22 +94,22 @@ class CellTemplate(object):
             'create soma[1], dend[1], apic[1], axon[1]\n' \
             'endtemplate %s\n' % (name, name)
 
-        bpopt.neuron.h(template_content)
+        neuron.h(template_content)
 
-        template_function = getattr(bpopt.neuron.h, name)
+        template_function = getattr(neuron.h, name)
 
         return template_function()
 
     def instantiate(self):
         """Instantiate model in simulator"""
 
-        bpopt.neuron.h.load_file('stdrun.hoc')
+        neuron.h.load_file('stdrun.hoc')
 
         # TODO replace this with the real template name
-        if not hasattr(bpopt.neuron.h, 'Cell'):
+        if not hasattr(neuron.h, 'Cell'):
             self.icell = self.create_empty_cell('Cell')
         else:
-            self.icell = bpopt.neuron.h.Cell()
+            self.icell = neuron.h.Cell()
 
         self.morphology.instantiate(self)
 
@@ -126,13 +126,13 @@ class CellTemplate(object):
         self.instantiate()
         protocol.instantiate(self)
 
-        bpopt.neuron.h.tstop = protocol.total_duration
-        bpopt.neuron.h.cvode_active(1)
+        neuron.h.tstop = protocol.total_duration
+        neuron.h.cvode_active(1)
         logger.debug(
             'Running protocol %s for %.6g ms',
             protocol.name,
             protocol.total_duration)
-        bpopt.neuron.h.run()
+        neuron.h.run()
         responses = protocol.responses
 
         protocol.destroy()
@@ -157,7 +157,7 @@ class CellTemplate(object):
         for param_name, param in self.params.items():
             if not param.frozen:
                 raise Exception(
-                    'CellTemplate: Nonfrozen param %s needs to be '
+                    'CellModel: Nonfrozen param %s needs to be '
                     'set before simulation' %
                     param_name)
 
@@ -178,7 +178,7 @@ class CellTemplate(object):
                 for response_name, response in protocol_responses.iteritems():
                     if response_name in responses:
                         raise Exception(
-                            'CellTemplate: response name used twice: %s' %
+                            'CellModel: response name used twice: %s' %
                             response.name)
                     responses[response_name] = response
 
