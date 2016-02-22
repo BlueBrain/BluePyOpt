@@ -42,9 +42,8 @@ def evaluate(parameter_array):
 
     return evaluator.evaluate(parameter_array)
 
-opt = bluepyopt.Optimisation(
+opt = bluepyopt.optimisations.DEAPOptimisation(
     evaluator=evaluator,
-    eval_function=evaluate,
     offspring_size=2,
     use_scoop=True)
 

@@ -11,7 +11,8 @@ L5PC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
 sys.path.insert(0, L5PC_PATH)
 
 import bluepyopt
-bluepyopt.neuron.h.nrn_load_dll(
+from bluepyopt import ephys
+ephys.neuron.h.nrn_load_dll(
     os.path.join(
         L5PC_PATH,
         'x86_64/.libs/libnrnmech.so'))

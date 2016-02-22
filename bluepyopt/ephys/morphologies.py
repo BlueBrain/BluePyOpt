@@ -24,7 +24,7 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
-import bluepyopt as nrp
+from .importer import neuron
 
 # TODO define an addressing scheme
 
@@ -67,25 +67,25 @@ class NrnFileMorphology(Morphology):
                 'Morphology not found at \'%s\'' %
                 self.morphology_path)
 
-        nrp.neuron.h.load_file('import3d.hoc')
+        neuron.h.load_file('import3d.hoc')
 
         extension = self.morphology_path.split('.')[-1]
 
         if extension.lower() == 'swc':
-            imorphology = nrp.neuron.h.Import3d_SWC_read()
+            imorphology = neuron.h.Import3d_SWC_read()
         elif extension.lower() == 'asc':
-            imorphology = nrp.neuron.h.Import3d_Neurolucida3()
+            imorphology = neuron.h.Import3d_Neurolucida3()
         else:
             raise Exception("Unknown filetype: %s" % extension)
 
         # TODO this is to get rid of stdout print of neuron
         # probably should be more intelligent here, and filter out the
         # lines we don't want
-        nrp.neuron.h.hoc_stdout('/dev/null')
+        neuron.h.hoc_stdout('/dev/null')
         imorphology.input(self.morphology_path)
-        nrp.neuron.h.hoc_stdout()
+        neuron.h.hoc_stdout()
 
-        morphology_importer = nrp.neuron.h.Import3d_GUI(imorphology, 0)
+        morphology_importer = neuron.h.Import3d_GUI(imorphology, 0)
 
         morphology_importer.instantiate(cell.icell)
 
@@ -117,18 +117,18 @@ class NrnFileMorphology(Morphology):
         ais_diams = [icell.axon[0].diam, icell.axon[0].diam]
 
         # Define origin of distance function
-        nrp.neuron.h.distance(sec=icell.soma[0])
+        neuron.h.distance(sec=icell.soma[0])
         for section in icell.axonal:
             # If distance to soma is larger than 60, store diameter
-            if nrp.neuron.h.distance(0.5, sec=section) > 60:
+            if neuron.h.distance(0.5, sec=section) > 60:
                 ais_diams[1] = section.diam
                 break
 
         for section in icell.axonal:
-            nrp.neuron.h.delete_section(sec=section)
+            neuron.h.delete_section(sec=section)
 
         # Create new axon array
-        nrp.neuron.h.execute('create axon[2]', icell)
+        neuron.h.execute('create axon[2]', icell)
 
         for index, section in enumerate(icell.axon):
             section.L = 30

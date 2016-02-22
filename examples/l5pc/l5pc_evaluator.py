@@ -154,7 +154,7 @@ def create():
                    if not param.frozen]
 
     return ce.CellEvaluator(
-        cell_template=l5pc_cell,
+        cell_model=l5pc_cell,
         param_names=param_names,
         fitness_protocols=fitness_protocols,
         fitness_calculator=fitness_calculator)

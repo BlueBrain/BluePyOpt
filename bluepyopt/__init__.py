@@ -24,8 +24,10 @@ __version__ = get_versions()['version']
 del get_versions
 
 from .api import *  # NOQA
-from .importer import neuron  # NOQA
-from .optimisation import Optimisation  # NOQA
+import bluepyopt.optimisations
+import bluepyopt.evaluators
+import bluepyopt.objectives
+import bluepyopt.parameters
 
 # TODO add license headers
 # TODO use logger module instead of print statements

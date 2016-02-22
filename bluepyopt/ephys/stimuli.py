@@ -22,7 +22,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 
-import bluepyopt as nrp
+from .importer import neuron
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ class NrnSquarePulse(Stimulus):
             self.step_duration,
             self.step_amplitude)
 
-        self.iclamp = nrp.neuron.h.IClamp(
+        self.iclamp = neuron.h.IClamp(
             icomp.x,
             sec=icomp.sec)
         self.iclamp.dur = self.step_duration

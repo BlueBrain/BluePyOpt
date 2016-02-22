@@ -19,8 +19,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-
-import bluepyopt as nrp
+from .importer import neuron
 
 
 class ParameterScaler(object):
@@ -77,9 +76,9 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler):
         soma = segment.sec.cell().soma[0]
 
         # Initialise origin
-        nrp.neuron.h.distance(0, 0.5, sec=soma)
+        neuron.h.distance(0, 0.5, sec=soma)
 
-        distance = nrp.neuron.h.distance(1, segment.x, sec=segment.sec)
+        distance = neuron.h.distance(1, segment.x, sec=segment.sec)
 
         # Find something to generalise this
         import math  # pylint:disable=W0611 #NOQA

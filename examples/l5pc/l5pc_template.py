@@ -24,7 +24,6 @@ import os
 import collections
 
 import bluepyopt.ephys as ephys
-import bluepyopt.ephys.celltemplate as ct
 
 script_dir = os.path.dirname(__file__)
 
@@ -142,9 +141,9 @@ def define_morphology():
 
 
 def create():
-    """Create cell template"""
+    """Create cell model"""
 
-    cell = ct.CellTemplate(
+    cell = ephys.models.CellModel(
         'l5pc',
         morph=define_morphology(),
         mechs=define_mechanisms(),

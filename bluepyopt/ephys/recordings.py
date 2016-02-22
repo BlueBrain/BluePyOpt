@@ -22,7 +22,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 
-import bluepyopt as nrp
+from .importer import neuron
 from . import responses
 
 logger = logging.getLogger(__name__)
@@ -83,12 +83,12 @@ class CompRecording(Recording):
         logger.debug('Adding compartment recording of %s at %s',
                      self.variable, self.location)
 
-        self.varvector = nrp.neuron.h.Vector()
+        self.varvector = neuron.h.Vector()
         seg = self.location.instantiate(cell)
         self.varvector.record(getattr(seg, '_ref_%s' % self.variable))
 
-        self.tvector = nrp.neuron.h.Vector()
-        self.tvector.record(nrp.neuron.h._ref_t)  # pylint: disable=W0212
+        self.tvector = neuron.h.Vector()
+        self.tvector.record(neuron.h._ref_t)  # pylint: disable=W0212
 
         self.instantiated = True
 
