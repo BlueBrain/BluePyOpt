@@ -9,5 +9,5 @@ Python API
 .. toctree::
    :maxdepth: 3
 
-   optimisation
-   electrical
+   optimisations
+   ephys
