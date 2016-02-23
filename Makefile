@@ -17,7 +17,7 @@ docopen: doc
 docpdf: install
 	pip install sphinx sphinx-autobuild
 	cd docs; $(MAKE) clean; $(MAKE) latexpdf
-test: install
+test: install clean
 	pip install jupyter
 	pip install nose coverage --upgrade
 	cd examples/l5pc && nrnivmodl mechanisms
@@ -38,6 +38,7 @@ example: install
 clean:
 	rm -rf build
 	rm -rf docs/build
+	find . -name "*.pyc" -exec rm -rf {} \;
 l5pc_start: install
 	cd examples/l5pc && \
 	nrnivmodl mechanisms && \
