@@ -39,7 +39,7 @@ def dump_to_json(content, filename):
 def test_import():
     """L5PC: test import"""
 
-    import l5pc_template  # NOQA
+    import l5pc_model  # NOQA
     import l5pc_evaluator  # NOQA
     import opt_l5pc  # NOQA
 
@@ -47,9 +47,9 @@ def test_import():
     del opt_l5pc.opt
 
 
-class TestL5PCTemplate(object):
+class TestL5PCModel(object):
 
-    """Test L5PC template"""
+    """Test L5PC model"""
 
     def __init__(self):
         self.l5pc_cell = None
@@ -58,12 +58,12 @@ class TestL5PCTemplate(object):
         """Set up class"""
         sys.path.insert(0, L5PC_PATH)
 
-        import l5pc_template  # NOQA
+        import l5pc_model  # NOQA
 
-        self.l5pc_cell = l5pc_template.create()
+        self.l5pc_cell = l5pc_model.create()
         nt.assert_is_instance(
             self.l5pc_cell,
-            bluepyopt.ephys.celltemplate.CellTemplate)
+            bluepyopt.ephys.models.CellModel)
 
     def teardown(self):
         """Teardown"""
