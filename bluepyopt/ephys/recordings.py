@@ -96,6 +96,7 @@ class CompRecording(Recording):
         """Destroy recording"""
 
         self.varvector = None
+        self.tvector = None
         self.instantiated = False
 
     def __str__(self):
