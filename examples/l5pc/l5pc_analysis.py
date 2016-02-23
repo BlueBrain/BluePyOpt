@@ -25,7 +25,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import pickle
 
 
-def analyse_cp(opt=None, cp_filename=None):
+def analyse_cp(opt=None, cp_filename=None, fig=None, box=None):
     """Analyse optimisation results"""
 
     cp = pickle.load(open(cp_filename, "r"))
@@ -51,21 +51,39 @@ def analyse_cp(opt=None, cp_filename=None):
 
         fitness_protocols = opt.evaluator.fitness_protocols
         responses = opt.evaluator.\
-            cell_template.run_protocols(fitness_protocols,
-                                        parameter_values=parameter_values)
+            cell_model.run_protocols(fitness_protocols,
+                                     param_values=parameter_values)
 
-        plot_responses(responses)
-        plot_objectives(objectives)
+        plot_responses(
+            responses,
+            fig=fig,
+            box={
+                'left': box['left'],
+                'bottom': box['bottom'] + float(box['height']) / 2.0,
+                'width': box['width'] / 2.0,
+                'height': float(box['height']) / 2.0})
+        plot_objectives(
+            objectives,
+            fig=fig,
+            box={
+                'left': box['left'],
+                'bottom': box['bottom'],
+                'width': box['width'] / 2.0,
+                'height': float(box['height']) / 2.0})
 
-    plot_log(log)
+    plot_log(log, fig=fig,
+             box={
+                 'left': box['left'] + box['width'] / 2.0,
+                 'bottom': box['bottom'],
+                 'width': box['width'] / 2.0,
+                 'height': float(box['height']) / 2.0})
 
     # plot_history(history)
 
 
-def plot_log(log):
+def plot_log(log, fig=None, box=None):
     """Plot logbook"""
 
-    import matplotlib.pyplot as plt
     import numpy
 
     gen_numbers = log.select('gen')
@@ -74,31 +92,40 @@ def plot_log(log):
     minimum = log.select('min')
     maximum = log.select('max')
 
-    _, ax = plt.subplots(facecolor='white')
+    left_margin = box['width'] * 0.2
+    right_margin = box['width'] * 0.05
+    top_margin = box['height'] * 0.05
+    bottom_margin = box['height'] * 0.1
 
-    ax.errorbar(
+    axes = fig.add_axes(
+        (box['left'] + left_margin,
+         box['bottom'] + bottom_margin,
+         box['width'] - left_margin - right_margin,
+         box['height'] - bottom_margin - top_margin))
+
+    axes.errorbar(
         gen_numbers,
         numpy.negative(mean),
         std,
         color='black',
         linewidth=2,
         label='mean/std')
-    ax.plot(
+    axes.plot(
         gen_numbers,
         numpy.negative(minimum),
         color='blue',
         linewidth=1,
         label='max')
-    ax.plot(
+    axes.plot(
         gen_numbers,
         numpy.negative(maximum),
         color='red',
         linewidth=1,
         label='min')
-    ax.set_xlim(min(gen_numbers) - 1, max(gen_numbers) + 1)
-    ax.set_xlabel('Gen #')
-    ax.set_ylabel('Fitness')
-    ax.legend()
+    axes.set_xlim(min(gen_numbers) - 1, max(gen_numbers) + 1)
+    axes.set_xlabel('Gen #')
+    axes.set_ylabel('Fitness')
+    axes.legend()
 
 
 def plot_history(history):
@@ -117,50 +144,80 @@ def plot_history(history):
     networkx.draw(graph, positions)
 
 
-def plot_objectives(objectives):
-    """Plot responses of the cell template"""
+def plot_objectives(objectives, fig=None, box=None):
+    """Plot objectives of the cell model"""
 
-    import matplotlib.pyplot as plt
+    import collections
+    objectives = collections.OrderedDict(sorted(objectives.iteritems()))
+    left_margin = box['width'] * 0.5
+    right_margin = box['width'] * 0.05
+    top_margin = box['height'] * 0.05
+    bottom_margin = box['height'] * 0.1
 
-    _, ax = plt.subplots(facecolor='white')
+    print box
+    axes = fig.add_axes(
+        (box['left'] + left_margin,
+         box['bottom'] + bottom_margin,
+         box['width'] - left_margin - right_margin,
+         box['height'] - bottom_margin - top_margin))
 
-    ax.barh(range(len(objectives.values())), objectives.values(), color='b')
-    ax.set_yticks(
+    axes.barh(range(len(objectives.values())), objectives.values(), color='b')
+    axes.set_yticks(
         [x + 0.5 for x in range(len(objectives.keys()))])
-    ax.set_yticklabels(objectives.keys(), size='small')
-    ax.set_ylim(0, len(objectives.values()))
-    ax.set_xlabel('Objective value (# std)')
-    ax.set_ylabel('Objectives')
-
-    plt.tight_layout()
-    plt.subplots_adjust(top=0.95)
+    axes.set_yticklabels(objectives.keys(), size='x-small')
+    axes.set_ylim(0, len(objectives.values()))
+    axes.set_xlabel('Objective value (# std)')
+    axes.set_ylabel('Objectives')
 
 
-def plot_responses(responses):
-    """Plot responses of the cell template"""
+def plot_responses(responses, fig=None, box=None):
+    """Plot responses of the cell model"""
+
+    rec_rect = {}
+    rec_rect['left'] = box['left']
+    rec_rect['width'] = box['width']
+    rec_rect['height'] = float(box['height']) / len(responses)
+    rec_rect['bottom'] = box['bottom'] + \
+        box['height'] - rec_rect['height']
+
+    for _, recording in sorted(responses.items()):
+        plot_recording(recording, fig=fig, box=rec_rect)
+        rec_rect['bottom'] -= rec_rect['height']
+
+
+def plot_recording(recording, fig=None, box=None):
+    """Plot responses of the cell model"""
 
     import matplotlib.pyplot as plt
-    import numpy
 
-    n_of_cols = 1
-    n_of_rows = len(responses)
-    _, axes_obj = plt.subplots(n_of_rows, n_of_cols, facecolor='white')
-    axes = numpy.ravel(axes_obj)
+    left_margin = box['width'] * 0.25
+    right_margin = box['width'] * 0.05
+    top_margin = box['height'] * 0.1
+    bottom_margin = box['height'] * 0.25
 
-    for rec_number, (_, recording) in \
-            enumerate(responses.items()):
-        # axes[rec_number].set_title(recording_name)
-        recording.plot(axes[rec_number])
-        axes[rec_number].legend()
+    print box
+    axes = fig.add_axes(
+        (box['left'] + left_margin,
+         box['bottom'] + bottom_margin,
+         box['width'] - left_margin - right_margin,
+         box['height'] - bottom_margin - top_margin))
+    recording.plot(axes)
+    axes.set_ylim(-100, 40)
+    axes.spines['top'].set_visible(False)
+    axes.spines['right'].set_visible(False)
+    axes.tick_params(
+        axis='both',
+        bottom='on',
+        top='off',
+        left='on',
+        right='off')
 
-        axes[rec_number].set_xlabel('Time (ms)')
-        axes[rec_number].set_ylabel('Vm (mV)')
-
-    plt.tight_layout()
-    plt.subplots_adjust(top=0.95)
+    axes.set_ylabel(recording.name, rotation=0, labelpad=25)
+    yloc = plt.MaxNLocator(2)
+    axes.yaxis.set_major_locator(yloc)
 
 
-def analyse_releasecircuit_model(opt):
+def analyse_releasecircuit_model(opt, fig=None, box=None):
     """Analyse L5PC model from release circuit"""
 
     # Parameters in release circuit model
@@ -191,15 +248,22 @@ def analyse_releasecircuit_model(opt):
     }
     fitness_protocols = opt.evaluator.fitness_protocols
 
-    responses = opt.evaluator.cell_template.run_protocols(
+    responses = opt.evaluator.cell_model.run_protocols(
         fitness_protocols,
-        parameter_values=parameters)
+        param_values=parameters)
 
-    objectives = opt.evaluator.objective_dict(
-        opt.
-        evaluator.
-        fitness_calculator.calculate_scores(
-            responses))
+    objectives = opt.evaluator.fitness_calculator.calculate_scores(
+        responses)
 
-    plot_responses(responses)
-    plot_objectives(objectives)
+    plot_responses(responses, fig=fig,
+                   box={
+                       'left': box['left'],
+                       'bottom': box['bottom'] + float(box['height']) / 2.0,
+                       'width': box['width'],
+                       'height': float(box['height']) / 2.0})
+    plot_objectives(objectives, fig=fig,
+                    box={
+                        'left': box['left'],
+                        'bottom': box['bottom'],
+                        'width': box['width'],
+                        'height': float(box['height']) / 2.0})

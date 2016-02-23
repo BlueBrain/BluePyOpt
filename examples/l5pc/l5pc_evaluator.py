@@ -21,7 +21,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=R0914
 
 import os
-import l5pc_template  # NOQA
+import l5pc_model  # NOQA
 
 import bluepyopt.ephys as ephys
 import bluepyopt.ephys.cellevaluator as ce
@@ -144,7 +144,7 @@ def define_fitness_calculator(protocols):
 def create():
     """Setup"""
 
-    l5pc_cell = l5pc_template.create()
+    l5pc_cell = l5pc_model.create()
 
     fitness_protocols = define_protocols()
     fitness_calculator = define_fitness_calculator(fitness_protocols)

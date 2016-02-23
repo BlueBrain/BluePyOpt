@@ -70,10 +70,37 @@ def main():
 
     if args.analyse:
         import l5pc_analysis
-        l5pc_analysis.analyse_cp(opt=opt, cp_filename=cp_filename)
-        l5pc_analysis.analyse_releasecircuit_model(opt=opt)
 
+        # _, axes_obj = plt.subplots(n_of_rows, n_of_cols, facecolor='white')
+        # axes = numpy.ravel(axes_obj)
         import matplotlib.pyplot as plt
+        fig_release = plt.figure(figsize=(20, 10), facecolor='white')
+
+        l5pc_analysis.analyse_releasecircuit_model(
+            opt=opt,
+            fig=fig_release,
+            box={
+                'left': 0.0,
+                'bottom': 0.0,
+                'width': 1.0 / 2.0,
+                'height': 1.0})
+
+        fig_release.savefig('release_l5pc.eps')
+
+        fig_bpopl5pc = plt.figure(figsize=(20, 10), facecolor='white')
+
+        l5pc_analysis.analyse_cp(
+            opt=opt,
+            cp_filename=cp_filename,
+            fig=fig_bpopl5pc,
+            box={
+                'left': 0.0,
+                'bottom': 0.0,
+                'width': 1.0,
+                'height': 1.0})
+
+        fig_bpopl5pc.savefig('bluepyopt_l5pc.eps')
+
         plt.show()
 
 if __name__ == '__main__':
