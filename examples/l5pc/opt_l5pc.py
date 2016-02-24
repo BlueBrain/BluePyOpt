@@ -58,7 +58,7 @@ def main():
     parser.add_argument('--analyse', action="store_true")
 
     # TODO read checkpoint filename from arguments
-    cp_filename = 'checkpoint.pkl'
+    cp_filename = 'checkpoints/checkpoint.pkl'
 
     args = parser.parse_args()
 
@@ -74,32 +74,32 @@ def main():
         # _, axes_obj = plt.subplots(n_of_rows, n_of_cols, facecolor='white')
         # axes = numpy.ravel(axes_obj)
         import matplotlib.pyplot as plt
-        fig_release = plt.figure(figsize=(20, 10), facecolor='white')
+        fig_release = plt.figure(figsize=(10, 10), facecolor='white')
+
+        box = {
+            'left': 0.0,
+            'bottom': 0.0,
+            'width': 1.0,
+            'height': 1.0}
 
         l5pc_analysis.analyse_releasecircuit_model(
             opt=opt,
             fig=fig_release,
-            box={
-                'left': 0.0,
-                'bottom': 0.0,
-                'width': 1.0 / 2.0,
-                'height': 1.0})
+            box=box)
 
-        fig_release.savefig('release_l5pc.eps')
+        fig_release.savefig('figures/release_l5pc.eps')
 
-        fig_bpopl5pc = plt.figure(figsize=(20, 10), facecolor='white')
+        bpop_model_fig = plt.figure(figsize=(10, 10), facecolor='white')
+        bpop_evol_fig = plt.figure(figsize=(10, 10), facecolor='white')
 
         l5pc_analysis.analyse_cp(
             opt=opt,
             cp_filename=cp_filename,
-            fig=fig_bpopl5pc,
-            box={
-                'left': 0.0,
-                'bottom': 0.0,
-                'width': 1.0,
-                'height': 1.0})
+            figs=[bpop_model_fig, bpop_evol_fig],
+            boxes=[box, box])
 
-        fig_bpopl5pc.savefig('bluepyopt_l5pc.eps')
+        bpop_model_fig.savefig('figures/bpop_l5pc_model.eps')
+        bpop_evol_fig.savefig('figures/bpop_l5pc_evolution.eps')
 
         plt.show()
 
