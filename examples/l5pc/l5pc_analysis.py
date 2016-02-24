@@ -20,13 +20,16 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 
 
-# pylint: disable=R0914
+# pylint: disable=R0914, W0633
 
 import pickle
 
 
-def analyse_cp(opt=None, cp_filename=None, fig=None, box=None):
+def analyse_cp(opt=None, cp_filename=None, figs=None, boxes=None):
     """Analyse optimisation results"""
+
+    bpop_model_fig, bpop_evol_fig = figs
+    bpop_model_box, bpop_evol_box = boxes
 
     cp = pickle.load(open(cp_filename, "r"))
     results = (
@@ -54,37 +57,30 @@ def analyse_cp(opt=None, cp_filename=None, fig=None, box=None):
             cell_model.run_protocols(fitness_protocols,
                                      param_values=parameter_values)
 
+        box = bpop_model_box
         plot_responses(
             responses,
-            fig=fig,
+            fig=bpop_model_fig,
             box={
                 'left': box['left'],
                 'bottom': box['bottom'] + float(box['height']) / 2.0,
-                'width': box['width'] / 2.0,
+                'width': box['width'],
                 'height': float(box['height']) / 2.0})
         plot_objectives(
             objectives,
-            fig=fig,
+            fig=bpop_model_fig,
             box={
                 'left': box['left'],
                 'bottom': box['bottom'],
-                'width': box['width'] / 2.0,
+                'width': box['width'],
                 'height': float(box['height']) / 2.0})
 
-    plot_log(log, fig=fig,
-             box={
-                 'left': box['left'] + box['width'] / 2.0,
-                 'bottom': box['bottom'],
-                 'width': box['width'] / 2.0,
-                 'height': float(box['height']) / 2.0})
-
-    # plot_history(history)
+    plot_log(log, fig=bpop_evol_fig,
+             box=bpop_evol_box)
 
 
 def plot_log(log, fig=None, box=None):
     """Plot logbook"""
-
-    import numpy
 
     gen_numbers = log.select('gen')
     mean = log.select('avg')
@@ -105,23 +101,23 @@ def plot_log(log, fig=None, box=None):
 
     axes.errorbar(
         gen_numbers,
-        numpy.negative(mean),
+        mean,
         std,
         color='black',
         linewidth=2,
         label='mean/std')
     axes.plot(
         gen_numbers,
-        numpy.negative(minimum),
+        minimum,
         color='blue',
         linewidth=1,
-        label='max')
+        label='min')
     axes.plot(
         gen_numbers,
-        numpy.negative(maximum),
+        maximum,
         color='red',
         linewidth=1,
-        label='min')
+        label='max')
     axes.set_xlim(min(gen_numbers) - 1, max(gen_numbers) + 1)
     axes.set_xlabel('Gen #')
     axes.set_ylabel('Fitness')
@@ -154,7 +150,6 @@ def plot_objectives(objectives, fig=None, box=None):
     top_margin = box['height'] * 0.05
     bottom_margin = box['height'] * 0.1
 
-    print box
     axes = fig.add_axes(
         (box['left'] + left_margin,
          box['bottom'] + bottom_margin,
@@ -195,7 +190,6 @@ def plot_recording(recording, fig=None, box=None):
     top_margin = box['height'] * 0.1
     bottom_margin = box['height'] * 0.25
 
-    print box
     axes = fig.add_axes(
         (box['left'] + left_margin,
          box['bottom'] + bottom_margin,
