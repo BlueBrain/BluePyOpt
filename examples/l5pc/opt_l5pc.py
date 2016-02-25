@@ -24,45 +24,15 @@ This optimisation is based on L5PC optimisations developed by Etay Hay in the
 context of the BlueBrain project
 """
 
-# pylint: disable=R0914
+# pylint: disable=R0914, W0403
 import os
 
 import argparse
-parser = argparse.ArgumentParser(description='L5PC example')
-parser.add_argument('--start', action="store_true")
-parser.add_argument('--continue_cp', action="store_true")
-parser.add_argument('--analyse', action="store_true")
-parser.add_argument('--compile', action="store_true")
-parser.add_argument('--hocanalyse', action="store_true")
-
-args = parser.parse_args()
-
-if args.compile:
-    import commands
-    commands.getstatusoutput('cd mechanisms/; nrnivmodl; cd ..')
-
-import bluepyopt
-
-# TODO store definition dicts in json
-# TODO rename 'score' into 'objective'
-# TODO add functionality to read settings of every object from config format
 
 import l5pc_evaluator
 evaluator = l5pc_evaluator.create()
 
-if args.hocanalyse:
-    try:
-        import bglibpy
-    except ImportError:
-        raise ImportError('bglibpy not installed, --hocanalyse for internal testing only!')
-else:
-    mechfile = "./mechanisms/x86_64/.libs/libnrnmech.so"
-    if (os.path.isfile(mechfile)):
-        from bluepyopt.ephys import neuron
-        neuron.h.nrn_load_dll(mechfile)
-
-    else:
-        raise ImportError('nrnmech not compiled, run --compile first!')
+import bluepyopt
 
 
 def evaluate(parameter_array):
@@ -78,6 +48,39 @@ opt = bluepyopt.optimisations.DEAPOptimisation(
 
 def main():
     """Main"""
+
+    parser = argparse.ArgumentParser(description='L5PC example')
+    parser.add_argument('--start', action="store_true")
+    parser.add_argument('--continue_cp', action="store_true")
+    parser.add_argument('--analyse', action="store_true")
+    parser.add_argument('--compile', action="store_true")
+    parser.add_argument('--hocanalyse', action="store_true")
+
+    args = parser.parse_args()
+
+    if args.compile:
+        import commands
+        commands.getstatusoutput('cd mechanisms/; nrnivmodl; cd ..')
+
+    # TODO store definition dicts in json
+    # TODO rename 'score' into 'objective'
+    # TODO add functionality to read settings of every object from config format
+
+    if args.hocanalyse:
+        try:
+            import bglibpy  # NOQA
+        except ImportError:
+            raise ImportError(
+                'bglibpy not installed, '
+                '--hocanalyse for internal testing only!')
+    else:
+        mechfile = "./mechanisms/x86_64/.libs/libnrnmech.so"
+        if os.path.isfile(mechfile):
+            from bluepyopt.ephys import neuron
+            neuron.h.nrn_load_dll(mechfile)
+
+        else:
+            raise ImportError('nrnmech not compiled, run --compile first!')
 
     # TODO read checkpoint filename from arguments
     cp_filename = 'checkpoints/checkpoint.pkl'
@@ -109,7 +112,7 @@ def main():
 
         fig_release.savefig('figures/release_l5pc.eps')
 
-        if (os.path.isfile(cp_filename)):
+        if os.path.isfile(cp_filename):
 
             bpop_model_fig = plt.figure(figsize=(10, 10), facecolor='white')
             bpop_evol_fig = plt.figure(figsize=(10, 10), facecolor='white')
@@ -124,7 +127,8 @@ def main():
             bpop_evol_fig.savefig('figures/bpop_l5pc_evolution.eps')
 
         else:
-            print('No checkpoint file available run optimization first with --run')
+            print('No checkpoint file available run optimization '
+                  'first with --start')
 
         plt.show()
 
