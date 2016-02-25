@@ -71,20 +71,20 @@ class CompRecording(Recording):
 
         if not self.instantiated:
             raise Exception(
-                'Protocol not instantiated before requesting response')
+                'Recording not instantiated before requesting response')
 
         return responses.TimeVoltageResponse(self.name,
                                              self.tvector.to_python(),
                                              self.varvector.to_python())
 
-    def instantiate(self, cell):
+    def instantiate(self, sim=None, icell=None):
         """Instantiate recording"""
 
         logger.debug('Adding compartment recording of %s at %s',
                      self.variable, self.location)
 
         self.varvector = neuron.h.Vector()
-        seg = self.location.instantiate(cell)
+        seg = self.location.instantiate(sim=sim, icell=icell)
         self.varvector.record(getattr(seg, '_ref_%s' % self.variable))
 
         self.tvector = neuron.h.Vector()

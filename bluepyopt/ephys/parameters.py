@@ -116,7 +116,7 @@ class NrnGlobalParameter(Parameter):
 
         self.param_name = param_name
 
-    def instantiate(self, cell):
+    def instantiate(self, sim=None, icell=None):
         """Instantiate"""
 
         setattr(neuron.h, self.param_name, self.value)
@@ -166,11 +166,11 @@ class NrnSectionParameter(Parameter):
             self.value_scaler = parameterscalers.NrnSegmentLinearScaler()
         self.value_scale_func = self.value_scaler.scale
 
-    def instantiate(self, cell):
+    def instantiate(self, sim=None, icell=None):
         """Instantiate"""
 
         for location in self.locations:
-            iseclist = location.instantiate(cell)
+            iseclist = location.instantiate(sim=sim, icell=icell)
             for section in iseclist:
                 setattr(section, self.param_name,
                         self.value_scale_func(self.value, section))
@@ -231,11 +231,11 @@ class NrnRangeParameter(Parameter):
             self.value_scaler = parameterscalers.NrnSegmentLinearScaler()
         self.value_scale_func = self.value_scaler.scale
 
-    def instantiate(self, cell):
+    def instantiate(self, sim=None, icell=None):
         """Instantiate"""
 
         for location in self.locations:
-            for isection in location.instantiate(cell):
+            for isection in location.instantiate(sim=sim, icell=icell):
                 for seg in isection:
                     setattr(seg, '%s' % self.param_name,
                             self.value_scale_func(self.value, seg))

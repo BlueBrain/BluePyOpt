@@ -20,27 +20,14 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 
 
-class ScoreCalculator(object):
+class ObjectivesCalculator(object):
 
-    """Base parameter class"""
-
-    def __init__(self):
-        """Constructor"""
-
-        pass
-
-
-class ObjectivesScoreCalculator(ScoreCalculator):
-
-    """Score calculator that uses eFEL"""
+    """Score calculator"""
 
     def __init__(
             self,
             objectives=None):
         """Contructor"""
-
-        ScoreCalculator.__init__(
-            self)
 
         self.objectives = objectives
 

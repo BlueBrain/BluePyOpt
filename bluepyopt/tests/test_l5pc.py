@@ -86,7 +86,7 @@ class TestL5PCEvaluator(object):
 
         nt.assert_is_instance(
             self.l5pc_evaluator,
-            bluepyopt.ephys.cellevaluator.CellEvaluator)
+            bluepyopt.ephys.evaluators.CellEvaluator)
 
     def test_eval(self):
         """L5PC: test evaluation of l5pc evaluator"""

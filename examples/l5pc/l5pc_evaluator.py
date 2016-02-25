@@ -24,7 +24,6 @@ import os
 import l5pc_model  # NOQA
 
 import bluepyopt.ephys as ephys
-import bluepyopt.ephys.cellevaluator as ce
 
 script_dir = os.path.dirname(__file__)
 
@@ -86,7 +85,7 @@ def define_protocols():
                 location=soma_loc,
                 total_duration=stimulus_definition['totduration']))
 
-        protocols[protocol_name] = ephys.protocols.Protocol(
+        protocols[protocol_name] = ephys.protocols.SweepProtocol(
             protocol_name,
             stimuli,
             recordings)
@@ -136,7 +135,7 @@ def define_fitness_calculator(protocols):
                     feature)
                 objectives.append(objective)
 
-    fitcalc = ephys.scorecalculators.ObjectivesScoreCalculator(objectives)
+    fitcalc = ephys.objectivescalculators.ObjectivesCalculator(objectives)
 
     return fitcalc
 
@@ -153,8 +152,11 @@ def create():
                    for param in l5pc_cell.params.values()
                    if not param.frozen]
 
-    return ce.CellEvaluator(
+    sim = ephys.simulators.NrnSimulator()
+
+    return ephys.evaluators.CellEvaluator(
         cell_model=l5pc_cell,
         param_names=param_names,
         fitness_protocols=fitness_protocols,
-        fitness_calculator=fitness_calculator)
+        fitness_calculator=fitness_calculator,
+        sim=sim)

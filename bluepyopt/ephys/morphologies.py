@@ -24,8 +24,6 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
-from .importer import neuron
-
 # TODO define an addressing scheme
 
 
@@ -57,7 +55,7 @@ class NrnFileMorphology(Morphology):
 
         return self.morphology_path
 
-    def instantiate(self, cell):
+    def instantiate(self, sim=None, icell=None):
         """Load morphology"""
 
         logger.debug('Loading morphology %s', self.morphology_path)
@@ -67,37 +65,37 @@ class NrnFileMorphology(Morphology):
                 'Morphology not found at \'%s\'' %
                 self.morphology_path)
 
-        neuron.h.load_file('import3d.hoc')
+        sim.neuron.h.load_file('import3d.hoc')
 
         extension = self.morphology_path.split('.')[-1]
 
         if extension.lower() == 'swc':
-            imorphology = neuron.h.Import3d_SWC_read()
+            imorphology = sim.neuron.h.Import3d_SWC_read()
         elif extension.lower() == 'asc':
-            imorphology = neuron.h.Import3d_Neurolucida3()
+            imorphology = sim.neuron.h.Import3d_Neurolucida3()
         else:
             raise Exception("Unknown filetype: %s" % extension)
 
         # TODO this is to get rid of stdout print of neuron
         # probably should be more intelligent here, and filter out the
         # lines we don't want
-        neuron.h.hoc_stdout('/dev/null')
+        sim.neuron.h.hoc_stdout('/dev/null')
         imorphology.input(self.morphology_path)
-        neuron.h.hoc_stdout()
+        sim.neuron.h.hoc_stdout()
 
-        morphology_importer = neuron.h.Import3d_GUI(imorphology, 0)
+        morphology_importer = sim.neuron.h.Import3d_GUI(imorphology, 0)
 
-        morphology_importer.instantiate(cell.icell)
+        morphology_importer.instantiate(icell)
 
         # TODO replace these two functions with general function users can
         # specify
         if self.do_replace_axon:
-            NrnFileMorphology.replace_axon(cell.icell)
+            NrnFileMorphology.replace_axon(sim=sim, icell=icell)
 
         # TODO Set nseg should be called after all the parameters have been
         # set
         # (in case e.g. Ra was changed)
-        NrnFileMorphology.set_nseg(cell.icell)
+        NrnFileMorphology.set_nseg(icell)
 
     def destroy(self):
         """Destroy morphology instantiation"""
@@ -111,24 +109,24 @@ class NrnFileMorphology(Morphology):
             section.nseg = 1 + 2 * int(section.L / 40)
 
     @staticmethod
-    def replace_axon(icell):
+    def replace_axon(sim=None, icell=None):
         """Replace axon"""
 
         ais_diams = [icell.axon[0].diam, icell.axon[0].diam]
 
         # Define origin of distance function
-        neuron.h.distance(sec=icell.soma[0])
+        sim.neuron.h.distance(sec=icell.soma[0])
         for section in icell.axonal:
             # If distance to soma is larger than 60, store diameter
-            if neuron.h.distance(0.5, sec=section) > 60:
+            if sim.neuron.h.distance(0.5, sec=section) > 60:
                 ais_diams[1] = section.diam
                 break
 
         for section in icell.axonal:
-            neuron.h.delete_section(sec=section)
+            sim.neuron.h.delete_section(sec=section)
 
         # Create new axon array
-        neuron.h.execute('create axon[2]', icell)
+        sim.neuron.h.execute('create axon[2]', icell)
 
         for index, section in enumerate(icell.axon):
             section.L = 30

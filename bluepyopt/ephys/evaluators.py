@@ -23,8 +23,12 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=W0511
 
 # Not sure code below should go in module or class
-import copy_reg
+import sys
 import types
+import traceback
+import copy_reg
+import logging
+logger = logging.getLogger(__name__)
 
 
 class CellEvaluator(object):
@@ -37,7 +41,8 @@ class CellEvaluator(object):
             param_names=None,
             fitness_protocols=None,
             fitness_calculator=None,
-            isolate_protocols=True):
+            isolate_protocols=True,
+            sim=None):
         """Constructor"""
 
         self.cell_model = cell_model
@@ -48,6 +53,8 @@ class CellEvaluator(object):
         self.fitness_calculator = fitness_calculator
 
         self.isolate_protocols = isolate_protocols
+
+        self.sim = sim
 
     @property
     def objectives(self):
@@ -85,6 +92,16 @@ class CellEvaluator(object):
 
         return objective_dict
 
+    def run_protocol(self, protocol, param_values):
+        """Run protocols"""
+
+        try:
+            return protocol.run(self.cell_model, param_values, sim=self.sim)
+        except:
+            raise Exception(
+                "".join(
+                    traceback.format_exception(*sys.exc_info())))
+
     def evaluate_with_dicts(self, param_dict=None):
         """Run evaluation with dict as input and output"""
 
@@ -94,6 +111,7 @@ class CellEvaluator(object):
 
         responses = {}
 
+        logger.debug('Evaluating %s', self.cell_model.name)
         # TODO clean this up
 
         if self.isolate_protocols:
@@ -107,22 +125,23 @@ class CellEvaluator(object):
 
             copy_reg.pickle(types.MethodType, _reduce_method)
 
-        for protocol_name, protocol in self.fitness_protocols.iteritems():
+        for protocol in self.fitness_protocols.values():
             if self.isolate_protocols:
                 # This multiprocessing makes sure that Neuron starts in a clean
                 # state every time we run a protocol
                 pool = multiprocessing.Pool(1, maxtasksperchild=1)
                 responses.update(
-                    pool.apply(self.cell_model.run_protocols,
-                               args=[{protocol_name: protocol}],
+                    pool.apply(self.run_protocol,
+                               args=[protocol],
                                kwds={'param_values': param_dict}))
 
                 # THis might help with garbage collecting the pool workers
                 pool.terminate()
                 pool.join()
+                del pool
             else:
-                responses.update(self.cell_model.run_protocols(
-                    {protocol_name: protocol},
+                responses.update(self.run_protocol(
+                    protocol,
                     param_values=param_dict))
 
         return self.fitness_calculator.calculate_scores(responses)
