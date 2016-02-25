@@ -54,6 +54,11 @@ class NrnSegmentLinearScaler(ParameterScaler):
 
         return self.multiplier * value + self.offset
 
+    def __str__(self):
+        """String representation"""
+
+        return '%s * value + %s' % (self.multiplier, self.offset)
+
 
 class NrnSegmentSomaDistanceScaler(ParameterScaler):
 
@@ -87,3 +92,8 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler):
         # pylint: disable=W0123
 
         return eval(self.distribution.format(distance=distance, value=value))
+
+    def __str__(self):
+        """String representation"""
+
+        return self.distribution

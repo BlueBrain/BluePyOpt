@@ -67,8 +67,9 @@ class NrnMODMechanism(Mechanism):
             isec_list = location.instantiate(cell)
             for isec in isec_list:
                 isec.insert(self.prefix)
-            logger.debug('Inserted %s in %s',
-                         self.prefix, self.locations)
+            logger.debug(
+                'Inserted %s in %s', self.prefix, [
+                    str(location) for location in self.locations])
 
     def destroy(self):
         """Destroy mechanism instantiation"""

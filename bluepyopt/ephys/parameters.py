@@ -188,14 +188,14 @@ class NrnSectionParameter(Parameter):
         """String representation"""
         if self.frozen:
             return '%s: %s %s = %s' % (self.name,
-                                       self.locations,
-                                       self.param_name,
-                                       self.value)
+                                       [str(location)
+                                        for location in self.locations],
+                                       self.param_name, self.value)
         else:
             return '%s: %s %s = %s' % (self.name,
-                                       self.locations,
-                                       self.param_name,
-                                       self.bounds)
+                                       [str(location)
+                                        for location in self.locations],
+                                       self.param_name, self.bounds)
 
 # TODO change mech_prefix and mech_param to param_name, and maybe add
 # NrnRangeMechParameter
@@ -240,9 +240,11 @@ class NrnRangeParameter(Parameter):
                     setattr(seg, '%s' % self.param_name,
                             self.value_scale_func(self.value, seg))
         logger.debug(
-            'Set %s in %s to %s', self.param_name,
-            self.locations,
-            self.value)
+            'Set %s in %s to %s with scaler %s', self.param_name,
+            [str(location)
+             for location in self.locations],
+            self.value,
+            self.value_scaler)
 
     def destroy(self):
         """Destroy parameter instantation"""
@@ -252,11 +254,13 @@ class NrnRangeParameter(Parameter):
         """String representation"""
         if self.frozen:
             return '%s: %s %s = %s' % (self.name,
-                                       self.locations,
+                                       [str(location)
+                                        for location in self.locations],
                                        self.param_name,
                                        self.value)
         else:
             return '%s: %s %s = %s' % (self.name,
-                                       self.locations,
+                                       [str(location)
+                                        for location in self.locations],
                                        self.param_name,
                                        self.bounds)
