@@ -61,7 +61,10 @@ class DEAPOptimisation(Optimisation):
     def __init__(self, evaluator=None,
                  use_scoop=False,
                  seed=1,
-                 offspring_size=10):
+                 offspring_size=10,
+                 eta=10,
+                 mutpb=1.0,
+                 cxpb=1.0):
         """Constructor"""
 
         super(DEAPOptimisation, self).__init__(evaluator=evaluator)
@@ -81,6 +84,9 @@ class DEAPOptimisation(Optimisation):
         self.use_scoop = use_scoop
         self.seed = seed
         self.offspring_size = offspring_size
+        self.eta = eta
+        self.cxpb = cxpb
+        self.mutpb = mutpb
         # Create a DEAP toolbox
         self.toolbox = deap.base.Toolbox()
 
@@ -143,8 +149,8 @@ class DEAPOptimisation(Optimisation):
 
         # Eta parameter of crossover / mutation parameters
         # Basically defines how much they 'spread' solution around
-        # The higher this value, the more spread
-        ETA = 10.0
+        # The lower this value, the more spread
+        ETA = self.eta
 
         # Number of parameters
         IND_SIZE = len(self.evaluator.params)
@@ -208,7 +214,7 @@ class DEAPOptimisation(Optimisation):
             eta=ETA,
             low=LOWER,
             up=UPPER,
-            indpb=0.1)
+            indpb=0.5)
 
         # Register the variate operator
         self.toolbox.register("variate", deap.algorithms.varAnd)
@@ -250,8 +256,8 @@ class DEAPOptimisation(Optimisation):
         NGEN = max_ngen
 
         # Crossover, mutation probabilities
-        CXPB = 0.7
-        # MUTPB = 0.3
+        CXPB = self.cxpb
+        MUTPB = self.mutpb
 
         # Total population size of EA
         # ALPHA = POP_SIZE
@@ -279,7 +285,7 @@ class DEAPOptimisation(Optimisation):
             MU,
             None,
             CXPB,
-            1 - CXPB,
+            MUTPB,
             NGEN,
             stats=stats,
             halloffame=hof,
