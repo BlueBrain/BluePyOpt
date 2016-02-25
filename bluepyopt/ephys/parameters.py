@@ -19,13 +19,13 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-
 import logging
 
-from .importer import neuron
 from . import parameterscalers
 
 logger = logging.getLogger(__name__)
+
+# TODO location and stimulus parameters should also be optimisable
 
 
 class Parameter(object):
@@ -119,7 +119,7 @@ class NrnGlobalParameter(Parameter):
     def instantiate(self, sim=None, icell=None):
         """Instantiate"""
 
-        setattr(neuron.h, self.param_name, self.value)
+        setattr(sim.neuron.h, self.param_name, self.value)
 
         logger.debug('Set %s to %s', self.param_name, str(self.value))
 
