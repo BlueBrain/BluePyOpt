@@ -21,6 +21,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 from .importer import neuron
 
+
 class Location(object):
 
     """EPhys feature"""
@@ -53,12 +54,12 @@ class NrnSeclistCompLocation(Location):
         self.sec_index = sec_index
         self.comp_x = comp_x
 
-    def instantiate(self, cell):
+    def instantiate(self, sim=None, icell=None):
         """Find the instantiate compartment"""
 
         import itertools
 
-        isectionlist = getattr(cell.icell, self.seclist_name)
+        isectionlist = getattr(icell, self.seclist_name)
 
         # Get nth element of isectionlist
         # Sectionlists don't support direct indexing
@@ -91,10 +92,10 @@ class NrnSeclistLocation(Location):
         Location.__init__(self, name)
         self.seclist_name = seclist_name
 
-    def instantiate(self, cell):
+    def instantiate(self, sim=None, icell=None):
         """Find the instantiate compartment"""
 
-        isectionlist = getattr(cell.icell, self.seclist_name)
+        isectionlist = getattr(icell, self.seclist_name)
 
         return (isection for isection in isectionlist)
 
@@ -119,12 +120,12 @@ class NrnSeclistSecLocation(Location):
         self.seclist_name = seclist_name
         self.sec_index = sec_index
 
-    def instantiate(self, cell):
+    def instantiate(self, sim=None, icell=None):
         """Find the instantiate compartment"""
 
         import itertools
 
-        isectionlist = getattr(cell.icell, self.secist_name)
+        isectionlist = getattr(icell, self.secist_name)
 
         # Get nth element of isectionlist
         # Sectionlists don't support direct indexing
@@ -156,14 +157,14 @@ class NrnSomaDistanceCompLocation(Location):
     # TODO this definitely has to be unit-tested
     # TODO add ability to specify origin
     # TODO rename 'seg' in 'compartment' everywhere
-    def instantiate(self, cell):
+    def instantiate(self, sim=None, icell=None):
         """Find the instantiate compartment"""
 
-        soma = cell.icell.soma[0]
+        soma = icell.soma[0]
 
         neuron.h.distance(0, 0.5, sec=soma)
 
-        iseclist = getattr(cell.icell, self.seclist_name)
+        iseclist = getattr(icell, self.seclist_name)
 
         icomp = None
         max_diam = 0.0

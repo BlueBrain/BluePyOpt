@@ -59,12 +59,13 @@ class NrnMODMechanism(Mechanism):
         self.prefix = prefix
         self.locations = locations
         self.preloaded = True
+        self.cell_model = None
 
-    def instantiate(self, cell):
+    def instantiate(self, sim=None, icell=None):
         """Instantiate"""
 
         for location in self.locations:
-            isec_list = location.instantiate(cell)
+            isec_list = location.instantiate(sim=sim, icell=icell)
             for isec in isec_list:
                 isec.insert(self.prefix)
             logger.debug(

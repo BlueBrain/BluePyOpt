@@ -27,10 +27,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # TODO rename this to 'CellModel' -> definitely
 
 import collections
+
 import logging
-
-from .importer import neuron
-
 logger = logging.getLogger(__name__)
 
 
@@ -62,12 +60,11 @@ class CellModel(object):
 
         self.param_values = None
 
-    def freeze(self, param_values):
+    def freeze(self, param_dict):
         """Set params"""
 
-        for param_name, param_value in param_values.items():
-            param = self.params[param_name]
-            param.freeze(param_value)
+        for param_name, param_value in param_dict.items():
+            self.params[param_name].freeze(param_value)
 
     def unfreeze(self, param_names):
         """Unset params"""
@@ -76,7 +73,7 @@ class CellModel(object):
             self.params[param_name].unfreeze()
 
     @staticmethod
-    def create_empty_cell(name):
+    def create_empty_cell(name, sim=None):
         """Create an empty cell in Neuron"""
 
         # TODO minize hardcoded definition
@@ -94,52 +91,29 @@ class CellModel(object):
             'create soma[1], dend[1], apic[1], axon[1]\n' \
             'endtemplate %s\n' % (name, name)
 
-        neuron.h(template_content)
+        sim.neuron.h(template_content)
 
-        template_function = getattr(neuron.h, name)
+        template_function = getattr(sim.neuron.h, name)
 
         return template_function()
 
-    def instantiate(self):
+    def instantiate(self, sim=None):
         """Instantiate model in simulator"""
 
-        neuron.h.load_file('stdrun.hoc')
+        sim.neuron.h.load_file('stdrun.hoc')
 
         # TODO replace this with the real template name
-        if not hasattr(neuron.h, 'Cell'):
-            self.icell = self.create_empty_cell('Cell')
+        if not hasattr(sim.neuron.h, 'Cell'):
+            self.icell = self.create_empty_cell('Cell', sim=sim)
         else:
-            self.icell = neuron.h.Cell()
+            self.icell = sim.neuron.h.Cell()
 
-        self.morphology.instantiate(self)
+        self.morphology.instantiate(sim=sim, icell=self.icell)
 
         for mechanism in self.mechanisms:
-            mechanism.instantiate(self)
+            mechanism.instantiate(sim=sim, icell=self.icell)
         for param in self.params.values():
-            param.instantiate(self)
-
-    # TODO This should also get param_values as argument, and original
-    # function renamed
-    def run_protocol(self, protocol):
-        """Run protocol"""
-
-        self.instantiate()
-        protocol.instantiate(self)
-
-        neuron.h.tstop = protocol.total_duration
-        neuron.h.cvode_active(1)
-        logger.debug(
-            'Running protocol %s for %.6g ms',
-            protocol.name,
-            protocol.total_duration)
-        neuron.h.run()
-        responses = protocol.responses
-
-        protocol.destroy()
-        self.destroy()
-
-        logger.debug('Protocol finished, returning responses')
-        return responses
+            param.instantiate(sim=sim, icell=self.icell)
 
     def destroy(self):
         """Destroy instantiated model in simulator"""
@@ -160,37 +134,6 @@ class CellModel(object):
                     'CellModel: Nonfrozen param %s needs to be '
                     'set before simulation' %
                     param_name)
-
-    def run_protocols(self, protocols, param_values=None):
-        """Run stimulus protocols"""
-
-        # TODO Put all of this in a decorator ?
-        import traceback
-        import sys
-        try:
-            self.freeze(param_values)
-
-            self.check_nonfrozen_params(param_values.keys())
-
-            responses = {}
-            for protocol in protocols.itervalues():
-                protocol_responses = self.run_protocol(protocol)
-                for response_name, response in protocol_responses.iteritems():
-                    if response_name in responses:
-                        raise Exception(
-                            'CellModel: response name used twice: %s' %
-                            response.name)
-                    responses[response_name] = response
-
-            self.unfreeze(param_values.keys())
-        except:
-            raise Exception(
-                "".join(
-                    traceback.format_exception(
-                        *
-                        sys.exc_info())))
-
-        return responses
 
     def __str__(self):
         """Return string representation"""

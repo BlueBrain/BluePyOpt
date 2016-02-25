@@ -21,15 +21,51 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 
 # TODO: maybe find a better name ? -> sweep ?
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Protocol(object):
+
+    """Protocol"""
+
+    def __init__(self, name=None):
+        """Constructor"""
+
+        self.name = name
+
+
+class SequenceProtocol(Protocol):
+
+    """A protocol consisting of a sequence of other protocols"""
+
+    def __init__(self, name=None, protocols=None):
+        """Constructor"""
+        super(SequenceProtocol, self).__init__(name)
+        self.protocols = protocols
+
+    def run(self, cell_model, param_values, sim=None):
+        """Instantiate protocol"""
+
+        responses = {}
+
+        for protocol in self.protocols:
+            responses.update(
+                protocol.run(
+                    cell_model=cell_model,
+                    param_values=param_values,
+                    sim=sim))
+
+        return responses
+
+
+class SweepProtocol(Protocol):
 
     """Stimulus protocol"""
 
     def __init__(self, name=None, stimuli=None, recordings=None):
         """Constructor"""
-        self.name = name
+        super(SweepProtocol, self).__init__(name)
         self.stimuli = stimuli
         self.recordings = recordings
 
@@ -39,20 +75,41 @@ class Protocol(object):
 
         return max([stimulus.total_duration for stimulus in self.stimuli])
 
-    @property
-    def responses(self):
-        """Return all the responses"""
-        return {
-            recording.name: recording.response for recording in self.recordings}
-
-    def instantiate(self, cell):
+    def run(self, cell_model, param_values, sim=None):
         """Instantiate protocol"""
 
+        cell_model.freeze(param_values)
+        cell_model.instantiate(sim=sim)
+
+        self.instantiate(sim=sim, icell=cell_model.icell)
+
+        sim.run(self.total_duration)
+
+        responses = {
+            recording.name: recording.response
+            for recording in self.recordings}
+
+        self.destroy()
+        for recording in self.recordings:
+            recording.destroy()
+
         for stimulus in self.stimuli:
-            stimulus.instantiate(cell)
+            stimulus.destroy()
+
+        cell_model.destroy()
+
+        cell_model.unfreeze(param_values.keys())
+
+        return responses
+
+    def instantiate(self, sim=None, icell=None):
+        """Instantiate"""
+
+        for stimulus in self.stimuli:
+            stimulus.instantiate(sim=sim, icell=icell)
 
         for recording in self.recordings:
-            recording.instantiate(cell)
+            recording.instantiate(sim=sim, icell=icell)
 
     def destroy(self):
         """Destroy protocol"""
