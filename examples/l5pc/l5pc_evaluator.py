@@ -117,7 +117,7 @@ def define_fitness_calculator(protocols):
                     stim_start = stimulus.step_delay
                     stim_end = stimulus.step_delay + stimulus.step_duration
                 elif 'dend' in location:
-                    threshold = -30
+                    threshold = -55 # -30
                     stim_start = stimulus.step_delay
                     # bAP response can be after stimulus
                     stim_end = stimulus.total_duration
