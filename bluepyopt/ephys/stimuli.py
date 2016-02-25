@@ -21,9 +21,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 
 import logging
-
-from .importer import neuron
-
 logger = logging.getLogger(__name__)
 
 
@@ -58,10 +55,11 @@ class NrnSquarePulse(Stimulus):
         self.total_duration = total_duration
         self.iclamp = None
 
-    def instantiate(self, cell):
+    def instantiate(self, sim=None, icell=None):
         """Run stimulus"""
 
-        icomp = self.location.instantiate(cell)
+        icell = icell
+        icomp = self.location.instantiate(sim=sim, icell=icell)
         logger.debug(
             'Adding square step stimulus to %s with delay %f, '
             'duration %f, and amplitude %f',
@@ -70,7 +68,7 @@ class NrnSquarePulse(Stimulus):
             self.step_duration,
             self.step_amplitude)
 
-        self.iclamp = neuron.h.IClamp(
+        self.iclamp = sim.neuron.h.IClamp(
             icomp.x,
             sec=icomp.sec)
         self.iclamp.dur = self.step_duration

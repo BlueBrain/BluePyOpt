@@ -21,8 +21,9 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 from .importer import neuron  # NOQA
 
+import simulators  # NOQA
 import models  # NOQA
-import cellevaluator  # NOQA
+import evaluators  # NOQA
 import mechanisms  # NOQA
 import locations  # NOQA
 import parameterscalers  # NOQA
@@ -33,7 +34,7 @@ import objectives  # NOQA
 import protocols  # NOQA
 import responses  # NOQA
 import recordings  # NOQA
-import scorecalculators  # NOQA
+import objectivescalculators  # NOQA
 import stimuli  # NOQA
 
 # TODO create all the necessary abstract methods

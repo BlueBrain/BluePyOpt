@@ -28,11 +28,21 @@ context of the BlueBrain project
 import os
 
 import argparse
+# pylint: disable=R0914
+import logging
+logging.basicConfig()
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+import bluepyopt
+
+# TODO store definition dicts in json
+# TODO rename 'score' into 'objective'
+# TODO add functionality to read settings of every object from config format
+
 
 import l5pc_evaluator
 evaluator = l5pc_evaluator.create()
-
-import bluepyopt
 
 
 def evaluate(parameter_array):
