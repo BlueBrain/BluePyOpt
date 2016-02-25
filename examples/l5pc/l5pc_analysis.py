@@ -53,9 +53,17 @@ def analyse_cp(opt=None, cp_filename=None, figs=None, boxes=None):
         print '\nObjective values: %s' % objectives
 
         fitness_protocols = opt.evaluator.fitness_protocols
-        responses = opt.evaluator.\
-            cell_model.run_protocols(fitness_protocols,
-                                     param_values=parameter_values)
+        responses = {}
+
+        import bluepyopt.ephys as ephys
+        nrn = ephys.simulators.NrnSimulator()
+
+        for protocol in fitness_protocols.values():
+            response = protocol.run(
+                cell_model=opt.evaluator.cell_model,
+                param_values=parameter_values,
+                sim=nrn)
+            responses.update(response)
 
         box = bpop_model_box
         plot_responses(
@@ -242,16 +250,24 @@ def analyse_releasecircuit_model(opt, fig=None, box=None):
     }
     fitness_protocols = opt.evaluator.fitness_protocols
 
-    responses = opt.evaluator.cell_model.run_protocols(
-        fitness_protocols,
-        param_values=parameters)
+    responses = {}
+
+    import bluepyopt.ephys as ephys
+    nrn = ephys.simulators.NrnSimulator()
+
+    for protocol in fitness_protocols.values():
+        response = protocol.run(
+            cell_model=opt.evaluator.cell_model,
+            param_values=parameters,
+            sim=nrn)
+        responses.update(response)
 
     objectives = opt.evaluator.fitness_calculator.calculate_scores(
         responses)
 
-    #opt.evaluator.cell_model.freeze(param_values=parameters)
-    #opt.evaluator.cell_model.instantiate()
-    #for section in opt.evaluator.cell_model.icell.axonal:
+    # opt.evaluator.cell_model.freeze(param_values=parameters)
+    # opt.evaluator.cell_model.instantiate()
+    # for section in opt.evaluator.cell_model.icell.axonal:
     #    print section.L, section.diam, section.nseg
 
     plot_responses(responses, fig=fig,
@@ -276,7 +292,7 @@ def analyse_releasecircuit_hocmodel(opt, fig=None, box=None):
     from hocmodel import HocModel
 
     template_model = HocModel(morphname="./morphology/C060114A7.asc",
-                                    template="./cADpyr_76.hoc")
+                              template="./cADpyr_76.hoc")
 
     responses = template_model.run_protocols(
         fitness_protocols)
@@ -284,8 +300,8 @@ def analyse_releasecircuit_hocmodel(opt, fig=None, box=None):
     objectives = opt.evaluator.fitness_calculator.calculate_scores(
         responses)
 
-    #template_model.instantiate()
-    #for section in template_model.icell.axonal:
+    # template_model.instantiate()
+    # for section in template_model.icell.axonal:
     #    print section.L, section.diam, section.nseg
 
     plot_responses(responses, fig=fig,
