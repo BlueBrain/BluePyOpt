@@ -87,15 +87,15 @@ class NrnFileMorphology(Morphology):
 
         morphology_importer.instantiate(icell)
 
-        # TODO Set nseg should be called after all the parameters have been
-        # set
-        # (in case e.g. Ra was changed)
-        NrnFileMorphology.set_nseg(icell)
-
         # TODO replace these two functions with general function users can
         # specify
         if self.do_replace_axon:
             NrnFileMorphology.replace_axon(sim=sim, icell=icell)
+
+        # TODO Set nseg should be called after all the parameters have been
+        # set
+        # (in case e.g. Ra was changed)
+        NrnFileMorphology.set_nseg(icell)
 
     def destroy(self):
         """Destroy morphology instantiation"""
