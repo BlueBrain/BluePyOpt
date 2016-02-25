@@ -89,15 +89,15 @@ class NrnFileMorphology(Morphology):
 
         morphology_importer.instantiate(cell.icell)
 
-        # TODO replace these two functions with general function users can
-        # specify
-        if self.do_replace_axon:
-            NrnFileMorphology.replace_axon(cell.icell)
-
         # TODO Set nseg should be called after all the parameters have been
         # set
         # (in case e.g. Ra was changed)
         NrnFileMorphology.set_nseg(cell.icell)
+
+        # TODO replace these two functions with general function users can
+        # specify
+        if self.do_replace_axon:
+            NrnFileMorphology.replace_axon(cell.icell)
 
     def destroy(self):
         """Destroy morphology instantiation"""
@@ -131,10 +131,11 @@ class NrnFileMorphology(Morphology):
         neuron.h.execute('create axon[2]', icell)
 
         for index, section in enumerate(icell.axon):
+            section.nseg = 1
             section.L = 30
             section.diam = ais_diams[index]
-            icell.axonal.append(section)
-            icell.all.append(section)
+            icell.axonal.append(sec=section)
+            icell.all.append(sec=section)
 
         icell.axon[0].connect(icell.soma[0], 1.0, 0.0)
         icell.axon[1].connect(icell.axon[0], 1.0, 0.0)

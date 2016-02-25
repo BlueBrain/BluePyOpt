@@ -2,7 +2,7 @@
     "global": [
         [
             "v_init",
-            -80
+            -65
         ],
         [
             "celsius",

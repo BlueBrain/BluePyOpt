@@ -249,12 +249,52 @@ def analyse_releasecircuit_model(opt, fig=None, box=None):
     objectives = opt.evaluator.fitness_calculator.calculate_scores(
         responses)
 
+    #opt.evaluator.cell_model.freeze(param_values=parameters)
+    #opt.evaluator.cell_model.instantiate()
+    #for section in opt.evaluator.cell_model.icell.axonal:
+    #    print section.L, section.diam, section.nseg
+
     plot_responses(responses, fig=fig,
                    box={
                        'left': box['left'],
                        'bottom': box['bottom'] + float(box['height']) / 2.0,
                        'width': box['width'],
                        'height': float(box['height']) / 2.0})
+    plot_objectives(objectives, fig=fig,
+                    box={
+                        'left': box['left'],
+                        'bottom': box['bottom'],
+                        'width': box['width'],
+                        'height': float(box['height']) / 2.0})
+
+
+def analyse_releasecircuit_hocmodel(opt, fig=None, box=None):
+    """Analyse L5PC model from release circuit from .hoc template"""
+
+    fitness_protocols = opt.evaluator.fitness_protocols
+
+    from hocmodel import HocModel
+
+    template_model = HocModel(morphname="./morphology/C060114A7.asc",
+                                    template="./cADpyr_76.hoc")
+
+    responses = template_model.run_protocols(
+        fitness_protocols)
+
+    objectives = opt.evaluator.fitness_calculator.calculate_scores(
+        responses)
+
+    #template_model.instantiate()
+    #for section in template_model.icell.axonal:
+    #    print section.L, section.diam, section.nseg
+
+    plot_responses(responses, fig=fig,
+                   box={
+                       'left': box['left'],
+                       'bottom': box['bottom'] + float(box['height']) / 2.0,
+                       'width': box['width'],
+                       'height': float(box['height']) / 2.0})
+
     plot_objectives(objectives, fig=fig,
                     box={
                         'left': box['left'],
