@@ -5,7 +5,7 @@ ephys model API
     :toctree: ephys
     :template: module.rst
     
-    bluepyopt.ephys.cellevaluator
+    bluepyopt.ephys.evaluators
     bluepyopt.ephys.models
     bluepyopt.ephys.efeatures
     bluepyopt.ephys.locations
@@ -17,5 +17,5 @@ ephys model API
     bluepyopt.ephys.protocols
     bluepyopt.ephys.recordings
     bluepyopt.ephys.responses
-    bluepyopt.ephys.scorecalculators
+    bluepyopt.ephys.objectivescalculators
     bluepyopt.ephys.stimuli

@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 BluePyOpt
-========
+=========
 BlueBrain Python Optimisation Library
 
 .. toctree::
