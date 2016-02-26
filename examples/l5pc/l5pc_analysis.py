@@ -183,12 +183,13 @@ def plot_responses(responses, fig=None, box=None):
     rec_rect['bottom'] = box['bottom'] + \
         box['height'] - rec_rect['height']
 
-    for _, recording in sorted(responses.items()):
-        plot_recording(recording, fig=fig, box=rec_rect)
+    last = len(responses) - 1
+    for i, (_, recording) in enumerate(sorted(responses.items())):
+        plot_recording(recording, fig=fig, box=rec_rect, xlabel=(last == i))
         rec_rect['bottom'] -= rec_rect['height']
 
 
-def plot_recording(recording, fig=None, box=None):
+def plot_recording(recording, fig=None, box=None, xlabel=False):
     """Plot responses of the cell model"""
 
     import matplotlib.pyplot as plt
@@ -214,9 +215,16 @@ def plot_recording(recording, fig=None, box=None):
         left='on',
         right='off')
 
-    axes.set_ylabel(recording.name, rotation=0, labelpad=25)
+    name = recording.name
+    if name.endswith('.v'):
+        name = name[:-2]
+
+    axes.set_ylabel(name + '\n(mV)', rotation=0, labelpad=25)
     yloc = plt.MaxNLocator(2)
     axes.yaxis.set_major_locator(yloc)
+
+    if xlabel:
+        axes.set_xlabel('Time (ms)')
 
 
 def analyse_releasecircuit_model(opt, fig=None, box=None):
