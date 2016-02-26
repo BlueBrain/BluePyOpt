@@ -72,9 +72,11 @@ def analyse():
         
         axarr2[i].plot(time, ca)
         axarr2[i].axhline(y=best_ind_dict['theta_d'], color='g', linestyle='--')
+        axarr2[i].annotate(r'$\theta_d$', xy=(0.3, best_ind_dict['theta_d']-0.15))
         axarr2[i].axhline(y=best_ind_dict['theta_p'], color='r', linestyle='--')
+        axarr2[i].annotate(r'$\theta_p$', xy=(0.3, best_ind_dict['theta_p']+0.05))
         axarr2[i].set_title(protocol.prot_id)
-        axarr2[i].set_xlim(-0.1, 0.5)
+        axarr2[i].set_xlim(-0.1, 0.4)
         axarr2[i].set_ylabel('calcium')
     axarr2[i].set_xlabel('time (sec)')
     
