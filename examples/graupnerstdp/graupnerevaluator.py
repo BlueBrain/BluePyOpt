@@ -34,14 +34,14 @@ class GraupnerEvaluator(bpop.evaluators.Evaluator):
         super(GraupnerEvaluator, self).__init__()
         # Graupner model parameters and boundaries
         self.graup_params = [('tau_ca', 1e-3, 100e-3),
-                             ('C_pre', 0.1, 5.0),
-                             ('C_post', 0.1, 5.0),
+                             ('C_pre', 0.1, 20.0),
+                             ('C_post', 0.1, 50.0),
                              ('gamma_d', 5.0, 5000.0),
                              ('gamma_p', 5.0, 2500.0),
                              ('sigma', 0.35, 70.7),
                              ('tau', 2.5, 2500.0),
                              ('D', 0.0, 50e-3),
-                             ('b', 1.0, 10.0)]
+                             ('b', 1.0, 100.0)]
 
         self.params = [bpop.parameters.Parameter
                        (param_name, bounds=(min_bound, max_bound))
