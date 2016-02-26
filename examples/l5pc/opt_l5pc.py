@@ -69,6 +69,7 @@ def main():
     args = parser.parse_args()
 
     if args.compile:
+        logger.debug('Doing compile')
         import commands
         commands.getstatusoutput('cd mechanisms/; nrnivmodl; cd ..')
 
@@ -77,6 +78,7 @@ def main():
     # TODO add functionality to read settings of every object from config format
 
     if args.hocanalyse:
+        logger.debug('Doing hocanalyse')
         try:
             import bglibpy  # NOQA
         except ImportError:
@@ -88,12 +90,14 @@ def main():
     cp_filename = 'checkpoints/checkpoint.pkl'
 
     if args.start or args.continue_cp:
+        logger.debug('Doing start or continue')
         opt.run(
             max_ngen=200,
             continue_cp=args.continue_cp,
             cp_filename=cp_filename)
 
     if args.analyse:
+        logger.debug('Doing analyse')
         import l5pc_analysis
 
         # _, axes_obj = plt.subplots(n_of_rows, n_of_cols, facecolor='white')
@@ -135,6 +139,7 @@ def main():
         plt.show()
 
     elif args.hocanalyse:
+        logger.debug('Continuing hocanalyse')
 
         import l5pc_analysis
 
