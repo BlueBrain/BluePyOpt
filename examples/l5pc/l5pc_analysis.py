@@ -66,14 +66,17 @@ def analyse_cp(opt=None, cp_filename=None, figs=None, boxes=None):
             responses.update(response)
 
         box = bpop_model_box
+        height = float(box['height']) / 2.0
+        responses_height = height * 0.95
         plot_responses(
             responses,
             fig=bpop_model_fig,
             box={
                 'left': box['left'],
-                'bottom': box['bottom'] + float(box['height']) / 2.0,
+                'bottom': float(box['height']) - responses_height,
                 'width': box['width'],
-                'height': float(box['height']) / 2.0})
+                'height': responses_height * 0.98})
+
         plot_objectives(
             objectives,
             fig=bpop_model_fig,
@@ -278,18 +281,21 @@ def analyse_releasecircuit_model(opt, fig=None, box=None):
     # for section in opt.evaluator.cell_model.icell.axonal:
     #    print section.L, section.diam, section.nseg
 
+    height = float(box['height']) / 2.0
+    responses_height = height * 0.95
     plot_responses(responses, fig=fig,
                    box={
                        'left': box['left'],
-                       'bottom': box['bottom'] + float(box['height']) / 2.0,
+                       'bottom': float(box['height']) - responses_height,
                        'width': box['width'],
-                       'height': float(box['height']) / 2.0})
+                       'height': responses_height * 0.98})
+
     plot_objectives(objectives, fig=fig,
                     box={
                         'left': box['left'],
                         'bottom': box['bottom'],
                         'width': box['width'],
-                        'height': float(box['height']) / 2.0})
+                        'height': height})
 
 
 def analyse_releasecircuit_hocmodel(opt, fig=None, box=None):
