@@ -25,6 +25,19 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import pickle
 
 
+def set_rcoptions(func):
+    '''decorator to apply custom matplotlib rc params to a function, and undo after'''
+    import matplotlib
+
+    def wrap(*args, **kwargs):
+        options = {'axes.linewidth': 2,
+                   }
+        with matplotlib.rc_context(rc=options):
+            func(*args, **kwargs)
+    return wrap
+
+
+@set_rcoptions
 def analyse_cp(opt=None, cp_filename=None, figs=None, boxes=None):
     """Analyse optimisation results"""
 
@@ -230,6 +243,7 @@ def plot_recording(recording, fig=None, box=None, xlabel=False):
         axes.set_xlabel('Time (ms)')
 
 
+@set_rcoptions
 def analyse_releasecircuit_model(opt, fig=None, box=None):
     """Analyse L5PC model from release circuit"""
 
