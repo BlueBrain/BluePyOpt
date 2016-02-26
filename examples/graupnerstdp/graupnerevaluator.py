@@ -56,9 +56,22 @@ class GraupnerEvaluator(bpop.evaluators.Evaluator):
         self.objectives = [bpop.objectives.Objective(protocol.prot_id)
                            for protocol in self.protocols]
 
+    def get_param_dict(self, param_values):
+        """"""
+        return graupnerParam(zip(self.param_names, param_values))
+        
+    def compute_synaptic_gain_with_lists(self, param_values):
+        """"""
+        param_dict = self.get_param_dict(param_values)
+
+        syn_gain = [stdputil.protocol_outcome(protocol, param_dict) \
+                    for protocol in self.protocols]
+
+        return syn_gain
+                    
     def evaluate_with_lists(self, param_values):
         """Evaluate"""
-        param_dict = graupnerParam(zip(self.param_names, param_values))
+        param_dict = self.get_param_dict(param_values)
 
         err = []
         for protocol, sg, stderr in \
