@@ -159,16 +159,13 @@ class CalciumTrace(object):
         n = int((tstop - tstart) / dt)
         tvec = np.linspace(tstart, tstop, n)
 
-        traces = []
-        for i in xrange(len(self.__evnt)):
-            trace = np.zeros(n)
-            for j in xrange(len(self.__evnt[i])):
-                offset = int((self.time[i][j] - tstart) / dt)
-                component = self.amplitude[i][j] * np.exp(-(tvec[:n-offset] / self.model['tau_ca']))
-                trace[offset:] += component
-            traces.append(trace)
+        trace = np.zeros(n)
+        for j in xrange(len(self.__evnt)):
+            offset = int((self.time[j] - tstart) / dt)
+            component = self.amplitude[j] * np.exp(-(tvec[:n-offset] / self.model['tau_ca']))
+            trace[offset:] += component
 
-        return tvec, traces
+        return tvec, trace
 
     @property
     def event(self):

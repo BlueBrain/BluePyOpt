@@ -21,7 +21,7 @@ def run_model():
     """Run model"""
 
     _, _, _, _ = opt.run(
-        max_ngen=3000, cp_filename=cp_filename, cp_frequency=100)
+        max_ngen=200, cp_filename=cp_filename, cp_frequency=100)
 
 
 def analyse():
@@ -49,19 +49,59 @@ def analyse():
     protocols, sg, _, stderr = stdputil.load_neviansakmann()
     dt = np.array([float(p.prot_id[:3]) for p in protocols])
 
-    fig, ax = plt.subplots()
+    # Plot result summary
+    fig1, ax1 = plt.subplots()
 
-    ax.errorbar(dt, model_sg, marker='o', label='Model')
-    ax.errorbar(dt, sg, yerr=stderr, marker='o', label='In vitro')
+    ax1.errorbar(dt, model_sg, marker='o', label='Model')
+    ax1.errorbar(dt, sg, yerr=stderr, marker='o', label='In vitro')
 
-    ax.axhline(y=1, color='k', linestyle='--')
-    ax.axvline(color='k', linestyle='--')
+    ax1.axhline(y=1, color='k', linestyle='--')
+    ax1.axvline(color='k', linestyle='--')
 
-    # ax.set_xlabel(r'$\Delta t\'$(ms)')
-    ax.set_ylabel('change in EPSP amplitude')
-    ax.legend()
+    ax1.set_xlabel(r'$\Delta t\'$(ms)')
+    ax1.set_ylabel('change in EPSP amplitude')
+    ax1.legend()
 
-    fig.savefig('figures/graupner_fit.eps')
+    fig1.savefig('figures/graupner_fit.eps')
+    
+    # Plot calcium transients for each protocol
+    fig2, axarr2 = plt.subplots(len(protocols), 1, sharex=True)
+    for i, protocol in enumerate(protocols):
+        calcium = stdputil.CalciumTrace(protocol, best_ind_dict)
+        time, ca = calcium.materializetrace()
+        
+        axarr2[i].plot(time, ca)
+        axarr2[i].axhline(y=best_ind_dict['theta_d'], color='g', linestyle='--')
+        axarr2[i].axhline(y=best_ind_dict['theta_p'], color='r', linestyle='--')
+        axarr2[i].set_title(protocol.prot_id)
+        axarr2[i].set_xlim(-0.1, 0.5)
+        axarr2[i].set_ylabel('calcium')
+    axarr2[i].set_xlabel('time (sec)')
+    
+    fig2.savefig('figures/calcium_traces.eps')
+    
+    # Plot dt scan
+    dt_vec = np.linspace(-90e-3, 50e-3, 100)
+    sg_vec = []
+    for model_dt in dt_vec:
+        protocol = stdputil.Protocol(['pre', 'post', 'post', 'post'], [model_dt, 20e-3, 20e-3], 0.1, 60.0, prot_id='%.2fms'%model_dt)
+        model_sg = stdputil.protocol_outcome(protocol, best_ind_dict)
+        sg_vec.append(model_sg)
+
+    fig3, ax3 = plt.subplots()
+
+    ax3.plot(dt_vec*1000.0, sg_vec, marker='o', label='Model')
+    ax3.errorbar(dt, sg, yerr=stderr, marker='o', label='In vitro')
+
+    ax3.axhline(y=1, color='k', linestyle='--')
+    ax3.axvline(color='k', linestyle='--')
+
+    ax3.set_xlabel(r'$\Delta t\'$(ms)')
+    ax3.set_ylabel('change in EPSP amplitude')
+    ax3.legend()
+
+    fig3.savefig('figures/dt_scan.eps')
+        
     plt.show()
 
 
