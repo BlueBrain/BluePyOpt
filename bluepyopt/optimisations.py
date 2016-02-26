@@ -249,7 +249,12 @@ class DEAPOptimisation(Optimisation):
                 delattr(deap.creator, classname)
         Optimisation._instance_counter -= 1
 
-    def run(self, max_ngen=10, continue_cp=False, cp_filename=None):
+    def run(
+            self,
+            max_ngen=10,
+            continue_cp=False,
+            cp_filename=None,
+            cp_frequency=1):
         """Run optimisation"""
 
         # Total number of generation to run
@@ -289,6 +294,7 @@ class DEAPOptimisation(Optimisation):
             NGEN,
             stats=stats,
             halloffame=hof,
+            cp_frequency=cp_frequency,
             continue_cp=continue_cp,
             cp_filename=cp_filename)
 
@@ -309,7 +315,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         ngen,
         stats=None,
         halloffame=None,
-        checkpoint_freq=1,
+        cp_frequency=1,
         cp_filename=None,
         continue_cp=False):
     r"""This is the :math:`(~\alpha,\mu~,~\lambda)` evolutionary algorithm."""
@@ -387,8 +393,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
 
         print logbook.stream
 
-        if cp_filename and checkpoint_freq:
-            if gen % checkpoint_freq == 0:
+        if cp_filename and cp_frequency:
+            if gen % cp_frequency == 0:
                 cp = dict(population=population, generation=gen,
                           parents=parents,
                           halloffame=halloffame,
