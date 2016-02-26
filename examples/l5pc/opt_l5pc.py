@@ -83,14 +83,6 @@ def main():
             raise ImportError(
                 'bglibpy not installed, '
                 '--hocanalyse for internal testing only!')
-    else:
-        mechfile = "./mechanisms/x86_64/.libs/libnrnmech.so"
-        if os.path.isfile(mechfile):
-            from bluepyopt.ephys import neuron
-            neuron.h.nrn_load_dll(mechfile)
-
-        else:
-            raise ImportError('nrnmech not compiled, run --compile first!')
 
     # TODO read checkpoint filename from arguments
     cp_filename = 'checkpoints/checkpoint.pkl'
