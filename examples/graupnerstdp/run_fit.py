@@ -58,7 +58,7 @@ def analyse():
     ax1.axhline(y=1, color='k', linestyle='--')
     ax1.axvline(color='k', linestyle='--')
 
-    #ax1.set_xlabel('$\Delta t\'$(ms)')
+    ax1.set_xlabel('$\Delta t$(ms)')
     ax1.set_ylabel('change in EPSP amplitude')
     ax1.legend()
 
@@ -98,7 +98,7 @@ def analyse():
     ax3.axhline(y=1, color='k', linestyle='--')
     ax3.axvline(color='k', linestyle='--')
 
-    #ax3.set_xlabel('$\Delta t\'$(ms)')
+    ax3.set_xlabel('$\Delta t$(ms)')
     ax3.set_ylabel('change in EPSP amplitude')
     ax3.legend()
 
