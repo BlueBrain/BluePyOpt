@@ -23,15 +23,16 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=R0914, W0633
 
 import pickle
+import numpy
 
 
 def set_rcoptions(func):
-    '''decorator to apply custom matplotlib rc params to a function, and undo after'''
+    '''decorator to apply custom matplotlib rc params to function, undo after'''
     import matplotlib
 
     def wrap(*args, **kwargs):
-        options = {'axes.linewidth': 2,
-                   }
+        """Wrap"""
+        options = {'axes.linewidth': 2, }
         with matplotlib.rc_context(rc=options):
             func(*args, **kwargs)
     return wrap
@@ -107,12 +108,11 @@ def plot_log(log, fig=None, box=None):
     """Plot logbook"""
 
     gen_numbers = log.select('gen')
-    mean = log.select('avg')
-    std = log.select('std')
-    minimum = log.select('min')
-    maximum = log.select('max')
+    mean = numpy.array(log.select('avg'))
+    std = numpy.array(log.select('std'))
+    minimum = numpy.array(log.select('min'))
 
-    left_margin = box['width'] * 0.2
+    left_margin = box['width'] * 0.1
     right_margin = box['width'] * 0.05
     top_margin = box['height'] * 0.05
     bottom_margin = box['height'] * 0.1
@@ -123,28 +123,34 @@ def plot_log(log, fig=None, box=None):
          box['width'] - left_margin - right_margin,
          box['height'] - bottom_margin - top_margin))
 
-    axes.errorbar(
+    stdminus = mean - std
+    stdplus = mean + std
+    axes.plot(
         gen_numbers,
         mean,
-        std,
         color='black',
         linewidth=2,
-        label='mean/std')
+        label='population average')
+
+    axes.fill_between(
+        gen_numbers,
+        stdminus,
+        stdplus,
+        color='lightgray',
+        linewidth=2,
+        label=r'population standard deviation')
+
     axes.plot(
         gen_numbers,
         minimum,
-        color='blue',
-        linewidth=1,
-        label='min')
-    axes.plot(
-        gen_numbers,
-        maximum,
         color='red',
-        linewidth=1,
-        label='max')
+        linewidth=2,
+        label='population minimum')
+
     axes.set_xlim(min(gen_numbers) - 1, max(gen_numbers) + 1)
-    axes.set_xlabel('Gen #')
-    axes.set_ylabel('Fitness')
+    axes.set_xlabel('Generation #')
+    axes.set_ylabel('Sum of objectives')
+    axes.set_ylim([0, max(stdplus)])
     axes.legend()
 
 
@@ -317,7 +323,7 @@ def analyse_releasecircuit_hocmodel(opt, fig=None, box=None):
 
     fitness_protocols = opt.evaluator.fitness_protocols
 
-    from hocmodel import HocModel
+    from hocmodel import HocModel  # NOQA
 
     template_model = HocModel(morphname="./morphology/C060114A7.asc",
                               template="./cADpyr_76.hoc")
