@@ -29,9 +29,8 @@ import bluepyopt.evaluators
 import bluepyopt.objectives
 import bluepyopt.parameters
 
-# TODO add license headers
-# TODO use logger module instead of print statements
 # TODO let objects read / write themselves using json
 # TODO create 'Variables' class
 # TODO use 'locations' instead of 'location'
 # TODO add island functionality to optimiser
+# TODO add plotting functionality
