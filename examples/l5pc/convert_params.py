@@ -33,15 +33,21 @@ def main():
                 parameters.append(param)
 
     for sectionlist in params:
-        for section, param_name, min_bound, max_bound, dist_type in \
+        for mech, param_name, min_bound, max_bound, dist_type in \
                 params[sectionlist]:
             param = {
                 'bounds': [min_bound, max_bound],
-                'param_name': '%s_%s' % (param_name, section),
+                'mech': mech,
+                'mech_param': param_name,
+                'param_name': '%s_%s' % (param_name, mech),
                 'type': 'range',
                 'dist_type': dist_type,
                 'sectionlist': sectionlist
             }
+
+            if mech == 'Ih':
+                del param['bounds']
+                param['value'] = 8e-5
 
             if dist_type == 'exp':
                 param['dist'] = \
