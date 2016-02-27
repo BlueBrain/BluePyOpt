@@ -1,0 +1,327 @@
+[
+    {
+        "param_name": "g_pas",
+        "sectionlist": "all",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 3e-05
+    },
+    {
+        "param_name": "e_pas",
+        "sectionlist": "all",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": -75
+    },
+    {
+        "param_name": "cm",
+        "sectionlist": "all",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 1
+    },
+    {
+        "param_name": "Ra",
+        "sectionlist": "all",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 100
+    },
+    {
+        "param_name": "v_init",
+        "type": "global",
+        "value": -65
+    },
+    {
+        "param_name": "celsius",
+        "type": "global",
+        "value": 34
+    },
+    {
+        "param_name": "ena",
+        "sectionlist": "apical",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 50
+    },
+    {
+        "param_name": "ek",
+        "sectionlist": "apical",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": -85
+    },
+    {
+        "param_name": "cm",
+        "sectionlist": "apical",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 2
+    },
+    {
+        "param_name": "ena",
+        "sectionlist": "somatic",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 50
+    },
+    {
+        "param_name": "ek",
+        "sectionlist": "somatic",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": -85
+    },
+    {
+        "param_name": "cm",
+        "sectionlist": "basal",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 2
+    },
+    {
+        "param_name": "ena",
+        "sectionlist": "axonal",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 50
+    },
+    {
+        "param_name": "ek",
+        "sectionlist": "axonal",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": -85
+    },
+    {
+        "param_name": "gIhbar_Ih",
+        "sectionlist": "basal",
+        "type": "range",
+        "bounds": [
+            7.999e-05,
+            8.001e-05
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gNaTs2_tbar_NaTs2_t",
+        "sectionlist": "apical",
+        "type": "range",
+        "bounds": [
+            0,
+            0.04
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gSKv3_1bar_SKv3_1",
+        "sectionlist": "apical",
+        "type": "range",
+        "bounds": [
+            0,
+            0.04
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gImbar_Im",
+        "sectionlist": "apical",
+        "type": "range",
+        "bounds": [
+            0,
+            0.001
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gIhbar_Ih",
+        "dist": "(-0.8696 + 2.087*math.exp(({distance})*0.0031))*{value}",
+        "bounds": [
+            7.999e-05,
+            8.001e-05
+        ],
+        "dist_type": "exp",
+        "type": "range",
+        "sectionlist": "apical"
+    },
+    {
+        "param_name": "gNaTa_tbar_NaTa_t",
+        "sectionlist": "axonal",
+        "type": "range",
+        "bounds": [
+            0,
+            4
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gNap_Et2bar_Nap_Et2",
+        "sectionlist": "axonal",
+        "type": "range",
+        "bounds": [
+            0,
+            4
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gK_Pstbar_K_Pst",
+        "sectionlist": "axonal",
+        "type": "range",
+        "bounds": [
+            0,
+            1
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gK_Tstbar_K_Tst",
+        "sectionlist": "axonal",
+        "type": "range",
+        "bounds": [
+            0,
+            0.1
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gSK_E2bar_SK_E2",
+        "sectionlist": "axonal",
+        "type": "range",
+        "bounds": [
+            0,
+            0.1
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gSKv3_1bar_SKv3_1",
+        "sectionlist": "axonal",
+        "type": "range",
+        "bounds": [
+            0,
+            2
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gCa_HVAbar_Ca_HVA",
+        "sectionlist": "axonal",
+        "type": "range",
+        "bounds": [
+            0,
+            0.001
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gCa_LVAstbar_Ca_LVAst",
+        "sectionlist": "axonal",
+        "type": "range",
+        "bounds": [
+            0,
+            0.01
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gamma_CaDynamics_E2",
+        "sectionlist": "axonal",
+        "type": "range",
+        "bounds": [
+            0.0005,
+            0.05
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "decay_CaDynamics_E2",
+        "sectionlist": "axonal",
+        "type": "range",
+        "bounds": [
+            20,
+            1000
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gNaTs2_tbar_NaTs2_t",
+        "sectionlist": "somatic",
+        "type": "range",
+        "bounds": [
+            0,
+            1
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gSKv3_1bar_SKv3_1",
+        "sectionlist": "somatic",
+        "type": "range",
+        "bounds": [
+            0,
+            1
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gSK_E2bar_SK_E2",
+        "sectionlist": "somatic",
+        "type": "range",
+        "bounds": [
+            0,
+            0.1
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gCa_HVAbar_Ca_HVA",
+        "sectionlist": "somatic",
+        "type": "range",
+        "bounds": [
+            0,
+            0.001
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gCa_LVAstbar_Ca_LVAst",
+        "sectionlist": "somatic",
+        "type": "range",
+        "bounds": [
+            0,
+            0.01
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gamma_CaDynamics_E2",
+        "sectionlist": "somatic",
+        "type": "range",
+        "bounds": [
+            0.0005,
+            0.05
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "decay_CaDynamics_E2",
+        "sectionlist": "somatic",
+        "type": "range",
+        "bounds": [
+            20,
+            1000
+        ],
+        "dist_type": "uniform"
+    },
+    {
+        "param_name": "gIhbar_Ih",
+        "sectionlist": "somatic",
+        "type": "range",
+        "bounds": [
+            7.999e-05,
+            8.001e-05
+        ],
+        "dist_type": "uniform"
+    }
+]
