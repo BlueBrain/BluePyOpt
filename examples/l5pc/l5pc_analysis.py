@@ -56,15 +56,15 @@ def analyse_cp(opt=None, cp_filename=None, figs=None, boxes=None):
 
     print '\nHall of fame'
     print '################'
-    for ind_number, individual in enumerate(hof[:1], 1):
-        objectives = opt.evaluator.objective_dict(
-            individual.fitness.values)
+    for _, individual in enumerate(hof[:1], 1):
+        # objectives = opt.evaluator.objective_dict(
+        #    individual.fitness.values)
         parameter_values = opt.evaluator.param_dict(individual)
 
-        print '\nIndividual %d' % ind_number
-        print '#############'
-        print 'Parameters: %s' % parameter_values
-        print '\nObjective values: %s' % objectives
+        # print '\nIndividual %d' % ind_number
+        # print '#############'
+        # print 'Parameters: %s' % parameter_values
+        # print '\nObjective values: %s' % objectives
 
         fitness_protocols = opt.evaluator.fitness_protocols
         responses = {}
@@ -90,6 +90,9 @@ def analyse_cp(opt=None, cp_filename=None, figs=None, boxes=None):
                 'bottom': float(box['height']) - responses_height,
                 'width': box['width'],
                 'height': responses_height * 0.98})
+
+        objectives = opt.evaluator.fitness_calculator.calculate_scores(
+            responses)
 
         plot_objectives(
             objectives,
@@ -175,7 +178,7 @@ def plot_objectives(objectives, fig=None, box=None):
 
     import collections
     objectives = collections.OrderedDict(sorted(objectives.iteritems()))
-    left_margin = box['width'] * 0.5
+    left_margin = box['width'] * 0.4
     right_margin = box['width'] * 0.05
     top_margin = box['height'] * 0.05
     bottom_margin = box['height'] * 0.1
@@ -186,11 +189,16 @@ def plot_objectives(objectives, fig=None, box=None):
          box['width'] - left_margin - right_margin,
          box['height'] - bottom_margin - top_margin))
 
-    axes.barh(range(len(objectives.values())), objectives.values(), color='b')
-    axes.set_yticks(
-        [x + 0.5 for x in range(len(objectives.keys()))])
+    ytick_pos = [x + 0.5 for x in range(len(objectives.keys()))]
+
+    axes.barh(ytick_pos,
+              objectives.values(),
+              height=0.5,
+              align='center',
+              color='#779ECB')
+    axes.set_yticks(ytick_pos)
     axes.set_yticklabels(objectives.keys(), size='x-small')
-    axes.set_ylim(0, len(objectives.values()))
+    axes.set_ylim(-0.5, len(objectives.values()) + 0.5)
     axes.set_xlabel('Objective value (# std)')
     axes.set_ylabel('Objectives')
 
@@ -295,11 +303,6 @@ def analyse_releasecircuit_model(opt, fig=None, box=None):
 
     objectives = opt.evaluator.fitness_calculator.calculate_scores(
         responses)
-
-    # opt.evaluator.cell_model.freeze(param_values=parameters)
-    # opt.evaluator.cell_model.instantiate()
-    # for section in opt.evaluator.cell_model.icell.axonal:
-    #    print section.L, section.diam, section.nseg
 
     height = float(box['height']) / 2.0
     responses_height = height * 0.95

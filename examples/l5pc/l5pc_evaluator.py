@@ -111,15 +111,17 @@ def define_fitness_calculator(protocols):
                 recording_names = {'': '%s.%s.v' % (protocol_name, location)}
                 stimulus = protocols[protocol_name].stimuli[0]
 
+                stim_start = stimulus.step_delay
+
                 if location == 'soma':
                     threshold = -20
-                    stim_start = stimulus.step_delay
-                    stim_end = stimulus.step_delay + stimulus.step_duration
                 elif 'dend' in location:
-                    threshold = -55 # -30
-                    stim_start = stimulus.step_delay
-                    # bAP response can be after stimulus
+                    threshold = -55
+
+                if protocol_name == 'bAP':
                     stim_end = stimulus.total_duration
+                else:
+                    stim_end = stimulus.step_delay + stimulus.step_duration
 
                 feature = ephys.efeatures.eFELFeature(
                     feature_name,

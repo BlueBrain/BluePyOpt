@@ -67,7 +67,6 @@ def plot_log(log):
     axes.set_ylim([0, max(stdplus)])
     axes.legend()
 
-    axes.set_rasterized(True)
     fig.tight_layout()
     fig.savefig('figures/graupner_evolution.eps')
 
