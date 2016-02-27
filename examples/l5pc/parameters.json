@@ -97,10 +97,7 @@
         "param_name": "gIhbar_Ih",
         "sectionlist": "basal",
         "type": "range",
-        "bounds": [
-            7.999e-05,
-            8.001e-05
-        ],
+        "value": 8e-5,
         "dist_type": "uniform"
     },
     {
@@ -136,10 +133,7 @@
     {
         "param_name": "gIhbar_Ih",
         "dist": "(-0.8696 + 2.087*math.exp(({distance})*0.0031))*{value}",
-        "bounds": [
-            7.999e-05,
-            8.001e-05
-        ],
+        "value": 8e-5,
         "dist_type": "exp",
         "type": "range",
         "sectionlist": "apical"
@@ -318,10 +312,7 @@
         "param_name": "gIhbar_Ih",
         "sectionlist": "somatic",
         "type": "range",
-        "bounds": [
-            7.999e-05,
-            8.001e-05
-        ],
+        "value": 8e-5,
         "dist_type": "uniform"
     }
 ]

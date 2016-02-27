@@ -263,10 +263,8 @@ def analyse_releasecircuit_model(opt, fig=None, box=None):
 
     # Parameters in release circuit model
     parameters = {
-        'gIhbar_Ih.basal': 0.000080,
         'gNaTs2_tbar_NaTs2_t.apical': 0.026145,
         'gSKv3_1bar_SKv3_1.apical': 0.004226,
-        'gIhbar_Ih.apical': 0.000080,
         'gImbar_Im.apical': 0.000143,
         'gNaTa_tbar_NaTa_t.axonal': 3.137968,
         'gK_Tstbar_K_Tst.axonal': 0.089259,
@@ -283,7 +281,6 @@ def analyse_releasecircuit_model(opt, fig=None, box=None):
         'gSK_E2bar_SK_E2.somatic': 0.008407,
         'gCa_HVAbar_Ca_HVA.somatic': 0.000994,
         'gNaTs2_tbar_NaTs2_t.somatic': 0.983955,
-        'gIhbar_Ih.somatic': 0.000080,
         'decay_CaDynamics_E2.somatic': 210.485284,
         'gCa_LVAstbar_Ca_LVAst.somatic': 0.000333
     }
