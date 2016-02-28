@@ -17,6 +17,7 @@ logging.basicConfig(level=logging.WARN)
 
 
 # Parameters for cortical slices (Sjostrom et al., 2001)
+# From SI, Graupner and Brunel (2012)
 param_cortical = {
     'tau_ca': 22.6936e-3,  # [s]
     'C_pre': 0.5617539,
@@ -34,6 +35,7 @@ param_cortical = {
 
 
 # Parameters for hippocampal slices (Wittenberg and Wang, 2006)
+# From SI, Graupner and Brunel (2012)
 param_hippocampal = {
     'tau_ca': 48.8373e-3,  # [s]
     'C_pre': 1.0,
@@ -52,13 +54,18 @@ param_hippocampal = {
 
 class Protocol:
     def __init__(self, stim_vec, delta_vec, f, n, prot_id=None):
-        """A generic stimulation protocol.
+        """A stimulation protocol.
 
-        :param stim_vec: list of stimuli ['pre'|'post'|'burst']
-        :param delta_vec: list of deltas
-        :param f: frequency in Hz
-        :param n: number of repetitions
-        :param prot_id: ID of the protocol
+        :param stim_vec: list
+            List of stimuli ['pre'|'post'|'burst']
+        :param delta_vec: list
+            List of time deltas between stimuli
+        :param f: float
+            Frequency of the protocol in Hz
+        :param n: int
+            Number of repetitions of the protocol
+        :param prot_id: string
+            ID of the protocol
         """
         # Check stim strings
         valid_stim = set(['pre', 'post'])
@@ -77,9 +84,7 @@ class Protocol:
             self.stim_t[i + 1] = self.stim_t[i] + self.delta_vec[i]
 
     def sort(self):
-        """
-        Sort stimuli.
-        """
+        """Sort stimuli in place."""
         logging.debug('Protocol.sort()')
 
         # Check if the stimuli are already sorted
@@ -104,10 +109,11 @@ class Protocol:
 class CalciumTrace(object):
     def __init__(self, protocol, model):
         """Calcium trace produced by **model** when stimulated with **protocol**.
+        
         :param protocol: stdputil.Protocol
             The stimulation protocol.
         :param model: dict
-            Parameters of the Graupner model
+            Parameters of the Graupner-Brunel model
         """
         self.protocol = protocol
         self.model = model
@@ -181,6 +187,7 @@ class CalciumTrace(object):
 
 
 def load_neviansakmann():
+    """Load in vitro data, from figure 2B in (Nevian and Sakmann, 2006)."""
     protocols = [Protocol(['post', 'post', 'post', 'pre'], [20e-3, 20e-3, 50e-3], 0.1, 60.0, prot_id='-90ms'),
                  Protocol(['post', 'post', 'post', 'pre'], [20e-3, 20e-3, 10e-3], 0.1, 60.0, prot_id='-50ms'),
                  Protocol(['post', 'post', 'pre', 'post'], [20e-3, 10e-3, 10e-3], 0.1, 60.0, prot_id='-30ms'),
@@ -197,14 +204,21 @@ def load_neviansakmann():
     return protocols, sg, stdev, stderr
 
 
-def time_above_threshold(ca_event_t, ca_event_amp, protocol, param):
-    """
+def time_above_threshold(protocol, param):
+    """Compute time spent by calcium above the potentiation and depression
+    thresholds.
 
-    :param ca_event_t:
-    :param ca_event_amp:
-    :param protocol:
-    :param param:
+    :param protocol: stdputil.Protocol
+        The stimulation protocol.
+    :param model: dict
+        Parameters of the Graupner-Brunel model
     """
+    # Generate calcium trace
+    calcium_trace = CalciumTrace(protocol, param)
+    
+    ca_event_t = calcium_trace.time
+    ca_event_amp = calcium_trace.amplitude
+    
     # Sort the protocol if not already sorted
     protocol.sort()
 
@@ -270,16 +284,18 @@ def time_above_threshold(ca_event_t, ca_event_amp, protocol, param):
 
 
 def transition_prob(protocol, param=param_cortical):
-    """
+    """Compute transition probabilities for the given protocol and model 
+    parameters.
+    
+    :param protocol: stdputil.Protocol
+        The stimulation protocol.
+    :param model: dict
+        Parameters of the Graupner-Brunel model
     """
     # Sort the protocol if not already sorted
     protocol.sort()
 
-    # Generate all the possible realizations of the protocol, due to synaptic
-    # transmission failures
-    calcium_trace = CalciumTrace(protocol, param)
-
-    t_d_tot, t_p_tot = time_above_threshold(calcium_trace.time, calcium_trace.amplitude, protocol, param)
+    t_d_tot, t_p_tot = time_above_threshold(protocol, param)
 
     # TODO Ask Michael
     if t_d_tot == 0.0 and t_p_tot == 0.0:
@@ -320,10 +336,13 @@ def transition_prob(protocol, param=param_cortical):
 
 
 def protocol_outcome(protocol, param=param_cortical):
-    """Compute the average synaptic gain for a given stimulation protocol.
+    """Compute the average synaptic gain for a given stimulation protocol and 
+    model parameters.
 
-    :param protocol:
-    :param param:
+    :param protocol: stdputil.Protocol
+        The stimulation protocol.
+    :param model: dict
+        Parameters of the Graupner-Brunel model
     """
     # Compute Up and Down transition probabilities
     up, down = transition_prob(protocol, param)
@@ -334,3 +353,4 @@ def protocol_outcome(protocol, param=param_cortical):
          (param['beta'] + (1.0 - param['beta']) * param['b'])
 
     return sg
+
