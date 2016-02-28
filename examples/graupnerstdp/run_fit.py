@@ -1,4 +1,4 @@
-"""Main Graupner STDP example script"""
+"""Main Graupner-Brunel STDP example script"""
 
 from __future__ import print_function
 
@@ -6,12 +6,12 @@ import pickle
 import bluepyopt as bpop
 import matplotlib.pyplot as plt
 import numpy as np
-import graupnerevaluator
+import gbevaluator
 import stdputil
 
 cp_filename = 'checkpoints/checkpoint.pkl'
 
-evaluator = graupnerevaluator.GraupnerEvaluator()
+evaluator = gbevaluator.GraupnerBrunelEvaluator()
 
 opt = bpop.optimisations.DEAPOptimisation(evaluator, offspring_size=100,
                                           eta=20, mutpb=0.3, cxpb=0.7)
@@ -62,7 +62,7 @@ def analyse():
     ax1.set_ylabel('change in EPSP amplitude')
     ax1.legend()
 
-    fig1.savefig('figures/graupner_fit.eps')
+    fig1.savefig('figures/gb_fit.eps')
     
     # Plot calcium transients for each protocol
     fig2, axarr2 = plt.subplots(len(protocols), 1, sharex=True)
@@ -110,7 +110,7 @@ def analyse():
 def main():
     """Main"""
     import argparse
-    parser = argparse.ArgumentParser(description='Graupner STDP')
+    parser = argparse.ArgumentParser(description='Graupner-Brunel STDP')
     parser.add_argument('--start', action="store_true")
     parser.add_argument('--continue_cp', action="store_true")
     parser.add_argument('--analyse', action="store_true")
