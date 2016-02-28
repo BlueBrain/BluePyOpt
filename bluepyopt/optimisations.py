@@ -356,9 +356,9 @@ def eaAlphaMuPlusLambdaCheckpoint(
         if history is not None:
             history.update(population)
 
-    if history is not None:
-        toolbox.decorate("mate", history.decorator)
-        toolbox.decorate("mutate", history.decorator)
+    # if history is not None:
+    #    toolbox.decorate("mate", history.decorator)
+    #    toolbox.decorate("mutate", history.decorator)
 
     # Begin the generational process
     for gen in range(start_gen + 1, ngen + 1):
