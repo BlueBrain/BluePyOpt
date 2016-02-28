@@ -1,4 +1,4 @@
-"""Main Graupner STDP example script"""
+"""Main Graupner-Brunel STDP example script"""
 
 import numpy
 
@@ -6,33 +6,34 @@ import bluepyopt as bpop
 import stdputil
 
 
-def graupnerParam(params):
-    """Create the parameter set for the Graupner model from an *individual*.
+def gbParam(params):
+    """Create the parameter set for Graupner-Brunel model from an *individual*.
 
     :param individual: iterable
     :rtype : dict
     """
-    gparam = dict(
+    gbparam = dict(
         theta_d=1.0,
         theta_p=1.3,
         rho_star=0.5,
         beta=0.75)  # Fixed params
 
     for param_name, param_value in params:
-        gparam[param_name] = param_value
+        gbparam[param_name] = param_value
 
-    return gparam
+    return gbparam
 
 
-class GraupnerEvaluator(bpop.evaluators.Evaluator):
+class GraupnerBrunelEvaluator(bpop.evaluators.Evaluator):
 
-    """Graupner Evaluator"""
+    """Graupner-Brunel Evaluator"""
 
     def __init__(self):
         """Constructor"""
 
-        super(GraupnerEvaluator, self).__init__()
-        # Graupner model parameters and boundaries
+        super(GraupnerBrunelEvaluator, self).__init__()
+        # Graupner-Brunel model parameters and boundaries,
+        # from (Graupner and Brunel, 2012)
         self.graup_params = [('tau_ca', 1e-3, 100e-3),
                              ('C_pre', 0.1, 20.0),
                              ('C_post', 0.1, 50.0),
@@ -57,11 +58,20 @@ class GraupnerEvaluator(bpop.evaluators.Evaluator):
                            for protocol in self.protocols]
 
     def get_param_dict(self, param_values):
-        """"""
-        return graupnerParam(zip(self.param_names, param_values))
+        """Build dictionary of parameters for the Graupner-Brunel model from an
+        ordered list of values (i.e. an individual).
+
+        :param param_values: iterable
+            Parameters list
+        """
+        return gbParam(zip(self.param_names, param_values))
 
     def compute_synaptic_gain_with_lists(self, param_values):
-        """"""
+        """Compute synaptic gain for all protocols.
+
+        :param param_values: iterable
+            Parameters list
+        """
         param_dict = self.get_param_dict(param_values)
 
         syn_gain = [stdputil.protocol_outcome(protocol, param_dict)
@@ -70,7 +80,11 @@ class GraupnerEvaluator(bpop.evaluators.Evaluator):
         return syn_gain
 
     def evaluate_with_lists(self, param_values):
-        """Evaluate"""
+        """Evaluate individual
+
+        :param param_values: iterable
+            Parameters list
+        """
         param_dict = self.get_param_dict(param_values)
 
         err = []

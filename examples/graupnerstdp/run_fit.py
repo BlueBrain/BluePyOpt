@@ -1,4 +1,4 @@
-"""Main Graupner STDP example script"""
+"""Main Graupner-Brunel STDP example script"""
 
 # pylint: disable=R0914
 
@@ -8,12 +8,12 @@ import pickle
 import bluepyopt as bpop
 import matplotlib.pyplot as plt
 import numpy as np
-import graupnerevaluator
+import gbevaluator
 import stdputil
 
 cp_filename = 'checkpoints/checkpoint.pkl'
 
-evaluator = graupnerevaluator.GraupnerEvaluator()
+evaluator = gbevaluator.GraupnerBrunelEvaluator()
 
 opt = bpop.optimisations.DEAPOptimisation(evaluator, offspring_size=100,
                                           eta=20, mutpb=0.3, cxpb=0.7)
@@ -191,7 +191,7 @@ def analyse():
 def main():
     """Main"""
     import argparse
-    parser = argparse.ArgumentParser(description='Graupner STDP')
+    parser = argparse.ArgumentParser(description='Graupner-Brunel STDP')
     parser.add_argument('--start', action="store_true")
     parser.add_argument('--continue_cp', action="store_true")
     parser.add_argument('--analyse', action="store_true")

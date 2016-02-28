@@ -7,6 +7,7 @@ import numpy.testing as npt
 def test_protocol_outcome():
     """
     Test against Fig. 3 of Graupner and Brunel (2012).
+    TODO, Ask permission to Michael to add testing files.
 
     Notes
     -----
