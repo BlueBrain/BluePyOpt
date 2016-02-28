@@ -7,7 +7,7 @@ import stdputil
 
 
 def gbParam(params):
-    """Create the parameter set for the Graupner-Brunel model from an *individual*.
+    """Create the parameter set for Graupner-Brunel model from an *individual*.
 
     :param individual: iterable
     :rtype : dict
@@ -60,28 +60,28 @@ class GraupnerBrunelEvaluator(bpop.evaluators.Evaluator):
     def get_param_dict(self, param_values):
         """Build dictionary of parameters for the Graupner-Brunel model from an
         ordered list of values (i.e. an individual).
-        
+
         :param param_values: iterable
             Parameters list
         """
         return gbParam(zip(self.param_names, param_values))
-        
+
     def compute_synaptic_gain_with_lists(self, param_values):
         """Compute synaptic gain for all protocols.
-                
+
         :param param_values: iterable
             Parameters list
         """
         param_dict = self.get_param_dict(param_values)
 
-        syn_gain = [stdputil.protocol_outcome(protocol, param_dict) \
+        syn_gain = [stdputil.protocol_outcome(protocol, param_dict)
                     for protocol in self.protocols]
 
         return syn_gain
-                    
+
     def evaluate_with_lists(self, param_values):
         """Evaluate individual
-                
+
         :param param_values: iterable
             Parameters list
         """
@@ -95,4 +95,3 @@ class GraupnerBrunelEvaluator(bpop.evaluators.Evaluator):
             err.append(numpy.abs(sg - res) / stderr)
 
         return err
-

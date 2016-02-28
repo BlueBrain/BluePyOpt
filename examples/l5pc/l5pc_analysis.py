@@ -23,15 +23,16 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=R0914, W0633
 
 import pickle
+import numpy
 
 
 def set_rcoptions(func):
-    '''decorator to apply custom matplotlib rc params to a function, and undo after'''
+    '''decorator to apply custom matplotlib rc params to function, undo after'''
     import matplotlib
 
     def wrap(*args, **kwargs):
-        options = {'axes.linewidth': 2,
-                   }
+        """Wrap"""
+        options = {'axes.linewidth': 2, }
         with matplotlib.rc_context(rc=options):
             func(*args, **kwargs)
     return wrap
@@ -55,15 +56,15 @@ def analyse_cp(opt=None, cp_filename=None, figs=None, boxes=None):
 
     print '\nHall of fame'
     print '################'
-    for ind_number, individual in enumerate(hof[:1], 1):
-        objectives = opt.evaluator.objective_dict(
-            individual.fitness.values)
+    for _, individual in enumerate(hof[:1], 1):
+        # objectives = opt.evaluator.objective_dict(
+        #    individual.fitness.values)
         parameter_values = opt.evaluator.param_dict(individual)
 
-        print '\nIndividual %d' % ind_number
-        print '#############'
-        print 'Parameters: %s' % parameter_values
-        print '\nObjective values: %s' % objectives
+        # print '\nIndividual %d' % ind_number
+        # print '#############'
+        # print 'Parameters: %s' % parameter_values
+        # print '\nObjective values: %s' % objectives
 
         fitness_protocols = opt.evaluator.fitness_protocols
         responses = {}
@@ -90,6 +91,9 @@ def analyse_cp(opt=None, cp_filename=None, figs=None, boxes=None):
                 'width': box['width'],
                 'height': responses_height * 0.98})
 
+        objectives = opt.evaluator.fitness_calculator.calculate_scores(
+            responses)
+
         plot_objectives(
             objectives,
             fig=bpop_model_fig,
@@ -107,12 +111,11 @@ def plot_log(log, fig=None, box=None):
     """Plot logbook"""
 
     gen_numbers = log.select('gen')
-    mean = log.select('avg')
-    std = log.select('std')
-    minimum = log.select('min')
-    maximum = log.select('max')
+    mean = numpy.array(log.select('avg'))
+    std = numpy.array(log.select('std'))
+    minimum = numpy.array(log.select('min'))
 
-    left_margin = box['width'] * 0.2
+    left_margin = box['width'] * 0.1
     right_margin = box['width'] * 0.05
     top_margin = box['height'] * 0.05
     bottom_margin = box['height'] * 0.1
@@ -123,28 +126,34 @@ def plot_log(log, fig=None, box=None):
          box['width'] - left_margin - right_margin,
          box['height'] - bottom_margin - top_margin))
 
-    axes.errorbar(
+    stdminus = mean - std
+    stdplus = mean + std
+    axes.plot(
         gen_numbers,
         mean,
-        std,
         color='black',
         linewidth=2,
-        label='mean/std')
+        label='population average')
+
+    axes.fill_between(
+        gen_numbers,
+        stdminus,
+        stdplus,
+        color='lightgray',
+        linewidth=2,
+        label=r'population standard deviation')
+
     axes.plot(
         gen_numbers,
         minimum,
-        color='blue',
-        linewidth=1,
-        label='min')
-    axes.plot(
-        gen_numbers,
-        maximum,
         color='red',
-        linewidth=1,
-        label='max')
+        linewidth=2,
+        label='population minimum')
+
     axes.set_xlim(min(gen_numbers) - 1, max(gen_numbers) + 1)
-    axes.set_xlabel('Gen #')
-    axes.set_ylabel('Fitness')
+    axes.set_xlabel('Generation #')
+    axes.set_ylabel('Sum of objectives')
+    axes.set_ylim([0, max(stdplus)])
     axes.legend()
 
 
@@ -169,7 +178,7 @@ def plot_objectives(objectives, fig=None, box=None):
 
     import collections
     objectives = collections.OrderedDict(sorted(objectives.iteritems()))
-    left_margin = box['width'] * 0.5
+    left_margin = box['width'] * 0.4
     right_margin = box['width'] * 0.05
     top_margin = box['height'] * 0.05
     bottom_margin = box['height'] * 0.1
@@ -180,11 +189,16 @@ def plot_objectives(objectives, fig=None, box=None):
          box['width'] - left_margin - right_margin,
          box['height'] - bottom_margin - top_margin))
 
-    axes.barh(range(len(objectives.values())), objectives.values(), color='b')
-    axes.set_yticks(
-        [x + 0.5 for x in range(len(objectives.keys()))])
+    ytick_pos = [x + 0.5 for x in range(len(objectives.keys()))]
+
+    axes.barh(ytick_pos,
+              objectives.values(),
+              height=0.5,
+              align='center',
+              color='#779ECB')
+    axes.set_yticks(ytick_pos)
     axes.set_yticklabels(objectives.keys(), size='x-small')
-    axes.set_ylim(0, len(objectives.values()))
+    axes.set_ylim(-0.5, len(objectives.values()) + 0.5)
     axes.set_xlabel('Objective value (# std)')
     axes.set_ylabel('Objectives')
 
@@ -249,10 +263,8 @@ def analyse_releasecircuit_model(opt, fig=None, box=None):
 
     # Parameters in release circuit model
     parameters = {
-        'gIhbar_Ih.basal': 0.000080,
         'gNaTs2_tbar_NaTs2_t.apical': 0.026145,
         'gSKv3_1bar_SKv3_1.apical': 0.004226,
-        'gIhbar_Ih.apical': 0.000080,
         'gImbar_Im.apical': 0.000143,
         'gNaTa_tbar_NaTa_t.axonal': 3.137968,
         'gK_Tstbar_K_Tst.axonal': 0.089259,
@@ -269,7 +281,6 @@ def analyse_releasecircuit_model(opt, fig=None, box=None):
         'gSK_E2bar_SK_E2.somatic': 0.008407,
         'gCa_HVAbar_Ca_HVA.somatic': 0.000994,
         'gNaTs2_tbar_NaTs2_t.somatic': 0.983955,
-        'gIhbar_Ih.somatic': 0.000080,
         'decay_CaDynamics_E2.somatic': 210.485284,
         'gCa_LVAstbar_Ca_LVAst.somatic': 0.000333
     }
@@ -289,11 +300,6 @@ def analyse_releasecircuit_model(opt, fig=None, box=None):
 
     objectives = opt.evaluator.fitness_calculator.calculate_scores(
         responses)
-
-    # opt.evaluator.cell_model.freeze(param_values=parameters)
-    # opt.evaluator.cell_model.instantiate()
-    # for section in opt.evaluator.cell_model.icell.axonal:
-    #    print section.L, section.diam, section.nseg
 
     height = float(box['height']) / 2.0
     responses_height = height * 0.95
@@ -317,7 +323,7 @@ def analyse_releasecircuit_hocmodel(opt, fig=None, box=None):
 
     fitness_protocols = opt.evaluator.fitness_protocols
 
-    from hocmodel import HocModel
+    from hocmodel import HocModel  # NOQA
 
     template_model = HocModel(morphname="./morphology/C060114A7.asc",
                               template="./cADpyr_76.hoc")

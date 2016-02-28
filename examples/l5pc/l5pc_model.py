@@ -21,7 +21,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=R0914
 
 import os
-import collections
 
 import bluepyopt.ephys as ephys
 
@@ -59,73 +58,69 @@ def define_parameters():
     """Define parameters"""
 
     import json
+
+    param_configs = json.load(open(os.path.join(script_dir, 'parameters.json')))
     parameters = []
 
-    # TODO put exp equation in file
-
-    uniform_scaler = ephys.parameterscalers.NrnSegmentLinearScaler()
-    exponential_scaler = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
-        distribution='(-0.8696 + 2.087*math.exp(({distance})*0.0031))*{value}')
-
-    # Fixed section parameters
-    # TODO check the order of executions of all parameters
-
-    with open(os.path.join(script_dir, 'fixed_params.json'), 'r') as \
-            fixed_params_file:
-        fixed_params_definitions = json.load(
-            fixed_params_file,
-            object_pairs_hook=collections.OrderedDict)
-
-    for sectionlist, params in fixed_params_definitions.iteritems():
-        if sectionlist == 'global':
-            for param_name, value in params:
-                parameters.append(
-                    ephys.parameters.NrnGlobalParameter(
-                        name=param_name,
-                        param_name=param_name,
-                        frozen=True,
-                        value=value))
+    for param_config in param_configs:
+        if 'value' in param_config:
+            frozen = True
+            value = param_config['value']
+            bounds = None
+        elif 'bounds':
+            frozen = False
+            bounds = param_config['bounds']
+            value = None
         else:
+            raise Exception(
+                'Parameter config has to have bounds or value: %s'
+                % param_config)
+
+        if param_config['type'] == 'global':
+            parameters.append(
+                ephys.parameters.NrnGlobalParameter(
+                    name=param_config['param_name'],
+                    param_name=param_config['param_name'],
+                    frozen=frozen,
+                    bounds=bounds,
+                    value=value))
+        elif param_config['type'] in ['section', 'range']:
+            if param_config['dist_type'] == 'uniform':
+                scaler = ephys.parameterscalers.NrnSegmentLinearScaler()
+            elif param_config['dist_type'] == 'exp':
+                scaler = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
+                    distribution=param_config['dist'])
             seclist_loc = ephys.locations.NrnSeclistLocation(
-                sectionlist,
-                seclist_name=sectionlist)
+                param_config['sectionlist'],
+                seclist_name=param_config['sectionlist'])
 
-            for param_name, value, dist in params:
-                parameters.append(ephys.parameters.NrnSectionParameter(
-                    name='%s.%s' % (param_name, sectionlist),
-                    param_name=param_name,
-                    value_scaler=uniform_scaler,
-                    value=value,
-                    frozen=True,
-                    locations=[seclist_loc]))
+            name = '%s.%s' % (param_config['param_name'],
+                              param_config['sectionlist'])
 
-    # Compact parameter description
-    # Format ->
-    # - Root dictionary: keys = section list name,
-    #                    values = parameter description array
-    # - Parameter description array: prefix, parameter name, minbound, maxbound
-
-    with open(os.path.join(script_dir, 'params.json'), 'r') as parameter_file:
-        parameter_definitions = json.load(
-            parameter_file,
-            object_pairs_hook=collections.OrderedDict)
-
-    for sectionlist, params in parameter_definitions.iteritems():
-        seclist_loc = ephys.locations.NrnSeclistLocation(
-            sectionlist,
-            seclist_name=sectionlist)
-
-        for prefix, param_name, min_bound, max_bound, dist in params:
-            if dist == 'uniform':
-                scaler = uniform_scaler
-            elif dist == 'exp':
-                scaler = exponential_scaler
-            parameters.append(ephys.parameters.NrnRangeParameter(
-                name='%s_%s.%s' % (param_name, prefix, sectionlist),
-                param_name='%s_%s' % (param_name, prefix),
-                value_scaler=scaler,
-                bounds=[min_bound, max_bound],
-                locations=[seclist_loc]))
+            if param_config['type'] == 'section':
+                parameters.append(
+                    ephys.parameters.NrnSectionParameter(
+                        name=name,
+                        param_name=param_config['param_name'],
+                        value_scaler=scaler,
+                        value=value,
+                        frozen=frozen,
+                        bounds=bounds,
+                        locations=[seclist_loc]))
+            elif param_config['type'] == 'range':
+                parameters.append(
+                    ephys.parameters.NrnRangeParameter(
+                        name=name,
+                        param_name=param_config['param_name'],
+                        value_scaler=scaler,
+                        value=value,
+                        frozen=frozen,
+                        bounds=bounds,
+                        locations=[seclist_loc]))
+        else:
+            raise Exception(
+                'Param config type has to be global, section or range: %s' %
+                param_config)
 
     return parameters
 
