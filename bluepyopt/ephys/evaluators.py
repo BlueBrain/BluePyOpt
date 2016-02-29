@@ -102,18 +102,12 @@ class CellEvaluator(object):
                 "".join(
                     traceback.format_exception(*sys.exc_info())))
 
-    def evaluate_with_dicts(self, param_dict=None):
-        """Run evaluation with dict as input and output"""
-
-        if self.fitness_calculator is None:
-            raise Exception(
-                'CellEvaluator: need fitness_calculator to evaluate')
+    def run_protocols(self, protocols, param_values):
+        """Run a set of protocols"""
 
         responses = {}
 
-        logger.debug('Evaluating %s', self.cell_model.name)
         # TODO clean this up
-
         if self.isolate_protocols:
             import multiprocessing
 
@@ -133,7 +127,7 @@ class CellEvaluator(object):
                 responses.update(
                     pool.apply(self.run_protocol,
                                args=[protocol],
-                               kwds={'param_values': param_dict}))
+                               kwds={'param_values': param_values}))
 
                 # THis might help with garbage collecting the pool workers
                 pool.terminate()
@@ -142,7 +136,22 @@ class CellEvaluator(object):
             else:
                 responses.update(self.run_protocol(
                     protocol,
-                    param_values=param_dict))
+                    param_values=param_values))
+
+        return responses
+
+    def evaluate_with_dicts(self, param_dict=None):
+        """Run evaluation with dict as input and output"""
+
+        if self.fitness_calculator is None:
+            raise Exception(
+                'CellEvaluator: need fitness_calculator to evaluate')
+
+        logger.debug('Evaluating %s', self.cell_model.name)
+
+        responses = self.run_protocols(
+            self.fitness_protocols.values(),
+            param_dict)
 
         return self.fitness_calculator.calculate_scores(responses)
 
