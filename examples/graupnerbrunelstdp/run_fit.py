@@ -124,7 +124,7 @@ def plot_calcium_transients(protocols, best_ind_dict):
     fig2.savefig('figures/graupner_ca_traces.eps')
 
 
-def plot_dt_scan(best_ind_dict, dt, sg, stderr):
+def plot_dt_scan(best_ind_dict, good_solutions, dt, sg, stderr):
     """Plot dt scan"""
     dt_vec = np.linspace(-90e-3, 50e-3, 100)
     sg_vec = []
@@ -135,10 +135,29 @@ def plot_dt_scan(best_ind_dict, dt, sg, stderr):
         model_sg = stdputil.protocol_outcome(protocol, best_ind_dict)
         sg_vec.append(model_sg)
 
+    sg_good_sol_vec = []
+    for i, good_sol in enumerate(good_solutions):
+        #print(len(good_solutions), i)
+        sg_ind = []
+        for model_dt in dt_vec:
+            protocol = stdputil.Protocol(
+                ['pre', 'post', 'post', 'post'], [model_dt, 20e-3, 20e-3], 0.1,
+                60.0, prot_id='%.2fms' % model_dt)
+            model_sg = stdputil.protocol_outcome(protocol, good_sol)
+            sg_ind.append(model_sg)
+        sg_good_sol_vec.append(sg_ind)
+    #pickle.dump(sg_good_sol_vec, open( "sg_good_sol_vec.pkl", "wb" ))
+    #sg_good_sol_vec = pickle.load(open( "sg_good_sol_vec.pkl", "rb" ))
+        
     fig3, ax3 = plt.subplots(figsize=(10, 10), facecolor='white')
 
-    ax3.plot(dt_vec * 1000.0, sg_vec, marker='o', label='Model')
-    ax3.errorbar(dt, sg, yerr=stderr, marker='o', label='In vitro')
+    for sg_ind in sg_good_sol_vec:
+        ax3.plot(dt_vec * 1000.0, sg_ind, lw=1, color='lightblue')
+    ax3.plot(dt_vec * 1000.0, sg_vec, marker='o', lw=1, color='darkblue',
+             label='Best model')
+    ax3.errorbar(dt, sg, yerr=stderr, fmt='o', color='red', ms=10,
+                 ecolor='red', elinewidth=3, capsize=5, capthick=3,
+                 zorder=10000, label='In vitro')
 
     ax3.axhline(y=1, color='k', linestyle='--')
     ax3.axvline(color='k', linestyle='--')
@@ -164,7 +183,7 @@ def analyse():
         cp['history'],
         cp['logbook'])
 
-    _, hof, _, log = results
+    _, hof, hst, log = results
 
     best_ind = hof[0]
     best_ind_dict = evaluator.get_param_dict(best_ind)
@@ -173,6 +192,8 @@ def analyse():
     for attribute, value in best_ind_dict.iteritems():
         print('\t{} : {}'.format(attribute, value))
 
+    good_solutions = [evaluator.get_param_dict(ind) for ind in hst.genealogy_history.itervalues() if np.all(np.array(ind.fitness.values) < 1)]
+
     # model_sg = evaluator.compute_synaptic_gain_with_lists(best_ind)
 
     # Load data
@@ -180,7 +201,7 @@ def analyse():
     dt = np.array([float(p.prot_id[:3]) for p in protocols])
 
     # plot_epspamp_discrete(dt, model_sg, sg, stderr)
-    plot_dt_scan(best_ind_dict, dt, sg, stderr)
+    plot_dt_scan(best_ind_dict, good_solutions, dt, sg, stderr)
     plot_calcium_transients(protocols, best_ind_dict)
 
     plot_log(log)
