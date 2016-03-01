@@ -22,8 +22,9 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint: disable=R0914, W0633
 
+import os
 import pickle
-import numpy
+import numpy as np
 import bluepyopt.ephys as ephys
 
 # Parameters in release circuit model
@@ -63,84 +64,64 @@ def set_rcoptions(func):
     return wrap
 
 
-@set_rcoptions
-def analyse_cp(opt=None, cp_filename=None, figs=None, boxes=None):
-    """Analyse optimisation results"""
+def get_responses(cell_evaluator, individuals, filename):
 
-    bpop_model_fig, bpop_evol_fig = figs
-    bpop_model_box, bpop_evol_box = boxes
+    responses = []
+    if filename and os.path.exists(filename):
+        with open(filename) as fd:
+            return pickle.load(fd)
+
+    for individual in individuals:
+        individual_dict = cell_evaluator.param_dict(individual)
+        responses.append(cell_evaluator.run_protocols(cell_evaluator.fitness_protocols.values(),
+                                                      param_values=individual_dict))
+
+    if filename:
+        with open(filename, 'w') as fd:
+            pickle.dump(responses, fd)
+
+    return responses
+
+
+@set_rcoptions
+def analyse_cp(opt, cp_filename, responses_filename, figs):
+    """Analyse optimisation results"""
+    (model_fig, model_box), (objectives_fig, objectives_box), (evol_fig, evol_box) = figs
 
     cp = pickle.load(open(cp_filename, "r"))
-    results = (
-        cp['population'],
-        cp['halloffame'],
-        cp['history'],
-        cp['logbook'])
+    hof =  cp['halloffame']
 
-    _, hof, _, log = results
+    responses = get_responses(opt.evaluator, hof, responses_filename)
+    plot_multiple_responses(responses, fig=model_fig)
 
-    print '\nHall of fame'
-    print '################'
+    #objectives
+    parameter_values = opt.evaluator.param_dict(hof[0])
+    fitness_protocols = opt.evaluator.fitness_protocols
+    responses = {}
 
-    plot_validation(opt, [opt.evaluator.param_dict(ind) for ind in hof])
+    nrn = ephys.simulators.NrnSimulator()
 
-    for _, individual in enumerate(hof[:1], 1):
-        # objectives = opt.evaluator.objective_dict(
-        #    individual.fitness.values)
-        parameter_values = opt.evaluator.param_dict(individual)
+    for protocol in fitness_protocols.values():
+        response = protocol.run(
+            cell_model=opt.evaluator.cell_model,
+            param_values=parameter_values,
+            sim=nrn)
+        responses.update(response)
 
-        # print '\nIndividual %d' % ind_number
-        # print '#############'
-        # print 'Parameters: %s' % parameter_values
-        # print '\nObjective values: %s' % objectives
+    objectives = opt.evaluator.fitness_calculator.calculate_scores(responses)
+    plot_objectives(objectives, fig=objectives_fig, box=objectives_box)
+    #objectives
 
-        fitness_protocols = opt.evaluator.fitness_protocols
-        responses = {}
-
-        nrn = ephys.simulators.NrnSimulator()
-
-        for protocol in fitness_protocols.values():
-            response = protocol.run(
-                cell_model=opt.evaluator.cell_model,
-                param_values=parameter_values,
-                sim=nrn)
-            responses.update(response)
-
-        box = bpop_model_box
-        height = float(box['height']) / 2.0
-        responses_height = height * 0.95
-        plot_responses(
-            responses,
-            fig=bpop_model_fig,
-            box={
-                'left': box['left'],
-                'bottom': float(box['height']) - responses_height,
-                'width': box['width'],
-                'height': responses_height * 0.98})
-
-        objectives = opt.evaluator.fitness_calculator.calculate_scores(
-            responses)
-
-        plot_objectives(
-            objectives,
-            fig=bpop_model_fig,
-            box={
-                'left': box['left'],
-                'bottom': box['bottom'],
-                'width': box['width'],
-                'height': float(box['height']) / 2.0})
-
-    plot_log(log, fig=bpop_evol_fig,
-             box=bpop_evol_box)
+    plot_log(cp['logbook'], fig=evol_fig, box=evol_box)
 
 
 def plot_log(log, fig=None, box=None):
     """Plot logbook"""
 
     gen_numbers = log.select('gen')
-    mean = numpy.array(log.select('avg'))
-    std = numpy.array(log.select('std'))
-    minimum = numpy.array(log.select('min'))
+    mean = np.array(log.select('avg'))
+    std = np.array(log.select('std'))
+    minimum = np.array(log.select('min'))
 
     left_margin = box['width'] * 0.1
     right_margin = box['width'] * 0.05
@@ -232,18 +213,46 @@ def plot_objectives(objectives, fig=None, box=None):
 
 def plot_responses(responses, fig=None, box=None):
     """Plot responses of the cell model"""
-
     rec_rect = {}
     rec_rect['left'] = box['left']
     rec_rect['width'] = box['width']
     rec_rect['height'] = float(box['height']) / len(responses)
     rec_rect['bottom'] = box['bottom'] + \
         box['height'] - rec_rect['height']
-
     last = len(responses) - 1
     for i, (_, recording) in enumerate(sorted(responses.items())):
         plot_recording(recording, fig=fig, box=rec_rect, xlabel=(last == i))
         rec_rect['bottom'] -= rec_rect['height']
+
+
+def get_slice(start, end, data):
+    return slice(np.searchsorted(data, start),
+                 np.searchsorted(data, end))
+
+
+def plot_multiple_responses(responses, fig):
+    '''creates 6 subplots for step{1,2,3} and dAP traces, and plots all the responses on them'''
+    traces = ('Step1.soma.v', 'Step2.soma.v', 'Step3.soma.v',
+                'bAP.dend1.v', 'bAP.dend2.v', 'bAP.soma.v', )
+    plot_count = len(traces)
+    ax = [fig.add_subplot(plot_count, 1, i + 1) for i in range(plot_count)]
+
+    overlay_count = len(responses)
+    for i, response in enumerate(reversed(responses[:overlay_count])):
+        color = 'lightblue'
+        if i == overlay_count - 1:
+            color = 'blue'
+
+        for i, name in enumerate(traces):
+            sl = get_slice(0, 3000, response[name]['time'])
+            ax[i].plot(response[name]['time'][sl], response[name]['voltage'][sl],
+                       color=color, linewidth=1)
+            ax[i].set_ylabel(name + '\nVoltage (mV)')
+            ax[i].set_autoscaley_on(True)
+            ax[i].set_autoscalex_on(True)
+            ax[i].set_ylim((-85, 50))
+
+        ax[-1].set_xlabel('Time (ms)')
 
 
 def plot_recording(recording, fig=None, box=None, xlabel=False):
@@ -261,6 +270,7 @@ def plot_recording(recording, fig=None, box=None, xlabel=False):
          box['bottom'] + bottom_margin,
          box['width'] - left_margin - right_margin,
          box['height'] - bottom_margin - top_margin))
+
     recording.plot(axes)
     axes.set_ylim(-100, 40)
     axes.spines['top'].set_visible(False)
@@ -276,7 +286,7 @@ def plot_recording(recording, fig=None, box=None, xlabel=False):
     if name.endswith('.v'):
         name = name[:-2]
 
-    axes.set_ylabel(name + '\n(mV)', rotation=0, labelpad=25)
+    axes.set_ylabel(name + '\n(mV)', labelpad=25)
     yloc = plt.MaxNLocator(2)
     axes.yaxis.set_major_locator(yloc)
 
@@ -298,8 +308,8 @@ def plot_validation(opt, parameters):
         location=soma_loc,
         variable='v')
 
-    validation_i_data = numpy.loadtxt('exp_data/noise_i.txt')
-    # validation_v_data = numpy.loadtxt('exp_data/noise_v.txt')
+    validation_i_data = np.loadtxt('exp_data/noise_i.txt')
+    # validation_v_data = np.loadtxt('exp_data/noise_v.txt')
     validation_time = validation_i_data[:, 0] + 200.0
     validation_current = validation_i_data[:, 1]
     # validation_voltage = validation_v_data[:, 1]
@@ -378,7 +388,7 @@ def plot_validation(opt, parameters):
             color = 'lightblue'
         ax[1].scatter(
             peak_time,
-            numpy.array(
+            np.array(
                 [100] *
                 len(peak_time)) +
             10 *
@@ -429,27 +439,15 @@ def plot_validation(opt, parameters):
 
 
 @set_rcoptions
-def analyse_releasecircuit_model(opt, fig=None, box=None):
+def analyse_releasecircuit_model(opt, figs, box=None):
     """Analyse L5PC model from release circuit"""
+    (release_responses_fig, response_box), (release_objectives_fig, objectives_box) = figs
 
     fitness_protocols = opt.evaluator.fitness_protocols
 
-    responses = opt.evaluator.run_protocols(
-        opt.evaluator.fitness_protocols,
-        param_values=release_params)
-
-    height = float(box['height']) / 2.0
-    responses_height = height * 0.95
-    plot_responses(responses, fig=fig,
-                   box={
-                       'left': box['left'],
-                       'bottom': float(box['height']) - responses_height,
-                       'width': box['width'],
-                       'height': responses_height * 0.98})
-
-    responses = {}
     nrn = ephys.simulators.NrnSimulator()
 
+    responses = {}
     for protocol in fitness_protocols.values():
         response = protocol.run(
             cell_model=opt.evaluator.cell_model,
@@ -457,24 +455,10 @@ def analyse_releasecircuit_model(opt, fig=None, box=None):
             sim=nrn)
         responses.update(response)
 
-    objectives = opt.evaluator.fitness_calculator.calculate_scores(
-        responses)
+    plot_multiple_responses([responses], fig=release_responses_fig)
 
-    height = float(box['height']) / 2.0
-    responses_height = height * 0.95
-    plot_responses(responses, fig=fig,
-                   box={
-                       'left': box['left'],
-                       'bottom': float(box['height']) - responses_height,
-                       'width': box['width'],
-                       'height': responses_height * 0.98})
-
-    plot_objectives(objectives, fig=fig,
-                    box={
-                        'left': box['left'],
-                        'bottom': box['bottom'],
-                        'width': box['width'],
-                        'height': height})
+    objectives = opt.evaluator.fitness_calculator.calculate_scores(responses)
+    plot_objectives(objectives, fig=release_objectives_fig, box=objectives_box)
 
 
 def analyse_releasecircuit_hocmodel(opt, fig=None, box=None):
