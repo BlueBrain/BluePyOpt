@@ -67,6 +67,8 @@ def main():
     parser.add_argument('--analyse', action="store_true")
     parser.add_argument('--compile', action="store_true")
     parser.add_argument('--hocanalyse', action="store_true")
+    parser.add_argument('--diversity',
+                        help='plot the diversity of parameters from checkpoint pickle file')
 
     args = parser.parse_args()
 
@@ -161,6 +163,22 @@ def main():
 
         fig_release.savefig('figures/release_l5pc_hoc.eps')
 
+        plt.show()
+
+    elif args.diversity:
+        logger.debug('Plotting Diversity')
+
+        import matplotlib.pyplot as plt
+        import l5pc_analysis
+
+        if not os.path.exists(args.diversity):
+            raise Exception('Need a pickle file to plot the diversity')
+
+        fig_diversity = plt.figure(figsize=(10, 10), facecolor='white')
+
+        l5pc_analysis.plot_diversity(args.diversity, fig_diversity,
+                                     opt.evaluator.param_names)
+        fig_diversity.savefig('figures/l5pc_diversity.eps')
         plt.show()
 
 if __name__ == '__main__':
