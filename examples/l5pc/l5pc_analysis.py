@@ -23,7 +23,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=R0914, W0633
 
 import pickle
-import numpy
+import numpy as np
 import bluepyopt.ephys as ephys
 
 # Parameters in release circuit model
@@ -510,3 +510,73 @@ def analyse_releasecircuit_hocmodel(opt, fig=None, box=None):
                         'bottom': box['bottom'],
                         'width': box['width'],
                         'height': float(box['height']) / 2.0})
+
+
+FITNESS_CUT_OFF = 5
+def plot_individual_params(ax, params, marker, color, markersize=40, plot_bounds=False,
+                           fitness_cut_off=FITNESS_CUT_OFF):
+    '''plot the individual parameter values'''
+    observations_count = len(params)
+    param_count = len(params[0])
+
+    results = np.zeros((observations_count, param_count))
+    good_fitness = 0
+    for i, param in enumerate(params):
+        if fitness_cut_off < max(param.fitness.values):
+            continue
+        results[good_fitness] = param
+        good_fitness += 1
+
+    results = np.log(results)
+
+    for c in range(good_fitness):
+        x = np.arange(param_count)
+        y = results[c, :]
+        ax.scatter(x=x, y=y, s=float(markersize), marker=marker, color=color)
+
+    if plot_bounds:
+        def plot_tick(column, y):
+            col_width = 0.25
+            x = [column - col_width,
+                 column + col_width]
+            y = [y, y]
+            ax.plot(x, y, color='black')
+
+        #plot min and max
+        for i in range(param_count):
+            min_value = np.min(results[0:good_fitness, i])
+            max_value = np.max(results[0:good_fitness, i])
+            plot_tick(i, min_value)
+            plot_tick(i, max_value)
+
+
+def plot_diversity(checkpoint_file, fig, param_names):
+    '''plot the whole history, the hall of fame, and the best individual
+    from a unpickled checkpoint
+    '''
+    import matplotlib.pyplot as plt
+    checkpoint = pickle.load(open(checkpoint_file, "r"))
+
+    ax = fig.add_subplot(1, 1, 1)
+    plot_individual_params(ax, checkpoint['history'].genealogy_history.values(),
+                           marker='.', color='grey', plot_bounds=True)
+    plot_individual_params(ax, checkpoint['halloffame'],
+                           marker='o', color='black')
+    plot_individual_params(ax, [checkpoint['halloffame'][0]], markersize=150,
+                           marker='x', color='blue')
+
+    labels = [name.replace('.', '\n') for name in param_names]
+
+    param_count = len(checkpoint['halloffame'][0])
+    x = range(param_count)
+    for xline in x:
+        ax.axvline(xline, linewidth=1, color='grey', linestyle=':')
+
+    plt.xticks(x, labels, rotation=80, ha='center', size='small')
+    ax.set_xlabel('Parameters')
+    ax.set_ylabel('log Parameter value')
+    ax.set_ylim((-15, 8))
+
+    plt.tight_layout()
+    plt.plot()
+    ax.set_autoscalex_on(True)
