@@ -119,7 +119,7 @@ class CellEvaluator(object):
 
             copy_reg.pickle(types.MethodType, _reduce_method)
 
-        for protocol in self.fitness_protocols.values():
+        for protocol in protocols:
             if self.isolate_protocols:
                 # This multiprocessing makes sure that Neuron starts in a clean
                 # state every time we run a protocol

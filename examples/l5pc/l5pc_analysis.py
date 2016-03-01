@@ -24,6 +24,31 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import pickle
 import numpy
+import bluepyopt.ephys as ephys
+
+# Parameters in release circuit model
+release_params = {
+    'gNaTs2_tbar_NaTs2_t.apical': 0.026145,
+    'gSKv3_1bar_SKv3_1.apical': 0.004226,
+    'gImbar_Im.apical': 0.000143,
+    'gNaTa_tbar_NaTa_t.axonal': 3.137968,
+    'gK_Tstbar_K_Tst.axonal': 0.089259,
+    'gamma_CaDynamics_E2.axonal': 0.002910,
+    'gNap_Et2bar_Nap_Et2.axonal': 0.006827,
+    'gSK_E2bar_SK_E2.axonal': 0.007104,
+    'gCa_HVAbar_Ca_HVA.axonal': 0.000990,
+    'gK_Pstbar_K_Pst.axonal': 0.973538,
+    'gSKv3_1bar_SKv3_1.axonal': 1.021945,
+    'decay_CaDynamics_E2.axonal': 287.198731,
+    'gCa_LVAstbar_Ca_LVAst.axonal': 0.008752,
+    'gamma_CaDynamics_E2.somatic': 0.000609,
+    'gSKv3_1bar_SKv3_1.somatic': 0.303472,
+    'gSK_E2bar_SK_E2.somatic': 0.008407,
+    'gCa_HVAbar_Ca_HVA.somatic': 0.000994,
+    'gNaTs2_tbar_NaTs2_t.somatic': 0.983955,
+    'decay_CaDynamics_E2.somatic': 210.485284,
+    'gCa_LVAstbar_Ca_LVAst.somatic': 0.000333
+}
 
 
 def set_rcoptions(func):
@@ -56,6 +81,9 @@ def analyse_cp(opt=None, cp_filename=None, figs=None, boxes=None):
 
     print '\nHall of fame'
     print '################'
+
+    plot_validation(opt, [opt.evaluator.param_dict(ind) for ind in hof])
+
     for _, individual in enumerate(hof[:1], 1):
         # objectives = opt.evaluator.objective_dict(
         #    individual.fitness.values)
@@ -69,7 +97,6 @@ def analyse_cp(opt=None, cp_filename=None, figs=None, boxes=None):
         fitness_protocols = opt.evaluator.fitness_protocols
         responses = {}
 
-        import bluepyopt.ephys as ephys
         nrn = ephys.simulators.NrnSimulator()
 
         for protocol in fitness_protocols.values():
@@ -257,44 +284,176 @@ def plot_recording(recording, fig=None, box=None, xlabel=False):
         axes.set_xlabel('Time (ms)')
 
 
+def plot_validation(opt, parameters):
+    """Plot validation"""
+
+    soma_loc = ephys.locations.NrnSeclistCompLocation(
+        name='soma',
+        seclist_name='somatic',
+        sec_index=0,
+        comp_x=0.5)
+
+    validation_recording = ephys.recordings.CompRecording(
+        name='validation.soma.v',
+        location=soma_loc,
+        variable='v')
+
+    validation_i_data = numpy.loadtxt('exp_data/noise_i.txt')
+    # validation_v_data = numpy.loadtxt('exp_data/noise_v.txt')
+    validation_time = validation_i_data[:, 0] + 200.0
+    validation_current = validation_i_data[:, 1]
+    # validation_voltage = validation_v_data[:, 1]
+    validation_stimulus = ephys.stimuli.NrnCurrentPlayStimulus(
+        current_points=validation_current,
+        time_points=validation_time,
+        location=soma_loc)
+    hypamp_stimulus = ephys.stimuli.NrnSquarePulse(
+        step_amplitude=-0.126,
+        step_delay=0,
+        step_duration=max(validation_time),
+        location=soma_loc,
+        total_duration=max(validation_time))
+
+    validation_protocol = ephys.protocols.SweepProtocol(
+        'validation',
+        [validation_stimulus, hypamp_stimulus],
+        [validation_recording])
+
+    validation_responses = {}
+    write_pickle = False
+
+    paramsets = {}
+    paramsets['release'] = release_params
+    for index, param_values in enumerate(parameters):
+        paramsets['model%d' % index] = param_values
+
+    if write_pickle:
+        for paramset_name, paramset in paramsets.items():
+            validation_responses[paramset_name] = opt.evaluator.run_protocols(
+                [validation_protocol],
+                param_values=paramset)
+
+        pickle.dump(validation_responses, open('validation_response.pkl', 'w'))
+    else:
+        validation_responses = pickle.load(open('validation_response.pkl'))
+    # print validation_responses['validation.soma.v']['time']
+
+    peaktimes = {}
+    import efel
+    for index, model_name in enumerate(validation_responses.keys()):
+        trace = {}
+        trace['T'] = validation_responses[
+            model_name]['validation.soma.v']['time']
+        trace['V'] = validation_responses[model_name][
+            'validation.soma.v']['voltage']
+        trace['stim_start'] = [500]
+        trace['stim_end'] = [max(validation_time)]
+        peaktimes[model_name] = efel.getFeatureValues(
+            [trace],
+            ['peak_time'])[0]['peak_time']
+
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(3, figsize=(10, 7), facecolor='white', sharex=True)
+
+    ax[0].plot(validation_time, validation_current, 'k')
+    ax[0].spines['top'].set_visible(False)
+    ax[0].spines['right'].set_visible(False)
+    ax[0].spines['bottom'].set_visible(False)
+    ax[0].tick_params(
+        axis='both',
+        bottom='off',
+        top='off',
+        left='on',
+        right='off')
+    ax[0].set_ylabel('Current\n (nA)', rotation=0, labelpad=25)
+
+    for index, (model_name, peak_time) in enumerate(sorted(peaktimes.items())):
+        print model_name
+        if model_name == 'release':
+            color = 'red'
+            print color, peak_time
+        elif model_name == 'model0':
+            color = 'darkblue'
+        else:
+            color = 'lightblue'
+        ax[1].scatter(
+            peak_time,
+            numpy.array(
+                [100] *
+                len(peak_time)) +
+            10 *
+            index,
+            color=color,
+            s=10)
+    ax[1].spines['top'].set_visible(False)
+    ax[1].spines['right'].set_visible(False)
+    ax[1].spines['bottom'].set_visible(False)
+    ax[1].spines['left'].set_visible(False)
+    ax[1].tick_params(
+        bottom='off',
+        top='off',
+        left='off',
+        right='off')
+    ax[1].set_yticks([])
+
+    ax[2].plot(
+        validation_responses['release']['validation.soma.v']['time'],
+        validation_responses['release']['validation.soma.v']['voltage'], 'r',
+        linewidth=1)
+
+    ax[2].plot(
+        validation_responses[
+            'model0']['validation.soma.v']['time'],
+        validation_responses[
+            'model0']['validation.soma.v']['voltage'],
+        color='darkblue',
+        linewidth=1)
+
+    ax[2].spines['top'].set_visible(False)
+    ax[2].spines['right'].set_visible(False)
+    ax[2].tick_params(
+        axis='both',
+        bottom='on',
+        top='off',
+        left='on',
+        right='off')
+
+    ax[2].set_yticks([-100, 0.0])
+    ax[2].set_ylabel('Voltage\n (mV)', rotation=0, labelpad=25)
+    ax[2].set_xlabel('Time (ms)')
+    ax[2].set_xlim(min(validation_time), max(validation_time))
+
+    fig.tight_layout()
+
+    fig.savefig('figures/l5pc_valid.eps')
+
+
 @set_rcoptions
 def analyse_releasecircuit_model(opt, fig=None, box=None):
     """Analyse L5PC model from release circuit"""
 
-    # Parameters in release circuit model
-    parameters = {
-        'gNaTs2_tbar_NaTs2_t.apical': 0.026145,
-        'gSKv3_1bar_SKv3_1.apical': 0.004226,
-        'gImbar_Im.apical': 0.000143,
-        'gNaTa_tbar_NaTa_t.axonal': 3.137968,
-        'gK_Tstbar_K_Tst.axonal': 0.089259,
-        'gamma_CaDynamics_E2.axonal': 0.002910,
-        'gNap_Et2bar_Nap_Et2.axonal': 0.006827,
-        'gSK_E2bar_SK_E2.axonal': 0.007104,
-        'gCa_HVAbar_Ca_HVA.axonal': 0.000990,
-        'gK_Pstbar_K_Pst.axonal': 0.973538,
-        'gSKv3_1bar_SKv3_1.axonal': 1.021945,
-        'decay_CaDynamics_E2.axonal': 287.198731,
-        'gCa_LVAstbar_Ca_LVAst.axonal': 0.008752,
-        'gamma_CaDynamics_E2.somatic': 0.000609,
-        'gSKv3_1bar_SKv3_1.somatic': 0.303472,
-        'gSK_E2bar_SK_E2.somatic': 0.008407,
-        'gCa_HVAbar_Ca_HVA.somatic': 0.000994,
-        'gNaTs2_tbar_NaTs2_t.somatic': 0.983955,
-        'decay_CaDynamics_E2.somatic': 210.485284,
-        'gCa_LVAstbar_Ca_LVAst.somatic': 0.000333
-    }
     fitness_protocols = opt.evaluator.fitness_protocols
 
-    responses = {}
+    responses = opt.evaluator.run_protocols(
+        opt.evaluator.fitness_protocols,
+        param_values=release_params)
 
-    import bluepyopt.ephys as ephys
+    height = float(box['height']) / 2.0
+    responses_height = height * 0.95
+    plot_responses(responses, fig=fig,
+                   box={
+                       'left': box['left'],
+                       'bottom': float(box['height']) - responses_height,
+                       'width': box['width'],
+                       'height': responses_height * 0.98})
+
+    responses = {}
     nrn = ephys.simulators.NrnSimulator()
 
     for protocol in fitness_protocols.values():
         response = protocol.run(
             cell_model=opt.evaluator.cell_model,
-            param_values=parameters,
+            param_values=release_params,
             sim=nrn)
         responses.update(response)
 

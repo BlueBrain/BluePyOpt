@@ -32,6 +32,59 @@ class Stimulus(object):
         """Constructor"""
         pass
 
+
+class NrnCurrentPlayStimulus(Stimulus):
+
+    """Stimulus protocol"""
+
+    def __init__(self,
+                 time_points=None,
+                 current_points=None,
+                 location=None):
+        """Constructor"""
+
+        Stimulus.__init__(self)
+        self.time_points = time_points
+        self.current_points = current_points
+        self.location = location
+        self.total_duration = max(time_points)
+        self.iclamp = None
+        self.current_vec = None
+        self.time_vec = None
+
+    def instantiate(self, sim=None, icell=None):
+        """Run stimulus"""
+
+        icell = icell
+        icomp = self.location.instantiate(sim=sim, icell=icell)
+        logger.debug(
+            'Adding current play stimulus to %s', str(self.location))
+
+        self.iclamp = sim.neuron.h.IClamp(
+            icomp.x,
+            sec=icomp.sec)
+        self.current_vec = sim.neuron.h.Vector(self.current_points)
+        self.time_vec = sim.neuron.h.Vector(self.time_points)
+        self.iclamp.dur = max(self.time_points)
+        self.iclamp.delay = 0
+        self.current_vec.play(
+            self.iclamp._ref_amp,
+            self.time_vec,
+            1,
+            sec=icomp.sec)
+
+    def destroy(self):
+        """Destroy stimulus"""
+
+        self.iclamp = None
+        self.time_vec = None
+        self.current_vec = None
+
+    def __str__(self):
+        """String representation"""
+
+        return "Current play at %s" % (self.location)
+
 # TODO Add 'current' to the name
 
 
