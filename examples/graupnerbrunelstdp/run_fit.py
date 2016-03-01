@@ -134,7 +134,7 @@ def plot_dt_scan(best_ind_dict, good_solutions, dt, sg, stderr):
             60.0, prot_id='%.2fms' % model_dt)
         model_sg = stdputil.protocol_outcome(protocol, best_ind_dict)
         sg_vec.append(model_sg)
-
+    """
     sg_good_sol_vec = []
     for i, good_sol in enumerate(good_solutions):
         #print(len(good_solutions), i)
@@ -146,13 +146,15 @@ def plot_dt_scan(best_ind_dict, good_solutions, dt, sg, stderr):
             model_sg = stdputil.protocol_outcome(protocol, good_sol)
             sg_ind.append(model_sg)
         sg_good_sol_vec.append(sg_ind)
-    #pickle.dump(sg_good_sol_vec, open( "sg_good_sol_vec.pkl", "wb" ))
-    #sg_good_sol_vec = pickle.load(open( "sg_good_sol_vec.pkl", "rb" ))
+    pickle.dump(sg_good_sol_vec, open( "sg_good_sol_vec.pkl", "wb" ))
+    """
+    sg_good_sol_vec = pickle.load(open( "sg_good_sol_vec.pkl", "rb" ))
         
     fig3, ax3 = plt.subplots(figsize=(10, 10), facecolor='white')
+    ax3.set_rasterization_zorder(1) 
 
     for sg_ind in sg_good_sol_vec:
-        ax3.plot(dt_vec * 1000.0, sg_ind, lw=1, color='lightblue')
+        ax3.plot(dt_vec * 1000.0, sg_ind, lw=1, color='lightblue', zorder=0)
     ax3.plot(dt_vec * 1000.0, sg_vec, marker='o', lw=1, color='darkblue',
              label='Best model')
     ax3.errorbar(dt, sg, yerr=stderr, fmt='o', color='red', ms=10,
@@ -168,7 +170,7 @@ def plot_dt_scan(best_ind_dict, good_solutions, dt, sg, stderr):
 
     fig3.tight_layout()
 
-    fig3.savefig('figures/graupner_dtscan.eps')
+    fig3.savefig('figures/graupner_dtscan.eps', rasterized=True, dpi=72)
 
 
 def analyse():
