@@ -8,8 +8,6 @@ Introduction
 
 BlueBrain Python Optimisation Library
 
-This software is currently in an *ALPHA* stage. Use at your own risk.
-
 Requirements
 ============
 

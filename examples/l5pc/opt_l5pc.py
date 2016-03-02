@@ -58,13 +58,17 @@ opt = bluepyopt.optimisations.DEAPOptimisation(
 
 def main():
     """Main"""
-
     parser = argparse.ArgumentParser(description='L5PC example')
     parser.add_argument('--start', action="store_true")
-    parser.add_argument('--continue_cp', action="store_true")
+    parser.add_argument('--checkpoint', required=False, default=None,
+                        help='Checkpoint pickle to avoid recalculation')
+    parser.add_argument('--responses', required=False, default=None,
+                        help='Response pickle file to avoid recalculation')
     parser.add_argument('--analyse', action="store_true")
     parser.add_argument('--compile', action="store_true")
     parser.add_argument('--hocanalyse', action="store_true")
+    parser.add_argument('--diversity',
+                        help='plot the diversity of parameters from checkpoint pickle file')
 
     args = parser.parse_args()
 
@@ -86,51 +90,49 @@ def main():
                 'bglibpy not installed, '
                 '--hocanalyse for internal testing only!')
 
-    # TODO read checkpoint filename from arguments
-    cp_filename = 'checkpoints/checkpoint.pkl'
-
-    if args.start or args.continue_cp:
-        logger.debug('Doing start or continue')
-        opt.run(
-            max_ngen=200,
-            continue_cp=args.continue_cp,
-            cp_filename=cp_filename)
+    #if args.start or args.checkpoint:
+    #    logger.debug('Doing start or continue')
+    #    opt.run(max_ngen=200,
+    #            continue_cp=(args.checkpoint is not None),
+    #            cp_filename=args.checkpoint)
 
     if args.analyse:
         logger.debug('Doing analyse')
         import l5pc_analysis
-
-        # _, axes_obj = plt.subplots(n_of_rows, n_of_cols, facecolor='white')
-        # axes = numpy.ravel(axes_obj)
         import matplotlib.pyplot as plt
-        fig_release = plt.figure(figsize=(10, 10), facecolor='white')
 
-        box = {
-            'left': 0.0,
-            'bottom': 0.0,
-            'width': 1.0,
-            'height': 1.0}
+        box = {'left': 0.0,
+               'bottom': 0.0,
+               'width': 1.0,
+               'height': 1.0}
 
-        l5pc_analysis.analyse_releasecircuit_model(
-            opt=opt,
-            fig=fig_release,
-            box=box)
+        release_responses_fig = plt.figure(figsize=(10, 10), facecolor='white')
+        release_objectives_fig = plt.figure(figsize=(10, 10), facecolor='white')
 
-        fig_release.savefig('figures/release_l5pc.eps')
+        l5pc_analysis.analyse_releasecircuit_model(opt=opt,
+                                                   figs=((release_responses_fig, box),
+                                                         (release_objectives_fig, box),
+                                                         ),
+                                                   box=box)
+        release_objectives_fig.savefig('figures/l5pc_release_objectives.eps')
+        release_responses_fig.savefig('figures/l5pc_release_responses.eps')
 
-        if os.path.isfile(cp_filename):
+        if args.checkpoint is not None and os.path.isfile(args.checkpoint):
+            responses_fig = plt.figure(figsize=(10, 10), facecolor='white')
+            objectives_fig = plt.figure(figsize=(10, 10), facecolor='white')
+            evol_fig = plt.figure(figsize=(10, 10), facecolor='white')
 
-            bpop_model_fig = plt.figure(figsize=(10, 10), facecolor='white')
-            bpop_evol_fig = plt.figure(figsize=(10, 10), facecolor='white')
+            l5pc_analysis.analyse_cp(opt=opt,
+                                     cp_filename=args.checkpoint,
+                                     responses_filename=args.responses,
+                                     figs=((responses_fig, box),
+                                           (objectives_fig, box),
+                                           (evol_fig, box),
+                                           ))
 
-            l5pc_analysis.analyse_cp(
-                opt=opt,
-                cp_filename=cp_filename,
-                figs=[bpop_model_fig, bpop_evol_fig],
-                boxes=[box, box])
-
-            bpop_model_fig.savefig('figures/bpop_l5pc_model.eps')
-            bpop_evol_fig.savefig('figures/bpop_l5pc_evolution.eps')
+            responses_fig.savefig('figures/l5pc_responses.eps')
+            objectives_fig.savefig('figures/l5pc_objectives.eps')
+            evol_fig.savefig('figures/l5pc_evolution.eps')
 
         else:
             print('No checkpoint file available run optimization '
@@ -161,6 +163,22 @@ def main():
 
         fig_release.savefig('figures/release_l5pc_hoc.eps')
 
+        plt.show()
+
+    elif args.diversity:
+        logger.debug('Plotting Diversity')
+
+        import matplotlib.pyplot as plt
+        import l5pc_analysis
+
+        if not os.path.exists(args.diversity):
+            raise Exception('Need a pickle file to plot the diversity')
+
+        fig_diversity = plt.figure(figsize=(10, 10), facecolor='white')
+
+        l5pc_analysis.plot_diversity(args.diversity, fig_diversity,
+                                     opt.evaluator.param_names)
+        fig_diversity.savefig('figures/l5pc_diversity.eps')
         plt.show()
 
 if __name__ == '__main__':
