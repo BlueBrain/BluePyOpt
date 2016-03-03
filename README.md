@@ -8,6 +8,27 @@ Introduction
 
 BlueBrain Python Optimisation Library
 
+Citation
+========
+
+When you use the BluePyOpt software or method for your research, we ask you to cite the following paper in your publications:
+
+```bibtex
+@ARTICLE{bluepyopt,
+   author = {{Van Geit}, W. and {Gevaert}, M. and {Chindemi}, G. and {R{\"o}ssert}, C. and 
+	{Courcol}, J.-D. and {Muller}, E. and {Sch{\"u}rmann}, F. and 
+	{Segev}, I. and {Markram}, H.},
+    title = "{BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience}",
+  journal = {ArXiv e-prints},
+archivePrefix = "arXiv",
+   eprint = {1603.00500},
+ primaryClass = "q-bio.NC",
+ keywords = {Quantitative Biology - Neurons and Cognition},
+     year = 2016,
+    month = mar
+}
+```
+
 Requirements
 ============
 
