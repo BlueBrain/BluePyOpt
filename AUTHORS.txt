@@ -2,3 +2,4 @@ Werner Van Geit @ BBP
 Christian Roessert @ BBP
 Mike Gevaert @ BBP
 Jean-Denis Courcol @ BBP
+Giuseppe Chindemi @ BBP
