@@ -15,6 +15,8 @@ When you use the BluePyOpt software or method for your research, we ask you to c
 
 Van Geit, W., M. Gevaert, G. Chindemi, C. Rössert, J.-D. Courcol, E. Muller, F. Schürmann, I. Segev, and H. Markram (2016, March). BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience. ArXiv e-prints.
 
+[http://arxiv.org/abs/1603.00500](http://arxiv.org/abs/1603.00500)
+
 ```bibtex
 @ARTICLE{bluepyopt,
    author = {{Van Geit}, W. and {Gevaert}, M. and {Chindemi}, G. and {R{\"o}ssert}, C. and 
