@@ -34,3 +34,4 @@ import bluepyopt.parameters
 # TODO use 'locations' instead of 'location'
 # TODO add island functionality to optimiser
 # TODO add plotting functionality
+# TODO show progress bar during optimisation

@@ -80,4 +80,6 @@ class NrnMODMechanism(Mechanism):
     def __str__(self):
         """String representation"""
 
-        return "%s: %s %s" % (self.name, self.locations, self.prefix)
+        return "%s: %s %s" % (
+            self.name, [str(location) for location in self.locations],
+            self.prefix)
