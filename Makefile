@@ -17,14 +17,22 @@ docopen: doc
 docpdf: install
 	pip install sphinx sphinx-autobuild
 	cd docs; $(MAKE) clean; $(MAKE) latexpdf
-test: install clean
-	pip install jupyter
-	pip install nose coverage --upgrade
+l5pc_nbconvert:
+	cd examples/l5pc && \
+		jupyter nbconvert --to python L5PC.ipynb && \
+		sed '/get_ipython/d;/plt\./d;/^plot_responses/d;/import matplotlib/d;/neurom/d' L5PC.py >L5PC.tmp && \
+		mv L5PC.tmp L5PC.py
+l5pc_nrnivmodl:
 	cd examples/l5pc && nrnivmodl mechanisms
+l5pc_prepare: l5pc_nbconvert l5pc_nrnivmodl
+sc_prepare:
 	cd examples/simplecell && \
 		jupyter nbconvert --to python simplecell.ipynb && \
 		sed '/get_ipython/d;/plt\./d;/plot_responses/d;/import matplotlib/d' simplecell.py >simplecell.tmp && \
 		mv simplecell.tmp simplecell.py
+test: install clean l5pc_prepare sc_prepare
+	pip install jupyter
+	pip install nose coverage --upgrade
 	cd bluepyopt/tests; nosetests -s -v -x --with-coverage --cover-xml \
 		--cover-package bluepyopt
 pypi: test
