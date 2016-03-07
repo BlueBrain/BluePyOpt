@@ -54,6 +54,11 @@ class SingletonObjective(Objective):
 
         return self.calculate_feature_scores(responses)[0]
 
+    def __str__(self):
+        """String representation"""
+
+        return '( %s )' % self.features[0]
+
 
 class MaxObjective(Objective):
 

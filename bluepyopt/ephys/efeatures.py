@@ -112,3 +112,16 @@ class eFELFeature(EFeature):
         logger.debug('Calculated score for %s: %f', self.name, score)
 
         return score
+
+    def __str__(self):
+        """String representation"""
+
+        return "%s for %s with stim start %s and end %s, " \
+            "exp mean %s and std %s and AP threshold override %s" % \
+            (self.efel_feature_name,
+             self.recording_names,
+             self.stim_start,
+             self.stim_end,
+             self.exp_mean,
+             self.exp_std,
+             self.threshold)

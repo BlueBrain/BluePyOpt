@@ -35,3 +35,4 @@ class NrnSimulator(object):
         self.neuron.h.cvode_active(1 if cvode_active else 0)
         logger.debug('Running Neuron simulator %.6g ms', tstop)
         self.neuron.h.run()
+        logger.debug('Neuron simulation finished')

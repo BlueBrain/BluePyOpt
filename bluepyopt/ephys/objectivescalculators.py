@@ -36,3 +36,7 @@ class ObjectivesCalculator(object):
 
         return {objective.name: objective.calculate_score(responses)
                 for objective in self.objectives}
+
+    def __str__(self):
+        return 'objectives:\n  %s' % '\n  '.join(
+            [str(obj) for obj in self.objectives])

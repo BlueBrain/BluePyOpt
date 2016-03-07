@@ -131,3 +131,36 @@ class TestL5PCEvaluator(object):
     def teardown(self):
         """Teardown"""
         pass
+
+
+class TestL5PCNotebookClass(object):
+
+    """L5PC notebook test class"""
+
+    def __init__(self):
+        """Constructor"""
+
+        self.old_cwd = None
+        self.old_stdout = None
+
+    def setup(self):
+        """Setup"""
+        self.old_cwd = os.getcwd()
+        self.old_stdout = sys.stdout
+
+        os.chdir(L5PC_PATH)
+        sys.stdout = open(os.devnull, 'w')
+
+    @staticmethod
+    def test_exec():
+        """L5PC Notebook: test execution"""
+        # When using import instead of execfile this doesn't work
+        # Probably because multiprocessing doesn't work correctly during
+        # import
+        execfile('L5PC.py')  # NOQA
+
+    def teardown(self):
+        """Tear down"""
+
+        sys.stdout = self.old_stdout
+        os.chdir(self.old_cwd)
