@@ -49,7 +49,15 @@ on Linux / UNIX / MacOSX / Cygwin
 Installation
 ============
 
-After installing Neuron and DEAP, run the following command:
+If you want to use the ephys module of BluePyOpt, you first need to install Neuron with Python support on your machine.
+
+All users need to install the BlueBrain version of DEAP:
+
+```bash
+pip install git+http://github.com/BlueBrain/deap/
+```
+
+And then bluepyopt itself:
 
 ```bash
 pip install bluepyopt
