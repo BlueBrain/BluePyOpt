@@ -21,10 +21,12 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=R0914
 
 import os
+import json
 
 import bluepyopt.ephys as ephys
 
 script_dir = os.path.dirname(__file__)
+config_dir = os.path.join(script_dir, 'config')
 
 # TODO store definition dicts in json
 # TODO rename 'score' into 'objective'
@@ -34,9 +36,11 @@ script_dir = os.path.dirname(__file__)
 def define_mechanisms():
     """Define mechanisms"""
 
-    import json
-    with open(os.path.join(script_dir, 'mechanisms.json')) as mech_file:
-        mech_definitions = json.load(mech_file)
+    mech_definitions = json.load(
+        open(
+            os.path.join(
+                config_dir,
+                'mechanisms.json')))
 
     mechanisms = []
     for sectionlist, channels in mech_definitions.iteritems():
@@ -57,9 +61,7 @@ def define_mechanisms():
 def define_parameters():
     """Define parameters"""
 
-    import json
-
-    param_configs = json.load(open(os.path.join(script_dir, 'parameters.json')))
+    param_configs = json.load(open(os.path.join(config_dir, 'parameters.json')))
     parameters = []
 
     for param_config in param_configs:
