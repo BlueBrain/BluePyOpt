@@ -91,6 +91,7 @@ Versions for various python software that is installed
 - *efel_version*: 2.10.7
 - *scoop_version*: 0.7.1.1
 - *jupyter_version*: 1.0.0
+- *matplotlib_version*: 1.5.1
 
 ## Installation Information
 

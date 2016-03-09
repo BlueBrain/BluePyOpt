@@ -1,4 +1,5 @@
 ---
+#note: this is for debian and ubuntu distributions
 - name: update apt cache
   apt: update_cache=yes
 
@@ -14,6 +15,10 @@
     - python-dev
     - python-pip
     - python-virtualenv
+    - unzip
+    #for matplotlib
+    - pkg-config
+    - libfreetype6-dev
   tags: packages
 
 - name: Configure User
