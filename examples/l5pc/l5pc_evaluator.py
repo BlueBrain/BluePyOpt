@@ -21,11 +21,14 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=R0914
 
 import os
+import json
+
 import l5pc_model  # NOQA
 
 import bluepyopt.ephys as ephys
 
 script_dir = os.path.dirname(__file__)
+config_dir = os.path.join(script_dir, 'config')
 
 # TODO store definition dicts in json
 # TODO rename 'score' into 'objective'
@@ -35,9 +38,11 @@ script_dir = os.path.dirname(__file__)
 def define_protocols():
     """Define protocols"""
 
-    import json
-    with open(os.path.join(script_dir, 'protocols.json'), 'r') as protocol_file:
-        protocol_definitions = json.load(protocol_file)
+    protocol_definitions = json.load(
+        open(
+            os.path.join(
+                config_dir,
+                'protocols.json')))
 
     protocols = {}
 
@@ -96,9 +101,11 @@ def define_protocols():
 def define_fitness_calculator(protocols):
     """Define fitness calculator"""
 
-    import json
-    with open(os.path.join(script_dir, 'features.json'), 'r') as protocol_file:
-        feature_definitions = json.load(protocol_file)
+    feature_definitions = json.load(
+        open(
+            os.path.join(
+                config_dir,
+                'features.json')))
 
     # TODO: add bAP stimulus
     objectives = []
