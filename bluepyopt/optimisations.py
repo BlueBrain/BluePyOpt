@@ -212,6 +212,12 @@ class DEAPOptimisation(Optimisation):
 
         # Register the selector (picks parents from population)
         self.toolbox.register("select", deap.tools.selIBEA)
+        def _reduce_method(meth):
+            """Overwrite reduce"""
+            return (getattr, (meth.__self__, meth.__func__.__name__))
+        import copy_reg
+        import types
+        copy_reg.pickle(types.MethodType, _reduce_method)
 
         if self.use_scoop:
             if self.map_function:
@@ -223,12 +229,6 @@ class DEAPOptimisation(Optimisation):
             from scoop import futures
             self.toolbox.register("map", futures.map)
 
-            def _reduce_method(meth):
-                """Overwrite reduce"""
-                return (getattr, (meth.__self__, meth.__func__.__name__))
-            import copy_reg
-            import types
-            copy_reg.pickle(types.MethodType, _reduce_method)
         elif self.map_function:
             self.toolbox.register("map", self.map_function)
 
