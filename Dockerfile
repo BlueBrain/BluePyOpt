@@ -15,7 +15,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-FROM ubuntu:14.04
+FROM  andrewosh/binder-base
 MAINTAINER Werner Van Geit
 
 RUN apt-get update
