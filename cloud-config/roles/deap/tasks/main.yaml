@@ -9,6 +9,9 @@
 - name: Install Jupyter
   pip: name=jupyter version="{{ jupyter_version }}" virtualenv={{ venv }}
 
+- name: Install matplotlib
+  pip: name=matplotlib version="{{ matplotlib_version }}" virtualenv={{ venv }}
+
 #Note: using the BBP version of DEAP, as it includes the updated IBEA tools
 - name: Install deap
   pip: name='git+https://github.com/BlueBrain/deap#egg=deap' virtualenv={{ venv }}
