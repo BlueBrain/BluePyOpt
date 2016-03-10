@@ -23,11 +23,10 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 
 import random
-
 import logging
+import functools
 
 import deap
-import deap.creator
 import deap.base
 import deap.algorithms
 import deap.tools
@@ -52,6 +51,51 @@ class Optimisation(object):
         self.evaluator = evaluator
 
 
+class WeightedSumFitness(deap.base.Fitness):
+
+    """Fitness that compares by weighted sum"""
+
+    def __init__(self, values=(), obj_size=None):
+        self.weights = [-1.0] * obj_size if obj_size is not None else [-1]
+
+        super(WeightedSumFitness, self).__init__(values)
+
+    @property
+    def weighted_sum(self):
+        """Weighted sum of wvalues"""
+        return sum(self.wvalues)
+
+    @property
+    def sum(self):
+        """Weighted sum of values"""
+        return sum(self.values)
+
+    def __le__(self, other):
+        return self.weighted_sum <= other.weighted_sum
+
+    def __lt__(self, other):
+        return self.weighted_sum < other.weighted_sum
+
+    def __deepcopy__(self, _):
+        """Override deepcopy"""
+
+        cls = self.__class__
+        result = cls.__new__(cls)
+        result.__dict__.update(self.__dict__)
+        return result
+
+
+class WSListIndividual(list):
+
+    """Individual consisting of list with weighted sum field"""
+
+    def __init__(self, *args, **kwargs):
+        """Constructor"""
+        self.fitness = WeightedSumFitness(obj_size=kwargs['obj_size'])
+        del kwargs['obj_size']
+        super(WSListIndividual, self).__init__(*args, **kwargs)
+
+
 class DEAPOptimisation(Optimisation):
 
     """DEAP Optimisation class"""
@@ -64,22 +108,13 @@ class DEAPOptimisation(Optimisation):
                  offspring_size=10,
                  eta=10,
                  mutpb=1.0,
-                 cxpb=1.0):
+                 cxpb=1.0,
+                 map_function=None):
         """Constructor"""
 
         super(DEAPOptimisation, self).__init__(evaluator=evaluator)
 
         Optimisation._instance_counter += 1
-
-        # Disabling for now because it clashes with scoop
-        # TODO has to be reenabled ! (until deap.creator global classes are
-        # fixed)
-        # if Optimisation._instance_counter > 1:
-        #    raise Exception(
-        #        'At the moment only one Optimisation object is allowed '
-        #        'to exist simultaneously')
-
-        self.deap_classnames = []
 
         self.use_scoop = use_scoop
         self.seed = seed
@@ -87,62 +122,18 @@ class DEAPOptimisation(Optimisation):
         self.eta = eta
         self.cxpb = cxpb
         self.mutpb = mutpb
+        self.map_function = map_function
+
         # Create a DEAP toolbox
         self.toolbox = deap.base.Toolbox()
 
         self.setup_deap()
-
-    def __del__(self):
-        """Destructor"""
-        self.destroy_deap()
-
-    def create_deap_class(self, name, base, **kwargs):
-        """Create a class in deap.creator"""
-
-        deap.creator.create(name, base, **kwargs)
-        self.deap_classnames.append(name)
 
     def setup_deap(self):
         """Set up optimisation"""
 
         # Number of objectives
         OBJ_SIZE = len(self.evaluator.objectives)
-
-        class WeightedSumFitness(deap.base.Fitness):
-
-            """Fitness that compares by weighted sum"""
-
-            def __init__(self, values=()):
-                deap.base.Fitness.__init__(self, values)
-
-            @property
-            def weighted_sum(self):
-                """Weighted sum of wvalues"""
-                return sum(self.wvalues)
-
-            @property
-            def sum(self):
-                """Weighted sum of values"""
-                return sum(self.values)
-
-            def __le__(self, other):
-                return self.weighted_sum <= other.weighted_sum
-
-            def __lt__(self, other):
-                return self.weighted_sum < other.weighted_sum
-
-        # Create a fitness function
-        # By default DEAP selector will try to maximise fitness values,
-        # so we add a -1 weight value to minise
-        self.create_deap_class("WeightedSumFitness",
-                               WeightedSumFitness,
-                               weights=[-1.0] * OBJ_SIZE)
-
-        # Create an individual that consists of a list
-        self.create_deap_class(
-            "ListIndividual",
-            list,
-            fitness=deap.creator.WeightedSumFitness)
 
         # Set random seed
         random.seed(self.seed)
@@ -179,13 +170,13 @@ class DEAPOptimisation(Optimisation):
         self.toolbox.register("uniformparams", uniform, LOWER, UPPER, IND_SIZE)
 
         # Register the individual format
-        # An indiviual is create by 'deap.creator.Individual' and parameters
+        # An indiviual is create by WSListIndividual and parameters
         # are initially
         # picked by 'uniform'
         self.toolbox.register(
             "Individual",
             deap.tools.initIterate,
-            deap.creator.ListIndividual,
+            functools.partial(WSListIndividual, obj_size=OBJ_SIZE),
             self.toolbox.uniformparams)
 
         # Register the population format. It is a list of individuals
@@ -222,10 +213,13 @@ class DEAPOptimisation(Optimisation):
         # Register the selector (picks parents from population)
         self.toolbox.register("select", deap.tools.selIBEA)
 
-        # toolbox.register("select", deap.tools.selIBEA)
-        # toolbox.register("select", deap.tools.selIBEA)
-
         if self.use_scoop:
+            if self.map_function:
+                raise Exception(
+                    'Impossible to use scoop is providing self '
+                    'defined map function: %s' %
+                    self.map_function)
+
             from scoop import futures
             self.toolbox.register("map", futures.map)
 
@@ -235,19 +229,8 @@ class DEAPOptimisation(Optimisation):
             import copy_reg
             import types
             copy_reg.pickle(types.MethodType, _reduce_method)
-
-        # import multiprocessing
-
-        # pool = multiprocessing.Pool()
-        # self.toolbox.register("map", pool.map)
-
-    def destroy_deap(self):
-        """Destroy deap class"""
-
-        for classname in self.deap_classnames:
-            if hasattr(deap.creator, classname):
-                delattr(deap.creator, classname)
-        Optimisation._instance_counter -= 1
+        elif self.map_function:
+            self.toolbox.register("map", self.map_function)
 
     def run(
             self,
@@ -391,7 +374,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         record = stats.compile(population) if stats is not None else {}
         logbook.record(gen=gen, nevals=len(invalid_ind), **record)
 
-        print logbook.stream
+        logger.info(logbook.stream)
 
         if cp_filename and cp_frequency:
             if gen % cp_frequency == 0:
