@@ -74,6 +74,9 @@ infrastructure or cluster computers
 Quick Start
 ===========
 
+Single compartmentel model
+--------------------------
+
 An iPython notebook with an introductory optimisation of a one compartmental 
 model with 2 HH channels can be found at
 
@@ -83,8 +86,11 @@ There is a Binder Virtual Machine available that allows you to run this notebook
 
 http://mybinder.org/repo/BlueBrain/BluePyOpt/examples/simplecell/simplecell.ipynb
 
+Neocortical Layer 5 Pyramidal Cell
+----------------------------------
 Scripts for a more complex neocortical L5PC are in 
 [this directory](https://github.com/BlueBrain/BluePyOpt/tree/master/examples/l5pc)
+
 With a notebook:
 
 https://github.com/BlueBrain/BluePyOpt/blob/master/examples/l5pc/L5PC.ipynb
