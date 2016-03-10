@@ -75,11 +75,23 @@ Quick Start
 ===========
 
 An iPython notebook with an introductory optimisation of a one compartmental 
-model with 2 HH channels can be found 
-[here](https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/simplecell.ipynb)
+model with 2 HH channels can be found at
+
+https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/simplecell.ipynb
+
+There is a Binder Virtual Machine available that allows you to run this notebook in your browser:
+
+http://mybinder.org/repo/BlueBrain/BluePyOpt/examples/simplecell/simplecell.ipynb
 
 Scripts for a more complex neocortical L5PC are in 
 [this directory](https://github.com/BlueBrain/BluePyOpt/tree/master/examples/l5pc)
+With a notebook:
+
+https://github.com/BlueBrain/BluePyOpt/blob/master/examples/l5pc/L5PC.ipynb
+
+And you can run this in a VM:
+
+http://mybinder.org/repo/BlueBrain/BluePyOpt/examples/l5pc/L5PC.ipynb
 
 API documentation
 ==================
