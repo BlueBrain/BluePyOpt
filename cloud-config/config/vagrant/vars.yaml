@@ -3,6 +3,7 @@ workspace: ~/workspace
 venv: "{{workspace}}/venv"
 build_dir: "{{workspace}}/build"
 install_dir: "{{workspace}}/install"
+add_bin_path: true
 
 using_headnode: true
 
