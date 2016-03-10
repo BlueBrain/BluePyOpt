@@ -45,3 +45,10 @@
   args:
     chdir: "{{ neuron_build }}/nrn-{{ neuron_version }}/src/nrnpython"
     creates: "{{ venv }}/lib/python2.7/site-packages/neuron"
+
+- name: Add neuron and python virtualenv to path
+  lineinfile: >
+    dest=~/.bashrc
+    state=present
+    line="export PATH={{ venv }}/bin:{{ install_dir }}/nrnpython/x86_64/bin/:$PATH"
+  when: "{{ add_bin_path }}"

@@ -75,6 +75,8 @@ contain the only options that could potentially need configuration.  They are:
 - *venv*: the location of the virtualenvironment
 - *build_dir*: the location where software is built
 - *install_dir*: the base location where software is installed
+- *add_bin_path*: Boolean on if the path to neuron and the python environment
+ should be added to the users' `.bashrc`
 - *using_headnode*: Set to true when there is a headnode that will control
   everything, used for when an SSH has to be distributed to the workers
 - *neuron_build*: location to build NEURON
