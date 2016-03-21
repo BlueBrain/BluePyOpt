@@ -63,11 +63,17 @@ class SweepProtocol(Protocol):
 
     """Stimulus protocol"""
 
-    def __init__(self, name=None, stimuli=None, recordings=None):
+    def __init__(
+            self,
+            name=None,
+            stimuli=None,
+            recordings=None,
+            cvode_active=True):
         """Constructor"""
         super(SweepProtocol, self).__init__(name)
         self.stimuli = stimuli
         self.recordings = recordings
+        self.cvode_active = cvode_active
 
     @property
     def total_duration(self):
@@ -83,7 +89,7 @@ class SweepProtocol(Protocol):
 
         self.instantiate(sim=sim, icell=cell_model.icell)
 
-        sim.run(self.total_duration)
+        sim.run(self.total_duration, cvode_active=self.cvode_active)
 
         responses = {
             recording.name: recording.response
