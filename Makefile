@@ -24,7 +24,10 @@ l5pc_nbconvert: jupyter
 		mv L5PC.tmp L5PC.py
 l5pc_nrnivmodl:
 	cd examples/l5pc && nrnivmodl mechanisms
-l5pc_prepare: l5pc_nbconvert l5pc_nrnivmodl
+l5pc_zip:
+	cd examples/l5pc && \
+		zip -r l5_config.zip config/ morphology/ mechanisms/ l5pc_model.py l5pc_evaluator.py checkpoints/checkpoint.pkl	
+l5pc_prepare: l5pc_zip l5pc_nbconvert l5pc_nrnivmodl
 sc_prepare: jupyter
 	cd examples/simplecell && \
 		jupyter nbconvert --to python simplecell.ipynb && \
