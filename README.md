@@ -32,6 +32,10 @@ archivePrefix = "arXiv",
 }
 ```
 
+News
+====
+- 2016/03/24: Released version 1.0
+
 Requirements
 ============
 
