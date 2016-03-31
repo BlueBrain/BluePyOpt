@@ -52,7 +52,7 @@ def evaluate(parameter_array):
 
 opt = bluepyopt.deapext.optimisations.IBEADEAPOptimisation(
     evaluator=evaluator,
-    offspring_size=2,
+    offspring_size=100,
     use_scoop=True)
 
 
@@ -91,11 +91,11 @@ def main():
                 'bglibpy not installed, '
                 '--hocanalyse for internal testing only!')
 
-    # if args.start or args.checkpoint:
-    #    logger.debug('Doing start or continue')
-    #    opt.run(max_ngen=200,
-    #            continue_cp=(args.checkpoint is not None),
-    #            cp_filename=args.checkpoint)
+    if args.start or args.checkpoint:
+        logger.debug('Doing start or continue')
+        opt.run(max_ngen=100,
+                continue_cp=(args.checkpoint is not None),
+                cp_filename=args.checkpoint)
 
     if args.analyse:
         logger.debug('Doing analyse')
