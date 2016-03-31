@@ -76,7 +76,7 @@ infrastructure or cluster computers
 Quick Start
 ===========
 
-Single compartmentel model
+Single compartmental model
 --------------------------
 
 An iPython notebook with an introductory optimisation of a one compartmental 
