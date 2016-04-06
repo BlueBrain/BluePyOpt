@@ -50,10 +50,18 @@ def evaluate(parameter_array):
 
     return evaluator.evaluate(parameter_array)
 
+<<<<<<< 418a116eace95e074b22b7d3c3005316e3164750
 opt = bluepyopt.deapext.optimisations.IBEADEAPOptimisation(
+=======
+from ipyparallel import Client
+rc = Client(profile=os.getenv('IPYTHON_PROFILE'))
+lview = rc.load_balanced_view()
+
+opt = bluepyopt.optimisations.DEAPOptimisation(
+>>>>>>> Adding script to look at load balancing stats
     evaluator=evaluator,
     offspring_size=100,
-    use_scoop=True)
+    map_function=lview.map_sync)
 
 
 def main():
