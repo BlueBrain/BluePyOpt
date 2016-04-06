@@ -50,10 +50,14 @@ def evaluate(parameter_array):
 
     return evaluator.evaluate(parameter_array)
 
+from ipyparallel import Client
+rc = Client(profile=os.getenv('IPYTHON_PROFILE'))
+lview = rc.load_balanced_view()
+
 opt = bluepyopt.optimisations.DEAPOptimisation(
     evaluator=evaluator,
     offspring_size=100,
-    use_scoop=True)
+    map_function=lview.map_sync)
 
 
 def main():
@@ -67,8 +71,9 @@ def main():
     parser.add_argument('--analyse', action="store_true")
     parser.add_argument('--compile', action="store_true")
     parser.add_argument('--hocanalyse', action="store_true")
-    parser.add_argument('--diversity',
-                        help='plot the diversity of parameters from checkpoint pickle file')
+    parser.add_argument(
+        '--diversity',
+        help='plot the diversity of parameters from checkpoint pickle file')
 
     args = parser.parse_args()
 
@@ -109,11 +114,9 @@ def main():
         release_responses_fig = plt.figure(figsize=(10, 10), facecolor='white')
         release_objectives_fig = plt.figure(figsize=(10, 10), facecolor='white')
 
-        l5pc_analysis.analyse_releasecircuit_model(opt=opt,
-                                                   figs=((release_responses_fig, box),
-                                                         (release_objectives_fig, box),
-                                                         ),
-                                                   box=box)
+        l5pc_analysis.analyse_releasecircuit_model(
+            opt=opt, figs=(
+                (release_responses_fig, box), (release_objectives_fig, box), ), box=box)
         release_objectives_fig.savefig('figures/l5pc_release_objectives.eps')
         release_responses_fig.savefig('figures/l5pc_release_responses.eps')
 
