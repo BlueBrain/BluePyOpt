@@ -57,17 +57,20 @@ from ipyparallel import Client
 rc = Client(profile=os.getenv('IPYTHON_PROFILE'))
 lview = rc.load_balanced_view()
 
+
 opt = bluepyopt.optimisations.DEAPOptimisation(
 >>>>>>> Adding script to look at load balancing stats
     evaluator=evaluator,
     offspring_size=100,
-    map_function=lview.map_sync)
+    map_function=lview.map_sync,
+    seed=os.getenv('BLUEPYOPT_SEED'))
 
 
 def main():
     """Main"""
     parser = argparse.ArgumentParser(description='L5PC example')
     parser.add_argument('--start', action="store_true")
+    parser.add_argument('--continu', action="store_false", default=False)
     parser.add_argument('--checkpoint', required=False, default=None,
                         help='Checkpoint pickle to avoid recalculation')
     parser.add_argument('--responses', required=False, default=None,
@@ -99,10 +102,10 @@ def main():
                 'bglibpy not installed, '
                 '--hocanalyse for internal testing only!')
 
-    if args.start or args.checkpoint:
+    if args.start or args.continu:
         logger.debug('Doing start or continue')
         opt.run(max_ngen=100,
-                continue_cp=(args.checkpoint is not None),
+                continue_cp=args.continu,
                 cp_filename=args.checkpoint)
 
     if args.analyse:
