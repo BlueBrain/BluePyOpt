@@ -73,8 +73,10 @@ def get_responses(cell_evaluator, individuals, filename):
 
     for individual in individuals:
         individual_dict = cell_evaluator.param_dict(individual)
-        responses.append(cell_evaluator.run_protocols(cell_evaluator.fitness_protocols.values(),
-                                                      param_values=individual_dict))
+        responses.append(
+            cell_evaluator.run_protocols(
+                cell_evaluator.fitness_protocols.values(),
+                param_values=individual_dict)) 
 
     if filename:
         with open(filename, 'w') as fd:
@@ -86,15 +88,16 @@ def get_responses(cell_evaluator, individuals, filename):
 @set_rcoptions
 def analyse_cp(opt, cp_filename, responses_filename, figs):
     """Analyse optimisation results"""
-    (model_fig, model_box), (objectives_fig, objectives_box), (evol_fig, evol_box) = figs
+    (model_fig, model_box), (objectives_fig, objectives_box), (
+        evol_fig, evol_box) = figs
 
     cp = pickle.load(open(cp_filename, "r"))
-    hof =  cp['halloffame']
+    hof = cp['halloffame']
 
     responses = get_responses(opt.evaluator, hof, responses_filename)
     plot_multiple_responses(responses, fig=model_fig)
 
-    #objectives
+    # objectives
     parameter_values = opt.evaluator.param_dict(hof[0])
     fitness_protocols = opt.evaluator.fitness_protocols
     responses = {}
@@ -110,7 +113,7 @@ def analyse_cp(opt, cp_filename, responses_filename, figs):
 
     objectives = opt.evaluator.fitness_calculator.calculate_scores(responses)
     plot_objectives(objectives, fig=objectives_fig, box=objectives_box)
-    #objectives
+    # objectives
 
     plot_log(cp['logbook'], fig=evol_fig, box=evol_box)
 
@@ -233,7 +236,7 @@ def get_slice(start, end, data):
 def plot_multiple_responses(responses, fig):
     '''creates 6 subplots for step{1,2,3} and dAP traces, and plots all the responses on them'''
     traces = ('Step1.soma.v', 'Step2.soma.v', 'Step3.soma.v',
-                'bAP.dend1.v', 'bAP.dend2.v', 'bAP.soma.v', )
+              'bAP.dend1.v', 'bAP.dend2.v', 'bAP.soma.v', )
     plot_count = len(traces)
     ax = [fig.add_subplot(plot_count, 1, i + 1) for i in range(plot_count)]
 
@@ -245,8 +248,11 @@ def plot_multiple_responses(responses, fig):
 
         for i, name in enumerate(traces):
             sl = get_slice(0, 3000, response[name]['time'])
-            ax[i].plot(response[name]['time'][sl], response[name]['voltage'][sl],
-                       color=color, linewidth=1)
+            ax[i].plot(
+                response[name]['time'][sl],
+                response[name]['voltage'][sl],
+                color=color,
+                linewidth=1) 
             ax[i].set_ylabel(name + '\nVoltage (mV)')
             ax[i].set_autoscaley_on(True)
             ax[i].set_autoscalex_on(True)
@@ -441,7 +447,8 @@ def plot_validation(opt, parameters):
 @set_rcoptions
 def analyse_releasecircuit_model(opt, figs, box=None):
     """Analyse L5PC model from release circuit"""
-    (release_responses_fig, response_box), (release_objectives_fig, objectives_box) = figs
+    (release_responses_fig, response_box), (
+        release_objectives_fig, objectives_box) = figs
 
     fitness_protocols = opt.evaluator.fitness_protocols
 
@@ -497,8 +504,17 @@ def analyse_releasecircuit_hocmodel(opt, fig=None, box=None):
 
 
 FITNESS_CUT_OFF = 5
-def plot_individual_params(ax, params, marker, color, markersize=40, plot_bounds=False,
-                           fitness_cut_off=FITNESS_CUT_OFF):
+
+
+def plot_individual_params(
+        opt,
+        ax,
+        params,
+        marker,
+        color,
+        markersize=40,
+        plot_bounds=False,
+        fitness_cut_off=FITNESS_CUT_OFF): 
     '''plot the individual parameter values'''
     observations_count = len(params)
     param_count = len(params[0])
@@ -511,7 +527,7 @@ def plot_individual_params(ax, params, marker, color, markersize=40, plot_bounds
         results[good_fitness] = param
         good_fitness += 1
 
-    results = np.log(results)
+    results = results
 
     for c in range(good_fitness):
         x = np.arange(param_count)
@@ -526,15 +542,15 @@ def plot_individual_params(ax, params, marker, color, markersize=40, plot_bounds
             y = [y, y]
             ax.plot(x, y, color='black')
 
-        #plot min and max
-        for i in range(param_count):
-            min_value = np.min(results[0:good_fitness, i])
-            max_value = np.max(results[0:good_fitness, i])
+        # plot min and max
+        for i, parameter in enumerate(opt.evaluator.params):
+            min_value = parameter.lower_bound
+            max_value = parameter.upper_bound
             plot_tick(i, min_value)
             plot_tick(i, max_value)
 
 
-def plot_diversity(checkpoint_file, fig, param_names):
+def plot_diversity(opt, checkpoint_file, fig, param_names):
     '''plot the whole history, the hall of fame, and the best individual
     from a unpickled checkpoint
     '''
@@ -542,12 +558,28 @@ def plot_diversity(checkpoint_file, fig, param_names):
     checkpoint = pickle.load(open(checkpoint_file, "r"))
 
     ax = fig.add_subplot(1, 1, 1)
-    plot_individual_params(ax, checkpoint['history'].genealogy_history.values(),
-                           marker='.', color='grey', plot_bounds=True)
-    plot_individual_params(ax, checkpoint['halloffame'],
+
+    import copy
+    release_individual = copy.deepcopy(checkpoint['halloffame'][0])
+    for index, param_name in enumerate(opt.evaluator.param_names):
+        release_individual[index] = release_params[param_name]
+    plot_individual_params(
+        opt,
+        ax,
+        checkpoint['history'].genealogy_history.values(),
+        marker='.',
+        color='grey',
+        plot_bounds=True) 
+    plot_individual_params(opt, ax, checkpoint['halloffame'],
                            marker='o', color='black')
-    plot_individual_params(ax, [checkpoint['halloffame'][0]], markersize=150,
-                           marker='x', color='blue')
+    plot_individual_params(opt,
+                           ax,
+                           [checkpoint['halloffame'][0]],
+                           markersize=150,
+                           marker='x',
+                           color='blue') 
+    plot_individual_params(opt, ax, [release_individual], markersize=150,
+                           marker='x', color='red')
 
     labels = [name.replace('.', '\n') for name in param_names]
 
@@ -557,9 +589,10 @@ def plot_diversity(checkpoint_file, fig, param_names):
         ax.axvline(xline, linewidth=1, color='grey', linestyle=':')
 
     plt.xticks(x, labels, rotation=80, ha='center', size='small')
-    ax.set_xlabel('Parameters')
-    ax.set_ylabel('log Parameter value')
-    ax.set_ylim((-15, 8))
+    ax.set_xlabel('Parameter names')
+    ax.set_ylabel('Parameter values')
+    ax.set_yscale('log')
+    ax.set_ylim(bottom=1e-7)
 
     plt.tight_layout()
     plt.plot()
