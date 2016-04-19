@@ -67,8 +67,9 @@ def main():
     parser.add_argument('--analyse', action="store_true")
     parser.add_argument('--compile', action="store_true")
     parser.add_argument('--hocanalyse', action="store_true")
-    parser.add_argument('--diversity',
-                        help='plot the diversity of parameters from checkpoint pickle file')
+    parser.add_argument(
+        '--diversity',
+        help='plot the diversity of parameters from checkpoint pickle file') 
 
     args = parser.parse_args()
 
@@ -90,7 +91,7 @@ def main():
                 'bglibpy not installed, '
                 '--hocanalyse for internal testing only!')
 
-    #if args.start or args.checkpoint:
+    # if args.start or args.checkpoint:
     #    logger.debug('Doing start or continue')
     #    opt.run(max_ngen=200,
     #            continue_cp=(args.checkpoint is not None),
@@ -109,11 +110,9 @@ def main():
         release_responses_fig = plt.figure(figsize=(10, 10), facecolor='white')
         release_objectives_fig = plt.figure(figsize=(10, 10), facecolor='white')
 
-        l5pc_analysis.analyse_releasecircuit_model(opt=opt,
-                                                   figs=((release_responses_fig, box),
-                                                         (release_objectives_fig, box),
-                                                         ),
-                                                   box=box)
+        l5pc_analysis.analyse_releasecircuit_model(
+            opt=opt, figs=(
+                (release_responses_fig, box), (release_objectives_fig, box), ), box=box) 
         release_objectives_fig.savefig('figures/l5pc_release_objectives.eps')
         release_responses_fig.savefig('figures/l5pc_release_responses.eps')
 
@@ -176,7 +175,7 @@ def main():
 
         fig_diversity = plt.figure(figsize=(10, 10), facecolor='white')
 
-        l5pc_analysis.plot_diversity(args.diversity, fig_diversity,
+        l5pc_analysis.plot_diversity(opt, args.diversity, fig_diversity,
                                      opt.evaluator.param_names)
         fig_diversity.savefig('figures/l5pc_diversity.eps')
         plt.show()
