@@ -50,7 +50,7 @@ def evaluate(parameter_array):
 
     return evaluator.evaluate(parameter_array)
 
-opt = bluepyopt.optimisations.DEAPOptimisation(
+opt = bluepyopt.deapext.optimisations.IBEADEAPOptimisation(
     evaluator=evaluator,
     offspring_size=2,
     use_scoop=True)
@@ -69,7 +69,7 @@ def main():
     parser.add_argument('--hocanalyse', action="store_true")
     parser.add_argument(
         '--diversity',
-        help='plot the diversity of parameters from checkpoint pickle file') 
+        help='plot the diversity of parameters from checkpoint pickle file')
 
     args = parser.parse_args()
 
@@ -112,7 +112,8 @@ def main():
 
         l5pc_analysis.analyse_releasecircuit_model(
             opt=opt, figs=(
-                (release_responses_fig, box), (release_objectives_fig, box), ), box=box) 
+                (release_responses_fig, box),
+                (release_objectives_fig, box), ), box=box)
         release_objectives_fig.savefig('figures/l5pc_release_objectives.eps')
         release_responses_fig.savefig('figures/l5pc_release_responses.eps')
 
@@ -126,8 +127,7 @@ def main():
                                      responses_filename=args.responses,
                                      figs=((responses_fig, box),
                                            (objectives_fig, box),
-                                           (evol_fig, box),
-                                           ))
+                                           (evol_fig, box),))
 
             responses_fig.savefig('figures/l5pc_responses.eps')
             objectives_fig.savefig('figures/l5pc_objectives.eps')
