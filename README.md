@@ -34,6 +34,7 @@ archivePrefix = "arXiv",
 
 News
 ====
+- 2016/04/20: BluePyOpt now contains the code of the IBEA selector, no need to install a BBP-specific version of DEAP anymore
 - 2016/03/24: Released version 1.0
 
 Requirements
@@ -53,12 +54,6 @@ Installation
 ============
 
 If you want to use the ephys module of BluePyOpt, you first need to install Neuron with Python support on your machine.
-
-All users need to install the BlueBrain version of DEAP:
-
-```bash
-pip install git+http://github.com/BlueBrain/deap/
-```
 
 And then bluepyopt itself:
 
