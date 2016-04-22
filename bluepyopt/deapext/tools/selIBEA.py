@@ -56,12 +56,14 @@ def selIBEA(population, mu, alpha=None, kappa=.05, tournament_n=4):
 
 def _calc_fitness_components(population, kappa):
     """returns an N * N numpy array of doubles, which is their IBEA fitness """
-    pop_len = len(population)
-    feat_len = len(population[0].fitness.wvalues)
+    # DEAP selector are supposed to maximise the objective values
+    # We take the negative objectives because this algorithm will minimise
     population_matrix = np.fromiter(iter(-x
                                          for individual in population
                                          for x in individual.fitness.wvalues),
                                     dtype=np.float)
+    pop_len = len(population)
+    feat_len = len(population[0].fitness.wvalues)
     population_matrix = population_matrix.reshape((pop_len, feat_len))
 
     # Calculate minimal square bounding box of the objectives
