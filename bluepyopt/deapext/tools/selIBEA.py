@@ -29,8 +29,7 @@ http://www.tik.ee.ethz.ch/pisa/selectors/ibea/?page=ibea.php
 """
 
 
-import numpy as numpy
-import itertools
+import numpy as np
 import random
 
 
@@ -40,21 +39,8 @@ def selIBEA(population, mu, alpha=None, kappa=.05, tournament_n=4):
     if alpha is None:
         alpha = len(population)
 
-    # Put all the objectives of all individuals in a matrix
-    # DEAP selector are supposed to maximise the objective values
-    # We take the negative objectives because this algorithm will minimise
-    population_matrix = [
-        [-x for x in individual.fitness.wvalues] for individual in population]
-
-    # Calculate minimal square bounding box of the objectives
-    min_box_bounds, max_box_bounds = _calc_box_bounds(population_matrix)
-
     # Calculate a matrix with the fitness components of every individual
-    components = _calc_fitness_components(
-        population_matrix,
-        min_box_bounds,
-        max_box_bounds,
-        kappa=kappa)
+    components = _calc_fitness_components(population, kappa=kappa)
 
     # Calculate the fitness values
     _calc_fitnesses(population, components)
@@ -68,52 +54,31 @@ def selIBEA(population, mu, alpha=None, kappa=.05, tournament_n=4):
     return parents
 
 
-def _calc_box_bounds(population_matrix):
-    """Calculate the minimal square bounding box of the objectives"""
-
-    # Calculate the min/max over the columns
-    min_bounds = list(numpy.min(population_matrix, axis=0))
-    max_bounds = list(numpy.max(population_matrix, axis=0))
-
-    # Return, parse to a list (indicators need lists, not numpy arrays)
-    return list(min_bounds), list(max_bounds)
-
-
-def _calc_fitness_components(
-        population_matrix,
-        min_box_bounds,
-        max_box_bounds,
-        kappa=None):
+def _calc_fitness_components(population, kappa):
     """returns an N * N numpy array of doubles, which is their IBEA fitness """
+    pop_len = len(population)
+    feat_len = len(population[0].fitness.wvalues)
+    population_matrix = np.fromiter(iter(-x
+                                         for individual in population
+                                         for x in individual.fitness.wvalues),
+                                    dtype=np.float)
+    population_matrix = population_matrix.reshape((pop_len, feat_len))
 
-    # Population size is the number of rows in the population_matrix
-    pop_size = len(population_matrix)
+    # Calculate minimal square bounding box of the objectives
+    box_ranges = (np.max(population_matrix, axis=0) -
+                  np.min(population_matrix, axis=0))
 
-    components_matrix = numpy.zeros((pop_size, pop_size))
-
-    # pylint: disable=F0401, E0611
-    import eps
-    # pylint: enable=F0401, E0611
-
-    # Calculator the indicator value for every element in the matrix
-    # The code inside this for loop is (has to be) heavily optimised for speed
-    for i in xrange(0, pop_size):
-        ind1 = population_matrix[i]
-        for j in itertools.chain(xrange(0, i), xrange(i + 1, pop_size)):
-            ind2 = population_matrix[j]
-            components_matrix[i, j] = eps.indicator(ind1,
-                                                    ind2,
-                                                    min_box_bounds,
-                                                    max_box_bounds)
+    components_matrix = np.zeros((pop_len, pop_len))
+    for i in xrange(0, pop_len):
+        diff = population_matrix - population_matrix[i, :]
+        components_matrix[i, :] = np.max(np.divide(diff, box_ranges), axis=1)
 
     # Calculate max of absolute value of all elements in matrix
-    max_absolute_indicator = numpy.max(abs(components_matrix))
+    max_absolute_indicator = np.max(np.abs(components_matrix))
 
     # Normalisation
-    components_matrix = \
-        numpy.exp(numpy.multiply(components_matrix,
-                                 -1.0 / (kappa * max_absolute_indicator)))
-
+    components_matrix = np.exp((-1.0 / (kappa * max_absolute_indicator)) *
+                               components_matrix.T)
     return components_matrix
 
 
@@ -121,7 +86,7 @@ def _calc_fitnesses(population, components):
     """Calculate the IBEA fitness of every individual"""
 
     # Calculate sum of every column in the matrix, ignore diagonal elements
-    column_sums = numpy.sum(components, axis=0) - numpy.diagonal(components)
+    column_sums = np.sum(components, axis=0) - np.diagonal(components)
 
     # Fill the 'ibea_fitness' field on the individuals with the fitness value
     for individual, ibea_fitness in zip(population, column_sums):
