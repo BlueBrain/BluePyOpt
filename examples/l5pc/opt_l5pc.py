@@ -37,7 +37,6 @@ logger.setLevel(logging.DEBUG)
 import bluepyopt
 
 # TODO store definition dicts in json
-# TODO rename 'score' into 'objective'
 # TODO add functionality to read settings of every object from config format
 
 
@@ -61,7 +60,6 @@ else:
 
 opt = bluepyopt.optimisations.DEAPOptimisation(
     evaluator=evaluator,
-    offspring_size=100,
     map_function=map_function,
     seed=os.getenv('BLUEPYOPT_SEED'))
 
@@ -73,6 +71,10 @@ def main():
     parser.add_argument('--continu', action="store_false", default=False)
     parser.add_argument('--checkpoint', required=False, default=None,
                         help='Checkpoint pickle to avoid recalculation')
+    parser.add_argument('--offspring_size', required=False, default=2,
+                        help='number of individuals in offspring')
+    parser.add_argument('--max_ngen', required=False, default=2,
+                        help='maximum number of generations')
     parser.add_argument('--responses', required=False, default=None,
                         help='Response pickle file to avoid recalculation')
     parser.add_argument('--analyse', action="store_true")
@@ -90,7 +92,6 @@ def main():
         commands.getstatusoutput('cd mechanisms/; nrnivmodl; cd ..')
 
     # TODO store definition dicts in json
-    # TODO rename 'score' into 'objective'
     # TODO add functionality to read settings of every object from config format
 
     if args.hocanalyse:
@@ -104,7 +105,8 @@ def main():
 
     if args.start or args.continu:
         logger.debug('Doing start or continue')
-        opt.run(max_ngen=100,
+        opt.run(max_ngen=args.max_ngen,
+                offspring_size=args.offspring_size,
                 continue_cp=args.continu,
                 cp_filename=args.checkpoint)
 

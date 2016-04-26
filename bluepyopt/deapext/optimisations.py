@@ -19,7 +19,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-# pylint: disable=R0912
+# pylint: disable=R0912, R0914
 
 
 import random
@@ -224,10 +224,17 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
     def run(
             self,
             max_ngen=10,
+            offspring_size=None,
             continue_cp=False,
             cp_filename=None,
             cp_frequency=1):
         """Run optimisation"""
+
+        # Allow run function to override offspring_size
+        # TODO probably in the future this should not be an object field anymore
+        # keeping for backward compatibility
+        if offspring_size is None:
+            offspring_size = self.offspring_size
 
         # Total number of generation to run
         NGEN = max_ngen
@@ -239,7 +246,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         # Total population size of EA
         # ALPHA = POP_SIZE
         # Total parent population size of EA
-        MU = self.offspring_size
+        MU = offspring_size
         # Total offspring size of EA
         # LAMBDA = OFFSPRING_SIZE
 
