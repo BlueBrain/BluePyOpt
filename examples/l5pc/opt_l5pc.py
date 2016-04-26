@@ -71,9 +71,9 @@ def main():
     parser.add_argument('--continu', action="store_false", default=False)
     parser.add_argument('--checkpoint', required=False, default=None,
                         help='Checkpoint pickle to avoid recalculation')
-    parser.add_argument('--offspring_size', required=False, default=2,
+    parser.add_argument('--offspring_size', type=int, required=False, default=2,
                         help='number of individuals in offspring')
-    parser.add_argument('--max_ngen', required=False, default=2,
+    parser.add_argument('--max_ngen', type=int, required=False, default=2,
                         help='maximum number of generations')
     parser.add_argument('--responses', required=False, default=None,
                         help='Response pickle file to avoid recalculation')
