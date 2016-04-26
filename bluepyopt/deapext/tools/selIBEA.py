@@ -29,7 +29,7 @@ http://www.tik.ee.ethz.ch/pisa/selectors/ibea/?page=ibea.php
 """
 
 
-import numpy as np
+import numpy
 import random
 
 
@@ -58,29 +58,33 @@ def _calc_fitness_components(population, kappa):
     """returns an N * N numpy array of doubles, which is their IBEA fitness """
     # DEAP selector are supposed to maximise the objective values
     # We take the negative objectives because this algorithm will minimise
-    population_matrix = np.fromiter(iter(-x
-                                         for individual in population
-                                         for x in individual.fitness.wvalues),
-                                    dtype=np.float)
+    population_matrix = numpy.fromiter(
+        iter(-x for individual in population
+             for x in individual.fitness.wvalues),
+        dtype=numpy.float)
     pop_len = len(population)
     feat_len = len(population[0].fitness.wvalues)
     population_matrix = population_matrix.reshape((pop_len, feat_len))
 
     # Calculate minimal square bounding box of the objectives
-    box_ranges = (np.max(population_matrix, axis=0) -
-                  np.min(population_matrix, axis=0))
+    box_ranges = (numpy.max(population_matrix, axis=0) -
+                  numpy.min(population_matrix, axis=0))
 
-    components_matrix = np.zeros((pop_len, pop_len))
+    components_matrix = numpy.zeros((pop_len, pop_len))
     for i in xrange(0, pop_len):
         diff = population_matrix - population_matrix[i, :]
-        components_matrix[i, :] = np.max(np.divide(diff, box_ranges), axis=1)
+        components_matrix[i, :] = numpy.max(
+            numpy.divide(
+                diff,
+                box_ranges),
+            axis=1)
 
     # Calculate max of absolute value of all elements in matrix
-    max_absolute_indicator = np.max(np.abs(components_matrix))
+    max_absolute_indicator = numpy.max(numpy.abs(components_matrix))
 
     # Normalisation
-    components_matrix = np.exp((-1.0 / (kappa * max_absolute_indicator)) *
-                               components_matrix.T)
+    components_matrix = numpy.exp((-1.0 / (kappa * max_absolute_indicator)) *
+                                  components_matrix.T)
     return components_matrix
 
 
@@ -88,7 +92,7 @@ def _calc_fitnesses(population, components):
     """Calculate the IBEA fitness of every individual"""
 
     # Calculate sum of every column in the matrix, ignore diagonal elements
-    column_sums = np.sum(components, axis=0) - np.diagonal(components)
+    column_sums = numpy.sum(components, axis=0) - numpy.diagonal(components)
 
     # Fill the 'ibea_fitness' field on the individuals with the fitness value
     for individual, ibea_fitness in zip(population, column_sums):
