@@ -37,7 +37,6 @@ logger.setLevel(logging.DEBUG)
 import bluepyopt
 
 # TODO store definition dicts in json
-# TODO rename 'score' into 'objective'
 # TODO add functionality to read settings of every object from config format
 
 
@@ -50,18 +49,32 @@ def evaluate(parameter_array):
 
     return evaluator.evaluate(parameter_array)
 
-opt = bluepyopt.deapext.optimisations.IBEADEAPOptimisation(
+if os.getenv('L5PCBENCHMARK_USEIPYP') == '1':
+    from ipyparallel import Client
+    rc = Client(profile=os.getenv('IPYTHON_PROFILE'))
+    lview = rc.load_balanced_view()
+
+    map_function = lview.map_sync
+else:
+    map_function = None
+
+opt = bluepyopt.optimisations.DEAPOptimisation(
     evaluator=evaluator,
-    offspring_size=2,
-    use_scoop=True)
+    map_function=map_function,
+    seed=os.getenv('BLUEPYOPT_SEED'))
 
 
 def main():
     """Main"""
     parser = argparse.ArgumentParser(description='L5PC example')
     parser.add_argument('--start', action="store_true")
+    parser.add_argument('--continu', action="store_false", default=False)
     parser.add_argument('--checkpoint', required=False, default=None,
                         help='Checkpoint pickle to avoid recalculation')
+    parser.add_argument('--offspring_size', type=int, required=False, default=2,
+                        help='number of individuals in offspring')
+    parser.add_argument('--max_ngen', type=int, required=False, default=2,
+                        help='maximum number of generations')
     parser.add_argument('--responses', required=False, default=None,
                         help='Response pickle file to avoid recalculation')
     parser.add_argument('--analyse', action="store_true")
@@ -79,7 +92,6 @@ def main():
         commands.getstatusoutput('cd mechanisms/; nrnivmodl; cd ..')
 
     # TODO store definition dicts in json
-    # TODO rename 'score' into 'objective'
     # TODO add functionality to read settings of every object from config format
 
     if args.hocanalyse:
@@ -91,11 +103,12 @@ def main():
                 'bglibpy not installed, '
                 '--hocanalyse for internal testing only!')
 
-    # if args.start or args.checkpoint:
-    #    logger.debug('Doing start or continue')
-    #    opt.run(max_ngen=200,
-    #            continue_cp=(args.checkpoint is not None),
-    #            cp_filename=args.checkpoint)
+    if args.start or args.continu:
+        logger.debug('Doing start or continue')
+        opt.run(max_ngen=args.max_ngen,
+                offspring_size=args.offspring_size,
+                continue_cp=args.continu,
+                cp_filename=args.checkpoint)
 
     if args.analyse:
         logger.debug('Doing analyse')
