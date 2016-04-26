@@ -50,15 +50,19 @@ def evaluate(parameter_array):
 
     return evaluator.evaluate(parameter_array)
 
-from ipyparallel import Client
-rc = Client(profile=os.getenv('IPYTHON_PROFILE'))
-lview = rc.load_balanced_view()
+if os.getenv('L5PCBENCHMARK_USEIPYP') == '1':
+    from ipyparallel import Client
+    rc = Client(profile=os.getenv('IPYTHON_PROFILE'))
+    lview = rc.load_balanced_view()
 
+    map_function = lview.map_sync
+else:
+    map_function = None
 
 opt = bluepyopt.optimisations.DEAPOptimisation(
     evaluator=evaluator,
     offspring_size=100,
-    map_function=lview.map_sync,
+    map_function=map_function,
     seed=os.getenv('BLUEPYOPT_SEED'))
 
 

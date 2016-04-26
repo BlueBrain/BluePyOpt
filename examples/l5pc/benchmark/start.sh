@@ -5,6 +5,7 @@ set -x
 
 cd ..
 
+export L5PCBENCHMARK_USEIPYP=1
 export IPYTHONDIR="`pwd`/.ipython"
 export IPYTHON_PROFILE=benchmark.${SLURM_JOBID} 
 # ipython profile create --profile=${IPYTHON_PROFILE}
