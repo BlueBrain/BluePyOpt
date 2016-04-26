@@ -80,7 +80,7 @@ class NrnFileMorphology(Morphology):
         # probably should be more intelligent here, and filter out the
         # lines we don't want
         sim.neuron.h.hoc_stdout('/dev/null')
-        imorphology.input(self.morphology_path)
+        imorphology.input(str(self.morphology_path))
         sim.neuron.h.hoc_stdout()
 
         morphology_importer = sim.neuron.h.Import3d_GUI(imorphology, 0)
