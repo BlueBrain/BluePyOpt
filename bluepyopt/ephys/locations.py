@@ -188,5 +188,5 @@ class NrnSomaDistanceCompLocation(Location):
     def __str__(self):
         """String representation"""
 
-        return '%f um from soma in %s' % (
+        return '%f micron from soma in %s' % (
             self.soma_distance, self.seclist_name)
