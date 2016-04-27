@@ -19,12 +19,13 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import itertools
 from .importer import neuron
 
 
 class Location(object):
 
-    """EPhys feature"""
+    """Location"""
 
     def __init__(self, name):
         """Constructor"""
@@ -35,6 +36,19 @@ class Location(object):
 # TODO instantiate should get the entire simulation environment
 # TODO find better/more general name for this
 # TODO specify in document abrevation comp=compartment, sec=section, ...
+
+
+def _nth_isectionlist(isectionlist, index):
+    """Get nth element of isectionlist
+
+    Sectionlists don't support direct indexing
+    """
+    isection = next(
+        itertools.islice(
+            isectionlist,
+            index,
+            index + 1))
+    return isection
 
 
 class NrnSeclistCompLocation(Location):
@@ -49,27 +63,16 @@ class NrnSeclistCompLocation(Location):
             comp_x=None):
         """Constructor"""
 
-        Location.__init__(self, name)
+        super(NrnSeclistCompLocation, self).__init__(name)
         self.seclist_name = seclist_name
         self.sec_index = sec_index
         self.comp_x = comp_x
 
     def instantiate(self, sim=None, icell=None):
         """Find the instantiate compartment"""
-
-        import itertools
-
         isectionlist = getattr(icell, self.seclist_name)
-
-        # Get nth element of isectionlist
-        # Sectionlists don't support direct indexing
-        isection = next(
-            itertools.islice(
-                isectionlist,
-                self.sec_index,
-                self.sec_index + 1))
+        isection = _nth_isectionlist(isectionlist, self.sec_index)
         icomp = isection(self.comp_x)
-
         return icomp
 
     def __str__(self):
@@ -89,7 +92,7 @@ class NrnSeclistLocation(Location):
             sec_index=None):
         """Constructor"""
 
-        Location.__init__(self, name)
+        super(NrnSeclistLocation, self).__init__(name)
         self.seclist_name = seclist_name
 
     def instantiate(self, sim=None, icell=None):
@@ -116,25 +119,15 @@ class NrnSeclistSecLocation(Location):
             sec_index=None):
         """Constructor"""
 
-        Location.__init__(self, name)
+        super(NrnSeclistSecLocation, self).__init__(name)
         self.seclist_name = seclist_name
         self.sec_index = sec_index
 
     def instantiate(self, sim=None, icell=None):
         """Find the instantiate compartment"""
 
-        import itertools
-
-        isectionlist = getattr(icell, self.secist_name)
-
-        # Get nth element of isectionlist
-        # Sectionlists don't support direct indexing
-        isection = next(
-            itertools.islice(
-                isectionlist,
-                self.sec_index,
-                self.sec_index + 1))
-
+        isectionlist = getattr(icell, self.seclist_name)
+        isection = _nth_isectionlist(isectionlist, self.sec_index)
         return isection
 
     def __str__(self):
@@ -150,7 +143,7 @@ class NrnSomaDistanceCompLocation(Location):
     def __init__(self, name, soma_distance=None, seclist_name=None):
         """Constructor"""
 
-        Location.__init__(self, name)
+        super(NrnSomaDistanceCompLocation, self).__init__(name)
         self.soma_distance = soma_distance
         self.seclist_name = seclist_name
 
@@ -195,5 +188,5 @@ class NrnSomaDistanceCompLocation(Location):
     def __str__(self):
         """String representation"""
 
-        return '%f mum from soma in %s' % (
+        return '%f um from soma in %s' % (
             self.soma_distance, self.seclist_name)
