@@ -53,7 +53,7 @@ class CompRecording(Recording):
             variable='v'):
         """Constructor"""
 
-        Recording.__init__(self, name=name, value=value, frozen=frozen)
+        super(CompRecording, self).__init__(name=name, value=value, frozen=frozen)
         self.location = location
         self.variable = variable
 

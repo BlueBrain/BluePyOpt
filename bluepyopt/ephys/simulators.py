@@ -1,9 +1,5 @@
 """Simulator classes"""
 
-import os
-import imp
-import ctypes
-
 import logging
 logger = logging.getLogger(__name__)
 
@@ -12,20 +8,10 @@ class NrnSimulator(object):
 
     """Neuron simulator"""
 
-    def __init__(self):
-        """Constructor"""
-
-        hoc_so = os.path.join(imp.find_module('neuron')[1] + '/hoc.so')
-
-        nrndll = ctypes.cdll[hoc_so]
-        ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
-
-        import neuron  # NOQA
-
     @property
     def neuron(self):
         """Return neuron module"""
-        import neuron
+        from .importer import neuron  # NOQA
         return neuron
 
     def run(self, tstop=None, cvode_active=True):

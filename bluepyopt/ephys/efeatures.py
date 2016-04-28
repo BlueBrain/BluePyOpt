@@ -52,7 +52,7 @@ class eFELFeature(EFeature):
             threshold=None):
         """Constructor"""
 
-        EFeature.__init__(self, name)
+        super(eFELFeature, self).__init__(name)
 
         self.recording_names = recording_names
         self.efel_feature_name = efel_feature_name
