@@ -26,11 +26,12 @@ context of the BlueBrain project
 
 # pylint: disable=R0914, W0403
 import os
+import sys
 
 import argparse
 # pylint: disable=R0914
 import logging
-logging.basicConfig()
+logging.basicConfig(stream=sys.stdout)
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
