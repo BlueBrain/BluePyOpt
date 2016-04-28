@@ -2,7 +2,8 @@
 [![codecov.io](https://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=master)](https://codecov.io/github/BlueBrain/BluePyOpt?branch=master)
 [![Join the chat at https://gitter.im/BlueBrain/BluePyOpt](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/BlueBrain/BluePyOpt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Code Climate](https://codeclimate.com/github/BlueBrain/BluePyOpt/badges/gpa.svg)](https://codeclimate.com/github/BlueBrain/BluePyOpt)
- [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/BlueBrain/BluePyOpt)
+[![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/BlueBrain/BluePyOpt)
+[![Documentation Status](https://readthedocs.org/projects/bluepyopt/badge/?version=latest)](http://bluepyopt.readthedocs.io/en/latest/?badge=latest)
 
 Introduction
 ============
