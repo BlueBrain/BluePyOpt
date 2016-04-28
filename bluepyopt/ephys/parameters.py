@@ -35,6 +35,9 @@ class Parameter(object):
     def __init__(self, name, value=None, frozen=False, bounds=None):
         """Constructor"""
 
+        if frozen and value is None:
+            raise Exception('Must provide a value for frozen parameters')
+
         self.name = name
         self.prefix = None
         self.bounds = bounds
@@ -68,9 +71,9 @@ class Parameter(object):
         self.value = value
         self.frozen = True
 
-    def unfreeze(self):
-        """Unfreeze parameter"""
-        self._value = None
+    def unfreeze(self, value=None):
+        """Unfreeze parameter, if desired, set it to a certain value"""
+        self._value = value
         self.frozen = False
 
     @value.setter
@@ -96,6 +99,11 @@ class Parameter(object):
     def destroy(self):
         """Destroy parameter instantation"""
         pass
+
+    def raise_if_no_value(self):
+        """Raise exception if Value is None"""
+        if self._value is None:
+            raise Exception('Parameter currently does not have a value')
 
 
 class NrnGlobalParameter(Parameter):
@@ -128,10 +136,9 @@ class NrnGlobalParameter(Parameter):
 
     def __str__(self):
         """String representation"""
-        if self.frozen:
-            return '%s: %s = %s' % (self.name, self.param_name, self.value)
-        else:
-            return '%s: %s = %s' % (self.name, self.param_name, self.bounds)
+        return '%s: %s = %s' % (self.name,
+                                self.param_name,
+                                self.value if self.frozen else self.bounds)
 
 
 class NrnSectionParameter(Parameter):
@@ -166,6 +173,7 @@ class NrnSectionParameter(Parameter):
 
     def instantiate(self, sim=None, icell=None):
         """Instantiate"""
+        self.raise_if_no_value()
 
         for location in self.locations:
             iseclist = location.instantiate(sim=sim, icell=icell)
@@ -180,16 +188,11 @@ class NrnSectionParameter(Parameter):
 
     def __str__(self):
         """String representation"""
-        if self.frozen:
-            return '%s: %s %s = %s' % (self.name,
-                                       [str(location)
-                                        for location in self.locations],
-                                       self.param_name, self.value)
-        else:
-            return '%s: %s %s = %s' % (self.name,
-                                       [str(location)
-                                        for location in self.locations],
-                                       self.param_name, self.bounds)
+        return '%s: %s %s = %s' % (self.name,
+                                   [str(location)
+                                    for location in self.locations],
+                                   self.param_name,
+                                   self.value if self.frozen else self.bounds)
 
 # TODO change mech_prefix and mech_param to param_name, and maybe add
 # NrnRangeMechParameter
@@ -226,6 +229,7 @@ class NrnRangeParameter(Parameter):
 
     def instantiate(self, sim=None, icell=None):
         """Instantiate"""
+        self.raise_if_no_value()
 
         for location in self.locations:
             for isection in location.instantiate(sim=sim, icell=icell):
@@ -241,15 +245,8 @@ class NrnRangeParameter(Parameter):
 
     def __str__(self):
         """String representation"""
-        if self.frozen:
-            return '%s: %s %s = %s' % (self.name,
-                                       [str(location)
-                                        for location in self.locations],
-                                       self.param_name,
-                                       self.value)
-        else:
-            return '%s: %s %s = %s' % (self.name,
-                                       [str(location)
-                                        for location in self.locations],
-                                       self.param_name,
-                                       self.bounds)
+        return '%s: %s %s = %s' % (self.name,
+                                   [str(location)
+                                    for location in self.locations],
+                                   self.param_name,
+                                   self.value if self.frozen else self.bounds)
