@@ -78,7 +78,7 @@ class NrnSeclistCompLocation(Location):
     def __str__(self):
         """String representation"""
 
-        return '%s[%s](%s)' % (self.seclist_name, self.sec_index, self.comp_x)
+        return '%s: %s[%s](%s)' % (self.name, self.seclist_name, self.sec_index, self.comp_x)
 
 
 class NrnSeclistLocation(Location):
@@ -105,7 +105,7 @@ class NrnSeclistLocation(Location):
     def __str__(self):
         """String representation"""
 
-        return '%s' % (self.seclist_name)
+        return '%s: %s' % (self.name, self.seclist_name)
 
 
 class NrnSeclistSecLocation(Location):
@@ -133,7 +133,7 @@ class NrnSeclistSecLocation(Location):
     def __str__(self):
         """String representation"""
 
-        return '%s[%s]' % (self.seclist_name, self.sec_index)
+        return '%s: %s[%s]' % (self.name, self.seclist_name, self.sec_index)
 
 
 class NrnSomaDistanceCompLocation(Location):
@@ -188,5 +188,6 @@ class NrnSomaDistanceCompLocation(Location):
     def __str__(self):
         """String representation"""
 
-        return '%f micron from soma in %s' % (
-            self.soma_distance, self.seclist_name)
+        return '%s: %f micron from soma in %s' % (self.name,
+                                                  self.soma_distance,
+                                                  self.seclist_name)
