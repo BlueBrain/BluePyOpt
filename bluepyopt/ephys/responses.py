@@ -33,6 +33,9 @@ class Response(object):
         self.response = None
         self.name = name
 
+    def __str__(self):
+        return '%s: %s' % (self.__class__.__name__, self.name)
+
 
 class TimeVoltageResponse(Response):
 

@@ -23,7 +23,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=W0511
 
 # Not sure code below should go in module or class
-import sys
 import types
 import traceback
 import copy_reg
@@ -98,6 +97,7 @@ class CellEvaluator(object):
         try:
             return protocol.run(self.cell_model, param_values, sim=self.sim)
         except:
+            import sys
             raise Exception(
                 "".join(
                     traceback.format_exception(*sys.exc_info())))

@@ -35,6 +35,10 @@ class EFeature(object):
 
         self.name = name
 
+    def __str__(self):
+        """String representation"""
+        return '%s: %s' % (self.__class__.__name__, self.name)
+
 
 class eFELFeature(EFeature):
 
