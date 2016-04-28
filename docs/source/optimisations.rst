@@ -8,4 +8,4 @@ General optimisation API
     bluepyopt.optimisations
     bluepyopt.parameters
     bluepyopt.objectives
-
+    bluepyopt.evaluators
