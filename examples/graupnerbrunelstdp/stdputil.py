@@ -15,6 +15,22 @@ from scipy.special import erf
 
 logging.basicConfig(level=logging.WARN)
 
+#Note: having debug logging statements increases the run time by ~ 25%,
+# because they exist in tight loops, and expand their outputs, even when
+# debug is off, so we disable logging if possible.  Set this to true if
+# verbose output is needed
+LOGGING_DEBUG = False
+
+def logging_debug_vec(fmt, vec):
+    '''log to debug a vector'''
+    if LOGGING_DEBUG:
+        logging.debug(fmt, ', '.join(map(str, vec)))
+
+def logging_debug(*args):
+    '''wrapper to log to debug a vector'''
+    if LOGGING_DEBUG:
+        logging.debug(*args)
+
 
 # Parameters for cortical slices (Sjostrom et al., 2001)
 # From SI, Graupner and Brunel (2012)
@@ -85,15 +101,15 @@ class Protocol:
 
     def sort(self):
         """Sort stimuli in place."""
-        logging.debug('Protocol.sort()')
+        logging_debug('Protocol.sort()')
 
         # Check if the stimuli are already sorted
         if np.all(self.delta_vec >= 0.0):
-            logging.info('Protocol is already sorted.')
+            logging_debug('Protocol is already sorted.')
         else:
-            logging.debug('Before sorting:')
-            logging.debug('stim_vec = [%s]' % ', '.join(map(str, self.stim_vec)))
-            logging.debug('delta_vec = [%s]' % ', '.join(map(str, self.delta_vec)))
+            logging_debug('Before sorting:')
+            logging_debug_vec('stim_vec = [%s]', self.stim_vec)
+            logging_debug_vec('delta_vec = [%s]', self.delta_vec)
 
             # Sort stimuli
             index_vec = np.argsort(self.stim_t)
@@ -101,15 +117,15 @@ class Protocol:
             self.delta_vec = np.diff(self.stim_t[index_vec])
             self.stim_t = self.stim_t[index_vec]
 
-            logging.debug('After sorting:')
-            logging.debug('stim_vec = [%s]' % ', '.join(map(str, self.stim_vec)))
-            logging.debug('delta_vec = [%s]' % ', '.join(map(str, self.delta_vec)))
+            logging_debug('After sorting:')
+            logging_debug_vec('stim_vec = [%s]', self.stim_vec)
+            logging_debug_vec('delta_vec = [%s]', self.delta_vec)
 
 
 class CalciumTrace(object):
     def __init__(self, protocol, model):
         """Calcium trace produced by **model** when stimulated with **protocol**.
-        
+
         :param protocol: stdputil.Protocol
             The stimulation protocol.
         :param model: dict
@@ -147,10 +163,10 @@ class CalciumTrace(object):
         # Sort calcium events
         index_vec = np.argsort(time)
 
-        logging.debug('Sorted indices = [%s]' % ', '.join(map(str, index_vec)))
-        logging.debug('Calcium event = [%s]' % ', '.join(map(str, event[index_vec])))
-        logging.debug('Calcium time = [%s]' % ', '.join(map(str, time[index_vec])))
-        logging.debug('Calcium amplitude = [%s]' % ', '.join(map(str, amplitude[index_vec])))
+        logging_debug_vec('Sorted indices = [%s]', index_vec)
+        logging_debug_vec('Calcium event = [%s]', event[index_vec])
+        logging_debug_vec('Calcium time = [%s]', time[index_vec])
+        logging_debug_vec('Calcium amplitude = [%s]', amplitude[index_vec])
 
         self.__evnt = event[index_vec]
         self.__t = time[index_vec]
@@ -215,10 +231,10 @@ def time_above_threshold(protocol, param):
     """
     # Generate calcium trace
     calcium_trace = CalciumTrace(protocol, param)
-    
+
     ca_event_t = calcium_trace.time
     ca_event_amp = calcium_trace.amplitude
-    
+
     # Sort the protocol if not already sorted
     protocol.sort()
 
@@ -236,24 +252,24 @@ def time_above_threshold(protocol, param):
         baseline = 0.0
 
     # Calcium amplitudes
-    logging.debug('Calcium amplitudes')
+    logging_debug('Calcium amplitudes')
     n_events = len(ca_event_amp)
     C_amp = np.zeros(2 * n_events)
     for i in xrange(n_events - 1):
         C_amp[i] = baseline * np.exp(-np.sum(np.abs(ca_event_delta[:i + 1])) / param['tau_ca'])
-        logging.debug('C_amp[%d] = 0.0', i)
+        logging_debug('C_amp[%d] = 0.0', i)
         for j in xrange(i + 1):
             C_amp[i] += ca_event_amp[j] * np.exp(-np.sum(np.abs(ca_event_delta[j:i + 1])) / param['tau_ca'])
-            logging.debug('C_amp[%d] += %s * exp(-sum(abs(deltas[%d:%d])))',
+            logging_debug('C_amp[%d] += %s * exp(-sum(abs(deltas[%d:%d])))',
                           i, protocol.stim_vec[j], j, i + 1)
-        logging.debug('C_amp[%d] = %f', i, C_amp[i])
+        logging_debug('C_amp[%d] = %f', i, C_amp[i])
     C_amp[n_events - 1] = baseline
-    logging.debug('C_amp[%d] = 0.0', n_events - 1)
+    logging_debug('C_amp[%d] = 0.0', n_events - 1)
     C_amp[n_events] = baseline + ca_event_amp[0]  # For convenience
-    logging.debug('C_amp[%d] = %f', n_events, ca_event_amp[0])
+    logging_debug('C_amp[%d] = %f', n_events, ca_event_amp[0])
     for i in xrange(n_events + 1, 2 * n_events):
         C_amp[i] = C_amp[i - n_events - 1] + ca_event_amp[i - n_events]
-        logging.debug('C_amp[%d] = C_amp[%d] + %s',
+        logging_debug('C_amp[%d] = C_amp[%d] + %s',
                       i, i - n_events - 1, ca_event_amp[i - n_events])
 
     # Time spent above depression threshold
@@ -266,7 +282,7 @@ def time_above_threshold(protocol, param):
         else:
             t_d[i] = 0.0
     t_d_tot = np.sum(t_d)
-    logging.debug('Time above depression threshold = %f', t_d_tot)
+    logging_debug('Time above depression threshold = %f', t_d_tot)
 
     # Time spent above potentiation threshold
     t_p = np.zeros(n_events)
@@ -278,15 +294,15 @@ def time_above_threshold(protocol, param):
         else:
             t_p[i] = 0.0
     t_p_tot = np.sum(t_p)
-    logging.debug('Time above potentiation threshold = %f', t_p_tot)
+    logging_debug('Time above potentiation threshold = %f', t_p_tot)
 
     return t_d_tot, t_p_tot
 
 
 def transition_prob(protocol, param=param_cortical):
-    """Compute transition probabilities for the given protocol and model 
+    """Compute transition probabilities for the given protocol and model
     parameters.
-    
+
     :param protocol: stdputil.Protocol
         The stimulation protocol.
     :param model: dict
@@ -336,7 +352,7 @@ def transition_prob(protocol, param=param_cortical):
 
 
 def protocol_outcome(protocol, param=param_cortical):
-    """Compute the average synaptic gain for a given stimulation protocol and 
+    """Compute the average synaptic gain for a given stimulation protocol and
     model parameters.
 
     :param protocol: stdputil.Protocol
