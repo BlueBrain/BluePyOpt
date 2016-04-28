@@ -23,9 +23,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import setuptools
 import versioneer
 
-eps = setuptools.Extension('bluepyopt.deapext.tools.eps',
-                           sources=['bluepyopt/deapext/tools/eps.c'])
-
 setuptools.setup(
     name="bluepyopt",
     version=versioneer.get_version(),
@@ -52,5 +49,4 @@ setuptools.setup(
         'Operating System :: POSIX',
         'Topic :: Scientific/Engineering',
         'Topic :: Utilities'],
-    package_data={},
-    ext_modules=[eps])
+    package_data={})

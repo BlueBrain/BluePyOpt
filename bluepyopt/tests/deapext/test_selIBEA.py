@@ -1,8 +1,7 @@
 import numpy as np
 from nose.tools import ok_
 
-from bluepyopt.deapext.tools.selIBEA import (_calc_box_bounds,
-                                             _calc_fitness_components)
+from bluepyopt.deapext.tools.selIBEA import _calc_fitness_components
 
 
 def make_population():
@@ -23,22 +22,12 @@ def make_population():
             for _ in range(POPULATION_COUNT)]
 
 
-def test_components():
-    #test _calc_box_bounds, _calc_box_bounds, and eps.c
+def test_calc_fitness_components():
     KAPPA = 0.05
 
     population = make_population()
 
-    population_matrix = [
-        [-x for x in individual.fitness.wvalues] for individual in population]
-
-    min_box_bounds, max_box_bounds = _calc_box_bounds(population_matrix)
-
-    components = _calc_fitness_components(
-        population_matrix,
-        min_box_bounds,
-        max_box_bounds,
-        kappa=KAPPA)
+    components = _calc_fitness_components(population, kappa=KAPPA)
 
     expected = np.array(
         [[1.00000000e+00, 4.30002298e-05, 4.26748513e-09, 2.06115362e-09, 9.71587289e-03],
