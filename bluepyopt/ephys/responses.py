@@ -41,7 +41,7 @@ class TimeVoltageResponse(Response):
     def __init__(self, name, time=None, voltage=None):
         """Constructor"""
 
-        Response.__init__(self, name)
+        super(TimeVoltageResponse, self).__init__(name)
 
         self.response = pandas.DataFrame()
         self.response['time'] = pandas.Series(time)

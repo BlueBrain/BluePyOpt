@@ -43,7 +43,7 @@ class NrnCurrentPlayStimulus(Stimulus):
                  location=None):
         """Constructor"""
 
-        Stimulus.__init__(self)
+        super(NrnCurrentPlayStimulus, self).__init__()
         self.time_points = time_points
         self.current_points = current_points
         self.location = location
@@ -100,7 +100,7 @@ class NrnSquarePulse(Stimulus):
                  location=None):
         """Constructor"""
 
-        Stimulus.__init__(self)
+        super(NrnSquarePulse, self).__init__()
         self.step_amplitude = step_amplitude
         self.step_delay = step_delay
         self.step_duration = step_duration
@@ -137,13 +137,8 @@ class NrnSquarePulse(Stimulus):
         """String representation"""
 
         return "Square pulse amp %f delay %f duration %f totdur %f at %s" % (
-            self.
-            step_amplitude,
-            self.
-            step_delay,
-            self.
-            step_duration,
-            self.
-            total_duration,
-            self.
-            location)
+            self.step_amplitude,
+            self.step_delay,
+            self.step_duration,
+            self.total_duration,
+            self.location)

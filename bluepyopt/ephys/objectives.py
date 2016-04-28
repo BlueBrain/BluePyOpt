@@ -47,7 +47,7 @@ class SingletonObjective(Objective):
     def __init__(self, name, feature):
         """Constructor"""
 
-        Objective.__init__(self, name, [feature])
+        super(SingletonObjective, self).__init__(name, [feature])
 
     def calculate_score(self, responses):
         """Objective score"""
