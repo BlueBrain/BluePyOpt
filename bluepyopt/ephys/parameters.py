@@ -93,6 +93,10 @@ class Parameter(object):
                     (self.name, self._value, str(self.lower_bound),
                      str(self.upper_bound)))
 
+    def destroy(self):
+        """Destroy parameter instantation"""
+        pass
+
 
 class NrnGlobalParameter(Parameter):
 
@@ -107,8 +111,7 @@ class NrnGlobalParameter(Parameter):
             param_name=None):
         """Contructor"""
 
-        Parameter.__init__(
-            self,
+        super(NrnGlobalParameter, self).__init__(
             name,
             value=value,
             frozen=frozen,
@@ -130,10 +133,6 @@ class NrnGlobalParameter(Parameter):
         else:
             return '%s: %s = %s' % (self.name, self.param_name, self.bounds)
 
-    def destroy(self):
-        """Destroy parameter instantation"""
-        pass
-
 
 class NrnSectionParameter(Parameter):
 
@@ -150,8 +149,7 @@ class NrnSectionParameter(Parameter):
             locations=None):
         """Contructor"""
 
-        Parameter.__init__(
-            self,
+        super(NrnSectionParameter, self).__init__(
             name,
             value=value,
             frozen=frozen,
@@ -179,10 +177,6 @@ class NrnSectionParameter(Parameter):
                 self.param_name,
                 location,
                 self.value)
-
-    def destroy(self):
-        """Destroy parameter instantation"""
-        pass
 
     def __str__(self):
         """String representation"""
@@ -216,8 +210,7 @@ class NrnRangeParameter(Parameter):
             locations=None):
         """Contructor"""
 
-        Parameter.__init__(
-            self,
+        super(NrnRangeParameter, self).__init__(
             name,
             value=value,
             frozen=frozen,
@@ -245,10 +238,6 @@ class NrnRangeParameter(Parameter):
              for location in self.locations],
             self.value,
             self.value_scaler)
-
-    def destroy(self):
-        """Destroy parameter instantation"""
-        pass
 
     def __str__(self):
         """String representation"""

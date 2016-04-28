@@ -45,7 +45,7 @@ class NrnSegmentLinearScaler(ParameterScaler):
             offset=0.0):
         """Constructor"""
 
-        ParameterScaler.__init__(self, name)
+        super(NrnSegmentLinearScaler, self).__init__(name)
         self.multiplier = multiplier
         self.offset = offset
 
@@ -70,7 +70,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler):
             distribution=None):
         """Constructor"""
 
-        ParameterScaler.__init__(self, name)
+        super(NrnSegmentSomaDistanceScaler, self).__init__(name)
         self.distribution = distribution
 
     def scale(self, value, segment):

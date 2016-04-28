@@ -44,7 +44,7 @@ class NrnFileMorphology(Morphology):
     def __init__(self, morphology_path, do_replace_axon=False):
         """Constructor"""
 
-        Morphology.__init__(self)
+        super(NrnFileMorphology, self).__init__()
         # TODO speed up loading of morphologies from files
         # Path to morphology
         self.morphology_path = morphology_path

@@ -54,7 +54,7 @@ class NrnMODMechanism(Mechanism):
             preloaded=True):
         """Constructor"""
 
-        Mechanism.__init__(self, name)
+        super(NrnMODMechanism, self).__init__(name)
         self.mod_path = mod_path
         self.prefix = prefix
         self.locations = locations
