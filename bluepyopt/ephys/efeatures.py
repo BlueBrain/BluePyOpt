@@ -50,7 +50,18 @@ class eFELFeature(EFeature):
             exp_mean=None,
             exp_std=None,
             threshold=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the feature
+            efel_feature_name(str): name of the feature in the eFEL library (ex: 'AP1_peak')
+            recording_names(dictionary): Requires at least {'': 'recording_name'}
+            stim_start(float): when the stimulation started
+            stim_end(float): when the stimulation ended
+            exp_mean(float): used for 'calculate_score'
+            exp_std(float): used for 'calculate_score'
+            threshold(float): used for 'calculate_score'
+        """
 
         super(eFELFeature, self).__init__(name)
 

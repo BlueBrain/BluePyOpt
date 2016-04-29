@@ -30,7 +30,11 @@ class Protocol(object):
     """Protocol"""
 
     def __init__(self, name=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the feature
+        """
 
         self.name = name
 
@@ -40,7 +44,13 @@ class SequenceProtocol(Protocol):
     """A protocol consisting of a sequence of other protocols"""
 
     def __init__(self, name=None, protocols=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the feature
+            protocols(list of ephys.protocols.Protocol): protocols composing
+            the sequence
+        """
         super(SequenceProtocol, self).__init__(name)
         self.protocols = protocols
 
@@ -61,7 +71,7 @@ class SequenceProtocol(Protocol):
 
 class SweepProtocol(Protocol):
 
-    """Stimulus protocol"""
+    """Sweep protocol"""
 
     def __init__(
             self,
@@ -69,7 +79,15 @@ class SweepProtocol(Protocol):
             stimuli=None,
             recordings=None,
             cvode_active=True):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the feature
+            stimuli(list of ephys.stimuli.Stimulus):
+            recordings(list of ephys.recordings.Recording):
+            cvode_active(bool): whether to to use set cvode on simulator
+        """
+
         super(SweepProtocol, self).__init__(name)
         self.stimuli = stimuli
         self.recordings = recordings

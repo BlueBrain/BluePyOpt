@@ -27,7 +27,11 @@ class ObjectivesCalculator(object):
     def __init__(
             self,
             objectives=None):
-        """Contructor"""
+        """Contructor
+
+        Args:
+            objectives(list of ephys.objectives.Objective): objectives over which to calculate
+        """
 
         self.objectives = objectives
 

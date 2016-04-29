@@ -28,7 +28,11 @@ class Location(object):
     """Location"""
 
     def __init__(self, name):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the location
+        """
 
         self.name = name
 
@@ -61,7 +65,14 @@ class NrnSeclistCompLocation(Location):
             seclist_name=None,
             sec_index=None,
             comp_x=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the location
+            seclist_name(str): name of NEURON section (ex: 'somatic')
+            sec_index(int): index of the section
+            comp_x(float):
+        """
 
         super(NrnSeclistCompLocation, self).__init__(name)
         self.seclist_name = seclist_name
@@ -90,7 +101,13 @@ class NrnSeclistLocation(Location):
             name,
             seclist_name=None,
             sec_index=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the location
+            seclist_name(str): name of NEURON section (ex: 'somatic')
+            sec_index(int): Unused
+        """
 
         super(NrnSeclistLocation, self).__init__(name)
         self.seclist_name = seclist_name
@@ -117,7 +134,13 @@ class NrnSeclistSecLocation(Location):
             name,
             seclist_name=None,
             sec_index=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the location
+            seclist_name(str): name of NEURON section (ex: 'somatic')
+            sec_index(int): index of the section
+        """
 
         super(NrnSeclistSecLocation, self).__init__(name)
         self.seclist_name = seclist_name
@@ -141,7 +164,13 @@ class NrnSomaDistanceCompLocation(Location):
     """Compartment at distance from soma"""
 
     def __init__(self, name, soma_distance=None, seclist_name=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the location
+            soma_distance(float): distance from soma of section
+            seclist_name(str): name of NEURON section (ex: 'apical')
+        """
 
         super(NrnSomaDistanceCompLocation, self).__init__(name)
         self.soma_distance = soma_distance

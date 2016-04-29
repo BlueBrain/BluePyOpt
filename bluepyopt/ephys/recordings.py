@@ -33,7 +33,13 @@ class Recording(object):
     """Response to stimulus"""
 
     def __init__(self, name=None, value=None, frozen=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the recording
+            value(): not used
+            frozen(): not used
+        """
 
         self.name = name
         self.value = value
@@ -51,7 +57,15 @@ class CompRecording(Recording):
             frozen=None,
             location=None,
             variable='v'):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the recording
+            value(): not used
+            frozen(): not used
+            location(ephys.locations.Location): location of recording
+            variable(str): which variable to record (ex 'v')
+        """
 
         super(CompRecording, self).__init__(name=name, value=value, frozen=frozen)
         self.location = location

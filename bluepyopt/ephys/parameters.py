@@ -33,7 +33,15 @@ class Parameter(object):
     """Base parameter class"""
 
     def __init__(self, name, value=None, frozen=False, bounds=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the Parameter
+            value(float): Value for the parameter, required if Frozen=True
+            frozen(bool): Whether the parameter can be varied, or its values
+            is permently set
+            bounds(indexable): two elements; the lower and upper bounds (Optional)
+        """
 
         if frozen and value is None:
             raise Exception('Must provide a value for frozen parameters')
@@ -118,7 +126,16 @@ class NrnGlobalParameter(Parameter):
             frozen=False,
             bounds=None,
             param_name=None):
-        """Contructor"""
+        """Contructor
+
+        Args:
+            name(str): name of the Parameter
+            value(float): Value for the parameter, required if Frozen=True
+            frozen(bool): Whether the parameter can be varied, or its values
+            is permently set
+            bounds(indexable): two elements; the lower and upper bounds (Optional)
+            param_name(str): name used within NEURON
+        """
 
         super(NrnGlobalParameter, self).__init__(
             name,
@@ -155,7 +172,19 @@ class NrnSectionParameter(Parameter):
             param_name=None,
             value_scaler=None,
             locations=None):
-        """Contructor"""
+        """Contructor
+
+        Args:
+            name(str): name of the Parameter
+            value(float): Value for the parameter, required if Frozen=True
+            frozen(bool): Whether the parameter can be varied, or its values
+            is permently set
+            bounds(indexable): two elements; the lower and upper bounds (Optional)
+            param_name(str): name used within NEURON
+            value_scaler(float): value used to scale the parameter value
+            locations(list of ephys.locations.Location): locations on which to instantiate the
+            parameter
+        """
 
         super(NrnSectionParameter, self).__init__(
             name,
@@ -212,7 +241,19 @@ class NrnRangeParameter(Parameter):
             param_name=None,
             value_scaler=None,
             locations=None):
-        """Contructor"""
+        """Contructor
+
+        Args:
+            name(str): name of the Parameter
+            value(float): Value for the parameter, required if Frozen=True
+            frozen(bool): Whether the parameter can be varied, or its values
+            is permently set
+            bounds(indexable): two elements; the lower and upper bounds (Optional)
+            param_name(str): name used within NEURON
+            value_scaler(float): value used to scale the parameter value
+            locations(list of ephys.locations.Location): locations on which to instantiate the
+            parameter
+        """
 
         super(NrnRangeParameter, self).__init__(
             name,

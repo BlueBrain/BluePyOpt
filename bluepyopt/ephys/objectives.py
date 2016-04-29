@@ -25,7 +25,12 @@ class Objective(object):
     """EPhys feature"""
 
     def __init__(self, name, features=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the objective
+            features(list of ephys.efeatures.EFeature): features in the objective
+        """
 
         self.name = name
         self.features = features
@@ -42,10 +47,15 @@ class Objective(object):
 
 class SingletonObjective(Objective):
 
-    """Single eFEL feature"""
+    """Single EPhys feature"""
 
     def __init__(self, name, feature):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the objective
+            features(ephys.efeatures.EFeature): feature in the objective
+        """
 
         super(SingletonObjective, self).__init__(name, [feature])
 
@@ -62,12 +72,7 @@ class SingletonObjective(Objective):
 
 class MaxObjective(Objective):
 
-    """Max of list of eFEL feature"""
-
-    def __init__(self, name, features):
-        """Constructor"""
-
-        Objective.__init__(self, name, features)
+    """Max of list of EPhys feature"""
 
     @property
     def calculate_score(self, responses):
@@ -78,12 +83,18 @@ class MaxObjective(Objective):
 
 class WeightedSumObjective(Objective):
 
-    """Weighted sum of list of eFEL features"""
+    """Weighted sum of list of EPhys features"""
 
     def __init__(self, name, features, weights):
-        """Constructor"""
+        """Constructor
 
-        Objective.__init__(self, name, features)
+        Args:
+            name(str): name of the objective
+            features(list of ephys.efeatures.EFeature): features in the objective
+            weights(list of float): weightings for the features
+        """
+
+        super(WeightedSumObjective, self).__init__(name, features)
         if len(weights) != len(features):
             raise Exception(
                 'WeightedSumObjective: number of weights must be equal to '

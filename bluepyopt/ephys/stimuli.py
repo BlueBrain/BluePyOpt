@@ -25,12 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 class Stimulus(object):
-
     """Stimulus protocol"""
-
-    def __init__(self):
-        """Constructor"""
-        pass
+    pass
 
 
 class NrnCurrentPlayStimulus(Stimulus):
@@ -41,7 +37,13 @@ class NrnCurrentPlayStimulus(Stimulus):
                  time_points=None,
                  current_points=None,
                  location=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            time_points():
+            current_points():
+            location(ephys.locations.Nrn*Location): location of stimulus
+        """
 
         super(NrnCurrentPlayStimulus, self).__init__()
         self.time_points = time_points
@@ -65,7 +67,7 @@ class NrnCurrentPlayStimulus(Stimulus):
             sec=icomp.sec)
         self.current_vec = sim.neuron.h.Vector(self.current_points)
         self.time_vec = sim.neuron.h.Vector(self.time_points)
-        self.iclamp.dur = max(self.time_points)
+        self.iclamp.dur = self.total_duration
         self.iclamp.delay = 0
         self.current_vec.play(
             self.iclamp._ref_amp,
@@ -98,7 +100,15 @@ class NrnSquarePulse(Stimulus):
                  step_duration=None,
                  total_duration=None,
                  location=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            step_amplitude(float): amplitude (uA?)
+            step_delay(float): delay in milliseconds
+            step_duration(float): duration in milliseconds
+            total_duration(float): total duration in milliseconds
+            location(ephys.locations.Nrn*Location): location of pulse
+        """
 
         super(NrnSquarePulse, self).__init__()
         self.step_amplitude = step_amplitude

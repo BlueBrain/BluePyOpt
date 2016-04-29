@@ -27,7 +27,11 @@ class ParameterScaler(object):
     """Parameter scalers"""
 
     def __init__(self, name):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the parameter scaler
+        """
 
         self.name = name
 
@@ -43,7 +47,13 @@ class NrnSegmentLinearScaler(ParameterScaler):
             name=None,
             multiplier=1.0,
             offset=0.0):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the parameter scaler
+            multiplier(float): slope of the intercept of the linear scaler
+            offset(float): intercept of the linear scaler
+        """
 
         super(NrnSegmentLinearScaler, self).__init__(name)
         self.multiplier = multiplier
@@ -68,7 +78,12 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler):
             self,
             name=None,
             distribution=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the parameter scaler
+            distribution(format string): eval'd string with `distance` and `value`
+        """
 
         super(NrnSegmentSomaDistanceScaler, self).__init__(name)
         self.distribution = distribution

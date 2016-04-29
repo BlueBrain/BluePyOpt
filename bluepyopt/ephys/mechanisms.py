@@ -36,7 +36,11 @@ class Mechanism(object):
     """Base parameter class"""
 
     def __init__(self, name):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the mechanism
+        """
 
         self.name = name
 
@@ -52,7 +56,15 @@ class NrnMODMechanism(Mechanism):
             prefix=None,
             locations=None,
             preloaded=True):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the mechanism
+            mod_path(str path): not used
+            prefix(str): name of channel
+            locations(list of ephys.locations.NrnSeclistLocation): locations of mechanism
+            preloaded(bool): not used
+        """
 
         super(NrnMODMechanism, self).__init__(name)
         self.mod_path = mod_path

@@ -42,7 +42,12 @@ class NrnFileMorphology(Morphology):
     """Morphology loaded from a file"""
 
     def __init__(self, morphology_path, do_replace_axon=False):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            morphology_path(str path): location of the morphology
+            do_replace_axon(bool): True if axon is to be replaced, default False
+        """
 
         super(NrnFileMorphology, self).__init__()
         # TODO speed up loading of morphologies from files

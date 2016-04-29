@@ -42,15 +42,19 @@ class CellModel(object):
             morph=None,
             mechs=None,
             params=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name(str): name of the cell model
+            morph(ephys.morphologies.Morphology): underlying morphology of the cell
+            mechs(list of ephys.mechanisms.Mechanism): mechanisms associated with the cell
+            params(list of ephys.parameters.Parameter): frozen and unfrozen parameters associated
+            with the cell
+        """
 
         self.name = name
-
-        # morphology
         self.morphology = morph
-        # mechanisms
         self.mechanisms = mechs
-        # Model params
         self.params = collections.OrderedDict()
         for param in params:
             self.params[param.name] = param
