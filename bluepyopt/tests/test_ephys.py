@@ -33,4 +33,5 @@ def test_import():
 def test_neuron_import():
     """ephys: test if bluepyopt.neuron import was successful"""
     from bluepyopt import ephys  # NOQA
-    nt.assert_is_instance(ephys.neuron, types.ModuleType)
+    neuron_sim = ephys.simulators.NrnSimulator()
+    nt.assert_is_instance(neuron_sim.neuron, types.ModuleType)

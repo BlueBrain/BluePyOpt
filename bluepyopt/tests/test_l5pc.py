@@ -14,7 +14,10 @@ sys.path.insert(0, L5PC_PATH)
 
 import bluepyopt
 from bluepyopt import ephys
-ephys.neuron.h.nrn_load_dll(
+
+neuron_sim = ephys.simulators.NrnSimulator()
+
+neuron_sim.neuron.h.nrn_load_dll(
     os.path.join(
         L5PC_PATH,
         'x86_64/.libs/libnrnmech.so'))
@@ -135,7 +138,7 @@ class TestL5PCEvaluator(object):
         pass
 
 
-#backport from python 3.4
+# backport from python 3.4
 @contextmanager
 def stdout_redirector(stream):
     old_stdout = sys.stdout
@@ -147,7 +150,9 @@ def stdout_redirector(stream):
 
 
 class TestL5PCNotebookClass(object):
+
     """L5PC notebook test class"""
+
     def test_exec(self):
         """L5PC Notebook: test execution"""
         old_cwd = os.getcwd()
@@ -160,10 +165,11 @@ class TestL5PCNotebookClass(object):
                 # import
                 execfile('L5PC.py')  # NOQA
             stdout = output.getvalue()
-            #first and last values of optimal individual
+            # first and last values of optimal individual
             nt.ok_('0.001017834439738432' in stdout)
             nt.ok_('202.18814057682334' in stdout)
-            nt.ok_("u'gamma_CaDynamics_E2.somatic': 0.03229357096515606" in stdout)
+            nt.ok_(
+                "u'gamma_CaDynamics_E2.somatic': 0.03229357096515606" in stdout)
         finally:
             os.chdir(old_cwd)
             output.close()
