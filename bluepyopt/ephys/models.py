@@ -46,9 +46,12 @@ class CellModel(object):
 
         Args:
             name(str): name of the cell model
-            morph(ephys.morphologies.Morphology): underlying morphology of the cell
-            mechs(list of ephys.mechanisms.Mechanism): mechanisms associated with the cell
-            params(list of ephys.parameters.Parameter): frozen and unfrozen parameters associated
+            morph(ephys.morphologies.Morphology):
+                underlying morphology of the cell
+            mechs(list of ephys.mechanisms.Mechanism):
+                mechanisms associated with the cell
+            params(list of ephys.parameters.Parameter):
+                frozen and unfrozen parameters associated
             with the cell
         """
 
@@ -63,6 +66,11 @@ class CellModel(object):
         self.icell = None
 
         self.param_values = None
+
+    def params_by_names(self, param_names):
+        """Get parameter objects by name"""
+
+        return [self.params[param_name] for param_name in param_names]
 
     def freeze(self, param_dict):
         """Set params"""

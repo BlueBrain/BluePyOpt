@@ -62,7 +62,9 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
                 evaluation
         """
 
-        super(CellEvaluator, self).__init__()
+        super(CellEvaluator, self).__init__(
+            fitness_calculator.objectives,
+            cell_model.params_by_names(param_names))
         self.cell_model = cell_model
         self.param_names = param_names
         # Stimuli used for fitness calculation
@@ -73,22 +75,6 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         self.isolate_protocols = isolate_protocols
 
         self.sim = sim
-
-    @property
-    def objectives(self):
-        """Return objectives"""
-
-        return self.fitness_calculator.objectives
-
-    @property
-    def params(self):
-        """Return params of this evaluation"""
-
-        params = []
-        for param_name in self.param_names:
-            params.append(self.cell_model.params[param_name])
-
-        return params
 
     def param_dict(self, param_array):
         """Convert param_array in param_dict"""
