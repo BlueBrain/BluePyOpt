@@ -22,7 +22,7 @@ class NrnSimulator(object):
 
         import neuron  # NOQA
 
-        self.dt = dt if self.dt is not None else neuron.h.dt
+        self.dt = dt if dt is not None else neuron.h.dt
         self.cvode_active = cvode_active
 
     # pylint: disable=R0201
