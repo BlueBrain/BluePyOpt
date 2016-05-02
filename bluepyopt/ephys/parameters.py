@@ -19,8 +19,11 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+from abc import abstractmethod
+
 import logging
 
+import bluepyopt
 from . import parameterscalers
 
 logger = logging.getLogger(__name__)
@@ -28,86 +31,35 @@ logger = logging.getLogger(__name__)
 # TODO location and stimulus parameters should also be optimisable
 
 
-class Parameter(object):
+class NrnParameter(bluepyopt.parameters.Parameter):
 
-    """Base parameter class"""
+    """Abstract Parameter class for Neuron object parameters"""
 
-    def __init__(self, name, value=None, frozen=False, bounds=None):
-        """Constructor"""
+    def __init__(
+            self,
+            name,
+            value=None,
+            frozen=False,
+            bounds=None):
+        """Contructor"""
 
-        if frozen and value is None:
-            raise Exception('Must provide a value for frozen parameters')
+        super(NrnParameter, self).__init__(
+            name,
+            value=value,
+            frozen=frozen,
+            bounds=bounds)
 
-        self.name = name
-        self.prefix = None
-        self.bounds = bounds
-        self._value = value
-        self.check_bounds()
-        self.frozen = frozen
-
-    @property
-    def lower_bound(self):
-        """Lower bound"""
-        if self.bounds is not None:
-            return self.bounds[0]
-        else:
-            return None
-
-    @property
-    def upper_bound(self):
-        """Lower bound"""
-        if self.bounds is not None:
-            return self.bounds[1]
-        else:
-            return None
-
-    @property
-    def value(self):
-        """Parameter value"""
-        return self._value
-
-    def freeze(self, value):
-        """Freeze parameter to certain value"""
-        self.value = value
-        self.frozen = True
-
-    def unfreeze(self, value=None):
-        """Unfreeze parameter, if desired, set it to a certain value"""
-        self._value = value
-        self.frozen = False
-
-    @value.setter
-    def value(self, value):
-        """Set parameter value"""
-        if self.frozen:
-            raise Exception(
-                'Parameter: parameter %s is frozen, unable to change value' %
-                self.name)
-        else:
-            self._value = value
-            self.check_bounds()
-
-    def check_bounds(self):
-        """Check if parameter is within bounds"""
-        if self.bounds and self._value is not None:
-            if not self.lower_bound <= self._value <= self.upper_bound:
-                raise Exception(
-                    'Parameter %s has value %s outside of bounds [%s, %s]' %
-                    (self.name, self._value, str(self.lower_bound),
-                     str(self.upper_bound)))
-
-    def destroy(self):
-        """Destroy parameter instantation"""
+    @abstractmethod
+    def instantiate(self, sim=None, icell=None):
+        """Instantiate the parameter in the simulator"""
         pass
 
-    def raise_if_no_value(self):
-        """Raise exception if Value is None"""
-        if self._value is None:
-            raise Exception('Parameter %s currently does not have a value' %
-                            self.name)
+    def destroy(self):
+        """Remove parameter from the simulator"""
+        pass
 
 
-class NrnGlobalParameter(Parameter):
+class NrnGlobalParameter(NrnParameter):
 
     """Parameter set in the global namespace of neuron"""
 
@@ -142,7 +94,7 @@ class NrnGlobalParameter(Parameter):
                                 self.value if self.frozen else self.bounds)
 
 
-class NrnSectionParameter(Parameter):
+class NrnSectionParameter(NrnParameter):
 
     """Parameter of a section"""
 
@@ -174,7 +126,10 @@ class NrnSectionParameter(Parameter):
 
     def instantiate(self, sim=None, icell=None):
         """Instantiate"""
-        self.raise_if_no_value()
+        if self.value is None:
+            raise Exception(
+                'NrnSectionParameter: impossible to instantiate parameter '
+                'without value')
 
         for location in self.locations:
             iseclist = location.instantiate(sim=sim, icell=icell)
@@ -199,7 +154,7 @@ class NrnSectionParameter(Parameter):
 # NrnRangeMechParameter
 
 
-class NrnRangeParameter(Parameter):
+class NrnRangeParameter(NrnParameter):
 
     """Parameter that has a range over a section"""
 
@@ -230,7 +185,10 @@ class NrnRangeParameter(Parameter):
 
     def instantiate(self, sim=None, icell=None):
         """Instantiate"""
-        self.raise_if_no_value()
+        if self.value is None:
+            raise Exception(
+                'NrnRangeParameter: impossible to instantiate parameter '
+                'without value')
 
         for location in self.locations:
             for isection in location.instantiate(sim=sim, icell=icell):
