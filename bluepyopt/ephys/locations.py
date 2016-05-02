@@ -31,7 +31,7 @@ class Location(object):
         """Constructor
 
         Args:
-            name(str): name of the location
+            name (str): name of the location object
         """
 
         self.name = name
@@ -68,10 +68,10 @@ class NrnSeclistCompLocation(Location):
         """Constructor
 
         Args:
-            name(str): name of the location
-            seclist_name(str): name of NEURON section (ex: 'somatic')
-            sec_index(int): index of the section
-            comp_x(float):
+            name (str): name of the object
+            seclist_name (str): name of Neuron section list (ex: 'somatic')
+            sec_index (int): index of the section in the section list
+            comp_x (float): segx (0..1) of segment inside section
         """
 
         super(NrnSeclistCompLocation, self).__init__(name)
@@ -99,14 +99,12 @@ class NrnSeclistLocation(Location):
     def __init__(
             self,
             name,
-            seclist_name=None,
-            sec_index=None):
+            seclist_name=None):
         """Constructor
 
         Args:
-            name(str): name of the location
-            seclist_name(str): name of NEURON section (ex: 'somatic')
-            sec_index(int): Unused
+            name (str): name of the object
+            seclist_name (str): name of NEURON section list (ex: 'somatic')
         """
 
         super(NrnSeclistLocation, self).__init__(name)
@@ -137,9 +135,9 @@ class NrnSeclistSecLocation(Location):
         """Constructor
 
         Args:
-            name(str): name of the location
-            seclist_name(str): name of NEURON section (ex: 'somatic')
-            sec_index(int): index of the section
+            name (str): name of this object
+            seclist_name (str): name of Neuron section list (ex: 'somatic')
+            sec_index (int): index of the section
         """
 
         super(NrnSeclistSecLocation, self).__init__(name)
@@ -167,9 +165,9 @@ class NrnSomaDistanceCompLocation(Location):
         """Constructor
 
         Args:
-            name(str): name of the location
-            soma_distance(float): distance from soma of section
-            seclist_name(str): name of NEURON section (ex: 'apical')
+            name (str): name of this object
+            soma_distance (float): distance from soma to this segment
+            seclist_name (str): name of Neuron section list (ex: 'apical')
         """
 
         super(NrnSomaDistanceCompLocation, self).__init__(name)
