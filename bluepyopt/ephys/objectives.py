@@ -19,19 +19,22 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import bluepyopt
 
-class Objective(object):
 
-    """EPhys feature"""
+class EFeatureObjective(bluepyopt.objectives.Objective):
+
+    """EPhys feature objective"""
 
     def __init__(self, name, features=None):
         """Constructor
 
         Args:
-            name(str): name of the objective
-            features(list of ephys.efeatures.EFeature): features in the objective
+            name (str): name of this object
+            features (list of eFeatures): features used in the Objective
         """
 
+        super(EFeatureObjective, self).__init__(name)
         self.name = name
         self.features = features
 
@@ -45,7 +48,7 @@ class Objective(object):
         return scores
 
 
-class SingletonObjective(Objective):
+class SingletonObjective(EFeatureObjective):
 
     """Single EPhys feature"""
 
@@ -70,7 +73,7 @@ class SingletonObjective(Objective):
         return '( %s )' % self.features[0]
 
 
-class MaxObjective(Objective):
+class MaxObjective(EFeatureObjective):
 
     """Max of list of EPhys feature"""
 
@@ -81,7 +84,7 @@ class MaxObjective(Objective):
         return max(self.calculate_feature_scores(responses))
 
 
-class WeightedSumObjective(Objective):
+class WeightedSumObjective(EFeatureObjective):
 
     """Weighted sum of list of EPhys features"""
 
@@ -89,9 +92,9 @@ class WeightedSumObjective(Objective):
         """Constructor
 
         Args:
-            name(str): name of the objective
-            features(list of ephys.efeatures.EFeature): features in the objective
-            weights(list of float): weightings for the features
+            name (str): name of this object
+            features(list of EFeatures): features in the objective
+            weights(list of float): weights of the features
         """
 
         super(WeightedSumObjective, self).__init__(name, features)
