@@ -1,7 +1,8 @@
 coverage:
   status:
     patch: yes
-    target: 70%    
+    target: 70%
+    threshold: 5%    
   range: "70...100"
   notify:
       require_ci_to_pass: no
