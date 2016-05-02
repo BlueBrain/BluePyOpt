@@ -46,16 +46,23 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         """Constructor
 
         Args:
-            cell_model(ephys.models.CellModel): cell to evaluate
-            param_names(list of parameter names):
-            fitness_protocols(dict of str -> ephys.protocols.Protocol)
-            fitness_calculator(ephys.objectivescalculators.ObjectivesCalculator)
-            isolate_protocols(bool): whether to use multiprocessing to
-            isolate the simution instance
-            sim(ephys.simulators.NrnSimulator): simulator to use for cell
-            evaluation
+            cell_model (ephys.models.CellModel): CellModel object to evaluate
+            param_names (list of str): names of the parameters
+                (parameters will be initialised in this order)
+            fitness_protocols (dict of str -> ephys.protocols.Protocol):
+                protocols used during the fitness evaluation
+            fitness_calculator (ObjectivesCalculator):
+                ObjectivesCalculator object used for the transformation of
+                Responses into Objective objects
+            isolate_protocols (bool): whether to use multiprocessing to
+                isolate the simulations
+                (disabling this could lead to unexpected behavior, and might
+                hinder the reproducability of the simulations)
+            sim (ephys.simulators.NrnSimulator): simulator to use for the cell
+                evaluation
         """
 
+        super(CellEvaluator, self).__init__()
         self.cell_model = cell_model
         self.param_names = param_names
         # Stimuli used for fitness calculation

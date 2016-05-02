@@ -54,8 +54,10 @@ class eFELFeature(EFeature):
 
         Args:
             name (str): name of the eFELFeature object
-            efel_feature_name(str): name of the eFeature in the eFEL library (ex: 'AP1_peak')
-            recording_names (dict): eFEL features can accept several recordings as input
+            efel_feature_name (str): name of the eFeature in the eFEL library
+                (ex: 'AP1_peak')
+            recording_names (dict): eFEL features can accept several recordings
+                as input
             stim_start (float): stimulation start time (ms)
             stim_end (float): stimulation end time (ms)
             exp_mean (float): experimental mean of this eFeature
