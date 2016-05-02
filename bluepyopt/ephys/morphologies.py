@@ -45,8 +45,10 @@ class NrnFileMorphology(Morphology):
         """Constructor
 
         Args:
-            morphology_path(str path): location of the morphology
-            do_replace_axon(bool): True if axon is to be replaced, default False
+            morphology_path (str): location of the file describing the
+                morphology
+            do_replace_axon(bool): Does the axon need to be replaced by an AIS
+                stub ?
         """
 
         super(NrnFileMorphology, self).__init__()
