@@ -9,7 +9,7 @@ class NrnSimulator(object):
 
     """Neuron simulator"""
 
-    def __init__(self, dt=0.025, cvode_active=True):
+    def __init__(self, dt=None, cvode_active=True):
         """Constructor"""
 
         import imp
@@ -20,9 +20,14 @@ class NrnSimulator(object):
         nrndll = ctypes.cdll[hoc_so]
         ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
 
-        self.dt = dt
+        import neuron  # NOQA
+
+        self.dt = dt if dt is not None else neuron.h.dt
         self.cvode_active = cvode_active
 
+    # pylint: disable=R0201
+    # TODO function below should probably a class property or something in that
+    # sense
     @property
     def neuron(self):
         """Return neuron module"""
@@ -36,12 +41,23 @@ class NrnSimulator(object):
 
         self.neuron.h.tstop = tstop
 
-        if cvode_active is None:  # use cvode_active of simulator
+        if cvode_active and dt is not None:
+            raise ValueError(
+                'NrnSimulator: Impossible to combine the dt argument when '
+                'cvode_active is True in the NrnSimulator run method')
+
+        if cvode_active is None:
             cvode_active = self.cvode_active
 
         self.neuron.h.cvode_active(1 if cvode_active else 0)
 
         if dt is None:  # use dt of simulator
+            if self.neuron.h.dt != self.dt:
+                raise Exception(
+                    'NrnSimulator: Some process has changed the '
+                    'time step dt of Neuron since the creation of this '
+                    'NrnSimulator object. Not sure this is intended, '
+                    'raising Exception')
             dt = self.dt
 
         if cvode_active:
