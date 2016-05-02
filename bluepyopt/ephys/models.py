@@ -45,14 +45,13 @@ class CellModel(object):
         """Constructor
 
         Args:
-            name(str): name of the cell model
-            morph(ephys.morphologies.Morphology):
+            name(str): name of this object
+            morph(Morphology):
                 underlying morphology of the cell
-            mechs(list of ephys.mechanisms.Mechanism):
-                mechanisms associated with the cell
-            params(list of ephys.parameters.Parameter):
-                frozen and unfrozen parameters associated
-            with the cell
+            mechs(list of Mechanisms):
+                Mechanisms associated with the cell
+            params(list of Parameters):
+                Parameters of the cell model
         """
 
         self.name = name
