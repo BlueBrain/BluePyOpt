@@ -30,8 +30,10 @@ import copy_reg
 import logging
 logger = logging.getLogger(__name__)
 
+import bluepyopt as bpopt
 
-class CellEvaluator(object):
+
+class CellEvaluator(bpopt.evaluators.Evaluator):
 
     """Simple cell class"""
 
