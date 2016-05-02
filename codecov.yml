@@ -3,6 +3,7 @@ coverage:
     
   status:
     patch:
+      default:
         target: "70%"
   
   notify:
