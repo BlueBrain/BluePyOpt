@@ -2,6 +2,8 @@
 
 import os
 import sys
+from contextlib import contextmanager
+from StringIO import StringIO
 
 import nose.tools as nt
 
@@ -133,34 +135,35 @@ class TestL5PCEvaluator(object):
         pass
 
 
+#backport from python 3.4
+@contextmanager
+def stdout_redirector(stream):
+    old_stdout = sys.stdout
+    sys.stdout = stream
+    try:
+        yield
+    finally:
+        sys.stdout = old_stdout
+
+
 class TestL5PCNotebookClass(object):
-
     """L5PC notebook test class"""
-
-    def __init__(self):
-        """Constructor"""
-
-        self.old_cwd = None
-        self.old_stdout = None
-
-    def setup(self):
-        """Setup"""
-        self.old_cwd = os.getcwd()
-        self.old_stdout = sys.stdout
-
-        os.chdir(L5PC_PATH)
-        sys.stdout = open(os.devnull, 'w')
-
-    @staticmethod
-    def test_exec():
+    def test_exec(self):
         """L5PC Notebook: test execution"""
-        # When using import instead of execfile this doesn't work
-        # Probably because multiprocessing doesn't work correctly during
-        # import
-        execfile('L5PC.py')  # NOQA
-
-    def teardown(self):
-        """Tear down"""
-
-        sys.stdout = self.old_stdout
-        os.chdir(self.old_cwd)
+        old_cwd = os.getcwd()
+        output = StringIO()
+        try:
+            os.chdir(L5PC_PATH)
+            with stdout_redirector(output):
+                # When using import instead of execfile this doesn't work
+                # Probably because multiprocessing doesn't work correctly during
+                # import
+                execfile('L5PC.py')  # NOQA
+            stdout = output.getvalue()
+            #first and last values of optimal individual
+            nt.ok_('0.001017834439738432' in stdout)
+            nt.ok_('202.18814057682334' in stdout)
+            nt.ok_("u'gamma_CaDynamics_E2.somatic': 0.03229357096515606" in stdout)
+        finally:
+            os.chdir(old_cwd)
+            output.close()
