@@ -39,7 +39,7 @@ class Mechanism(object):
         """Constructor
 
         Args:
-            name(str): name of the mechanism
+            name (str): name of this object
         """
 
         self.name = name
@@ -59,11 +59,14 @@ class NrnMODMechanism(Mechanism):
         """Constructor
 
         Args:
-            name(str): name of the mechanism
-            mod_path(str path): not used
-            prefix(str): name of channel
-            locations(list of ephys.locations.NrnSeclistLocation): locations of mechanism
-            preloaded(bool): not used
+            name (str): name of this object
+            mod_path (str): path to the MOD file (not used for the moment)
+            prefix (str): prefix of this mechanism in the MOD file
+            locations (list of Locations): a list of Location objects pointing
+                to where this mechanism should be added to.
+            preloaded (bool): should this mechanism be side-loaded by BluePyOpt,
+                or was it already loaded and compiled by the user ?
+                (not used for the moment)
         """
 
         super(NrnMODMechanism, self).__init__(name)
