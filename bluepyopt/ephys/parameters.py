@@ -103,7 +103,8 @@ class Parameter(object):
     def raise_if_no_value(self):
         """Raise exception if Value is None"""
         if self._value is None:
-            raise Exception('Parameter currently does not have a value')
+            raise Exception('Parameter %s currently does not have a value' %
+                            self.name)
 
 
 class NrnGlobalParameter(Parameter):
