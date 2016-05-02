@@ -67,7 +67,10 @@ class NrnMODMechanism(Mechanism):
         for location in self.locations:
             isec_list = location.instantiate(sim=sim, icell=icell)
             for isec in isec_list:
-                isec.insert(self.prefix)
+                try:
+                    isec.insert(self.prefix)
+                except ValueError as e:
+                    raise ValueError(str(e) + ': ' + self.prefix)
             logger.debug(
                 'Inserted %s in %s', self.prefix, [
                     str(location) for location in self.locations])
