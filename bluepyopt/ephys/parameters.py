@@ -36,11 +36,12 @@ class Parameter(object):
         """Constructor
 
         Args:
-            name(str): name of the Parameter
-            value(float): Value for the parameter, required if Frozen=True
-            frozen(bool): Whether the parameter can be varied, or its values
+            name (str): name of the object
+            value (float): Value for the parameter, required if Frozen=True
+            frozen (bool): Whether the parameter can be varied, or its values
             is permently set
-            bounds(indexable): two elements; the lower and upper bounds (Optional)
+            bounds (indexable): two elements; the lower and upper bounds
+                (Optional)
         """
 
         if frozen and value is None:
@@ -129,12 +130,13 @@ class NrnGlobalParameter(Parameter):
         """Contructor
 
         Args:
-            name(str): name of the Parameter
-            value(float): Value for the parameter, required if Frozen=True
-            frozen(bool): Whether the parameter can be varied, or its values
+            name (str): name of this object
+            value (float): Value for the parameter, required if Frozen=True
+            frozen (bool): Whether the parameter can be varied, or its values
             is permently set
-            bounds(indexable): two elements; the lower and upper bounds (Optional)
-            param_name(str): name used within NEURON
+            bounds (indexable): two elements;
+                the lower and upper bounds (Optional)
+            param_name (str): name used within NEURON
         """
 
         super(NrnGlobalParameter, self).__init__(
@@ -175,15 +177,16 @@ class NrnSectionParameter(Parameter):
         """Contructor
 
         Args:
-            name(str): name of the Parameter
-            value(float): Value for the parameter, required if Frozen=True
-            frozen(bool): Whether the parameter can be varied, or its values
+            name (str): name of the Parameter
+            value (float): Value for the parameter, required if Frozen=True
+            frozen (bool): Whether the parameter can be varied, or its values
             is permently set
-            bounds(indexable): two elements; the lower and upper bounds (Optional)
-            param_name(str): name used within NEURON
-            value_scaler(float): value used to scale the parameter value
-            locations(list of ephys.locations.Location): locations on which to instantiate the
-            parameter
+            bounds (indexable): two elements; the lower and upper bounds
+                (Optional)
+            param_name (str): name used within NEURON
+            value_scaler (float): value used to scale the parameter value
+            locations (list of ephys.locations.Location): locations on which
+                to instantiate the parameter
         """
 
         super(NrnSectionParameter, self).__init__(
@@ -209,7 +212,7 @@ class NrnSectionParameter(Parameter):
             iseclist = location.instantiate(sim=sim, icell=icell)
             for section in iseclist:
                 setattr(section, self.param_name,
-                        self.value_scale_func(self.value, section))
+                        self.value_scale_func(self.value, section, sim=sim))
             logger.debug(
                 'Set %s in %s to %s',
                 self.param_name,
@@ -244,15 +247,16 @@ class NrnRangeParameter(Parameter):
         """Contructor
 
         Args:
-            name(str): name of the Parameter
-            value(float): Value for the parameter, required if Frozen=True
-            frozen(bool): Whether the parameter can be varied, or its values
+            name (str): name of the Parameter
+            value (float): Value for the parameter, required if Frozen=True
+            frozen (bool): Whether the parameter can be varied, or its values
             is permently set
-            bounds(indexable): two elements; the lower and upper bounds (Optional)
-            param_name(str): name used within NEURON
-            value_scaler(float): value used to scale the parameter value
-            locations(list of ephys.locations.Location): locations on which to instantiate the
-            parameter
+            bounds (indexable): two elements; the lower and upper bounds
+                (Optional)
+            param_name (str): name used within NEURON
+            value_scaler (float): value used to scale the parameter value
+            locations (list of ephys.locations.Location): locations on which
+                to instantiate the parameter
         """
 
         super(NrnRangeParameter, self).__init__(
@@ -277,7 +281,7 @@ class NrnRangeParameter(Parameter):
             for isection in location.instantiate(sim=sim, icell=icell):
                 for seg in isection:
                     setattr(seg, '%s' % self.param_name,
-                            self.value_scale_func(self.value, seg))
+                            self.value_scale_func(self.value, seg, sim=sim))
         logger.debug(
             'Set %s in %s to %s with scaler %s', self.param_name,
             [str(location)

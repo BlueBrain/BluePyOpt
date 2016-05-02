@@ -22,7 +22,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 
-from .importer import neuron
 from . import responses
 
 logger = logging.getLogger(__name__)
@@ -67,7 +66,10 @@ class CompRecording(Recording):
             variable(str): which variable to record (ex 'v')
         """
 
-        super(CompRecording, self).__init__(name=name, value=value, frozen=frozen)
+        super(CompRecording, self).__init__(
+            name=name,
+            value=value,
+            frozen=frozen)
         self.location = location
         self.variable = variable
 
@@ -97,12 +99,12 @@ class CompRecording(Recording):
         logger.debug('Adding compartment recording of %s at %s',
                      self.variable, self.location)
 
-        self.varvector = neuron.h.Vector()
+        self.varvector = sim.neuron.h.Vector()
         seg = self.location.instantiate(sim=sim, icell=icell)
         self.varvector.record(getattr(seg, '_ref_%s' % self.variable))
 
-        self.tvector = neuron.h.Vector()
-        self.tvector.record(neuron.h._ref_t)  # pylint: disable=W0212
+        self.tvector = sim.neuron.h.Vector()
+        self.tvector.record(sim.neuron.h._ref_t)  # pylint: disable=W0212
 
         self.instantiated = True
 

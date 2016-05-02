@@ -19,8 +19,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-from .importer import neuron
-
 
 class ParameterScaler(object):
 
@@ -59,7 +57,7 @@ class NrnSegmentLinearScaler(ParameterScaler):
         self.multiplier = multiplier
         self.offset = offset
 
-    def scale(self, value, _):
+    def scale(self, value, _, sim=None):
         """Scale a value based on a segment"""
 
         return self.multiplier * value + self.offset
@@ -81,14 +79,14 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler):
         """Constructor
 
         Args:
-            name(str): name of the parameter scaler
-            distribution(format string): eval'd string with `distance` and `value`
+            name (str): name of the object
+            distribution (str): eval'd string with `distance` and `value`
         """
 
         super(NrnSegmentSomaDistanceScaler, self).__init__(name)
         self.distribution = distribution
 
-    def scale(self, value, segment):
+    def scale(self, value, segment, sim=None):
         """Scale a value based on a segment"""
 
         # TODO soma needs other addressing scheme
@@ -96,9 +94,9 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler):
         soma = segment.sec.cell().soma[0]
 
         # Initialise origin
-        neuron.h.distance(0, 0.5, sec=soma)
+        sim.neuron.h.distance(0, 0.5, sec=soma)
 
-        distance = neuron.h.distance(1, segment.x, sec=segment.sec)
+        distance = sim.neuron.h.distance(1, segment.x, sec=segment.sec)
 
         # Find something to generalise this
         import math  # pylint:disable=W0611 #NOQA
