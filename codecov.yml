@@ -1,3 +1,6 @@
 coverage:
   status:
-    patch: falseg
+    patch: yes
+  range: "70...100"
+  notify:
+      require_ci_to_pass: no
