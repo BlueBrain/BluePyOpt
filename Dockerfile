@@ -28,7 +28,6 @@ RUN wget http://www.neuron.yale.edu/ftp/neuron/versions/v7.4/nrn-7.4.x86_64.deb
 RUN dpkg -i nrn-7.4.x86_64.deb
 RUN rm nrn-7.4.x86_64.deb
 
-RUN pip install git+git://github.com/BlueBrain/deap
 RUN pip install bluepyopt
 
 ENV PYTHONPATH /usr/local/nrn/lib/python:$PYTHONPATH
