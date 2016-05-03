@@ -45,12 +45,12 @@ class CellModel(object):
         """Constructor
 
         Args:
-            name(str): name of this object
-            morph(Morphology):
-                underlying morphology of the cell
-            mechs(list of Mechanisms):
+            name (str): name of this object
+            morph (Morphology):
+                underlying Morphology of the cell
+            mechs (list of Mechanisms):
                 Mechanisms associated with the cell
-            params(list of Parameters):
+            params (list of Parameters):
                 Parameters of the cell model
         """
 
