@@ -22,7 +22,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 class Objective(object):
 
-    """EPhys feature"""
+    """Objective of the optimisation algorithm"""
 
     def __init__(self, name, value=None):
         """Constructor"""
