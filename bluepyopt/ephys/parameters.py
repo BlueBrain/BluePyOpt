@@ -128,8 +128,8 @@ class NrnSectionParameter(NrnParameter):
         """Instantiate"""
         if self.value is None:
             raise Exception(
-                'NrnSectionParameter: impossible to instantiate parameter '
-                'without value')
+                'NrnSectionParameter: impossible to instantiate parameter "%s" '
+                'without value' % self.name)
 
         for location in self.locations:
             iseclist = location.instantiate(sim=sim, icell=icell)
@@ -187,8 +187,8 @@ class NrnRangeParameter(NrnParameter):
         """Instantiate"""
         if self.value is None:
             raise Exception(
-                'NrnRangeParameter: impossible to instantiate parameter '
-                'without value')
+                'NrnRangeParameter: impossible to instantiate parameter "%s" '
+                'without value' % self.name)
 
         for location in self.locations:
             for isection in location.instantiate(sim=sim, icell=icell):
