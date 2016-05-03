@@ -29,20 +29,16 @@ logger = logging.getLogger(__name__)
 
 class Recording(object):
 
-    """Response to stimulus"""
+    """Class to represent object that record variables during simulations"""
 
-    def __init__(self, name=None, value=None, frozen=None):
+    def __init__(self, name=None):
         """Constructor
 
         Args:
-            name(str): name of the recording
-            value(): not used
-            frozen(): not used
+            name (str): name of this object
         """
 
         self.name = name
-        self.value = value
-        self.frozen = frozen
 
 
 class CompRecording(Recording):
@@ -52,24 +48,18 @@ class CompRecording(Recording):
     def __init__(
             self,
             name=None,
-            value=None,
-            frozen=None,
             location=None,
             variable='v'):
         """Constructor
 
         Args:
-            name(str): name of the recording
-            value(): not used
-            frozen(): not used
-            location(ephys.locations.Location): location of recording
-            variable(str): which variable to record (ex 'v')
+            name (str): name of this object
+            location (Location): location in the model of the recording
+            variable (str): which variable to record from (e.g. 'v')
         """
 
         super(CompRecording, self).__init__(
-            name=name,
-            value=value,
-            frozen=frozen)
+            name=name)
         self.location = location
         self.variable = variable
 
