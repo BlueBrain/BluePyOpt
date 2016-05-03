@@ -1,4 +1,4 @@
-"""Tests of the main bluepyopt module"""
+"""bluepyopt.ephys.simulators tests"""
 
 """
 Copyright (c) 2016, EPFL/Blue Brain Project
@@ -24,14 +24,18 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import types
 import nose.tools as nt
 
+import bluepyopt.ephys as ephys
 
-def test_import():
-    """ephys: test importing bluepyopt.ephys"""
-    import bluepyopt.ephys  # NOQA
+
+def test_nrnsimulator_init():
+    """ephys.simulators: test if NrnSimulator constructor works"""
+
+    neuron_sim = ephys.simulators.NrnSimulator()
+    nt.assert_is_instance(neuron_sim, ephys.simulators.NrnSimulator)
 
 
 def test_neuron_import():
-    """ephys: test if bluepyopt.neuron import was successful"""
+    """ephys.simulators: test if bluepyopt.neuron import was successful"""
     from bluepyopt import ephys  # NOQA
     neuron_sim = ephys.simulators.NrnSimulator()
     nt.assert_is_instance(neuron_sim.neuron, types.ModuleType)
