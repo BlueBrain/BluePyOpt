@@ -60,7 +60,6 @@ class Evaluator(object):
                 Dict of Objective with values calculated by the Evaluator.
 
         """
-        pass
 
     @abstractmethod
     def evaluate_with_lists(self, params):
@@ -75,4 +74,3 @@ class Evaluator(object):
                 List of Objectives with values calculated by the Evaluator.
 
         """
-        pass
