@@ -28,10 +28,17 @@ class Response(object):
     """Response to stimulus"""
 
     def __init__(self, name):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+        """
 
         self.response = None
         self.name = name
+
+    def __str__(self):
+        return '%s: %s' % (self.__class__.__name__, self.name)
 
 
 class TimeVoltageResponse(Response):
@@ -39,7 +46,13 @@ class TimeVoltageResponse(Response):
     """Response to stimulus"""
 
     def __init__(self, name, time=None, voltage=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            time (list of floats): time series
+            voltage (list of floats): voltage series
+        """
 
         super(TimeVoltageResponse, self).__init__(name)
 

@@ -1,5 +1,5 @@
-ephys model API
-====================
+EPhys model API
+===============
 
 .. autosummary::
     :toctree: ephys

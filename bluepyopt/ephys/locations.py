@@ -20,7 +20,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 
 import itertools
-from .importer import neuron
 
 
 class Location(object):
@@ -28,7 +27,11 @@ class Location(object):
     """Location"""
 
     def __init__(self, name):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of the location object
+        """
 
         self.name = name
 
@@ -61,7 +64,14 @@ class NrnSeclistCompLocation(Location):
             seclist_name=None,
             sec_index=None,
             comp_x=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of the object
+            seclist_name (str): name of Neuron section list (ex: 'somatic')
+            sec_index (int): index of the section in the section list
+            comp_x (float): segx (0..1) of segment inside section
+        """
 
         super(NrnSeclistCompLocation, self).__init__(name)
         self.seclist_name = seclist_name
@@ -88,9 +98,13 @@ class NrnSeclistLocation(Location):
     def __init__(
             self,
             name,
-            seclist_name=None,
-            sec_index=None):
-        """Constructor"""
+            seclist_name=None):
+        """Constructor
+
+        Args:
+            name (str): name of the object
+            seclist_name (str): name of NEURON section list (ex: 'somatic')
+        """
 
         super(NrnSeclistLocation, self).__init__(name)
         self.seclist_name = seclist_name
@@ -117,7 +131,13 @@ class NrnSeclistSecLocation(Location):
             name,
             seclist_name=None,
             sec_index=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            seclist_name (str): name of Neuron section list (ex: 'somatic')
+            sec_index (int): index of the section
+        """
 
         super(NrnSeclistSecLocation, self).__init__(name)
         self.seclist_name = seclist_name
@@ -141,7 +161,13 @@ class NrnSomaDistanceCompLocation(Location):
     """Compartment at distance from soma"""
 
     def __init__(self, name, soma_distance=None, seclist_name=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            soma_distance (float): distance from soma to this segment
+            seclist_name (str): name of Neuron section list (ex: 'apical')
+        """
 
         super(NrnSomaDistanceCompLocation, self).__init__(name)
         self.soma_distance = soma_distance
@@ -155,7 +181,7 @@ class NrnSomaDistanceCompLocation(Location):
 
         soma = icell.soma[0]
 
-        neuron.h.distance(0, 0.5, sec=soma)
+        sim.neuron.h.distance(0, 0.5, sec=soma)
 
         iseclist = getattr(icell, self.seclist_name)
 
@@ -163,8 +189,8 @@ class NrnSomaDistanceCompLocation(Location):
         max_diam = 0.0
 
         for isec in iseclist:
-            start_distance = neuron.h.distance(1, 0.0, sec=isec)
-            end_distance = neuron.h.distance(1, 1.0, sec=isec)
+            start_distance = sim.neuron.h.distance(1, 0.0, sec=isec)
+            end_distance = sim.neuron.h.distance(1, 1.0, sec=isec)
 
             min_distance = min(start_distance, end_distance)
             max_distance = max(start_distance, end_distance)

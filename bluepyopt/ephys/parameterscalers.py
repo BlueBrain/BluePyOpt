@@ -19,15 +19,17 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-from .importer import neuron
-
 
 class ParameterScaler(object):
 
     """Parameter scalers"""
 
     def __init__(self, name):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+        """
 
         self.name = name
 
@@ -36,20 +38,26 @@ class ParameterScaler(object):
 
 class NrnSegmentLinearScaler(ParameterScaler):
 
-    """eFEL feature"""
+    """Linear scaler"""
 
     def __init__(
             self,
             name=None,
             multiplier=1.0,
             offset=0.0):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            multiplier (float): slope of the linear scaler
+            offset (float): intercept of the linear scaler
+        """
 
         super(NrnSegmentLinearScaler, self).__init__(name)
         self.multiplier = multiplier
         self.offset = offset
 
-    def scale(self, value, _):
+    def scale(self, value, _, sim=None):
         """Scale a value based on a segment"""
 
         return self.multiplier * value + self.offset
@@ -62,18 +70,26 @@ class NrnSegmentLinearScaler(ParameterScaler):
 
 class NrnSegmentSomaDistanceScaler(ParameterScaler):
 
-    """eFEL feature"""
+    """Scaler based on distance from soma"""
 
     def __init__(
             self,
             name=None,
             distribution=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            distribution (str): distribution of parameter dependent on distance
+                from soma. string should contain `distance` and `value` as
+                placeholders for the distance to the soma and parameter value
+                respectivily
+        """
 
         super(NrnSegmentSomaDistanceScaler, self).__init__(name)
         self.distribution = distribution
 
-    def scale(self, value, segment):
+    def scale(self, value, segment, sim=None):
         """Scale a value based on a segment"""
 
         # TODO soma needs other addressing scheme
@@ -81,9 +97,9 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler):
         soma = segment.sec.cell().soma[0]
 
         # Initialise origin
-        neuron.h.distance(0, 0.5, sec=soma)
+        sim.neuron.h.distance(0, 0.5, sec=soma)
 
-        distance = neuron.h.distance(1, segment.x, sec=segment.sec)
+        distance = sim.neuron.h.distance(1, segment.x, sec=segment.sec)
 
         # Find something to generalise this
         import math  # pylint:disable=W0611 #NOQA

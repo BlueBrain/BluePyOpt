@@ -36,7 +36,11 @@ class Mechanism(object):
     """Base parameter class"""
 
     def __init__(self, name):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+        """
 
         self.name = name
 
@@ -52,7 +56,18 @@ class NrnMODMechanism(Mechanism):
             prefix=None,
             locations=None,
             preloaded=True):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            mod_path (str): path to the MOD file (not used for the moment)
+            prefix (str): prefix of this mechanism in the MOD file
+            locations (list of Locations): a list of Location objects pointing
+                to where this mechanism should be added to.
+            preloaded (bool): should this mechanism be side-loaded by BluePyOpt,
+                or was it already loaded and compiled by the user ?
+                (not used for the moment)
+        """
 
         super(NrnMODMechanism, self).__init__(name)
         self.mod_path = mod_path

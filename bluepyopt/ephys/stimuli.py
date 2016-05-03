@@ -27,21 +27,24 @@ logger = logging.getLogger(__name__)
 class Stimulus(object):
 
     """Stimulus protocol"""
-
-    def __init__(self):
-        """Constructor"""
-        pass
+    pass
 
 
 class NrnCurrentPlayStimulus(Stimulus):
 
-    """Stimulus protocol"""
+    """Current stimulus based on current amplitude and time series"""
 
     def __init__(self,
                  time_points=None,
                  current_points=None,
                  location=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            time_points(): time series (ms)
+            current_points(): current series of injected current amplitudes (nA)
+            location(Location): location of stimulus
+        """
 
         super(NrnCurrentPlayStimulus, self).__init__()
         self.time_points = time_points
@@ -65,10 +68,10 @@ class NrnCurrentPlayStimulus(Stimulus):
             sec=icomp.sec)
         self.current_vec = sim.neuron.h.Vector(self.current_points)
         self.time_vec = sim.neuron.h.Vector(self.time_points)
-        self.iclamp.dur = max(self.time_points)
+        self.iclamp.dur = self.total_duration
         self.iclamp.delay = 0
         self.current_vec.play(
-            self.iclamp._ref_amp,
+            self.iclamp._ref_amp,  # pylint:disable=W0212
             self.time_vec,
             1,
             sec=icomp.sec)
@@ -90,7 +93,7 @@ class NrnCurrentPlayStimulus(Stimulus):
 
 class NrnSquarePulse(Stimulus):
 
-    """Stimulus protocol"""
+    """Square pulse current clamp injection"""
 
     def __init__(self,
                  step_amplitude=None,
@@ -98,7 +101,15 @@ class NrnSquarePulse(Stimulus):
                  step_duration=None,
                  total_duration=None,
                  location=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            step_amplitude (float): amplitude (nA)
+            step_delay (float): delay (ms)
+            step_duration (float): duration (ms)
+            total_duration (float): total duration (ms)
+            location (Location): stimulus Location
+        """
 
         super(NrnSquarePulse, self).__init__()
         self.step_amplitude = step_amplitude

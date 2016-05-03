@@ -23,9 +23,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=W0511
 
 # Not sure code below should go in module or class
-import sys
 import types
-import traceback
 import copy_reg
 import logging
 logger = logging.getLogger(__name__)
@@ -45,8 +43,28 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             fitness_calculator=None,
             isolate_protocols=True,
             sim=None):
-        """Constructor"""
+        """Constructor
 
+        Args:
+            cell_model (ephys.models.CellModel): CellModel object to evaluate
+            param_names (list of str): names of the parameters
+                (parameters will be initialised in this order)
+            fitness_protocols (dict of str -> ephys.protocols.Protocol):
+                protocols used during the fitness evaluation
+            fitness_calculator (ObjectivesCalculator):
+                ObjectivesCalculator object used for the transformation of
+                Responses into Objective objects
+            isolate_protocols (bool): whether to use multiprocessing to
+                isolate the simulations
+                (disabling this could lead to unexpected behavior, and might
+                hinder the reproducability of the simulations)
+            sim (ephys.simulators.NrnSimulator): simulator to use for the cell
+                evaluation
+        """
+
+        super(CellEvaluator, self).__init__(
+            fitness_calculator.objectives,
+            cell_model.params_by_names(param_names))
         self.cell_model = cell_model
         self.param_names = param_names
         # Stimuli used for fitness calculation
@@ -57,22 +75,6 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         self.isolate_protocols = isolate_protocols
 
         self.sim = sim
-
-    @property
-    def objectives(self):
-        """Return objectives"""
-
-        return self.fitness_calculator.objectives
-
-    @property
-    def params(self):
-        """Return params of this evaluation"""
-
-        params = []
-        for param_name in self.param_names:
-            params.append(self.cell_model.params[param_name])
-
-        return params
 
     def param_dict(self, param_array):
         """Convert param_array in param_dict"""
@@ -100,6 +102,8 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         try:
             return protocol.run(self.cell_model, param_values, sim=self.sim)
         except:
+            import sys
+            import traceback
             raise Exception(
                 "".join(
                     traceback.format_exception(*sys.exc_info())))

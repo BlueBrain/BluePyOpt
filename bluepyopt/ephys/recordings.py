@@ -22,7 +22,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 
-from .importer import neuron
 from . import responses
 
 logger = logging.getLogger(__name__)
@@ -30,14 +29,16 @@ logger = logging.getLogger(__name__)
 
 class Recording(object):
 
-    """Response to stimulus"""
+    """Class to represent object that record variables during simulations"""
 
-    def __init__(self, name=None, value=None, frozen=None):
-        """Constructor"""
+    def __init__(self, name=None):
+        """Constructor
+
+        Args:
+            name (str): name of this object
+        """
 
         self.name = name
-        self.value = value
-        self.frozen = frozen
 
 
 class CompRecording(Recording):
@@ -47,13 +48,18 @@ class CompRecording(Recording):
     def __init__(
             self,
             name=None,
-            value=None,
-            frozen=None,
             location=None,
             variable='v'):
-        """Constructor"""
+        """Constructor
 
-        super(CompRecording, self).__init__(name=name, value=value, frozen=frozen)
+        Args:
+            name (str): name of this object
+            location (Location): location in the model of the recording
+            variable (str): which variable to record from (e.g. 'v')
+        """
+
+        super(CompRecording, self).__init__(
+            name=name)
         self.location = location
         self.variable = variable
 
@@ -83,12 +89,12 @@ class CompRecording(Recording):
         logger.debug('Adding compartment recording of %s at %s',
                      self.variable, self.location)
 
-        self.varvector = neuron.h.Vector()
+        self.varvector = sim.neuron.h.Vector()
         seg = self.location.instantiate(sim=sim, icell=icell)
         self.varvector.record(getattr(seg, '_ref_%s' % self.variable))
 
-        self.tvector = neuron.h.Vector()
-        self.tvector.record(neuron.h._ref_t)  # pylint: disable=W0212
+        self.tvector = sim.neuron.h.Vector()
+        self.tvector.record(sim.neuron.h._ref_t)  # pylint: disable=W0212
 
         self.instantiated = True
 

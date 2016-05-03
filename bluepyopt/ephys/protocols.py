@@ -27,10 +27,14 @@ logger = logging.getLogger(__name__)
 
 class Protocol(object):
 
-    """Protocol"""
+    """Class representing a protocol (stimulus and recording)."""
 
     def __init__(self, name=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of the feature
+        """
 
         self.name = name
 
@@ -40,7 +44,13 @@ class SequenceProtocol(Protocol):
     """A protocol consisting of a sequence of other protocols"""
 
     def __init__(self, name=None, protocols=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            protocols (list of Protocols): subprotocols this protocol
+                consists of
+        """
         super(SequenceProtocol, self).__init__(name)
         self.protocols = protocols
 
@@ -61,7 +71,7 @@ class SequenceProtocol(Protocol):
 
 class SweepProtocol(Protocol):
 
-    """Stimulus protocol"""
+    """Sweep protocol"""
 
     def __init__(
             self,
@@ -69,7 +79,16 @@ class SweepProtocol(Protocol):
             stimuli=None,
             recordings=None,
             cvode_active=True):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            stimuli (list of Stimuli): Stimulus objects used in the protocol
+            recordings (list of Recordings): Recording objects used in the
+                protocol
+            cvode_active (bool): whether to use variable time step
+        """
+
         super(SweepProtocol, self).__init__(name)
         self.stimuli = stimuli
         self.recordings = recordings

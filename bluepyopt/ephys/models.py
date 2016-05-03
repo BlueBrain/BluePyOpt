@@ -42,15 +42,21 @@ class CellModel(object):
             morph=None,
             mechs=None,
             params=None):
-        """Constructor"""
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            morph (Morphology):
+                underlying Morphology of the cell
+            mechs (list of Mechanisms):
+                Mechanisms associated with the cell
+            params (list of Parameters):
+                Parameters of the cell model
+        """
 
         self.name = name
-
-        # morphology
         self.morphology = morph
-        # mechanisms
         self.mechanisms = mechs
-        # Model params
         self.params = collections.OrderedDict()
         for param in params:
             self.params[param.name] = param
@@ -59,6 +65,11 @@ class CellModel(object):
         self.icell = None
 
         self.param_values = None
+
+    def params_by_names(self, param_names):
+        """Get parameter objects by name"""
+
+        return [self.params[param_name] for param_name in param_names]
 
     def freeze(self, param_dict):
         """Set params"""
