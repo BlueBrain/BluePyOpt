@@ -56,8 +56,8 @@ class SingletonObjective(EFeatureObjective):
         """Constructor
 
         Args:
-            name(str): name of the objective
-            features(ephys.efeatures.EFeature): feature in the objective
+            name (str): name of this object
+            features (EFeature): single eFeature inside this objective
         """
 
         super(SingletonObjective, self).__init__(name, [feature])
@@ -86,15 +86,15 @@ class MaxObjective(EFeatureObjective):
 
 class WeightedSumObjective(EFeatureObjective):
 
-    """Weighted sum of list of EPhys features"""
+    """Weighted sum of list of eFeatures"""
 
     def __init__(self, name, features, weights):
         """Constructor
 
         Args:
             name (str): name of this object
-            features(list of EFeatures): features in the objective
-            weights(list of float): weights of the features
+            features (list of EFeatures): eFeatures in the objective
+            weights (list of float): weights of the eFeatures
         """
 
         super(WeightedSumObjective, self).__init__(name, features)
