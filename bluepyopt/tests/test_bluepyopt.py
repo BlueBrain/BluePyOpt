@@ -21,10 +21,10 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint:disable=W0612
 
-import types
-import nose.tools as nt
+from nose.plugins.attrib import attr
 
 
+@attr('unit')
 def test_import():
     """bluepyopt: test importing bluepyopt"""
     import bluepyopt  # NOQA

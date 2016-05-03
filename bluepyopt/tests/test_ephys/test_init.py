@@ -21,7 +21,10 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint:disable=W0612
 
+from nose.plugins.attrib import attr
 
+
+@attr('unit')
 def test_import():
     """ephys: test importing bluepyopt.ephys"""
     import bluepyopt.ephys  # NOQA

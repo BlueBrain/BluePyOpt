@@ -28,8 +28,9 @@ import bluepyopt.ephys as ephys
 
 
 @attr('unit')
-def test_stimulus_init():
-    """ephys.stimuli: test if Stimulus constructor works"""
+def test_location_init():
+    """ephys.locations: test if Location works"""
 
-    stim = ephys.stimuli.Stimulus()
-    nt.assert_is_instance(stim, ephys.stimuli.Stimulus)
+    loc = ephys.locations.Location('test')
+    nt.assert_is_instance(loc, ephys.locations.Location)
+    nt.assert_equal(loc.name, 'test')

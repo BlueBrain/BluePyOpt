@@ -23,10 +23,12 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import types
 import nose.tools as nt
+from nose.plugins.attrib import attr
 
 import bluepyopt.ephys as ephys
 
 
+@attr('unit')
 def test_nrnsimulator_init():
     """ephys.simulators: test if NrnSimulator constructor works"""
 
@@ -34,6 +36,7 @@ def test_nrnsimulator_init():
     nt.assert_is_instance(neuron_sim, ephys.simulators.NrnSimulator)
 
 
+@attr('unit')
 def test_neuron_import():
     """ephys.simulators: test if bluepyopt.neuron import was successful"""
     from bluepyopt import ephys  # NOQA
