@@ -44,6 +44,9 @@ archivePrefix = "arXiv",
     month = mar
 }
 ```
+Support
+=======
+We are providing support using a chat channel on [Gitter](https://gitter.im/BlueBrain/BluePyOpt).
 
 News
 ====
