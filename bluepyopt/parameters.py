@@ -84,7 +84,7 @@ class Parameter(object):
         """Check if parameter is within bounds"""
         if self.bounds and self._value is not None:
             if not self.lower_bound <= self._value <= self.upper_bound:
-                raise Exception(
+                raise ValueError(
                     'Parameter %s has value %s outside of bounds [%s, %s]' %
                     (self.name, self._value, str(self.lower_bound),
                      str(self.upper_bound)))
