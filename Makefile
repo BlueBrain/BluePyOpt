@@ -73,3 +73,5 @@ l5pc_analyse: install
 push: clean test doc_upload
 	git push
 	git push --tags
+check_codecov:
+	cat codecov.yml | curl --data-binary @- https://codecov.io/validate
