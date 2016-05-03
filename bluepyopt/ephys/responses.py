@@ -31,7 +31,7 @@ class Response(object):
         """Constructor
 
         Args:
-            name(str): name of the feature
+            name (str): name of this object
         """
 
         self.response = None
@@ -49,9 +49,9 @@ class TimeVoltageResponse(Response):
         """Constructor
 
         Args:
-            name(str): name of the feature
-            time(iterable of float): times of observations
-            voltage(iterable of float): voltages at observation times
+            name (str): name of this object
+            time (list of floats): time series
+            voltage (list of floats): voltage series
         """
 
         super(TimeVoltageResponse, self).__init__(name)
