@@ -41,7 +41,11 @@ class NrnFileMorphology(Morphology):
 
     """Morphology loaded from a file"""
 
-    def __init__(self, morphology_path, do_replace_axon=False):
+    def __init__(
+            self,
+            morphology_path,
+            do_replace_axon=False,
+            do_set_nseg=True):
         """Constructor
 
         Args:
@@ -56,6 +60,7 @@ class NrnFileMorphology(Morphology):
         # Path to morphology
         self.morphology_path = morphology_path
         self.do_replace_axon = do_replace_axon
+        self.do_set_nseg = do_set_nseg
 
     def __str__(self):
         """Return string representation"""
@@ -68,10 +73,11 @@ class NrnFileMorphology(Morphology):
         logger.debug('Loading morphology %s', self.morphology_path)
 
         if not os.path.exists(self.morphology_path):
-            raise Exception(
+            raise IOError(
                 'Morphology not found at \'%s\'' %
                 self.morphology_path)
 
+        sim.neuron.h.load_file('stdrun.hoc')
         sim.neuron.h.load_file('import3d.hoc')
 
         extension = self.morphology_path.split('.')[-1]
@@ -81,7 +87,7 @@ class NrnFileMorphology(Morphology):
         elif extension.lower() == 'asc':
             imorphology = sim.neuron.h.Import3d_Neurolucida3()
         else:
-            raise Exception("Unknown filetype: %s" % extension)
+            raise ValueError("Unknown filetype: %s" % extension)
 
         # TODO this is to get rid of stdout print of neuron
         # probably should be more intelligent here, and filter out the
@@ -97,7 +103,8 @@ class NrnFileMorphology(Morphology):
         # TODO Set nseg should be called after all the parameters have been
         # set
         # (in case e.g. Ra was changed)
-        NrnFileMorphology.set_nseg(icell)
+        if self.do_set_nseg:
+            NrnFileMorphology.set_nseg(icell)
 
         # TODO replace these two functions with general function users can
         # specify
