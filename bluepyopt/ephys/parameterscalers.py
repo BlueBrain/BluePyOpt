@@ -28,7 +28,7 @@ class ParameterScaler(object):
         """Constructor
 
         Args:
-            name(str): name of the parameter scaler
+            name (str): name of this object
         """
 
         self.name = name
@@ -38,7 +38,7 @@ class ParameterScaler(object):
 
 class NrnSegmentLinearScaler(ParameterScaler):
 
-    """eFEL feature"""
+    """Linear scaler"""
 
     def __init__(
             self,
@@ -48,9 +48,9 @@ class NrnSegmentLinearScaler(ParameterScaler):
         """Constructor
 
         Args:
-            name(str): name of the parameter scaler
-            multiplier(float): slope of the intercept of the linear scaler
-            offset(float): intercept of the linear scaler
+            name (str): name of this object
+            multiplier (float): slope of the linear scaler
+            offset (float): intercept of the linear scaler
         """
 
         super(NrnSegmentLinearScaler, self).__init__(name)
@@ -70,7 +70,7 @@ class NrnSegmentLinearScaler(ParameterScaler):
 
 class NrnSegmentSomaDistanceScaler(ParameterScaler):
 
-    """eFEL feature"""
+    """Scaler based on distance from soma"""
 
     def __init__(
             self,
@@ -79,8 +79,11 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler):
         """Constructor
 
         Args:
-            name (str): name of the object
-            distribution (str): eval'd string with `distance` and `value`
+            name (str): name of this object
+            distribution (str): distribution of parameter dependent on distance
+                from soma. string should contain `distance` and `value` as
+                placeholders for the distance to the soma and parameter value
+                respectivily
         """
 
         super(NrnSegmentSomaDistanceScaler, self).__init__(name)
