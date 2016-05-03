@@ -8,7 +8,19 @@
 Introduction
 ============
 
-The Blue Brain Python Optimisation Library (BluePyOpt) is an extensible framework for data-driven model parameter optimisation that wraps and standardises several existing open-source tools. It simplifies the task of creating and sharing these optimisations, and the associated techniques and knowledge. This is achieved by abstracting the optimisation and evaluation tasks into various reusable and flexible discrete elements according to established best-practices. Further, BluePyOpt provides methods for setting up both small- and large-scale optimisations on a variety of platforms, ranging from laptops to Linux clusters and cloud-based compute infrastructures. 
+The Blue Brain Python Optimisation Library (BluePyOpt) is an extensible 
+framework for data-driven model parameter optimisation that wraps and 
+standardises several existing open-source tools. 
+
+It simplifies the task of creating and sharing these optimisations, 
+and the associated techniques and knowledge. 
+This is achieved by abstracting the optimisation and evaluation tasks 
+into various reusable and flexible discrete elements according to established 
+best-practices. 
+
+Further, BluePyOpt provides methods for setting up both small- and large-scale 
+optimisations on a variety of platforms, 
+ranging from laptops to Linux clusters and cloud-based compute infrastructures. 
 
 Citation
 ========
@@ -35,6 +47,7 @@ archivePrefix = "arXiv",
 
 News
 ====
+- 2016/05/03: The API documentation was moved to [ReadTheDocs](http://bluepyopt.readthedocs.io/en/latest/)
 - 2016/04/20: BluePyOpt now contains the code of the IBEA selector, no need to install a BBP-specific version of DEAP anymore
 - 2016/03/24: Released version 1.0
 
@@ -102,4 +115,4 @@ http://mybinder.org/repo/BlueBrain/BluePyOpt/examples/l5pc/L5PC.ipynb
 
 API documentation
 ==================
-The API documentation can be found [here](http://bluebrain.github.io/BluePyOpt)
+The API documentation can be found on [ReadTheDocs](http://bluepyopt.readthedocs.io/en/latest/).

@@ -4,14 +4,6 @@ install:
 doc: install
 	pip install -q sphinx sphinx-autobuild
 	cd docs; $(MAKE) clean; $(MAKE) html
-doc_upload: doc
-	cd docs/build/html && \
-	touch .nojekyll && \
-	git init . && \
-	git add . && \
-	git commit -m "Updating docs" && \
-	git push "git@github.com:BlueBrain/BluePyOpt.git" master:gh-pages --force && \
-	rm -rf .git	
 docopen: doc
 	open docs/build/html/index.html
 docpdf: install
@@ -70,7 +62,7 @@ l5pc_analyse: install
 	cd examples/l5pc && \
 	nrnivmodl mechanisms && \
 	python ./opt_l5pc.py --analyse
-push: clean test doc_upload
+push: clean test
 	git push
 	git push --tags
 check_codecov:
