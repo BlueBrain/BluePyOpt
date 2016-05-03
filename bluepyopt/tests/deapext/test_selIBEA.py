@@ -1,44 +1,18 @@
 """selIBEA tests"""
 
 import numpy as np
-from nose.tools import ok_
-from nose.plugins.attrib import attr
+from nose.tools import ok_, eq_
 
-from bluepyopt.deapext.tools.selIBEA import _calc_fitness_components
-
-
-def make_population():
-    """Make population"""
-    # TODO: Use mock instead
-    class Individual(object):
-
-        """Individual"""
-
-        class Fitness(object):
-
-            """Fitness"""
-
-            def __init__(self, wvalues):
-                self.wvalues = wvalues
-
-        def __init__(self, wvalues):
-            self.fitness = Individual.Fitness(wvalues)
-
-    FEATURES_COUNT = 5
-    POPULATION_COUNT = 5
-    MU, SIGMA = 0, 1
-    np.random.seed(0)
-
-    return [Individual(np.random.normal(MU, SIGMA, FEATURES_COUNT))
-            for _ in range(POPULATION_COUNT)]
-
+from bluepyopt.deapext.tools.selIBEA import (_calc_fitness_components,
+                                             _mating_selection,
+                                             )
+from utils import make_mock_population
 
 @attr('unit')
 def test_calc_fitness_components():
     """selIBEA: test calc_fitness_components"""
     KAPPA = 0.05
-
-    population = make_population()
+    population = make_mock_population()
 
     components = _calc_fitness_components(population, kappa=KAPPA)
 
@@ -57,3 +31,12 @@ def test_calc_fitness_components():
         ])
 
     ok_(np.allclose(expected, components))
+
+
+def test_mating_selection():
+    PARENT_COUNT = 10
+    population = make_mock_population()
+    parents = _mating_selection(population, PARENT_COUNT, 5)
+    eq_(len(parents), PARENT_COUNT)
+    expected = [1, 1, 1, 1, 1, 0, 1, 0, 0, 0]
+    eq_(expected, [ind.ibea_fitness for ind in parents])

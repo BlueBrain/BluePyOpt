@@ -104,12 +104,13 @@ def _mating_selection(population, mu, tournament_n):
 
     parents = []
     for _ in xrange(mu):
-        # Pick individuals for tournament
-        tournament = [random.choice(population) for _ in range(tournament_n)]
-        # Sort according to fitness
-        tournament.sort(key=lambda ind: ind.ibea_fitness)
-        # Winner is element with smallest fitness
-        parents.append(tournament[0])
+        winner = random.choice(population)
+        for _ in xrange(tournament_n - 1):
+            individual = random.choice(population)
+            # Save winner is element with smallest fitness
+            if individual.ibea_fitness < winner.ibea_fitness:
+                winner = individual
+        parents.append(winner)
 
     return parents
 

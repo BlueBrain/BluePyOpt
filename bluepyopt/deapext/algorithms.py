@@ -25,7 +25,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import random
 import logging
 
-import deap
 import deap.algorithms
 import deap.tools
 import pickle
@@ -33,11 +32,47 @@ import pickle
 logger = logging.getLogger('__main__')
 
 
+def _evaluate_invalid_fitness(toolbox, population):
+    '''Evaluate the individuals with an invalid fitness
+
+    Returns the count of individuals with invalid fitness
+    '''
+    invalid_ind = [ind for ind in population if not ind.fitness.valid]
+    fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+    for ind, fit in zip(invalid_ind, fitnesses):
+        ind.fitness.values = fit
+
+    return len(invalid_ind)
+
+
+def _update_history_and_hof(halloffame, history, population):
+    '''Update the hall of fame with the generated individuals
+
+    Note: History and Hall-of-Fame behave like dictionaries
+    '''
+    if halloffame is not None:
+        halloffame.update(population)
+
+    history.update(population)
+
+
+def _record_stats(stats, logbook, gen, population, invalid_count):
+    '''Update the statistics with the new population'''
+    record = stats.compile(population) if stats is not None else {}
+    logbook.record(gen=gen, nevals=invalid_count, **record)
+
+
+def _get_offspring(parents, toolbox, cxpb, mutpb):
+    '''return the offsprint, use toolbox.variate if possible'''
+    if hasattr(toolbox, 'variate'):
+        return toolbox.variate(parents, toolbox, cxpb, mutpb)
+    return deap.algorithms.varAnd(parents, toolbox, cxpb, mutpb)
+
+
 def eaAlphaMuPlusLambdaCheckpoint(
         population,
         toolbox,
         mu,
-        _,
         cxpb,
         mutpb,
         ngen,
@@ -46,7 +81,21 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cp_frequency=1,
         cp_filename=None,
         continue_cp=False):
-    r"""This is the :math:`(~\alpha,\mu~,~\lambda)` evolutionary algorithm."""
+    r"""This is the :math:`(~\alpha,\mu~,~\lambda)` evolutionary algorithm
+
+    Args:
+        population(list of deap Individuals)
+        toolbox(deap Toolbox)
+        mu(int): Total parent population size of EA
+        cxpb(float): Crossover probability
+        mutpb(float): Mutation probability
+        ngen(int): Total number of generation to run
+        stats(deap.tools.Statistics): generation of statistics
+        halloffame(deap.tools.HallOfFame): hall of fame
+        cp_frequency(int): generations between checkpoints
+        cp_filename(string): path to checkpoint filename
+        continue_cp(bool): whether to continue
+    """
 
     if continue_cp:
         # A file name has been given, then load the data from the file
@@ -67,70 +116,35 @@ def eaAlphaMuPlusLambdaCheckpoint(
         history = deap.tools.History()
 
         # TODO this first loop should be not be repeated !
-
-        # Evaluate the individuals with an invalid fitness
-        invalid_ind = [ind for ind in population if not ind.fitness.valid]
-        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-        for ind, fit in zip(invalid_ind, fitnesses):
-            ind.fitness.values = fit
-
-        record = stats.compile(population) if stats is not None else {}
-        logbook.record(gen=start_gen, nevals=len(invalid_ind), **record)
-
-        # Update the hall of fame with the generated individuals
-        if halloffame is not None:
-            halloffame.update(population)
-
-        if history is not None:
-            history.update(population)
-
-    # if history is not None:
-    #    toolbox.decorate("mate", history.decorator)
-    #    toolbox.decorate("mutate", history.decorator)
+        invalid_count = _evaluate_invalid_fitness(toolbox, population)
+        _update_history_and_hof(halloffame, history, population)
+        _record_stats(stats, logbook, start_gen, population, invalid_count)
 
     # Begin the generational process
     for gen in range(start_gen + 1, ngen + 1):
-        # Vary the parents
-        if hasattr(toolbox, 'variate'):
-            offspring = toolbox.variate(parents, toolbox, cxpb, mutpb)
-        else:
-            offspring = deap.algorithms.varAnd(parents, toolbox, cxpb, mutpb)
+        offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
-        population[:] = parents + offspring
+        population = parents + offspring
 
-        # Evaluate the individuals with an invalid fitness
-        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-
-        for ind, fit in zip(invalid_ind, fitnesses):
-            ind.fitness.values = fit
-
-        # Update the hall of fame with the generated individuals
-        if halloffame is not None:
-            halloffame.update(offspring)
-
-        if history is not None:
-            history.update(offspring)
+        invalid_count = _evaluate_invalid_fitness(toolbox, offspring)
+        _update_history_and_hof(halloffame, history, population)
+        _record_stats(stats, logbook, gen, population, invalid_count)
 
         # Select the next generation parents
-        parents[:] = toolbox.select(population, mu)
-
-        # Update the statistics with the new population
-        record = stats.compile(population) if stats is not None else {}
-        logbook.record(gen=gen, nevals=len(invalid_ind), **record)
+        parents = toolbox.select(population, mu)
 
         logger.info(logbook.stream)
 
-        if cp_filename and cp_frequency:
-            if gen % cp_frequency == 0:
-                cp = dict(population=population, generation=gen,
-                          parents=parents,
-                          halloffame=halloffame,
-                          history=history,
-                          logbook=logbook, rndstate=random.getstate())
-                pickle.dump(
-                    cp,
-                    open(cp_filename, "wb"))
-                logger.debug('Wrote checkpoint to %s', cp_filename)
+        if(cp_filename and cp_frequency and
+           gen % cp_frequency == 0):
+            cp = dict(population=population,
+                      generation=gen,
+                      parents=parents,
+                      halloffame=halloffame,
+                      history=history,
+                      logbook=logbook,
+                      rndstate=random.getstate())
+            pickle.dump(cp, open(cp_filename, "wb"))
+            logger.debug('Wrote checkpoint to %s', cp_filename)
 
     return population, logbook, history

@@ -221,42 +221,24 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         elif self.map_function:
             self.toolbox.register("map", self.map_function)
 
-    def run(
-            self,
+    def run(self,
             max_ngen=10,
             offspring_size=None,
             continue_cp=False,
             cp_filename=None,
             cp_frequency=1):
         """Run optimisation"""
-
         # Allow run function to override offspring_size
         # TODO probably in the future this should not be an object field anymore
         # keeping for backward compatibility
         if offspring_size is None:
             offspring_size = self.offspring_size
 
-        # Total number of generation to run
-        NGEN = max_ngen
-
-        # Crossover, mutation probabilities
-        CXPB = self.cxpb
-        MUTPB = self.mutpb
-
-        # Total population size of EA
-        # ALPHA = POP_SIZE
-        # Total parent population size of EA
-        MU = offspring_size
-        # Total offspring size of EA
-        # LAMBDA = OFFSPRING_SIZE
-
         # Generate the population object
-        pop = self.toolbox.population(n=MU)
-
+        pop = self.toolbox.population(n=offspring_size)
         hof = deap.tools.HallOfFame(10)
 
         stats = deap.tools.Statistics(key=lambda ind: ind.fitness.sum)
-
         import numpy
         stats.register("avg", numpy.mean)
         stats.register("std", numpy.std)
@@ -266,11 +248,10 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         pop, log, history = algorithms.eaAlphaMuPlusLambdaCheckpoint(
             pop,
             self.toolbox,
-            MU,
-            None,
-            CXPB,
-            MUTPB,
-            NGEN,
+            offspring_size,
+            self.cxpb,
+            self.mutpb,
+            max_ngen,
             stats=stats,
             halloffame=hof,
             cp_frequency=cp_frequency,
