@@ -1,8 +1,8 @@
 all: install
 install:
-	pip install -r requirements.txt . --upgrade
+	pip install -q . --upgrade
 doc: install
-	pip install sphinx sphinx-autobuild
+	pip install -q sphinx sphinx-autobuild
 	cd docs; $(MAKE) clean; $(MAKE) html
 doc_upload: doc
 	cd docs/build/html && \
@@ -26,7 +26,7 @@ l5pc_nrnivmodl:
 	cd examples/l5pc && nrnivmodl mechanisms
 l5pc_zip:
 	cd examples/l5pc && \
-		zip -r l5_config.zip config/ morphology/ mechanisms/ l5pc_model.py l5pc_evaluator.py checkpoints/checkpoint.pkl	
+		zip -qr l5_config.zip config/ morphology/ mechanisms/ l5pc_model.py l5pc_evaluator.py checkpoints/checkpoint.pkl	
 l5pc_prepare: l5pc_zip l5pc_nbconvert l5pc_nrnivmodl
 sc_prepare: jupyter
 	cd examples/simplecell && \
@@ -34,10 +34,15 @@ sc_prepare: jupyter
 		sed '/get_ipython/d;/plt\./d;/plot_responses/d;/import matplotlib/d' simplecell.py >simplecell.tmp && \
 		mv simplecell.tmp simplecell.py
 jupyter:
-	pip install jupyter
-test: install clean l5pc_prepare sc_prepare
-	pip install nose coverage --upgrade
-	cd bluepyopt/tests; nosetests -s -v -x --with-coverage --cover-xml \
+	pip install -q jupyter
+install_nose_coverage:
+	pip install -q nose coverage --upgrade
+test: clean unit functional
+unit: install install_nose_coverage
+	cd bluepyopt/tests; nosetests -a 'unit' -s -v -x --with-coverage --cover-xml \
+		--cover-package bluepyopt
+functional: install install_nose_coverage l5pc_prepare sc_prepare
+	cd bluepyopt/tests; nosetests -a '!unit' -s -v -x --with-coverage --cover-xml \
 		--cover-package bluepyopt
 pypi: test
 	pip install twine --upgrade
@@ -50,6 +55,8 @@ example: install
 clean:
 	rm -rf build
 	rm -rf docs/build
+	rm -rf bluepyopt/tests/.coverage
+	rm -rf bluepyopt/tests/coverage.xml
 	find . -name "*.pyc" -exec rm -rf {} \;
 l5pc_start: install
 	cd examples/l5pc && \

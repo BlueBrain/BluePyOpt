@@ -1,4 +1,4 @@
-"""Tests of the main bluepyopt module"""
+"""bluepy.ephys test"""
 
 """
 Copyright (c) 2016, EPFL/Blue Brain Project
@@ -26,5 +26,5 @@ from nose.plugins.attrib import attr
 
 @attr('unit')
 def test_import():
-    """bluepyopt: test importing bluepyopt"""
-    import bluepyopt  # NOQA
+    """ephys: test importing bluepyopt.ephys"""
+    import bluepyopt.ephys  # NOQA

@@ -1,0 +1,89 @@
+"""bluepyopt.ephys.simulators tests"""
+
+"""
+Copyright (c) 2016, EPFL/Blue Brain Project
+
+ This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
+
+ This library is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Lesser General Public License version 3.0 as published
+ by the Free Software Foundation.
+
+ This library is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this library; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+
+# pylint:disable=W0612, W0201
+
+import nose.tools as nt
+from nose.plugins.attrib import attr
+
+import bluepyopt.ephys as ephys
+
+
+@attr('unit')
+def test_location_init():
+    """ephys.locations: test if Location works"""
+
+    loc = ephys.locations.Location('test')
+    nt.assert_is_instance(loc, ephys.locations.Location)
+    nt.assert_equal(loc.name, 'test')
+
+
+@attr('unit')
+class TestNrnSomaDistanceCompLocation(object):
+
+    """Test class for NrnSomaDistanceCompLocation"""
+
+    def __init__(self):
+        """Constructor"""
+        self.loc = None
+        self.sim = None
+
+    def setup(self):
+        """Setup"""
+        self.loc = ephys.locations.NrnSomaDistanceCompLocation(
+            'test',
+            125,
+            'testdend')
+        nt.assert_equal(self.loc.name, 'test')
+        self.sim = ephys.simulators.NrnSimulator()
+
+    def test_instantiate(self):
+        """ephys.locations.NrnSomaDistanceCompLocation: test instantiate"""
+
+        # Create a little test class with a soma and two dendritic sections
+        class Cell(object):
+
+            """Cell class"""
+            pass
+        cell = Cell()
+        soma = self.sim.neuron.h.Section()
+        cell.soma = [soma]
+        cell.testdend = self.sim.neuron.h.SectionList()
+        dend1 = self.sim.neuron.h.Section(name='dend1')
+        dend2 = self.sim.neuron.h.Section(name='dend2')
+
+        cell.testdend.append(sec=dend1)
+        cell.testdend.append(sec=dend2)
+
+        nt.assert_raises(Exception,
+                         self.loc.instantiate,
+                         sim=self.sim,
+                         icell=cell)
+
+        dend1.connect(soma(0.5), 0.0)
+        dend2.connect(dend1(1.0), 0.0)
+
+        comp = self.loc.instantiate(sim=self.sim, icell=cell)
+        nt.assert_equal(comp, dend2(0.5))
+
+    def teardown(self):
+        """Teardown"""
+        pass
