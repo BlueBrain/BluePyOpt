@@ -27,22 +27,19 @@ Citation
 
 When you use the BluePyOpt software or method for your research, we ask you to cite the following Arxiv preprint in your publications:
 
-[Van Geit, W., M. Gevaert, G. Chindemi, C. Rössert, J.-D. Courcol, E. Muller, F. Schürmann, I. Segev, and H. Markram (2016, March). BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience. ArXiv e-prints.](http://arxiv.org/abs/1603.00500)
+[Van Geit W, Gevaert M, Chindemi G, Rössert C, Courcol J, Muller EB, Schürmann F, Segev I and Markram H (2016). BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience. Front. Neuroinform. 10:17. doi: 10.3389/fninf.2016.00017](http://www.frontiersin.org/neuroinformatics/10.3389/fninf.2016.00017/abstract)
 
 ```bibtex
 @ARTICLE{bluepyopt,
-   author = {{Van Geit}, W. and {Gevaert}, M. and {Chindemi}, G. and {R{\"o}ssert}, C. and 
-	{Courcol}, J.-D. and {Muller}, E. and {Sch{\"u}rmann}, F. and 
-	{Segev}, I. and {Markram}, H.},
-    title = "{BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience}",
-  journal = {ArXiv e-prints},
-archivePrefix = "arXiv",
-   eprint = {1603.00500},
- primaryClass = "q-bio.NC",
- keywords = {Quantitative Biology - Neurons and Cognition},
-     year = 2016,
-    month = mar
-}
+ AUTHOR={Van Geit, Werner  and  Gevaert, Michael  and  Chindemi, Giuseppe  and  Rössert, Christian  and  Courcol, Jean-Denis  and  Muller, Eilif Benjamin  and  Schürmann, Felix  and  Segev, Idan  and  Markram, Henry},
+TITLE={BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience},
+JOURNAL={Frontiers in Neuroinformatics},
+VOLUME={10},
+YEAR={2016},
+NUMBER={17},
+URL={http://www.frontiersin.org/neuroinformatics/10.3389/fninf.2016.00017/abstract},
+DOI={10.3389/fninf.2016.00017},
+ISSN={1662-5196}}
 ```
 Support
 =======
