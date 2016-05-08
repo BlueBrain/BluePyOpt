@@ -134,21 +134,22 @@ def plot_dt_scan(best_ind_dict, good_solutions, dt, sg, stderr):
             60.0, prot_id='%.2fms' % model_dt)
         model_sg = stdputil.protocol_outcome(protocol, best_ind_dict)
         sg_vec.append(model_sg)
-    """
-    sg_good_sol_vec = []
-    for i, good_sol in enumerate(good_solutions):
-        #print(len(good_solutions), i)
-        sg_ind = []
-        for model_dt in dt_vec:
-            protocol = stdputil.Protocol(
-                ['pre', 'post', 'post', 'post'], [model_dt, 20e-3, 20e-3], 0.1,
-                60.0, prot_id='%.2fms' % model_dt)
-            model_sg = stdputil.protocol_outcome(protocol, good_sol)
-            sg_ind.append(model_sg)
-        sg_good_sol_vec.append(sg_ind)
-    pickle.dump(sg_good_sol_vec, open( "sg_good_sol_vec.pkl", "wb" ))
-    """
-    sg_good_sol_vec = pickle.load(open( "sg_good_sol_vec.pkl", "rb" ))
+
+    try:
+        sg_good_sol_vec = pickle.load(open( "sg_good_sol_vec.pkl", "rb" ))
+    except IOError:
+        sg_good_sol_vec = []
+        for i, good_sol in enumerate(good_solutions):
+            #print(len(good_solutions), i)
+            sg_ind = []
+            for model_dt in dt_vec:
+                protocol = stdputil.Protocol(
+                    ['pre', 'post', 'post', 'post'], [model_dt, 20e-3, 20e-3],
+                    0.1, 60.0, prot_id='%.2fms' % model_dt)
+                model_sg = stdputil.protocol_outcome(protocol, good_sol)
+                sg_ind.append(model_sg)
+            sg_good_sol_vec.append(sg_ind)
+        pickle.dump(sg_good_sol_vec, open( "sg_good_sol_vec.pkl", "wb" ))
         
     fig3, ax3 = plt.subplots(figsize=(10, 10), facecolor='white')
     ax3.set_rasterization_zorder(1) 
