@@ -28,6 +28,7 @@ import logging
 import deap.algorithms
 import deap.tools
 import pickle
+import numpy
 
 logger = logging.getLogger('__main__')
 
@@ -69,6 +70,14 @@ def _get_offspring(parents, toolbox, cxpb, mutpb):
     return deap.algorithms.varAnd(parents, toolbox, cxpb, mutpb)
 
 
+def _get_elite(halloffame, nelite):
+    if nelite > 0 and halloffame is not None:
+        normsorted_idx = numpy.argsort([ind.fitness.norm for ind in halloffame])
+        # Return nelite best individuals
+        return [halloffame[idx] for idx in normsorted_idx[:nelite]]
+    return list()
+
+
 def eaAlphaMuPlusLambdaCheckpoint(
         population,
         toolbox,
@@ -78,6 +87,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         ngen,
         stats=None,
         halloffame=None,
+        nelite=0,
         cp_frequency=1,
         cp_filename=None,
         continue_cp=False):
@@ -92,6 +102,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         ngen(int): Total number of generation to run
         stats(deap.tools.Statistics): generation of statistics
         halloffame(deap.tools.HallOfFame): hall of fame
+        nelite(int): Total number of individuals added to population at every
+                     generation from hall of fame
         cp_frequency(int): generations between checkpoints
         cp_filename(string): path to checkpoint filename
         continue_cp(bool): whether to continue
@@ -131,7 +143,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         _record_stats(stats, logbook, gen, population, invalid_count)
 
         # Select the next generation parents
-        parents = toolbox.select(population, mu)
+        parents = toolbox.select(population + _get_elite(halloffame, nelite), mu)
 
         logger.info(logbook.stream)
 

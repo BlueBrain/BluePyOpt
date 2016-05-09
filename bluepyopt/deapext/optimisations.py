@@ -25,6 +25,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import random
 import logging
 import functools
+import numpy
 
 import deap
 import deap.base
@@ -62,6 +63,11 @@ class WeightedSumFitness(deap.base.Fitness):
         """Weighted sum of values"""
         return sum(self.values)
 
+    @property
+    def norm(self):
+        """Frobenius norm of values"""
+        return numpy.linalg.norm(self.values)
+
     def __le__(self, other):
         return self.weighted_sum <= other.weighted_sum
 
@@ -96,6 +102,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
                  use_scoop=False,
                  seed=1,
                  offspring_size=10,
+                 elite_size=0,
                  eta=10,
                  mutpb=1.0,
                  cxpb=1.0,
@@ -107,6 +114,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         self.use_scoop = use_scoop
         self.seed = seed
         self.offspring_size = offspring_size
+        self.elite_size = elite_size
         self.eta = eta
         self.cxpb = cxpb
         self.mutpb = mutpb
@@ -254,6 +262,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             max_ngen,
             stats=stats,
             halloffame=hof,
+            nelite=self.elite_size,
             cp_frequency=cp_frequency,
             continue_cp=continue_cp,
             cp_filename=cp_filename)
