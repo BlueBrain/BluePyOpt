@@ -228,7 +228,7 @@ class NrnRangeParameter(NrnParameter):
 
         for location in self.locations:
             for isection in location.instantiate(sim=sim, icell=icell):
-                for seg in isection:
+                for seg in isection.allseg():
                     setattr(seg, '%s' % self.param_name,
                             self.value_scale_func(self.value, seg, sim=sim))
         logger.debug(

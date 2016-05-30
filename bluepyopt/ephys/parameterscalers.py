@@ -97,16 +97,17 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler):
         soma = segment.sec.cell().soma[0]
 
         # Initialise origin
-        sim.neuron.h.distance(0, 0.5, sec=soma)
+        sim.neuron.h.distance(0, 0, sec=soma)
 
         distance = sim.neuron.h.distance(1, segment.x, sec=segment.sec)
+        #match current templates by having distance truncated by using %g formatting
+        distance = float('%g' % distance)
 
         # Find something to generalise this
         import math  # pylint:disable=W0611 #NOQA
 
         # This eval is unsafe (but is it ever dangerous ?)
         # pylint: disable=W0123
-
         return eval(self.distribution.format(distance=distance, value=value))
 
     def __str__(self):
