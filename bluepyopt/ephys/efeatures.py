@@ -95,16 +95,17 @@ class eFELFeature(EFeature):
 
         return trace
 
-    def calculate_feature(self, responses):
+    def calculate_feature(self, responses, raise_warnings=False):
         """Calculate feature value"""
 
         efel_trace = self._construct_efel_trace(responses)
 
         import efel
-        return efel.getMeanFeatureValues(
+        values = efel.getMeanFeatureValues(
             [efel_trace],
             [self.efel_feature_name],
-            raise_warnings=False)[0][self.efel_feature_name]
+            raise_warnings=raise_warnings)
+        return values[0][self.efel_feature_name]
 
     def calculate_score(self, responses):
         """Calculate the score"""
