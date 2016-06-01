@@ -63,7 +63,7 @@ class TimeVoltageResponse(Response):
     def read_csv(self, filename):
         """Load response from csv file"""
 
-        self.response.read_csv(filename)
+        self.response = pandas.read_csv(filename)
 
     def to_csv(self, filename):
         """Write response to csv file"""
