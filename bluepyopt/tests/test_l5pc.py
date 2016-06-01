@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from StringIO import StringIO
 
 import nose.tools as nt
+from nose.plugins.attrib import attr
 
 L5PC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '../../examples/l5pc'))
@@ -124,6 +125,7 @@ class TestL5PCEvaluator(object):
             self.l5pc_evaluator,
             bluepyopt.ephys.evaluators.CellEvaluator)
 
+    @attr('slow')
     def test_eval(self):
         """L5PC: test evaluation of l5pc evaluator"""
 
@@ -156,7 +158,7 @@ def stdout_redirector(stream):
     finally:
         sys.stdout = old_stdout
 
-
+@attr('slow')
 def test_exec():
     """L5PC Notebook: test execution"""
     old_cwd = os.getcwd()
