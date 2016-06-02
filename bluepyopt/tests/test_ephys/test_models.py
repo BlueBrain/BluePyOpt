@@ -1,20 +1,24 @@
+"""Test ephys model objects"""
+
 import os
 import tempfile
 
 from os.path import join as joinp
 
-from nose.tools import eq_, ok_
-from mock import Mock
+import nose.tools as nt
+import mock
 
 from contextlib import contextmanager
 
-from bluepyopt.ephys import models
+import bluepyopt.ephys as ephys
 
 import neuron
 
+
 @contextmanager
-def yeild_blank_hoc(template_name):
-    hoc_template = models.create_empty_template(template_name)
+def yield_blank_hoc(template_name):
+    """Create blank hoc template"""
+    hoc_template = ephys.models.create_empty_template(template_name)
     temp_file = tempfile.NamedTemporaryFile(suffix='test_models')
     with temp_file as fd:
         fd.write(hoc_template)
@@ -23,46 +27,53 @@ def yeild_blank_hoc(template_name):
 
 
 def test_create_empty_template():
+    """Test creation of empty template"""
     template_name = 'FakeTemplate'
-    hoc_template = models.create_empty_template(template_name)
+    hoc_template = ephys.models.create_empty_template(template_name)
     neuron.h(hoc_template)
-    ok_(hasattr(neuron.h, template_name))
+    nt.ok_(hasattr(neuron.h, template_name))
 
 
 def test_model():
-    model = models.Model('test_model')
+    """Test Model class"""
+    model = ephys.models.Model('test_model')
     model.instantiate(sim=None)
     model.destroy(sim=None)
 
-    ok_(isinstance(model, models.Model))
+    nt.ok_(isinstance(model, ephys.models.Model))
 
 
 def test_load_hoc_template():
-    sim = Mock()
+    """Test loading of hoc template"""
+    sim = mock.Mock()
     sim.neuron = neuron
 
     template_name = 'test_load_hoc'
-    with yeild_blank_hoc(template_name) as hoc_path:
-        models.load_hoc_template(sim, hoc_path)
-    ok_(hasattr(neuron.h, template_name))
+    with yield_blank_hoc(template_name) as hoc_path:
+        ephys.models.load_hoc_template(sim, hoc_path)
+    nt.ok_(hasattr(neuron.h, template_name))
 
 
 def test_HocCellModel():
-    sim = Mock()
+    """Test HOCCellModel class"""
+    sim = mock.Mock()
     sim.neuron = neuron
 
     testdata_dir = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
     morphology_path = joinp(testdata_dir, 'simple.swc')
     template_name = 'test_HocCellModel'
-    with yeild_blank_hoc(template_name) as hoc_path:
-        hoc_cell = models.HocCellModel('test_hoc_model', morphology_path, hoc_path)
+    with yield_blank_hoc(template_name) as hoc_path:
+        hoc_cell = ephys.models.HocCellModel(
+            'test_hoc_model',
+            morphology_path,
+            hoc_path)
         hoc_cell.instantiate(sim)
-        ok_(hoc_cell.icell is not None)
-        ok_(hoc_cell.cell is not None)
+        nt.ok_(hoc_cell.icell is not None)
+        nt.ok_(hoc_cell.cell is not None)
 
-        ok_('simple.swc' in str(hoc_cell))
+        nt.ok_('simple.swc' in str(hoc_cell))
 
-        #these should be callable, but don't do anything
+        # these should be callable, but don't do anything
         hoc_cell.freeze(None)
         hoc_cell.unfreeze(None)
         hoc_cell.check_nonfrozen_params(None)
@@ -72,9 +83,10 @@ def test_HocCellModel():
 
 
 def test_CellModel_create_empty_cell():
-    sim = Mock()
+    """Test create_empty_cell"""
+    sim = mock.Mock()
     sim.neuron = neuron
     template_name = 'EmptyModel'
-    cell = models.CellModel.create_empty_cell(template_name, sim)
-    ok_(callable(cell))
-    ok_(hasattr(neuron.h, template_name))
+    cell = ephys.models.CellModel.create_empty_cell(template_name, sim)
+    nt.ok_(callable(cell))
+    nt.ok_(hasattr(neuron.h, template_name))
