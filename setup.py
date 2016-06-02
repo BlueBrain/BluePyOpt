@@ -28,7 +28,7 @@ setuptools.setup(
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     install_requires=['numpy>=1.6', 'pandas>=0.18', 'deap', 'efel>=2.6',
-                      'scoop>=0.7', 'ipyparallel'],
+                      'scoop>=0.7', 'ipyparallel', 'mock'],
     packages=setuptools.find_packages(exclude=('examples',)),
     author="BlueBrain Project, EPFL",
     author_email="werner.vangeit@epfl.ch",
