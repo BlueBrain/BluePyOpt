@@ -22,6 +22,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 
+from bluepyopt.ephys.serializer import DictMixin
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +37,14 @@ class EFeature(object):
         self.name = name
 
 
-class eFELFeature(EFeature):
+class eFELFeature(EFeature, DictMixin):
 
     """eFEL feature"""
+
+    SERIALIZED_FIELDS = ('name', 'efel_feature_name', 'recording_names',
+                         'stim_start', 'stim_end', 'exp_mean',
+                         'exp_std', 'threshold',
+                         )
 
     def __init__(
             self,

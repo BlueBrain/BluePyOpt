@@ -21,6 +21,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import itertools
 
+from bluepyopt.ephys.serializer import DictMixin
+
 
 class Location(object):
 
@@ -54,9 +56,11 @@ def _nth_isectionlist(isectionlist, index):
     return isection
 
 
-class NrnSeclistCompLocation(Location):
+class NrnSeclistCompLocation(Location, DictMixin):
 
     """Compartment in a sectionlist"""
+
+    SERIALIZED_FIELDS = ('name', 'seclist_name', 'sec_index', 'comp_x', )
 
     def __init__(
             self,
@@ -91,9 +95,11 @@ class NrnSeclistCompLocation(Location):
         return '%s[%s](%s)' % (self.seclist_name, self.sec_index, self.comp_x)
 
 
-class NrnSeclistLocation(Location):
+class NrnSeclistLocation(Location, DictMixin):
 
     """Section in a sectionlist"""
+
+    SERIALIZED_FIELDS = ('name', 'seclist_name', )
 
     def __init__(
             self,
@@ -122,9 +128,11 @@ class NrnSeclistLocation(Location):
         return '%s' % (self.seclist_name)
 
 
-class NrnSeclistSecLocation(Location):
+class NrnSeclistSecLocation(Location, DictMixin):
 
     """Section in a sectionlist"""
+
+    SERIALIZED_FIELDS = ('name', 'seclist_name', 'sec_index', )
 
     def __init__(
             self,
@@ -156,9 +164,11 @@ class NrnSeclistSecLocation(Location):
         return '%s[%s]' % (self.seclist_name, self.sec_index)
 
 
-class NrnSomaDistanceCompLocation(Location):
+class NrnSomaDistanceCompLocation(Location, DictMixin):
 
     """Compartment at distance from soma"""
+
+    SERIALIZED_FIELDS = ('name', 'soma_distance', 'seclist_name', )
 
     def __init__(self, name, soma_distance=None, seclist_name=None):
         """Constructor

@@ -24,6 +24,7 @@ from abc import abstractmethod
 import logging
 
 import bluepyopt
+from bluepyopt.ephys.serializer import DictMixin
 from . import parameterscalers
 
 logger = logging.getLogger(__name__)
@@ -59,9 +60,11 @@ class NrnParameter(bluepyopt.parameters.Parameter):
         pass
 
 
-class NrnGlobalParameter(NrnParameter):
+class NrnGlobalParameter(NrnParameter, DictMixin):
 
     """Parameter set in the global namespace of neuron"""
+    SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',
+                         )
 
     def __init__(
             self,
@@ -104,9 +107,11 @@ class NrnGlobalParameter(NrnParameter):
                                 self.value if self.frozen else self.bounds)
 
 
-class NrnSectionParameter(NrnParameter):
+class NrnSectionParameter(NrnParameter, DictMixin):
 
     """Parameter of a section"""
+    SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',
+                         'value_scaler', 'locations', )
 
     def __init__(
             self,
@@ -177,9 +182,11 @@ class NrnSectionParameter(NrnParameter):
 # NrnRangeMechParameter
 
 
-class NrnRangeParameter(NrnParameter):
+class NrnRangeParameter(NrnParameter, DictMixin):
 
     """Parameter that has a range over a section"""
+    SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',
+                         'value_scaler', 'locations', )
 
     def __init__(
             self,

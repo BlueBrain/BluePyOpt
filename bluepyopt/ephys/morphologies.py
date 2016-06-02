@@ -22,6 +22,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import os
 import logging
+from bluepyopt.ephys.serializer import DictMixin
+
 logger = logging.getLogger(__name__)
 
 # TODO define an addressing scheme
@@ -37,9 +39,11 @@ class Morphology(object):
         pass
 
 
-class NrnFileMorphology(Morphology):
+class NrnFileMorphology(Morphology, DictMixin):
 
     """Morphology loaded from a file"""
+    SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg',
+                         )
 
     def __init__(
             self,

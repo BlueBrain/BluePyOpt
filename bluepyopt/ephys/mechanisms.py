@@ -23,8 +23,9 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-
 import logging
+
+from bluepyopt.ephys.serializer import DictMixin
 
 logger = logging.getLogger(__name__)
 
@@ -45,9 +46,12 @@ class Mechanism(object):
         self.name = name
 
 
-class NrnMODMechanism(Mechanism):
+class NrnMODMechanism(Mechanism, DictMixin):
 
     """Neuron mechanism"""
+
+    SERIALIZED_FIELDS = ('name', 'mod_path', 'prefix', 'locations', 'preloaded',
+                         )
 
     def __init__(
             self,
