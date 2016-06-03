@@ -50,3 +50,5 @@ def test_eFELFeature_serialize():
     serialized = efeature.to_dict()
     deserialized = instantiator(serialized)
     nt.ok_(isinstance(deserialized, efeatures.eFELFeature))
+    nt.eq_(deserialized.stim_start, 700)
+    nt.eq_(deserialized.recording_names, recording_names)
