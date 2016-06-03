@@ -19,6 +19,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+from bluepyopt.ephys.serializer import DictMixin
+
 
 class ParameterScaler(object):
 
@@ -36,9 +38,10 @@ class ParameterScaler(object):
 # TODO get rid of the 'segment' here
 
 
-class NrnSegmentLinearScaler(ParameterScaler):
+class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
 
     """Linear scaler"""
+    SERIALIZED_FIELDS = ('name', 'multiplier', 'offset', )
 
     def __init__(
             self,
@@ -68,9 +71,10 @@ class NrnSegmentLinearScaler(ParameterScaler):
         return '%s * value + %s' % (self.multiplier, self.offset)
 
 
-class NrnSegmentSomaDistanceScaler(ParameterScaler):
+class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
 
     """Scaler based on distance from soma"""
+    SERIALIZED_FIELDS = ('name', 'distribution', )
 
     def __init__(
             self,
