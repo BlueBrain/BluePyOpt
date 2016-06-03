@@ -26,7 +26,6 @@ logger = logging.getLogger(__name__)
 
 
 class Protocol(object):
-
     """Class representing a protocol (stimulus and recording)."""
 
     def __init__(self, name=None):

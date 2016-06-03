@@ -21,21 +21,13 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import itertools
 
+from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
 
-class Location(object):
-
+class Location(BaseEPhys):
     """Location"""
-
-    def __init__(self, name):
-        """Constructor
-
-        Args:
-            name (str): name of the location object
-        """
-
-        self.name = name
+    pass
 
 # TODO make all these locations accept a cell name
 # TODO instantiate should get the entire simulation environment
@@ -60,14 +52,15 @@ class NrnSeclistCompLocation(Location, DictMixin):
 
     """Compartment in a sectionlist"""
 
-    SERIALIZED_FIELDS = ('name', 'seclist_name', 'sec_index', 'comp_x', )
+    SERIALIZED_FIELDS = ('name', 'comment', 'seclist_name', 'sec_index', 'comp_x', )
 
     def __init__(
             self,
             name,
             seclist_name=None,
             sec_index=None,
-            comp_x=None):
+            comp_x=None,
+            comment=''):
         """Constructor
 
         Args:
@@ -77,7 +70,7 @@ class NrnSeclistCompLocation(Location, DictMixin):
             comp_x (float): segx (0..1) of segment inside section
         """
 
-        super(NrnSeclistCompLocation, self).__init__(name)
+        super(NrnSeclistCompLocation, self).__init__(name, comment)
         self.seclist_name = seclist_name
         self.sec_index = sec_index
         self.comp_x = comp_x
@@ -99,12 +92,13 @@ class NrnSeclistLocation(Location, DictMixin):
 
     """Section in a sectionlist"""
 
-    SERIALIZED_FIELDS = ('name', 'seclist_name', )
+    SERIALIZED_FIELDS = ('name', 'comment', 'seclist_name', )
 
     def __init__(
             self,
             name,
-            seclist_name=None):
+            seclist_name=None,
+            comment=''):
         """Constructor
 
         Args:
@@ -112,7 +106,7 @@ class NrnSeclistLocation(Location, DictMixin):
             seclist_name (str): name of NEURON section list (ex: 'somatic')
         """
 
-        super(NrnSeclistLocation, self).__init__(name)
+        super(NrnSeclistLocation, self).__init__(name, comment)
         self.seclist_name = seclist_name
 
     def instantiate(self, sim=None, icell=None):
@@ -132,13 +126,14 @@ class NrnSeclistSecLocation(Location, DictMixin):
 
     """Section in a sectionlist"""
 
-    SERIALIZED_FIELDS = ('name', 'seclist_name', 'sec_index', )
+    SERIALIZED_FIELDS = ('name', 'comment', 'seclist_name', 'sec_index', )
 
     def __init__(
             self,
             name,
             seclist_name=None,
-            sec_index=None):
+            sec_index=None,
+            comment=''):
         """Constructor
 
         Args:
@@ -147,7 +142,7 @@ class NrnSeclistSecLocation(Location, DictMixin):
             sec_index (int): index of the section
         """
 
-        super(NrnSeclistSecLocation, self).__init__(name)
+        super(NrnSeclistSecLocation, self).__init__(name, comment)
         self.seclist_name = seclist_name
         self.sec_index = sec_index
 
@@ -168,9 +163,9 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
 
     """Compartment at distance from soma"""
 
-    SERIALIZED_FIELDS = ('name', 'soma_distance', 'seclist_name', )
+    SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'seclist_name', )
 
-    def __init__(self, name, soma_distance=None, seclist_name=None):
+    def __init__(self, name, soma_distance=None, seclist_name=None, comment=''):
         """Constructor
 
         Args:
@@ -179,7 +174,7 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
             seclist_name (str): name of Neuron section list (ex: 'apical')
         """
 
-        super(NrnSomaDistanceCompLocation, self).__init__(name)
+        super(NrnSomaDistanceCompLocation, self).__init__(name, comment)
         self.soma_distance = soma_distance
         self.seclist_name = seclist_name
 

@@ -22,19 +22,15 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 
+from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
 logger = logging.getLogger(__name__)
 
 
-class EFeature(object):
-
+class EFeature(BaseEPhys):
     """EPhys feature"""
-
-    def __init__(self, name):
-        """Constructor"""
-
-        self.name = name
+    pass
 
 
 class eFELFeature(EFeature, DictMixin):
@@ -43,7 +39,7 @@ class eFELFeature(EFeature, DictMixin):
 
     SERIALIZED_FIELDS = ('name', 'efel_feature_name', 'recording_names',
                          'stim_start', 'stim_end', 'exp_mean',
-                         'exp_std', 'threshold',
+                         'exp_std', 'threshold', 'comment',
                          )
 
     def __init__(
@@ -55,7 +51,9 @@ class eFELFeature(EFeature, DictMixin):
             stim_end=None,
             exp_mean=None,
             exp_std=None,
-            threshold=None):
+            threshold=None,
+            comment=''):
+
         """Constructor
 
         Args:
@@ -69,9 +67,10 @@ class eFELFeature(EFeature, DictMixin):
             exp_mean (float): experimental mean of this eFeature
             exp_std(float): experimental standard deviation of this eFeature
             threshold(float): spike detection threshold (mV)
+            comment (str): comment
         """
 
-        super(eFELFeature, self).__init__(name)
+        super(eFELFeature, self).__init__(name, comment)
 
         self.recording_names = recording_names
         self.efel_feature_name = efel_feature_name
