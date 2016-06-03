@@ -85,7 +85,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
         Args:
             name (str): name of this object
             distribution (str): distribution of parameter dependent on distance
-                from soma. string should contain `distance` and `value` as
+                from soma. string can contain `distance` and/or `value` as
                 placeholders for the distance to the soma and parameter value
                 respectivily
         """

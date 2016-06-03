@@ -20,11 +20,13 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 
 # pylint:disable=W0612, W0201
+import json
 
 import nose.tools as nt
 from nose.plugins.attrib import attr
 
-import bluepyopt.ephys as ephys
+from bluepyopt import ephys
+from bluepyopt.ephys.serializer import instantiator
 
 
 @attr('unit')
@@ -84,6 +86,22 @@ class TestNrnSomaDistanceCompLocation(object):
         comp = self.loc.instantiate(sim=self.sim, icell=cell)
         nt.assert_equal(comp, dend2(0.5))
 
-    def teardown(self):
-        """Teardown"""
-        pass
+
+def test_serialize():
+    from bluepyopt.ephys.locations import (NrnSeclistCompLocation, NrnSeclistLocation,
+                                           NrnSeclistSecLocation, NrnSomaDistanceCompLocation)
+
+    seclist_name, sec_index,  comp_x, soma_distance = 'somatic', 0, 0.5, 800
+    locations = (
+        NrnSeclistCompLocation('NrnSeclistCompLocation', seclist_name, sec_index, comp_x),
+        NrnSeclistLocation('NrnSeclistLocation', seclist_name),
+        NrnSeclistSecLocation('NrnSeclistSecLocation', seclist_name, sec_index),
+        NrnSomaDistanceCompLocation('NrnSomaDistanceCompLocation', soma_distance, seclist_name),)
+
+    for loc in locations:
+        serialized = loc.to_dict()
+        nt.ok_(isinstance(json.dumps(serialized), str))
+        deserialized = instantiator(serialized)
+        nt.ok_(isinstance(deserialized, loc.__class__))
+        nt.eq_(deserialized.seclist_name, seclist_name)
+        nt.eq_(deserialized.name, loc.__class__.__name__)

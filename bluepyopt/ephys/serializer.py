@@ -1,28 +1,34 @@
 '''Mixin class to make dictionaries'''
 
 
+SENTINAL = 'class'
+
 class DictMixin(object):
     '''Mixin class to create dictionaries of selected elements'''
     SERIALIZED_FIELDS = ()
 
     @staticmethod
     def _serializer(value):
-        if isinstance(value, (list, tuple)) and value and hasattr(value[0], 'to_dict'):
+        if hasattr(value, 'to_dict'):
+            return value.to_dict()
+        elif isinstance(value, (list, tuple)) and value and hasattr(value[0], 'to_dict'):
             return [v.to_dict() for v in value]
-        elif(isinstance(value, dict) and
-             value and
+        elif(isinstance(value, dict) and value and
              hasattr(iter(value.values()).next(), 'to_dict')):
             return {k: v.to_dict() for k, v in value.iteritems()}
         return value
 
     @staticmethod
     def _deserializer(value):
-        if isinstance(value, list) and value and 'class' in value[0]:
+        if(isinstance(value, list) and value and
+           isinstance(value[0], dict) and SENTINAL in value[0]):
             return [instantiator(v) for v in value]
-        elif(isinstance(value, dict) and
-             value and
-             'class' in iter(value.values()).next()):
-            return {k: instantiator(v) for k, v in value.iteritems()}
+        elif isinstance(value, dict) and value:
+            if SENTINAL in value:
+                return instantiator(value)
+            model_value = iter(value.values()).next()
+            if isinstance(model_value, dict) and SENTINAL in model_value:
+                return {k: instantiator(v) for k, v in value.iteritems()}
         return value
 
     def to_dict(self):
@@ -36,7 +42,7 @@ class DictMixin(object):
     @classmethod
     def from_dict(cls, fields):
         '''create class from serialized values'''
-        klass = fields['class']
+        klass = fields[SENTINAL]
         assert klass == repr(cls), 'Class names much match %s != %s' % (klass, repr(cls))
         del fields['class']
         for name in fields.keys():
@@ -45,7 +51,7 @@ class DictMixin(object):
 
 
 def instantiator(fields):
-    klass = fields['class']
+    klass = fields[SENTINAL]
     for subclass in DictMixin.__subclasses__():
         if repr(subclass) == klass:
             return subclass.from_dict(fields)
