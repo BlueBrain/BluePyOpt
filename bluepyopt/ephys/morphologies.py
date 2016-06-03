@@ -22,6 +22,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import os
 import logging
+from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
 logger = logging.getLogger(__name__)
@@ -29,14 +30,9 @@ logger = logging.getLogger(__name__)
 # TODO define an addressing scheme
 
 
-class Morphology(object):
-
+class Morphology(BaseEPhys):
     """Morphology class"""
-
-    def __init__(self):
-        """Constructor"""
-
-        pass
+    pass
 
 
 class NrnFileMorphology(Morphology, DictMixin):
@@ -49,7 +45,8 @@ class NrnFileMorphology(Morphology, DictMixin):
             self,
             morphology_path,
             do_replace_axon=False,
-            do_set_nseg=True):
+            do_set_nseg=True,
+            comment=''):
         """Constructor
 
         Args:
@@ -58,8 +55,8 @@ class NrnFileMorphology(Morphology, DictMixin):
             do_replace_axon(bool): Does the axon need to be replaced by an AIS
                 stub ?
         """
-
-        super(NrnFileMorphology, self).__init__()
+        name = os.path.basename(morphology_path)
+        super(NrnFileMorphology, self).__init__(name=name, comment=comment)
         # TODO speed up loading of morphologies from files
         # Path to morphology
         self.morphology_path = morphology_path

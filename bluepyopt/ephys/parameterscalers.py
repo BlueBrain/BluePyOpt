@@ -19,21 +19,14 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
 
-class ParameterScaler(object):
+class ParameterScaler(BaseEPhys):
 
     """Parameter scalers"""
-
-    def __init__(self, name):
-        """Constructor
-
-        Args:
-            name (str): name of this object
-        """
-
-        self.name = name
+    pass
 
 # TODO get rid of the 'segment' here
 
@@ -41,13 +34,14 @@ class ParameterScaler(object):
 class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
 
     """Linear scaler"""
-    SERIALIZED_FIELDS = ('name', 'multiplier', 'offset', )
+    SERIALIZED_FIELDS = ('name', 'comment', 'multiplier', 'offset', )
 
     def __init__(
             self,
             name=None,
             multiplier=1.0,
-            offset=0.0):
+            offset=0.0,
+            comment=''):
         """Constructor
 
         Args:
@@ -56,7 +50,7 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
             offset (float): intercept of the linear scaler
         """
 
-        super(NrnSegmentLinearScaler, self).__init__(name)
+        super(NrnSegmentLinearScaler, self).__init__(name, comment)
         self.multiplier = multiplier
         self.offset = offset
 
@@ -74,12 +68,13 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
 class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
 
     """Scaler based on distance from soma"""
-    SERIALIZED_FIELDS = ('name', 'distribution', )
+    SERIALIZED_FIELDS = ('name', 'comment', 'distribution', )
 
     def __init__(
             self,
             name=None,
-            distribution=None):
+            distribution=None,
+            comment=''):
         """Constructor
 
         Args:
@@ -90,7 +85,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
                 respectivily
         """
 
-        super(NrnSegmentSomaDistanceScaler, self).__init__(name)
+        super(NrnSegmentSomaDistanceScaler, self).__init__(name, comment)
         self.distribution = distribution
 
     def scale(self, value, segment, sim=None):

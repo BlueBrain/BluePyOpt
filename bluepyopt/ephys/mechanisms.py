@@ -25,6 +25,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 
+from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
 logger = logging.getLogger(__name__)
@@ -32,25 +33,16 @@ logger = logging.getLogger(__name__)
 # TODO: use Location class to specify location
 
 
-class Mechanism(object):
-
+class Mechanism(BaseEPhys):
     """Base parameter class"""
-
-    def __init__(self, name):
-        """Constructor
-
-        Args:
-            name (str): name of this object
-        """
-
-        self.name = name
+    pass
 
 
 class NrnMODMechanism(Mechanism, DictMixin):
 
     """Neuron mechanism"""
 
-    SERIALIZED_FIELDS = ('name', 'mod_path', 'prefix', 'locations', 'preloaded',
+    SERIALIZED_FIELDS = ('name', 'comment', 'mod_path', 'prefix', 'locations', 'preloaded',
                          )
 
     def __init__(
@@ -59,7 +51,8 @@ class NrnMODMechanism(Mechanism, DictMixin):
             mod_path=None,
             prefix=None,
             locations=None,
-            preloaded=True):
+            preloaded=True,
+            comment=''):
         """Constructor
 
         Args:
@@ -73,7 +66,7 @@ class NrnMODMechanism(Mechanism, DictMixin):
                 (not used for the moment)
         """
 
-        super(NrnMODMechanism, self).__init__(name)
+        super(NrnMODMechanism, self).__init__(name, comment)
         self.mod_path = mod_path
         self.prefix = prefix
         self.locations = locations
