@@ -1,5 +1,7 @@
 """Simulator classes"""
 
+# pylint: disable=W0511
+
 import os
 import logging
 logger = logging.getLogger(__name__)

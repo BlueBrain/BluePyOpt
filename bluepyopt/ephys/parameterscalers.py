@@ -19,6 +19,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# pylint: disable=W0511
+
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
@@ -54,7 +56,7 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
         self.multiplier = multiplier
         self.offset = offset
 
-    def scale(self, value, _, sim=None):
+    def scale(self, value, segment=None, sim=None):  # pylint: disable=W0613
         """Scale a value based on a segment"""
 
         return self.multiplier * value + self.offset

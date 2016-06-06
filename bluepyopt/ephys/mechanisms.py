@@ -23,6 +23,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# pylint: disable=W0511
+
 import logging
 
 from bluepyopt.ephys.base import BaseEPhys
@@ -70,7 +72,7 @@ class NrnMODMechanism(Mechanism, DictMixin):
         self.mod_path = mod_path
         self.prefix = prefix
         self.locations = locations
-        self.preloaded = True
+        self.preloaded = preloaded
         self.cell_model = None
 
     def instantiate(self, sim=None, icell=None):

@@ -19,6 +19,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# pylint: disable=W0511
+
 import itertools
 
 from bluepyopt.ephys.base import BaseEPhys
@@ -75,7 +77,7 @@ class NrnSeclistCompLocation(Location, DictMixin):
         self.sec_index = sec_index
         self.comp_x = comp_x
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
         """Find the instantiate compartment"""
         isectionlist = getattr(icell, self.seclist_name)
         isection = _nth_isectionlist(isectionlist, self.sec_index)
@@ -109,7 +111,7 @@ class NrnSeclistLocation(Location, DictMixin):
         super(NrnSeclistLocation, self).__init__(name, comment)
         self.seclist_name = seclist_name
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
         """Find the instantiate compartment"""
 
         isectionlist = getattr(icell, self.seclist_name)
@@ -146,7 +148,7 @@ class NrnSeclistSecLocation(Location, DictMixin):
         self.seclist_name = seclist_name
         self.sec_index = sec_index
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
         """Find the instantiate compartment"""
 
         isectionlist = getattr(icell, self.seclist_name)
