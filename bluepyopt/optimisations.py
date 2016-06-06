@@ -19,12 +19,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-# pylint: disable=R0912
-
-import logging
-
-logger = logging.getLogger('__main__')
-
 
 class Optimisation(object):
 

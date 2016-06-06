@@ -29,7 +29,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import collections
 import os
 
-from bluepyopt.ephys.morphologies import Morphology
+from bluepyopt.ephys import morphologies
 
 import logging
 logger = logging.getLogger(__name__)
@@ -153,7 +153,7 @@ class CellModel(Model):
         for param in self.params.values():
             param.instantiate(sim=sim, icell=self.icell)
 
-    def destroy(self):
+    def destroy(self, sim=None):  # pylint: disable=W0613
         """Destroy instantiated model in simulator"""
 
         self.icell = None
@@ -163,7 +163,7 @@ class CellModel(Model):
         for param in self.params.values():
             param.destroy()
 
-    def check_nonfrozen_params(self, param_names):
+    def check_nonfrozen_params(self, param_names):  # pylint: disable=W0613
         """Check if all nonfrozen params are set"""
 
         for param_name, param in self.params.items():
@@ -223,7 +223,7 @@ def load_hoc_template(sim, hoc_path):
 
 class HocCellModel(CellModel):
     '''Wrapper class for a hoc template so it can be used by BluePyOpt'''
-    class Morphology(Morphology):
+    class Morphology(morphologies.Morphology):
         '''wrapper for Morphology so that it has a morphology_path'''
         def __init__(self, morphology_path):
             assert os.path.exists(morphology_path), 'Morphology must exist: ' + morphology_path
@@ -259,7 +259,7 @@ class HocCellModel(CellModel):
         self.cell = getattr(sim.neuron.h, template_name)(0, morph_path)
         self.icell = self.cell.CellRef
 
-    def destroy(self):
+    def destroy(self, sim=None):
         self.cell = None
         self.icell = None
 
