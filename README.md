@@ -31,7 +31,7 @@ When you use the BluePyOpt software or method for your research, we ask you to c
 
 ```bibtex
 @ARTICLE{bluepyopt,
- AUTHOR={Van Geit, Werner  and  Gevaert, Michael  and  Chindemi, Giuseppe  and  Rössert, Christian  and  Courcol, Jean-Denis  and  Muller, Eilif Benjamin  and  Schürmann, Felix  and  Segev, Idan  and  Markram, Henry},
+ AUTHOR={Van Geit, Werner  and  Gevaert, Michael  and  Chindemi, Giuseppe  and  Rössert, Christian  and  Courcol, Jean-Denis  and  Muller, Eilif Benjamin  and  Schürmann, Felix  and  Segev, Idan  and  Markram, Henry},   
 TITLE={BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience},
 JOURNAL={Frontiers in Neuroinformatics},
 VOLUME={10},
@@ -39,7 +39,8 @@ YEAR={2016},
 NUMBER={17},
 URL={http://www.frontiersin.org/neuroinformatics/10.3389/fninf.2016.00017/abstract},
 DOI={10.3389/fninf.2016.00017},
-ISSN={1662-5196}}
+ISSN={1662-5196}
+}
 ```
 Support
 =======
