@@ -140,8 +140,6 @@ class CellModel(Model):
     def instantiate(self, sim=None):
         """Instantiate model in simulator"""
 
-        sim.neuron.h.load_file('stdrun.hoc')
-
         # TODO replace this with the real template name
         if not hasattr(sim.neuron.h, 'Cell'):
             self.icell = self.create_empty_cell('Cell', sim=sim)

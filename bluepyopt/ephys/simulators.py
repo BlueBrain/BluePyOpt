@@ -24,6 +24,8 @@ class NrnSimulator(object):
 
         import neuron  # NOQA
 
+        neuron.h.load_file('stdrun.hoc')
+
         self.dt = dt if dt is not None else neuron.h.dt
         self.cvode_active = cvode_active
 
