@@ -18,7 +18,7 @@ import neuron
 @contextmanager
 def yield_blank_hoc(template_name):
     """Create blank hoc template"""
-    hoc_template = ephys.models.create_empty_template(template_name)
+    hoc_template = ephys.models.CellModel.create_empty_template(template_name)
     temp_file = tempfile.NamedTemporaryFile(suffix='test_models')
     with temp_file as fd:
         fd.write(hoc_template)
@@ -29,7 +29,7 @@ def yield_blank_hoc(template_name):
 def test_create_empty_template():
     """Test creation of empty template"""
     template_name = 'FakeTemplate'
-    hoc_template = ephys.models.create_empty_template(template_name)
+    hoc_template = ephys.models.CellModel.create_empty_template(template_name)
     neuron.h(hoc_template)
     nt.ok_(hasattr(neuron.h, template_name))
 
