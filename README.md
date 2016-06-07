@@ -27,7 +27,7 @@ Citation
 
 When you use the BluePyOpt software or method for your research, we ask you to cite the following Arxiv preprint in your publications:
 
-[Van Geit W, Gevaert M, Chindemi G, Rössert C, Courcol J, Muller EB, Schürmann F, Segev I and Markram H (2016). BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience. Front. Neuroinform. 10:17. doi: 10.3389/fninf.2016.00017](http://www.frontiersin.org/neuroinformatics/10.3389/fninf.2016.00017/abstract)
+[Van Geit W, Gevaert M, Chindemi G, Rössert C, Courcol J, Muller EB, Schürmann F, Segev I and Markram H (2016). BluePyOpt: Leveraging open source software and cloud infrastructure to optimize model parameters in neuroscience. Front. Neuroinform. 10:17. doi: 10.3389/fninf.2016.00017](http://journal.frontiersin.org/article/10.3389/fninf.2016.00017)
 
 ```bibtex
 @ARTICLE{bluepyopt,
@@ -47,6 +47,7 @@ We are providing support using a chat channel on [Gitter](https://gitter.im/Blue
 
 News
 ====
+- 2016/06/07: The BluePyOpt paper was published in Frontiers in Neuroinformatics (for link, see above)
 - 2016/05/03: The API documentation was moved to [ReadTheDocs](http://bluepyopt.readthedocs.io/en/latest/)
 - 2016/04/20: BluePyOpt now contains the code of the IBEA selector, no need to install a BBP-specific version of DEAP anymore
 - 2016/03/24: Released version 1.0
