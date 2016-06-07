@@ -33,3 +33,11 @@ def test_stimulus_init():
 
     stim = ephys.stimuli.Stimulus()
     nt.assert_is_instance(stim, ephys.stimuli.Stimulus)
+
+
+@attr('unit')
+def test_NrnRampPulse_init():
+    """ephys.stimuli: test if NrnRampPulse constructor works"""
+    stim = ephys.stimuli.NrnRampPulse()
+    nt.assert_is_instance(stim, ephys.stimuli.NrnRampPulse)
+
