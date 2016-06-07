@@ -59,7 +59,6 @@ class NrnCurrentPlayStimulus(Stimulus):
     def instantiate(self, sim=None, icell=None):
         """Run stimulus"""
 
-        icell = icell
         icomp = self.location.instantiate(sim=sim, icell=icell)
         logger.debug(
             'Adding current play stimulus to %s', str(self.location))
@@ -123,7 +122,6 @@ class NrnSquarePulse(Stimulus):
     def instantiate(self, sim=None, icell=None):
         """Run stimulus"""
 
-        icell = icell
         icomp = self.location.instantiate(sim=sim, icell=icell)
         logger.debug(
             'Adding square step stimulus to %s with delay %f, '
@@ -154,3 +152,105 @@ class NrnSquarePulse(Stimulus):
             self.step_duration,
             self.total_duration,
             self.location)
+
+
+class NrnRampPulse(Stimulus):
+
+    """Ramp current clamp injection"""
+
+    def __init__(self,
+                 ramp_amplitude_start=None,
+                 ramp_amplitude_end=None,
+                 ramp_delay=None,
+                 ramp_duration=None,
+                 total_duration=None,
+                 location=None):
+        """Constructor
+
+        Args:
+            ramp_amplitude_start (float): amplitude at start of ramp (nA)
+            ramp_amplitude_start (float): amplitude at end of ramp (nA)
+            ramp_delay (float): delay of ramp (ms)
+            ramp_duration (float): duration oframp (ms)
+            total_duration (float): total duration (ms)
+            location (Location): stimulus Location
+        """
+
+        super(NrnRampPulse, self).__init__()
+        self.ramp_amplitude_start = ramp_amplitude_start
+        self.ramp_amplitude_end = ramp_amplitude_end
+        self.ramp_delay = ramp_delay
+        self.ramp_duration = ramp_duration
+        self.location = location
+        self.total_duration = total_duration
+        self.persistent = []  # TODO move this into higher abstract classes
+
+    def instantiate(self, sim=None, icell=None):
+        """Run stimulus"""
+
+        icell = icell
+        icomp = self.location.instantiate(sim=sim, icell=icell)
+        logger.debug(
+            'Adding ramp stimulus to %s with delay %f, '
+            'duration %f, amplitude at start %f and end %f',
+            str(self.location),
+            self.ramp_delay,
+            self.ramp_duration,
+            self.ramp_amplitude_start,
+            self.ramp_amplitude_end
+        )
+
+        # create vector to store the times at which stim amp changes
+        times = sim.neuron.h.Vector()
+        # create vector to store to which stim amps over time
+        amps = sim.neuron.h.Vector()
+
+        # at time 0.0, current is 0.0
+        times.append(0.0)
+        amps.append(0.0)
+
+        # at time ramp_delay, current is ramp_amplitude_start
+        times.append(self.ramp_delay)
+        amps.append(self.ramp_amplitude_start)
+
+        # at time ramp_delay+ramp_duration, current is ramp_amplitude_end
+        times.append(self.ramp_delay + self.ramp_duration)
+        amps.append(self.ramp_amplitude_end)
+
+        # after ramp, current is set 0.0
+        times.append(self.ramp_delay + self.ramp_duration)
+        amps.append(0)
+
+        # integrate the above times
+        times.integral()
+
+        # create a current clamp
+        iclamp = sim.neuron.h.IClamp(
+            icomp.x,
+            sec=icomp.sec)
+
+        # play the above current amplitudes into the current clamp
+        amps.play(self.iclamp.amp, times, 1)
+
+        # Make sure the following objects survive after instantiation
+        self.persistent.append(iclamp)
+        self.persistent.append(times)
+        self.persistent.append(amps)
+
+    def destroy(self):
+        """Destroy stimulus"""
+
+        # Destroy all persistent objects
+        self.persistent = []
+
+    def __str__(self):
+        """String representation"""
+
+        return "Ramp pulse amp_start %f amp_end %f delay %f duration %f " \
+            "totdur %f at %s" % (
+                self.ramp_amplitude_start,
+                self.ramp_amplitude_end,
+                self.ramp_delay,
+                self.ramp_duration,
+                self.total_duration,
+                self.location)
