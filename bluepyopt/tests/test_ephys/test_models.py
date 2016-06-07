@@ -6,6 +6,8 @@ import tempfile
 from os.path import join as joinp
 
 import nose.tools as nt
+from nose.plugins.attrib import attr
+
 import mock
 
 from contextlib import contextmanager
@@ -26,6 +28,7 @@ def yield_blank_hoc(template_name):
         yield temp_file.name
 
 
+@attr('unit')
 def test_create_empty_template():
     """Test creation of empty template"""
     template_name = 'FakeTemplate'
@@ -34,6 +37,7 @@ def test_create_empty_template():
     nt.ok_(hasattr(neuron.h, template_name))
 
 
+@attr('unit')
 def test_model():
     """Test Model class"""
     model = ephys.models.Model('test_model')
@@ -43,6 +47,7 @@ def test_model():
     nt.ok_(isinstance(model, ephys.models.Model))
 
 
+@attr('unit')
 def test_load_hoc_template():
     """Test loading of hoc template"""
     sim = mock.Mock()
@@ -54,6 +59,7 @@ def test_load_hoc_template():
     nt.ok_(hasattr(neuron.h, template_name))
 
 
+@attr('unit')
 def test_HocCellModel():
     """Test HOCCellModel class"""
     sim = mock.Mock()
@@ -82,6 +88,7 @@ def test_HocCellModel():
         hoc_cell.destroy()
 
 
+@attr('unit')
 def test_CellModel_create_empty_cell():
     """Test create_empty_cell"""
     sim = mock.Mock()

@@ -122,7 +122,7 @@ class CellModel(Model):
           }
           create soma[1], dend[1], apic[1], axon[1]
         endtemplate %(template_name)s
-               '''.format(template_name=template_name)
+               ''' % dict(template_name=template_name)
 
     @staticmethod
     def create_empty_cell(name, sim):
