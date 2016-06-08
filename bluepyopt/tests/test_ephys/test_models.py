@@ -8,13 +8,11 @@ from os.path import join as joinp
 import nose.tools as nt
 from nose.plugins.attrib import attr
 
-import mock
-
 from contextlib import contextmanager
 
 import bluepyopt.ephys as ephys
 
-import neuron
+sim = ephys.simulators.NrnSimulator()
 
 
 @contextmanager
@@ -33,8 +31,8 @@ def test_create_empty_template():
     """Test creation of empty template"""
     template_name = 'FakeTemplate'
     hoc_template = ephys.models.CellModel.create_empty_template(template_name)
-    neuron.h(hoc_template)
-    nt.ok_(hasattr(neuron.h, template_name))
+    sim.neuron.h(hoc_template)
+    nt.ok_(hasattr(sim.neuron.h, template_name))
 
 
 @attr('unit')
@@ -50,20 +48,16 @@ def test_model():
 @attr('unit')
 def test_load_hoc_template():
     """Test loading of hoc template"""
-    sim = mock.Mock()
-    sim.neuron = neuron
 
     template_name = 'test_load_hoc'
     with yield_blank_hoc(template_name) as hoc_path:
         ephys.models.load_hoc_template(sim, hoc_path)
-    nt.ok_(hasattr(neuron.h, template_name))
+    nt.ok_(hasattr(sim.neuron.h, template_name))
 
 
 @attr('unit')
 def test_HocCellModel():
     """Test HOCCellModel class"""
-    sim = mock.Mock()
-    sim.neuron = neuron
 
     testdata_dir = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
     morphology_path = joinp(testdata_dir, 'simple.swc')
@@ -91,9 +85,7 @@ def test_HocCellModel():
 @attr('unit')
 def test_CellModel_create_empty_cell():
     """Test create_empty_cell"""
-    sim = mock.Mock()
-    sim.neuron = neuron
     template_name = 'EmptyModel'
     cell = ephys.models.CellModel.create_empty_cell(template_name, sim)
     nt.ok_(callable(cell))
-    nt.ok_(hasattr(neuron.h, template_name))
+    nt.ok_(hasattr(sim.neuron.h, template_name))

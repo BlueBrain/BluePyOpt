@@ -1,4 +1,4 @@
-TEST_REQUIREMENTS=nose coverage mock
+TEST_REQUIREMENTS=nose coverage
 
 all: install
 install:
