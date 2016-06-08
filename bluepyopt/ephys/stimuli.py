@@ -183,12 +183,12 @@ class NrnRampPulse(Stimulus):
         self.ramp_duration = ramp_duration
         self.location = location
         self.total_duration = total_duration
+        self.iclamp = None
         self.persistent = []  # TODO move this into higher abstract classes
 
     def instantiate(self, sim=None, icell=None):
         """Run stimulus"""
 
-        icell = icell
         icomp = self.location.instantiate(sim=sim, icell=icell)
         logger.debug(
             'Adding ramp stimulus to %s with delay %f, '
@@ -209,6 +209,10 @@ class NrnRampPulse(Stimulus):
         times.append(0.0)
         amps.append(0.0)
 
+        # until time ramp_delay, current is 0.0
+        times.append(self.ramp_delay)
+        amps.append(0.0)
+
         # at time ramp_delay, current is ramp_amplitude_start
         times.append(self.ramp_delay)
         amps.append(self.ramp_amplitude_start)
@@ -219,21 +223,21 @@ class NrnRampPulse(Stimulus):
 
         # after ramp, current is set 0.0
         times.append(self.ramp_delay + self.ramp_duration)
-        amps.append(0)
+        amps.append(0.0)
 
-        # integrate the above times
-        times.integral()
+        times.append(self.total_duration)
+        amps.append(0.0)
 
         # create a current clamp
-        iclamp = sim.neuron.h.IClamp(
+        self.iclamp = sim.neuron.h.IClamp(
             icomp.x,
             sec=icomp.sec)
+        self.iclamp.dur = self.total_duration
 
         # play the above current amplitudes into the current clamp
-        amps.play(self.iclamp.amp, times, 1)
+        amps.play(self.iclamp._ref_amp, times, 1)  # pylint: disable=W0212
 
         # Make sure the following objects survive after instantiation
-        self.persistent.append(iclamp)
         self.persistent.append(times)
         self.persistent.append(amps)
 
@@ -242,6 +246,7 @@ class NrnRampPulse(Stimulus):
 
         # Destroy all persistent objects
         self.persistent = []
+        self.iclamp = None
 
     def __str__(self):
         """String representation"""

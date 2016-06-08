@@ -44,9 +44,12 @@ def test_nrnfilemorphology_init():
         simpleswc_morphpath,
         do_set_nseg=False)
     morph.instantiate(sim=sim)
+    morph.destroy()
 
 
 def test_serialize():
+    """ephys.morphology: testing serialization"""
+
     morph = ephys.morphologies.NrnFileMorphology(simpleswc_morphpath)
     serialized = morph.to_dict()
     nt.ok_(isinstance(json.dumps(serialized), str))
