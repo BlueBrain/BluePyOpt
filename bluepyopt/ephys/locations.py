@@ -28,6 +28,7 @@ from bluepyopt.ephys.serializer import DictMixin
 
 
 class Location(BaseEPhys):
+
     """Location"""
     pass
 
@@ -54,7 +55,13 @@ class NrnSeclistCompLocation(Location, DictMixin):
 
     """Compartment in a sectionlist"""
 
-    SERIALIZED_FIELDS = ('name', 'comment', 'seclist_name', 'sec_index', 'comp_x', )
+    SERIALIZED_FIELDS = (
+        'name',
+        'comment',
+        'seclist_name',
+        'sec_index',
+        'comp_x',
+    )
 
     def __init__(
             self,
@@ -79,8 +86,15 @@ class NrnSeclistCompLocation(Location, DictMixin):
 
     def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
         """Find the instantiate compartment"""
-        isectionlist = getattr(icell, self.seclist_name)
-        isection = _nth_isectionlist(isectionlist, self.sec_index)
+        iseclist = getattr(icell, self.seclist_name)
+
+        iseclist_size = len([x for x in iseclist])
+        if self.sec_index >= iseclist_size:
+            raise Exception(
+                'NrnSeclistCompLocation: section index %d falls out of '
+                'SectionList size of %d' %
+                (self.sec_index, iseclist_size))
+        isection = _nth_isectionlist(iseclist, self.sec_index)
         icomp = isection(self.comp_x)
         return icomp
 

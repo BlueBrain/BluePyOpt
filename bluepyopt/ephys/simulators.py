@@ -24,6 +24,8 @@ class NrnSimulator(object):
 
         import neuron  # NOQA
 
+        neuron.h.load_file('stdrun.hoc')
+
         self.dt = dt if dt is not None else neuron.h.dt
         self.cvode_active = cvode_active
 
@@ -59,7 +61,7 @@ class NrnSimulator(object):
                     'NrnSimulator: Some process has changed the '
                     'time step dt of Neuron since the creation of this '
                     'NrnSimulator object. Not sure this is intended, '
-                    'raising Exception')
+                    'raising Exception %.6g %.6g' % (self.neuron.h.dt, self.dt))
             dt = self.dt
 
         if cvode_active:

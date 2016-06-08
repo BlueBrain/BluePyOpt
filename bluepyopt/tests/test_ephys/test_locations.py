@@ -88,15 +88,20 @@ class TestNrnSomaDistanceCompLocation(object):
 
 
 def test_serialize():
-    from bluepyopt.ephys.locations import (NrnSeclistCompLocation, NrnSeclistLocation,
-                                           NrnSeclistSecLocation, NrnSomaDistanceCompLocation)
+    """ephys.locations: Test serialize functionality"""
+    from bluepyopt.ephys.locations import (
+        NrnSeclistCompLocation,
+        NrnSeclistLocation,
+        NrnSeclistSecLocation,
+        NrnSomaDistanceCompLocation)
 
-    seclist_name, sec_index,  comp_x, soma_distance = 'somatic', 0, 0.5, 800
+    seclist_name, sec_index, comp_x, soma_distance = 'somatic', 0, 0.5, 800
     locations = (
-        NrnSeclistCompLocation('NrnSeclistCompLocation', seclist_name, sec_index, comp_x),
-        NrnSeclistLocation('NrnSeclistLocation', seclist_name),
-        NrnSeclistSecLocation('NrnSeclistSecLocation', seclist_name, sec_index),
-        NrnSomaDistanceCompLocation('NrnSomaDistanceCompLocation', soma_distance, seclist_name),)
+        NrnSeclistCompLocation(
+            'NrnSeclistCompLocation', seclist_name, sec_index, comp_x), NrnSeclistLocation(
+            'NrnSeclistLocation', seclist_name), NrnSeclistSecLocation(
+            'NrnSeclistSecLocation', seclist_name, sec_index), NrnSomaDistanceCompLocation(
+            'NrnSomaDistanceCompLocation', soma_distance, seclist_name),)
 
     for loc in locations:
         serialized = loc.to_dict()

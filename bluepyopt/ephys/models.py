@@ -35,27 +35,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def create_empty_template(template_name):
-    '''create an hoc template named `template_name` that's for an empty cell'''
-    return '''\
-begintemplate %(template_name)s
-  objref all, apical, basal, somatic, axonal, this, CellRef
-  proc init() {
-    all = new SectionList()
-    somatic = new SectionList()
-    basal = new SectionList()
-    apical = new SectionList()
-    axonal = new SectionList()
-    forall delete_section()
-    CellRef = this
-  }
-  create soma[1], dend[1], apic[1], axon[1]
-endtemplate %(template_name)s
-           ''' % dict(template_name=template_name)
-
-
 class Model(object):
+
     """Model"""
+
     def __init__(self, name):
         """Constructor
         Args:
@@ -123,12 +106,31 @@ class CellModel(Model):
             self.params[param_name].unfreeze()
 
     @staticmethod
+    def create_empty_template(template_name):
+        '''create an hoc template named template_name for an empty cell'''
+        return '''\
+        begintemplate %(template_name)s
+          objref all, apical, basal, somatic, axonal, this, CellRef
+          proc init() {
+            all = new SectionList()
+            somatic = new SectionList()
+            basal = new SectionList()
+            apical = new SectionList()
+            axonal = new SectionList()
+            forall delete_section()
+            CellRef = this
+          }
+          create soma[1], dend[1], apic[1], axon[1]
+        endtemplate %(template_name)s
+               ''' % dict(template_name=template_name)
+
+    @staticmethod
     def create_empty_cell(name, sim):
         """Create an empty cell in Neuron"""
 
         # TODO minize hardcoded definition
         # E.g. sectionlist can be procedurally generated
-        hoc_template = create_empty_template(name)
+        hoc_template = CellModel.create_empty_template(name)
         sim.neuron.h(hoc_template)
 
         template_function = getattr(sim.neuron.h, name)
@@ -137,8 +139,6 @@ class CellModel(Model):
 
     def instantiate(self, sim=None):
         """Instantiate model in simulator"""
-
-        sim.neuron.h.load_file('stdrun.hoc')
 
         # TODO replace this with the real template name
         if not hasattr(sim.neuron.h, 'Cell'):
@@ -206,7 +206,8 @@ def load_hoc_template(sim, hoc_path):
         for i, line in enumerate(fd):
             if 'begintemplate' in line:
                 line = line.strip().split()
-                assert line[0] == 'begintemplate', 'begintemplate must come first, line %d' % i
+                assert line[0] == 'begintemplate', \
+                    'begintemplate must come first, line %d' % i
                 template_name = line[1]
                 logger.info('Found template %s on line %d', template_name, i)
                 break
@@ -222,11 +223,20 @@ def load_hoc_template(sim, hoc_path):
 
 
 class HocCellModel(CellModel):
+
     '''Wrapper class for a hoc template so it can be used by BluePyOpt'''
     class Morphology(morphologies.Morphology):
+
         '''wrapper for Morphology so that it has a morphology_path'''
+
+        # TODO refactor this
+        # we shouldn't have nested classes, problematic for pickling
+
         def __init__(self, morphology_path):
-            assert os.path.exists(morphology_path), 'Morphology must exist: ' + morphology_path
+            super(HocCellModel.Morphology, self).__init__()
+            if not os.path.exists(morphology_path):
+                raise Exception('HocCellModel: Morphology not found at: %s'
+                                % morphology_path)
             self.morphology_path = morphology_path
 
     def __init__(self, name, morphology_path, hoc_path):
@@ -235,10 +245,14 @@ class HocCellModel(CellModel):
         Args:
             name(str): name of this object
             sim(NrnSimulator): simulator in which to instatiate hoc_path
-            morphology_path(str path): path to morphology that can be loaded by Neuron
+            morphology_path(str path): path to morphology that can be loaded by
+                                       Neuron
             hoc_path(str path): path to .hoc file that will be used
         """
-        super(HocCellModel, self).__init__(name, morph=None, mechs=[], params=[])
+        super(HocCellModel, self).__init__(name,
+                                           morph=None,
+                                           mechs=[],
+                                           params=[])
         self.hoc_path = hoc_path
         self.morphology = HocCellModel.Morphology(morphology_path)
         self.cell = None

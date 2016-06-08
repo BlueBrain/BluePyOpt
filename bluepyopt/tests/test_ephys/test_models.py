@@ -6,19 +6,19 @@ import tempfile
 from os.path import join as joinp
 
 import nose.tools as nt
-import mock
+from nose.plugins.attrib import attr
 
 from contextlib import contextmanager
 
 import bluepyopt.ephys as ephys
 
-import neuron
+sim = ephys.simulators.NrnSimulator()
 
 
 @contextmanager
 def yield_blank_hoc(template_name):
     """Create blank hoc template"""
-    hoc_template = ephys.models.create_empty_template(template_name)
+    hoc_template = ephys.models.CellModel.create_empty_template(template_name)
     temp_file = tempfile.NamedTemporaryFile(suffix='test_models')
     with temp_file as fd:
         fd.write(hoc_template)
@@ -26,14 +26,16 @@ def yield_blank_hoc(template_name):
         yield temp_file.name
 
 
+@attr('unit')
 def test_create_empty_template():
     """Test creation of empty template"""
     template_name = 'FakeTemplate'
-    hoc_template = ephys.models.create_empty_template(template_name)
-    neuron.h(hoc_template)
-    nt.ok_(hasattr(neuron.h, template_name))
+    hoc_template = ephys.models.CellModel.create_empty_template(template_name)
+    sim.neuron.h(hoc_template)
+    nt.ok_(hasattr(sim.neuron.h, template_name))
 
 
+@attr('unit')
 def test_model():
     """Test Model class"""
     model = ephys.models.Model('test_model')
@@ -43,21 +45,19 @@ def test_model():
     nt.ok_(isinstance(model, ephys.models.Model))
 
 
+@attr('unit')
 def test_load_hoc_template():
     """Test loading of hoc template"""
-    sim = mock.Mock()
-    sim.neuron = neuron
 
     template_name = 'test_load_hoc'
     with yield_blank_hoc(template_name) as hoc_path:
         ephys.models.load_hoc_template(sim, hoc_path)
-    nt.ok_(hasattr(neuron.h, template_name))
+    nt.ok_(hasattr(sim.neuron.h, template_name))
 
 
+@attr('unit')
 def test_HocCellModel():
     """Test HOCCellModel class"""
-    sim = mock.Mock()
-    sim.neuron = neuron
 
     testdata_dir = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
     morphology_path = joinp(testdata_dir, 'simple.swc')
@@ -82,11 +82,10 @@ def test_HocCellModel():
         hoc_cell.destroy()
 
 
+@attr('unit')
 def test_CellModel_create_empty_cell():
     """Test create_empty_cell"""
-    sim = mock.Mock()
-    sim.neuron = neuron
     template_name = 'EmptyModel'
     cell = ephys.models.CellModel.create_empty_cell(template_name, sim)
     nt.ok_(callable(cell))
-    nt.ok_(hasattr(neuron.h, template_name))
+    nt.ok_(hasattr(sim.neuron.h, template_name))
