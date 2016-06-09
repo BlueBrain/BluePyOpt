@@ -29,7 +29,8 @@ class NrnSimulator(object):
         self.dt = dt if dt is not None else neuron.h.dt
 
         self.neuron.h.cvode_active(1 if cvode_active else 0)
-        self.cvode.minstep(cvode_minstep if cvode_minstep else 0.0)
+        if cvode_minstep is not None:
+            self.cvode_minstep = cvode_minstep
 
         self.cvode_active = cvode_active
 
@@ -45,6 +46,12 @@ class NrnSimulator(object):
 
         return self.cvode.minstep()
 
+    @cvode_minstep.setter
+    def cvode_minstep(self, value):
+        """Set cvode minstep value"""
+
+        self.cvode.minstep(value)
+
     # pylint: disable=R0201
     # TODO function below should probably a class property or something in that
     # sense
@@ -56,7 +63,7 @@ class NrnSimulator(object):
 
         return neuron
 
-    def run(self, tstop=None, dt=None, cvode_active=None, cvode_minstep=None):
+    def run(self, tstop=None, dt=None, cvode_active=None):
         """Run protocol"""
 
         self.neuron.h.tstop = tstop
@@ -90,11 +97,6 @@ class NrnSimulator(object):
                 'Running Neuron simulator %.6g ms, with dt=%r',
                 tstop,
                 dt)
-
-        if cvode_minstep is None:
-            cvode_minstep = self.cvode_minstep
-
-        self.cvode.minstep(float('%.6g' % cvode_minstep))
 
         self.neuron.h.run()
 

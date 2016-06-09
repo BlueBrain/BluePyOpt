@@ -53,7 +53,8 @@ def test_nrnsimulator_cvode_minstep():
     # Check with minstep specified, before after simulation
     neuron_sim = ephys.simulators.NrnSimulator(cvode_minstep=0.0)
     nt.assert_equal(neuron_sim.cvode.minstep(), 0.0)
-    neuron_sim.run(tstop=10, cvode_minstep=0.02)
+    neuron_sim.cvode_minstep = 0.02
+    neuron_sim.run(tstop=10)
     nt.assert_equal(neuron_sim.cvode.minstep(), 0.02)
 
 
