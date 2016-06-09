@@ -11,7 +11,7 @@ class NrnSimulator(object):
 
     """Neuron simulator"""
 
-    def __init__(self, dt=None, cvode_active=True):
+    def __init__(self, dt=None, cvode_active=True, cvode_minstep=None):
         """Constructor"""
 
         import imp
@@ -27,7 +27,30 @@ class NrnSimulator(object):
         neuron.h.load_file('stdrun.hoc')
 
         self.dt = dt if dt is not None else neuron.h.dt
+
+        self.neuron.h.cvode_active(1 if cvode_active else 0)
+        if cvode_minstep is not None:
+            self.cvode_minstep = cvode_minstep
+
         self.cvode_active = cvode_active
+
+    @property
+    def cvode(self):
+        """Return cvode instance"""
+
+        return self.neuron.h.CVode()
+
+    @property
+    def cvode_minstep(self):
+        """Return cvode minstep value"""
+
+        return self.cvode.minstep()
+
+    @cvode_minstep.setter
+    def cvode_minstep(self, value):
+        """Set cvode minstep value"""
+
+        self.cvode.minstep(value)
 
     # pylint: disable=R0201
     # TODO function below should probably a class property or something in that
@@ -40,7 +63,7 @@ class NrnSimulator(object):
 
         return neuron
 
-    def run(self, tstop=None, cvode_active=None, dt=None):
+    def run(self, tstop=None, dt=None, cvode_active=None):
         """Run protocol"""
 
         self.neuron.h.tstop = tstop
@@ -55,13 +78,14 @@ class NrnSimulator(object):
 
         self.neuron.h.cvode_active(1 if cvode_active else 0)
 
-        if dt is None:  # use dt of simulator
+        if not cvode_active and dt is None:  # use dt of simulator
             if self.neuron.h.dt != self.dt:
                 raise Exception(
                     'NrnSimulator: Some process has changed the '
                     'time step dt of Neuron since the creation of this '
-                    'NrnSimulator object. Not sure this is intended, '
-                    'raising Exception %.6g %.6g' % (self.neuron.h.dt, self.dt))
+                    'NrnSimulator object. Not sure this is intended:\n'
+                    'current dt: %.6g\n'
+                    'init dt: %.6g' % (self.neuron.h.dt, self.dt))
             dt = self.dt
 
         if cvode_active:
@@ -75,4 +99,5 @@ class NrnSimulator(object):
                 dt)
 
         self.neuron.h.run()
+
         logger.debug('Neuron simulation finished')
