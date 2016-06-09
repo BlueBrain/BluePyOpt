@@ -28,11 +28,16 @@ class NrnSimulator(object):
 
         self.dt = dt if dt is not None else neuron.h.dt
 
-        self.cvode = self.neuron.h.CVode()
         self.neuron.h.cvode_active(1 if cvode_active else 0)
         self.cvode.minstep(cvode_minstep if cvode_minstep else 0.0)
 
         self.cvode_active = cvode_active
+
+    @property
+    def cvode(self):
+        """Return cvode instance"""
+
+        return self.neuron.h.CVode()
 
     @property
     def cvode_minstep(self):
