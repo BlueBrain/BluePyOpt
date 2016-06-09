@@ -37,6 +37,27 @@ def test_nrnsimulator_init():
 
 
 @attr('unit')
+def test_nrnsimulator_cvode_minstep():
+    """ephys.simulators: test if NrnSimulator constructor works"""
+
+    # Check with minstep specified
+    neuron_sim = ephys.simulators.NrnSimulator()
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.0)
+
+    # Check with minstep specified, before after simulation
+    neuron_sim = ephys.simulators.NrnSimulator(cvode_minstep=0.01)
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.01)
+    neuron_sim.run(tstop=10)
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.01)
+
+    # Check with minstep specified, before after simulation
+    neuron_sim = ephys.simulators.NrnSimulator(cvode_minstep=0.0)
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.0)
+    neuron_sim.run(tstop=10, cvode_minstep=0.02)
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.02)
+
+
+@attr('unit')
 def test_neuron_import():
     """ephys.simulators: test if bluepyopt.neuron import was successful"""
     from bluepyopt import ephys  # NOQA
