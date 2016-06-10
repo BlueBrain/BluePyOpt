@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class Protocol(object):
+
     """Class representing a protocol (stimulus and recording)."""
 
     def __init__(self, name=None):
@@ -108,11 +109,19 @@ class SweepProtocol(Protocol):
 
         self.instantiate(sim=sim, icell=cell_model.icell)
 
-        sim.run(self.total_duration, cvode_active=self.cvode_active)
-
-        responses = {
-            recording.name: recording.response
-            for recording in self.recordings}
+        try:
+            sim.run(self.total_duration, cvode_active=self.cvode_active)
+        except RuntimeError:
+            logger.debug(
+                'SweepProtocol: Running of parameter set {%s} generated '
+                'RuntimeError, returning None in responses',
+                str(param_values))
+            responses = {recording.name:
+                         None for recording in self.recordings}
+        else:
+            responses = {
+                recording.name: recording.response
+                for recording in self.recordings}
 
         self.destroy()
         for recording in self.recordings:
