@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 class EFeature(BaseEPhys):
+
     """EPhys feature"""
     pass
 
@@ -53,7 +54,6 @@ class eFELFeature(EFeature, DictMixin):
             exp_std=None,
             threshold=None,
             comment=''):
-
         """Constructor
 
         Args:
@@ -92,6 +92,10 @@ class eFELFeature(EFeature, DictMixin):
                 postfix = ''
             else:
                 postfix = ';%s' % location_name
+
+            if responses[self.recording_names['']] is None or \
+                    responses[recording_name] is None:
+                return None
             trace['T%s' % postfix] = \
                 responses[self.recording_names['']]['time']
             trace['V%s' % postfix] = responses[recording_name]['voltage']
@@ -105,28 +109,37 @@ class eFELFeature(EFeature, DictMixin):
 
         efel_trace = self._construct_efel_trace(responses)
 
-        import efel
-        values = efel.getMeanFeatureValues(
-            [efel_trace],
-            [self.efel_feature_name],
-            raise_warnings=raise_warnings)
-        return values[0][self.efel_feature_name]
+        if efel_trace is None:
+            feature_value = None
+        else:
+
+            import efel
+            values = efel.getMeanFeatureValues(
+                [efel_trace],
+                [self.efel_feature_name],
+                raise_warnings=raise_warnings)
+            feature_value = values[0][self.efel_feature_name]
+
+        return feature_value
 
     def calculate_score(self, responses):
         """Calculate the score"""
 
         efel_trace = self._construct_efel_trace(responses)
 
-        import efel
+        if efel_trace is None:
+            score = 250.0
+        else:
+            import efel
 
-        if self.threshold:
-            efel.setThreshold(self.threshold)
+            if self.threshold:
+                efel.setThreshold(self.threshold)
 
-        score = efel.getDistance(
-            efel_trace,
-            self.efel_feature_name,
-            self.exp_mean,
-            self.exp_std)
+            score = efel.getDistance(
+                efel_trace,
+                self.efel_feature_name,
+                self.exp_mean,
+                self.exp_std)
 
         logger.debug('Calculated score for %s: %f', self.name, score)
 
