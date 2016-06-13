@@ -79,7 +79,7 @@ class SweepProtocol(Protocol):
             name=None,
             stimuli=None,
             recordings=None,
-            cvode_active=True):
+            cvode_active=None):
         """Constructor
 
         Args:
