@@ -48,6 +48,7 @@ We are providing support using a chat channel on [Gitter](https://gitter.im/Blue
 
 News
 ====
+- 2016/06/14: Started a wiki: https://github.com/BlueBrain/BluePyOpt/wiki
 - 2016/06/07: The BluePyOpt paper was published in Frontiers in Neuroinformatics (for link, see above)
 - 2016/05/03: The API documentation was moved to [ReadTheDocs](http://bluepyopt.readthedocs.io/en/latest/)
 - 2016/04/20: BluePyOpt now contains the code of the IBEA selector, no need to install a BBP-specific version of DEAP anymore
