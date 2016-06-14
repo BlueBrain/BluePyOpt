@@ -174,3 +174,19 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         """Run evaluation with lists as input and outputs"""
 
         return self.evaluate_with_lists(param_list)
+
+    def __str__(self):
+
+        content = 'cell evaluator:\n'
+
+        content += '  cell model:\n'
+        content += '    %s\n' % str(self.cell_model)
+
+        content += '  fitness protocols:\n'
+        for fitness_protocol in self.fitness_protocols.values():
+            content += '    %s\n' % str(fitness_protocol)
+
+        content += '  fitness calculator:\n'
+        content += '    %s\n' % str(self.fitness_calculator)
+
+        return content
