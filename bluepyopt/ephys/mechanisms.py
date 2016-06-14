@@ -36,6 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 class Mechanism(BaseEPhys):
+
     """Base parameter class"""
     pass
 
@@ -44,8 +45,14 @@ class NrnMODMechanism(Mechanism, DictMixin):
 
     """Neuron mechanism"""
 
-    SERIALIZED_FIELDS = ('name', 'comment', 'mod_path', 'prefix', 'locations', 'preloaded',
-                         )
+    SERIALIZED_FIELDS = (
+        'name',
+        'comment',
+        'mod_path',
+        'prefix',
+        'locations',
+        'preloaded',
+    )
 
     def __init__(
             self,
@@ -97,6 +104,6 @@ class NrnMODMechanism(Mechanism, DictMixin):
     def __str__(self):
         """String representation"""
 
-        return "%s: %s %s" % (
-            self.name, [str(location) for location in self.locations],
-            self.prefix)
+        return "%s: %s at %s" % (
+            self.name, self.prefix,
+            [str(location) for location in self.locations])

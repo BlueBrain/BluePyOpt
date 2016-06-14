@@ -65,6 +65,13 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         super(CellEvaluator, self).__init__(
             fitness_calculator.objectives,
             cell_model.params_by_names(param_names))
+
+        if sim is None:
+            raise ValueError("CellEvaluator: you have to provide a Simulator "
+                             "object to the 'sim' argument of the "
+                             "CellEvaluator constructor")
+        self.sim = sim
+
         self.cell_model = cell_model
         self.param_names = param_names
         # Stimuli used for fitness calculation
@@ -73,8 +80,6 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         self.fitness_calculator = fitness_calculator
 
         self.isolate_protocols = isolate_protocols
-
-        self.sim = sim
 
     def param_dict(self, param_array):
         """Convert param_array in param_dict"""
@@ -174,3 +179,19 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         """Run evaluation with lists as input and outputs"""
 
         return self.evaluate_with_lists(param_list)
+
+    def __str__(self):
+
+        content = 'cell evaluator:\n'
+
+        content += '  cell model:\n'
+        content += '    %s\n' % str(self.cell_model)
+
+        content += '  fitness protocols:\n'
+        for fitness_protocol in self.fitness_protocols.values():
+            content += '    %s\n' % str(fitness_protocol)
+
+        content += '  fitness calculator:\n'
+        content += '    %s\n' % str(self.fitness_calculator)
+
+        return content
