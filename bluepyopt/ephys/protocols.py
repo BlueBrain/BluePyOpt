@@ -144,7 +144,7 @@ class SweepProtocol(Protocol):
                 "".join(
                     traceback.format_exception(*sys.exc_info())))
 
-    def run(self, cell_model, param_values, sim=None, isolate=None):
+    def run(self, cell_model, param_values, sim=None, isolate=True):
         """Instantiate protocol"""
 
         if isolate:
