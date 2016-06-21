@@ -38,7 +38,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             param_names=None,
             fitness_protocols=None,
             fitness_calculator=None,
-            isolate_protocols=True,
+            isolate_protocols=None,
             sim=None):
         """Constructor
 

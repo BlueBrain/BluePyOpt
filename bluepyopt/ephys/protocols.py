@@ -147,6 +147,9 @@ class SweepProtocol(Protocol):
     def run(self, cell_model, param_values, sim=None, isolate=None):
         """Instantiate protocol"""
 
+        if isolate is None:
+            isolate = True
+
         if isolate:
             def _reduce_method(meth):
                 """Overwrite reduce"""
