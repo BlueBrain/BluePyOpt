@@ -120,6 +120,11 @@ class CellModel(Model):
             forall delete_section()
             CellRef = this
           }
+
+          proc destroy() {localobj nil
+            CellRef = nil
+          }
+
           create soma[1], dend[1], apic[1], axon[1]
         endtemplate %(template_name)s
                ''' % dict(template_name=template_name)
@@ -156,7 +161,14 @@ class CellModel(Model):
     def destroy(self, sim=None):  # pylint: disable=W0613
         """Destroy instantiated model in simulator"""
 
+        # Make sure the icell's destroy() method is called
+        # without it a circular reference exists between CellRef and the object
+        # this prevents the icells from being garbage collected, and
+        # cell objects pile up in the simulator
+        self.icell.destroy()
+
         self.icell = None
+
         self.morphology.destroy()
         for mechanism in self.mechanisms:
             mechanism.destroy()
