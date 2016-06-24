@@ -19,21 +19,18 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# pylint: disable=W0511
+
 import itertools
 
+from bluepyopt.ephys.base import BaseEPhys
+from bluepyopt.ephys.serializer import DictMixin
 
-class Location(object):
+
+class Location(BaseEPhys):
 
     """Location"""
-
-    def __init__(self, name):
-        """Constructor
-
-        Args:
-            name (str): name of the location object
-        """
-
-        self.name = name
+    pass
 
 # TODO make all these locations accept a cell name
 # TODO instantiate should get the entire simulation environment
@@ -54,16 +51,25 @@ def _nth_isectionlist(isectionlist, index):
     return isection
 
 
-class NrnSeclistCompLocation(Location):
+class NrnSeclistCompLocation(Location, DictMixin):
 
     """Compartment in a sectionlist"""
+
+    SERIALIZED_FIELDS = (
+        'name',
+        'comment',
+        'seclist_name',
+        'sec_index',
+        'comp_x',
+    )
 
     def __init__(
             self,
             name,
             seclist_name=None,
             sec_index=None,
-            comp_x=None):
+            comp_x=None,
+            comment=''):
         """Constructor
 
         Args:
@@ -73,15 +79,22 @@ class NrnSeclistCompLocation(Location):
             comp_x (float): segx (0..1) of segment inside section
         """
 
-        super(NrnSeclistCompLocation, self).__init__(name)
+        super(NrnSeclistCompLocation, self).__init__(name, comment)
         self.seclist_name = seclist_name
         self.sec_index = sec_index
         self.comp_x = comp_x
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
         """Find the instantiate compartment"""
-        isectionlist = getattr(icell, self.seclist_name)
-        isection = _nth_isectionlist(isectionlist, self.sec_index)
+        iseclist = getattr(icell, self.seclist_name)
+
+        iseclist_size = len([x for x in iseclist])
+        if self.sec_index >= iseclist_size:
+            raise Exception(
+                'NrnSeclistCompLocation: section index %d falls out of '
+                'SectionList size of %d' %
+                (self.sec_index, iseclist_size))
+        isection = _nth_isectionlist(iseclist, self.sec_index)
         icomp = isection(self.comp_x)
         return icomp
 
@@ -91,14 +104,17 @@ class NrnSeclistCompLocation(Location):
         return '%s[%s](%s)' % (self.seclist_name, self.sec_index, self.comp_x)
 
 
-class NrnSeclistLocation(Location):
+class NrnSeclistLocation(Location, DictMixin):
 
     """Section in a sectionlist"""
+
+    SERIALIZED_FIELDS = ('name', 'comment', 'seclist_name', )
 
     def __init__(
             self,
             name,
-            seclist_name=None):
+            seclist_name=None,
+            comment=''):
         """Constructor
 
         Args:
@@ -106,10 +122,10 @@ class NrnSeclistLocation(Location):
             seclist_name (str): name of NEURON section list (ex: 'somatic')
         """
 
-        super(NrnSeclistLocation, self).__init__(name)
+        super(NrnSeclistLocation, self).__init__(name, comment)
         self.seclist_name = seclist_name
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
         """Find the instantiate compartment"""
 
         isectionlist = getattr(icell, self.seclist_name)
@@ -122,15 +138,18 @@ class NrnSeclistLocation(Location):
         return '%s' % (self.seclist_name)
 
 
-class NrnSeclistSecLocation(Location):
+class NrnSeclistSecLocation(Location, DictMixin):
 
     """Section in a sectionlist"""
+
+    SERIALIZED_FIELDS = ('name', 'comment', 'seclist_name', 'sec_index', )
 
     def __init__(
             self,
             name,
             seclist_name=None,
-            sec_index=None):
+            sec_index=None,
+            comment=''):
         """Constructor
 
         Args:
@@ -139,11 +158,11 @@ class NrnSeclistSecLocation(Location):
             sec_index (int): index of the section
         """
 
-        super(NrnSeclistSecLocation, self).__init__(name)
+        super(NrnSeclistSecLocation, self).__init__(name, comment)
         self.seclist_name = seclist_name
         self.sec_index = sec_index
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
         """Find the instantiate compartment"""
 
         isectionlist = getattr(icell, self.seclist_name)
@@ -156,11 +175,13 @@ class NrnSeclistSecLocation(Location):
         return '%s[%s]' % (self.seclist_name, self.sec_index)
 
 
-class NrnSomaDistanceCompLocation(Location):
+class NrnSomaDistanceCompLocation(Location, DictMixin):
 
     """Compartment at distance from soma"""
 
-    def __init__(self, name, soma_distance=None, seclist_name=None):
+    SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'seclist_name', )
+
+    def __init__(self, name, soma_distance=None, seclist_name=None, comment=''):
         """Constructor
 
         Args:
@@ -169,7 +190,7 @@ class NrnSomaDistanceCompLocation(Location):
             seclist_name (str): name of Neuron section list (ex: 'apical')
         """
 
-        super(NrnSomaDistanceCompLocation, self).__init__(name)
+        super(NrnSomaDistanceCompLocation, self).__init__(name, comment)
         self.soma_distance = soma_distance
         self.seclist_name = seclist_name
 

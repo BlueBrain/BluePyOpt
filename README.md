@@ -25,13 +25,13 @@ ranging from laptops to Linux clusters and cloud-based compute infrastructures.
 Citation
 ========
 
-When you use the BluePyOpt software or method for your research, we ask you to cite the following Arxiv preprint in your publications:
+When you use the BluePyOpt software or method for your research, we ask you to cite the following publication:
 
-[Van Geit W, Gevaert M, Chindemi G, Rössert C, Courcol J, Muller EB, Schürmann F, Segev I and Markram H (2016). BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience. Front. Neuroinform. 10:17. doi: 10.3389/fninf.2016.00017](http://www.frontiersin.org/neuroinformatics/10.3389/fninf.2016.00017/abstract)
+[Van Geit W, Gevaert M, Chindemi G, Rössert C, Courcol J, Muller EB, Schürmann F, Segev I and Markram H (2016). BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience. Front. Neuroinform. 10:17. doi: 10.3389/fninf.2016.00017](http://journal.frontiersin.org/article/10.3389/fninf.2016.00017)
 
 ```bibtex
 @ARTICLE{bluepyopt,
- AUTHOR={Van Geit, Werner  and  Gevaert, Michael  and  Chindemi, Giuseppe  and  Rössert, Christian  and  Courcol, Jean-Denis  and  Muller, Eilif Benjamin  and  Schürmann, Felix  and  Segev, Idan  and  Markram, Henry},
+ AUTHOR={Van Geit, Werner  and  Gevaert, Michael  and  Chindemi, Giuseppe  and  Rössert, Christian  and  Courcol, Jean-Denis  and  Muller, Eilif Benjamin  and  Schürmann, Felix  and  Segev, Idan  and  Markram, Henry},   
 TITLE={BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience},
 JOURNAL={Frontiers in Neuroinformatics},
 VOLUME={10},
@@ -39,7 +39,8 @@ YEAR={2016},
 NUMBER={17},
 URL={http://www.frontiersin.org/neuroinformatics/10.3389/fninf.2016.00017/abstract},
 DOI={10.3389/fninf.2016.00017},
-ISSN={1662-5196}}
+ISSN={1662-5196}
+}
 ```
 Support
 =======
@@ -47,6 +48,8 @@ We are providing support using a chat channel on [Gitter](https://gitter.im/Blue
 
 News
 ====
+- 2016/06/14: Started a wiki: https://github.com/BlueBrain/BluePyOpt/wiki
+- 2016/06/07: The BluePyOpt paper was published in Frontiers in Neuroinformatics (for link, see above)
 - 2016/05/03: The API documentation was moved to [ReadTheDocs](http://bluepyopt.readthedocs.io/en/latest/)
 - 2016/04/20: BluePyOpt now contains the code of the IBEA selector, no need to install a BBP-specific version of DEAP anymore
 - 2016/03/24: Released version 1.0
@@ -56,7 +59,6 @@ Requirements
 
 * [Python 2.7+](https://www.python.org/download/releases/2.7/)
 * [Pip](https://pip.pypa.io) (installed by default in newer versions of Python)
-* [BlueBrain version of DEAP](https://github.com/BlueBrain/deap)
 * [Neuron 7.4](http://neuron.yale.edu/) (compiled with Python support)
 * [eFEL eFeature Extraction Library](https://github.com/BlueBrain/eFEL) (automatically installed by pip)
 * [Numpy](http://www.numpy.org) (automatically installed by pip)
@@ -116,3 +118,7 @@ http://mybinder.org/repo/BlueBrain/BluePyOpt/examples/l5pc/L5PC.ipynb
 API documentation
 ==================
 The API documentation can be found on [ReadTheDocs](http://bluepyopt.readthedocs.io/en/latest/).
+
+Funding
+=======
+This work has been partially funded by the European Union Seventh Framework Program (FP7/2007­2013) under grant agreement no. 604102 (HBP)

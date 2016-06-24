@@ -23,31 +23,36 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# pylint: disable=W0511
 
 import logging
+
+from bluepyopt.ephys.base import BaseEPhys
+from bluepyopt.ephys.serializer import DictMixin
 
 logger = logging.getLogger(__name__)
 
 # TODO: use Location class to specify location
 
 
-class Mechanism(object):
+class Mechanism(BaseEPhys):
 
     """Base parameter class"""
-
-    def __init__(self, name):
-        """Constructor
-
-        Args:
-            name (str): name of this object
-        """
-
-        self.name = name
+    pass
 
 
-class NrnMODMechanism(Mechanism):
+class NrnMODMechanism(Mechanism, DictMixin):
 
     """Neuron mechanism"""
+
+    SERIALIZED_FIELDS = (
+        'name',
+        'comment',
+        'mod_path',
+        'prefix',
+        'locations',
+        'preloaded',
+    )
 
     def __init__(
             self,
@@ -55,7 +60,8 @@ class NrnMODMechanism(Mechanism):
             mod_path=None,
             prefix=None,
             locations=None,
-            preloaded=True):
+            preloaded=True,
+            comment=''):
         """Constructor
 
         Args:
@@ -69,11 +75,11 @@ class NrnMODMechanism(Mechanism):
                 (not used for the moment)
         """
 
-        super(NrnMODMechanism, self).__init__(name)
+        super(NrnMODMechanism, self).__init__(name, comment)
         self.mod_path = mod_path
         self.prefix = prefix
         self.locations = locations
-        self.preloaded = True
+        self.preloaded = preloaded
         self.cell_model = None
 
     def instantiate(self, sim=None, icell=None):
@@ -90,7 +96,7 @@ class NrnMODMechanism(Mechanism):
                 'Inserted %s in %s', self.prefix, [
                     str(location) for location in self.locations])
 
-    def destroy(self):
+    def destroy(self, sim=None):
         """Destroy mechanism instantiation"""
 
         pass
@@ -98,6 +104,6 @@ class NrnMODMechanism(Mechanism):
     def __str__(self):
         """String representation"""
 
-        return "%s: %s %s" % (
-            self.name, [str(location) for location in self.locations],
-            self.prefix)
+        return "%s: %s at %s" % (
+            self.name, self.prefix,
+            [str(location) for location in self.locations])

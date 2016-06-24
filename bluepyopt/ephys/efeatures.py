@@ -22,23 +22,25 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 
+from bluepyopt.ephys.base import BaseEPhys
+from bluepyopt.ephys.serializer import DictMixin
 
 logger = logging.getLogger(__name__)
 
 
-class EFeature(object):
+class EFeature(BaseEPhys):
 
     """EPhys feature"""
-
-    def __init__(self, name):
-        """Constructor"""
-
-        self.name = name
+    pass
 
 
-class eFELFeature(EFeature):
+class eFELFeature(EFeature, DictMixin):
 
     """eFEL feature"""
+
+    SERIALIZED_FIELDS = ('name', 'efel_feature_name', 'recording_names',
+                         'stim_start', 'stim_end', 'exp_mean',
+                         'exp_std', 'threshold', 'comment')
 
     def __init__(
             self,
@@ -49,7 +51,8 @@ class eFELFeature(EFeature):
             stim_end=None,
             exp_mean=None,
             exp_std=None,
-            threshold=None):
+            threshold=None,
+            comment=''):
         """Constructor
 
         Args:
@@ -63,9 +66,10 @@ class eFELFeature(EFeature):
             exp_mean (float): experimental mean of this eFeature
             exp_std(float): experimental standard deviation of this eFeature
             threshold(float): spike detection threshold (mV)
+            comment (str): comment
         """
 
-        super(eFELFeature, self).__init__(name)
+        super(eFELFeature, self).__init__(name, comment)
 
         self.recording_names = recording_names
         self.efel_feature_name = efel_feature_name
@@ -87,6 +91,10 @@ class eFELFeature(EFeature):
                 postfix = ''
             else:
                 postfix = ';%s' % location_name
+
+            if responses[self.recording_names['']] is None or \
+                    responses[recording_name] is None:
+                return None
             trace['T%s' % postfix] = \
                 responses[self.recording_names['']]['time']
             trace['V%s' % postfix] = responses[recording_name]['voltage']
@@ -95,32 +103,49 @@ class eFELFeature(EFeature):
 
         return trace
 
-    def calculate_feature(self, responses):
+    def calculate_feature(self, responses, raise_warnings=False):
         """Calculate feature value"""
 
         efel_trace = self._construct_efel_trace(responses)
 
-        import efel
-        return efel.getMeanFeatureValues(
-            [efel_trace],
-            [self.efel_feature_name],
-            raise_warnings=False)[0][self.efel_feature_name]
+        if efel_trace is None:
+            feature_value = None
+        else:
+
+            import efel
+            efel.reset()
+
+            values = efel.getMeanFeatureValues(
+                [efel_trace],
+                [self.efel_feature_name],
+                raise_warnings=raise_warnings)
+            feature_value = values[0][self.efel_feature_name]
+
+            efel.reset()
+
+        return feature_value
 
     def calculate_score(self, responses):
         """Calculate the score"""
 
         efel_trace = self._construct_efel_trace(responses)
 
-        import efel
+        if efel_trace is None:
+            score = 250.0
+        else:
+            import efel
+            efel.reset()
 
-        if self.threshold:
-            efel.setThreshold(self.threshold)
+            if self.threshold:
+                efel.setThreshold(self.threshold)
 
-        score = efel.getDistance(
-            efel_trace,
-            self.efel_feature_name,
-            self.exp_mean,
-            self.exp_std)
+            score = efel.getDistance(
+                efel_trace,
+                self.efel_feature_name,
+                self.exp_mean,
+                self.exp_std)
+
+            efel.reset()
 
         logger.debug('Calculated score for %s: %f', self.name, score)
 

@@ -22,9 +22,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint: disable=W0511
 
-# Not sure code below should go in module or class
-import types
-import copy_reg
 import logging
 logger = logging.getLogger(__name__)
 
@@ -41,7 +38,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             param_names=None,
             fitness_protocols=None,
             fitness_calculator=None,
-            isolate_protocols=True,
+            isolate_protocols=None,
             sim=None):
         """Constructor
 
@@ -65,6 +62,13 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         super(CellEvaluator, self).__init__(
             fitness_calculator.objectives,
             cell_model.params_by_names(param_names))
+
+        if sim is None:
+            raise ValueError("CellEvaluator: you have to provide a Simulator "
+                             "object to the 'sim' argument of the "
+                             "CellEvaluator constructor")
+        self.sim = sim
+
         self.cell_model = cell_model
         self.param_names = param_names
         # Stimuli used for fitness calculation
@@ -73,8 +77,6 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         self.fitness_calculator = fitness_calculator
 
         self.isolate_protocols = isolate_protocols
-
-        self.sim = sim
 
     def param_dict(self, param_array):
         """Convert param_array in param_dict"""
@@ -96,53 +98,25 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
 
         return objective_dict
 
-    def run_protocol(self, protocol, param_values):
-        """Run protocols"""
+    def run_protocol(self, protocol, param_values, isolate=None):
+        """Run protocol"""
 
-        try:
-            return protocol.run(self.cell_model, param_values, sim=self.sim)
-        except:
-            import sys
-            import traceback
-            raise Exception(
-                "".join(
-                    traceback.format_exception(*sys.exc_info())))
+        return protocol.run(
+            self.cell_model,
+            param_values,
+            sim=self.sim,
+            isolate=isolate)
 
     def run_protocols(self, protocols, param_values):
         """Run a set of protocols"""
 
         responses = {}
 
-        # TODO clean this up
-        if self.isolate_protocols:
-            import multiprocessing
-
-            # TODO this should only be executed once
-
-            def _reduce_method(meth):
-                """Overwrite reduce"""
-                return (getattr, (meth.__self__, meth.__func__.__name__))
-
-            copy_reg.pickle(types.MethodType, _reduce_method)
-
         for protocol in protocols:
-            if self.isolate_protocols:
-                # This multiprocessing makes sure that Neuron starts in a clean
-                # state every time we run a protocol
-                pool = multiprocessing.Pool(1, maxtasksperchild=1)
-                responses.update(
-                    pool.apply(self.run_protocol,
-                               args=[protocol],
-                               kwds={'param_values': param_values}))
-
-                # THis might help with garbage collecting the pool workers
-                pool.terminate()
-                pool.join()
-                del pool
-            else:
-                responses.update(self.run_protocol(
-                    protocol,
-                    param_values=param_values))
+            responses.update(self.run_protocol(
+                protocol,
+                param_values=param_values,
+                isolate=self.isolate_protocols))
 
         return responses
 
@@ -174,3 +148,19 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         """Run evaluation with lists as input and outputs"""
 
         return self.evaluate_with_lists(param_list)
+
+    def __str__(self):
+
+        content = 'cell evaluator:\n'
+
+        content += '  cell model:\n'
+        content += '    %s\n' % str(self.cell_model)
+
+        content += '  fitness protocols:\n'
+        for fitness_protocol in self.fitness_protocols.values():
+            content += '    %s\n' % str(fitness_protocol)
+
+        content += '  fitness calculator:\n'
+        content += '    %s\n' % str(self.fitness_calculator)
+
+        return content

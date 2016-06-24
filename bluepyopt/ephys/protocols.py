@@ -19,6 +19,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# pylint: disable=W0511
 
 # TODO: maybe find a better name ? -> sweep ?
 import logging
@@ -54,7 +55,7 @@ class SequenceProtocol(Protocol):
         super(SequenceProtocol, self).__init__(name)
         self.protocols = protocols
 
-    def run(self, cell_model, param_values, sim=None):
+    def run(self, cell_model, param_values, sim=None, isolate=None):
         """Instantiate protocol"""
 
         responses = {}
@@ -64,7 +65,8 @@ class SequenceProtocol(Protocol):
                 protocol.run(
                     cell_model=cell_model,
                     param_values=param_values,
-                    sim=sim))
+                    sim=sim,
+                    isolate=isolate))
 
         return responses
 
@@ -78,7 +80,7 @@ class SweepProtocol(Protocol):
             name=None,
             stimuli=None,
             recordings=None,
-            cvode_active=True):
+            cvode_active=None):
         """Constructor
 
         Args:
@@ -100,30 +102,76 @@ class SweepProtocol(Protocol):
 
         return max([stimulus.total_duration for stimulus in self.stimuli])
 
-    def run(self, cell_model, param_values, sim=None):
+    def _run_func(self, cell_model, param_values, sim=None):
+        """Run protocols"""
+
+        try:
+            cell_model.freeze(param_values)
+            cell_model.instantiate(sim=sim)
+
+            self.instantiate(sim=sim, icell=cell_model.icell)
+
+            try:
+                sim.run(self.total_duration, cvode_active=self.cvode_active)
+            except RuntimeError:
+                logger.debug(
+                    'SweepProtocol: Running of parameter set {%s} generated '
+                    'RuntimeError, returning None in responses',
+                    str(param_values))
+                responses = {recording.name:
+                             None for recording in self.recordings}
+            else:
+                responses = {
+                    recording.name: recording.response
+                    for recording in self.recordings}
+
+            self.destroy(sim=sim)
+
+            cell_model.destroy(sim=sim)
+
+            cell_model.unfreeze(param_values.keys())
+
+            return responses
+        except:
+            import sys
+            import traceback
+            raise Exception(
+                "".join(
+                    traceback.format_exception(*sys.exc_info())))
+
+    def run(self, cell_model, param_values, sim=None, isolate=None):
         """Instantiate protocol"""
 
-        cell_model.freeze(param_values)
-        cell_model.instantiate(sim=sim)
+        if isolate is None:
+            isolate = True
 
-        self.instantiate(sim=sim, icell=cell_model.icell)
+        if isolate:
+            def _reduce_method(meth):
+                """Overwrite reduce"""
+                return (getattr, (meth.__self__, meth.__func__.__name__))
 
-        sim.run(self.total_duration, cvode_active=self.cvode_active)
+            import copy_reg
+            import types
+            copy_reg.pickle(types.MethodType, _reduce_method)
 
-        responses = {
-            recording.name: recording.response
-            for recording in self.recordings}
+            import multiprocessing
 
-        self.destroy()
-        for recording in self.recordings:
-            recording.destroy()
+            pool = multiprocessing.Pool(1, maxtasksperchild=1)
+            responses = pool.apply(
+                self._run_func,
+                kwds={
+                    'cell_model': cell_model,
+                    'param_values': param_values,
+                    'sim': sim})
 
-        for stimulus in self.stimuli:
-            stimulus.destroy()
-
-        cell_model.destroy()
-
-        cell_model.unfreeze(param_values.keys())
+            pool.terminate()
+            pool.join()
+            del pool
+        else:
+            responses = self._run_func(
+                cell_model=cell_model,
+                param_values=param_values,
+                sim=sim)
 
         return responses
 
@@ -136,14 +184,14 @@ class SweepProtocol(Protocol):
         for recording in self.recordings:
             recording.instantiate(sim=sim, icell=icell)
 
-    def destroy(self):
+    def destroy(self, sim=None):
         """Destroy protocol"""
 
         for stimulus in self.stimuli:
-            stimulus.destroy()
+            stimulus.destroy(sim=sim)
 
         for recording in self.recordings:
-            recording.destroy()
+            recording.destroy(sim=sim)
 
     def __str__(self):
         """String representation"""

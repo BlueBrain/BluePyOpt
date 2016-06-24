@@ -19,33 +19,36 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# pylint: disable=W0511
 
 import os
 import logging
+from bluepyopt.ephys.base import BaseEPhys
+from bluepyopt.ephys.serializer import DictMixin
+
 logger = logging.getLogger(__name__)
 
 # TODO define an addressing scheme
 
 
-class Morphology(object):
+class Morphology(BaseEPhys):
 
     """Morphology class"""
-
-    def __init__(self):
-        """Constructor"""
-
-        pass
+    pass
 
 
-class NrnFileMorphology(Morphology):
+class NrnFileMorphology(Morphology, DictMixin):
 
     """Morphology loaded from a file"""
+    SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg',
+                         )
 
     def __init__(
             self,
             morphology_path,
             do_replace_axon=False,
-            do_set_nseg=True):
+            do_set_nseg=True,
+            comment=''):
         """Constructor
 
         Args:
@@ -54,8 +57,8 @@ class NrnFileMorphology(Morphology):
             do_replace_axon(bool): Does the axon need to be replaced by an AIS
                 stub ?
         """
-
-        super(NrnFileMorphology, self).__init__()
+        name = os.path.basename(morphology_path)
+        super(NrnFileMorphology, self).__init__(name=name, comment=comment)
         # TODO speed up loading of morphologies from files
         # Path to morphology
         self.morphology_path = morphology_path
@@ -111,7 +114,7 @@ class NrnFileMorphology(Morphology):
         if self.do_replace_axon:
             NrnFileMorphology.replace_axon(sim=sim, icell=icell)
 
-    def destroy(self):
+    def destroy(self, sim=None):
         """Destroy morphology instantiation"""
         pass
 

@@ -1,11 +1,13 @@
 """ephys/morphologies.py unit tests"""
 
+import json
 import os
 
 import nose.tools as nt
 from nose.plugins.attrib import attr
 
 import bluepyopt.ephys as ephys
+from bluepyopt.ephys.serializer import instantiator
 
 testdata_dir = os.path.join(
     os.path.dirname(
@@ -42,3 +44,15 @@ def test_nrnfilemorphology_init():
         simpleswc_morphpath,
         do_set_nseg=False)
     morph.instantiate(sim=sim)
+    morph.destroy(sim=sim)
+
+
+def test_serialize():
+    """ephys.morphology: testing serialization"""
+
+    morph = ephys.morphologies.NrnFileMorphology(simpleswc_morphpath)
+    serialized = morph.to_dict()
+    nt.ok_(isinstance(json.dumps(serialized), str))
+    deserialized = instantiator(serialized)
+    nt.ok_(isinstance(deserialized, ephys.morphologies.NrnFileMorphology))
+    nt.eq_(deserialized.morphology_path, simpleswc_morphpath)

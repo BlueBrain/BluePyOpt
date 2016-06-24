@@ -19,32 +19,31 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# pylint: disable=W0511
 
-class ParameterScaler(object):
+from bluepyopt.ephys.base import BaseEPhys
+from bluepyopt.ephys.serializer import DictMixin
+
+
+class ParameterScaler(BaseEPhys):
 
     """Parameter scalers"""
-
-    def __init__(self, name):
-        """Constructor
-
-        Args:
-            name (str): name of this object
-        """
-
-        self.name = name
+    pass
 
 # TODO get rid of the 'segment' here
 
 
-class NrnSegmentLinearScaler(ParameterScaler):
+class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
 
     """Linear scaler"""
+    SERIALIZED_FIELDS = ('name', 'comment', 'multiplier', 'offset', )
 
     def __init__(
             self,
             name=None,
             multiplier=1.0,
-            offset=0.0):
+            offset=0.0,
+            comment=''):
         """Constructor
 
         Args:
@@ -53,11 +52,11 @@ class NrnSegmentLinearScaler(ParameterScaler):
             offset (float): intercept of the linear scaler
         """
 
-        super(NrnSegmentLinearScaler, self).__init__(name)
+        super(NrnSegmentLinearScaler, self).__init__(name, comment)
         self.multiplier = multiplier
         self.offset = offset
 
-    def scale(self, value, _, sim=None):
+    def scale(self, value, segment=None, sim=None):  # pylint: disable=W0613
         """Scale a value based on a segment"""
 
         return self.multiplier * value + self.offset
@@ -68,25 +67,27 @@ class NrnSegmentLinearScaler(ParameterScaler):
         return '%s * value + %s' % (self.multiplier, self.offset)
 
 
-class NrnSegmentSomaDistanceScaler(ParameterScaler):
+class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
 
     """Scaler based on distance from soma"""
+    SERIALIZED_FIELDS = ('name', 'comment', 'distribution', )
 
     def __init__(
             self,
             name=None,
-            distribution=None):
+            distribution=None,
+            comment=''):
         """Constructor
 
         Args:
             name (str): name of this object
             distribution (str): distribution of parameter dependent on distance
-                from soma. string should contain `distance` and `value` as
+                from soma. string can contain `distance` and/or `value` as
                 placeholders for the distance to the soma and parameter value
                 respectivily
         """
 
-        super(NrnSegmentSomaDistanceScaler, self).__init__(name)
+        super(NrnSegmentSomaDistanceScaler, self).__init__(name, comment)
         self.distribution = distribution
 
     def scale(self, value, segment, sim=None):

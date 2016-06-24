@@ -1,3 +1,5 @@
+TEST_REQUIREMENTS=nose coverage
+
 all: install
 install:
 	pip install -q . --upgrade
@@ -27,13 +29,13 @@ sc_prepare: jupyter
 		mv simplecell.tmp simplecell.py
 jupyter:
 	pip install -q jupyter
-install_nose_coverage:
-	pip install -q nose coverage --upgrade
+install_test_requirements:
+	pip install -q $(TEST_REQUIREMENTS) --upgrade
 test: clean unit functional
-unit: install install_nose_coverage
+unit: install install_test_requirements
 	cd bluepyopt/tests; nosetests -a 'unit' -s -v -x --with-coverage --cover-xml \
 		--cover-package bluepyopt
-functional: install install_nose_coverage l5pc_prepare sc_prepare
+functional: install install_test_requirements l5pc_prepare sc_prepare
 	cd bluepyopt/tests; nosetests -a '!unit' -s -v -x --with-coverage --cover-xml \
 		--cover-package bluepyopt
 pypi: test
