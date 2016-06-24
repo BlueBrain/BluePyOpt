@@ -44,7 +44,7 @@ def test_nrnfilemorphology_init():
         simpleswc_morphpath,
         do_set_nseg=False)
     morph.instantiate(sim=sim)
-    morph.destroy()
+    morph.destroy(sim=sim)
 
 
 def test_serialize():

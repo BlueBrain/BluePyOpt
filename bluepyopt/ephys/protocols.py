@@ -123,14 +123,14 @@ class SweepProtocol(Protocol):
                 recording.name: recording.response
                 for recording in self.recordings}
 
-        self.destroy()
+        self.destroy(sim=sim)
         for recording in self.recordings:
-            recording.destroy()
+            recording.destroy(sim=sim)
 
         for stimulus in self.stimuli:
-            stimulus.destroy()
+            stimulus.destroy(sim=sim)
 
-        cell_model.destroy()
+        cell_model.destroy(sim=sim)
 
         cell_model.unfreeze(param_values.keys())
 
@@ -145,14 +145,14 @@ class SweepProtocol(Protocol):
         for recording in self.recordings:
             recording.instantiate(sim=sim, icell=icell)
 
-    def destroy(self):
+    def destroy(self, sim=None):
         """Destroy protocol"""
 
         for stimulus in self.stimuli:
-            stimulus.destroy()
+            stimulus.destroy(sim=sim)
 
         for recording in self.recordings:
-            recording.destroy()
+            recording.destroy(sim=sim)
 
     def __str__(self):
         """String representation"""

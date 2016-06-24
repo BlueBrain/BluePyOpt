@@ -76,7 +76,7 @@ class NrnCurrentPlayStimulus(Stimulus):
             1,
             sec=icomp.sec)
 
-    def destroy(self):
+    def destroy(self, sim=None):
         """Destroy stimulus"""
 
         self.iclamp = None
@@ -138,7 +138,7 @@ class NrnSquarePulse(Stimulus):
         self.iclamp.amp = self.step_amplitude
         self.iclamp.delay = self.step_delay
 
-    def destroy(self):
+    def destroy(self, sim=None):
         """Destroy stimulus"""
 
         self.iclamp = None
@@ -241,7 +241,7 @@ class NrnRampPulse(Stimulus):
         self.persistent.append(times)
         self.persistent.append(amps)
 
-    def destroy(self):
+    def destroy(self, sim=None):
         """Destroy stimulus"""
 
         # Destroy all persistent objects

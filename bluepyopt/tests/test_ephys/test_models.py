@@ -30,7 +30,7 @@ def yield_blank_hoc(template_name):
 
 @attr('unit')
 def test_create_empty_template():
-    """Test creation of empty template"""
+    """ephys.models: Test creation of empty template"""
     template_name = 'FakeTemplate'
     hoc_template = ephys.models.CellModel.create_empty_template(template_name)
     SIM.neuron.h(hoc_template)
@@ -39,7 +39,7 @@ def test_create_empty_template():
 
 @attr('unit')
 def test_model():
-    """Test Model class"""
+    """ephys.models: Test Model class"""
     model = ephys.models.Model('test_model')
     model.instantiate(sim=None)
     model.destroy(sim=None)
@@ -48,7 +48,7 @@ def test_model():
 
 @attr('unit')
 def test_load_hoc_template():
-    """Test loading of hoc template"""
+    """ephys.models: Test loading of hoc template"""
 
     template_name = 'test_load_hoc'
     with yield_blank_hoc(template_name) as hoc_path:
@@ -58,7 +58,7 @@ def test_load_hoc_template():
 
 @attr('unit')
 def test_HocCellModel():
-    """Test HOCCellModel class"""
+    """ephys.models: Test HOCCellModel class"""
     template_name = 'test_HocCellModel'
     with yield_blank_hoc(template_name) as hoc_path:
         hoc_cell = ephys.models.HocCellModel(
@@ -77,12 +77,12 @@ def test_HocCellModel():
         hoc_cell.check_nonfrozen_params(None)
         hoc_cell.params_by_names(None)
 
-        hoc_cell.destroy()
+        hoc_cell.destroy(sim=SIM)
 
 
 @attr('unit')
 def test_CellModel_create_empty_cell():
-    """Test create_empty_cell"""
+    """ephys.models: Test create_empty_cell"""
     template_name = 'create_empty_cell'
     cell = ephys.models.CellModel.create_empty_cell(template_name, SIM)
     nt.ok_(callable(cell))
@@ -91,7 +91,7 @@ def test_CellModel_create_empty_cell():
 
 @attr('unit')
 def test_CellModel_destroy():
-    """Test CellModel destroy"""
+    """ephys.models: Test CellModel destroy"""
     morph0 = ephys.morphologies.NrnFileMorphology(MORPHOLOGY_PATH)
     cell_model0 = ephys.models.CellModel('CellModel_destroy0',
                                          morph=morph0,
@@ -112,13 +112,10 @@ def test_CellModel_destroy():
     cell_model1.instantiate(sim=SIM)
     nt.eq_(2, len(SIM.neuron.h.Cell))
 
-    #make sure cleanup works
-    cell_model0.destroy()
+    # make sure cleanup works
+    cell_model0.destroy(sim=SIM)
 
-    sf = SIM.neuron.h.StringFunctions()
-    sf.references(SIM.neuron.h.Cell)
     nt.eq_(1, len(SIM.neuron.h.Cell))
 
-    cell_model1.destroy()
-    sf.references(SIM.neuron.h.Cell)
+    cell_model1.destroy(sim=SIM)
     nt.eq_(0, len(SIM.neuron.h.Cell))

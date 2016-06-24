@@ -167,13 +167,18 @@ class CellModel(Model):
         # cell objects pile up in the simulator
         self.icell.destroy()
 
+        # The line below is some M. Hines magic
+        # DON'T remove it, because it will make sure garbage collection
+        # is called on the icell object
+        sim.neuron.h.Vector().size()
+
         self.icell = None
 
-        self.morphology.destroy()
+        self.morphology.destroy(sim=sim)
         for mechanism in self.mechanisms:
-            mechanism.destroy()
+            mechanism.destroy(sim=sim)
         for param in self.params.values():
-            param.destroy()
+            param.destroy(sim=sim)
 
     def check_nonfrozen_params(self, param_names):  # pylint: disable=W0613
         """Check if all nonfrozen params are set"""

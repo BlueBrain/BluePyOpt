@@ -104,7 +104,7 @@ class TestL5PCModel(object):
 
     def teardown(self):
         """Teardown"""
-        self.l5pc_cell.destroy()
+        self.l5pc_cell.destroy(sim=self.nrn)
 
 
 class TestL5PCEvaluator(object):

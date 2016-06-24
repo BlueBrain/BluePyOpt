@@ -98,7 +98,7 @@ class CompRecording(Recording):
 
         self.instantiated = True
 
-    def destroy(self):
+    def destroy(self, sim=None):
         """Destroy recording"""
 
         self.varvector = None
