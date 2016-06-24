@@ -77,7 +77,6 @@ class MaxObjective(EFeatureObjective):
 
     """Max of list of EPhys feature"""
 
-    @property
     def calculate_score(self, responses):
         """Objective score"""
 
@@ -104,7 +103,6 @@ class WeightedSumObjective(EFeatureObjective):
                 'number of features')
         self.weights = weights
 
-    @property
     def calculate_score(self, responses):
         """Objective score"""
 
