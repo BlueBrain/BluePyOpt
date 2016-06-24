@@ -40,8 +40,7 @@ class Morphology(BaseEPhys):
 class NrnFileMorphology(Morphology, DictMixin):
 
     """Morphology loaded from a file"""
-    SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg',
-                         )
+    SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg')
 
     def __init__(
             self,
@@ -107,12 +106,12 @@ class NrnFileMorphology(Morphology, DictMixin):
         # set
         # (in case e.g. Ra was changed)
         if self.do_set_nseg:
-            NrnFileMorphology.set_nseg(icell)
+            self.set_nseg(icell)
 
         # TODO replace these two functions with general function users can
         # specify
         if self.do_replace_axon:
-            NrnFileMorphology.replace_axon(sim=sim, icell=icell)
+            self.replace_axon(sim=sim, icell=icell)
 
     def destroy(self, sim=None):
         """Destroy morphology instantiation"""
