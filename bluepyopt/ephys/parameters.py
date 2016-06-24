@@ -57,7 +57,7 @@ class NrnParameter(bluepyopt.parameters.Parameter):
         """Instantiate the parameter in the simulator"""
         pass
 
-    def destroy(self):
+    def destroy(self, sim=None):
         """Remove parameter from the simulator"""
         pass
 

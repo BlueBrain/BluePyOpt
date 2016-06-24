@@ -96,7 +96,7 @@ class NrnMODMechanism(Mechanism, DictMixin):
                 'Inserted %s in %s', self.prefix, [
                     str(location) for location in self.locations])
 
-    def destroy(self):
+    def destroy(self, sim=None):
         """Destroy mechanism instantiation"""
 
         pass

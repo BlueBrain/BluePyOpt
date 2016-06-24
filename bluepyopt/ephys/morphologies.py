@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class Morphology(BaseEPhys):
+
     """Morphology class"""
     pass
 
@@ -113,7 +114,7 @@ class NrnFileMorphology(Morphology, DictMixin):
         if self.do_replace_axon:
             NrnFileMorphology.replace_axon(sim=sim, icell=icell)
 
-    def destroy(self):
+    def destroy(self, sim=None):
         """Destroy morphology instantiation"""
         pass
 

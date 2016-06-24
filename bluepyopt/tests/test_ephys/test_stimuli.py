@@ -120,6 +120,6 @@ def test_NrnRampPulse_instantiate():
                 (ramp_delay + ramp_duration < time)
                 & (time <= total_duration))]), -57.994938389914402)
 
-    recording.destroy()
-    stim.destroy()
-    dummy_cell.destroy()
+    recording.destroy(sim=nrn_sim)
+    stim.destroy(sim=nrn_sim)
+    dummy_cell.destroy(sim=nrn_sim)
