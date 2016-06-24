@@ -40,8 +40,7 @@ class eFELFeature(EFeature, DictMixin):
 
     SERIALIZED_FIELDS = ('name', 'efel_feature_name', 'recording_names',
                          'stim_start', 'stim_end', 'exp_mean',
-                         'exp_std', 'threshold', 'comment',
-                         )
+                         'exp_std', 'threshold', 'comment')
 
     def __init__(
             self,
@@ -114,11 +113,15 @@ class eFELFeature(EFeature, DictMixin):
         else:
 
             import efel
+            efel.reset()
+
             values = efel.getMeanFeatureValues(
                 [efel_trace],
                 [self.efel_feature_name],
                 raise_warnings=raise_warnings)
             feature_value = values[0][self.efel_feature_name]
+
+            efel.reset()
 
         return feature_value
 
@@ -131,6 +134,7 @@ class eFELFeature(EFeature, DictMixin):
             score = 250.0
         else:
             import efel
+            efel.reset()
 
             if self.threshold:
                 efel.setThreshold(self.threshold)
@@ -140,6 +144,8 @@ class eFELFeature(EFeature, DictMixin):
                 self.efel_feature_name,
                 self.exp_mean,
                 self.exp_std)
+
+            efel.reset()
 
         logger.debug('Calculated score for %s: %f', self.name, score)
 
