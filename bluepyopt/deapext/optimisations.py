@@ -99,7 +99,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
                  eta=10,
                  mutpb=1.0,
                  cxpb=1.0,
-                 map_function=None):
+                 map_function=None,
+                 hof=None):
         """Constructor"""
 
         super(DEAPOptimisation, self).__init__(evaluator=evaluator)
@@ -111,6 +112,10 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         self.cxpb = cxpb
         self.mutpb = mutpb
         self.map_function = map_function
+        self.hof = hof
+
+        if self.hof is None:
+            self.hof = deap.tools.HallOfFame(10)
 
         # Create a DEAP toolbox
         self.toolbox = deap.base.Toolbox()
@@ -236,7 +241,6 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
         # Generate the population object
         pop = self.toolbox.population(n=offspring_size)
-        hof = deap.tools.HallOfFame(10)
 
         stats = deap.tools.Statistics(key=lambda ind: ind.fitness.sum)
         import numpy
@@ -253,12 +257,12 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             self.mutpb,
             max_ngen,
             stats=stats,
-            halloffame=hof,
+            halloffame=self.hof,
             cp_frequency=cp_frequency,
             continue_cp=continue_cp,
             cp_filename=cp_filename)
 
-        return pop, hof, log, history
+        return pop, self.hof, log, history
 
 
 class IBEADEAPOptimisation(DEAPOptimisation):
