@@ -94,7 +94,7 @@ class NrnFileMorphology(Morphology, DictMixin):
         # TODO this is to get rid of stdout print of neuron
         # probably should be more intelligent here, and filter out the
         # lines we don't want
-        sim.neuron.h.hoc_stdout('/dev/null')
+        sim.neuron.h.hoc_stdout('null')
         imorphology.input(str(self.morphology_path))
         sim.neuron.h.hoc_stdout()
 

@@ -16,11 +16,14 @@ class NrnSimulator(object):
 
         import imp
         import ctypes
+        import platform
 
-        hoc_so = os.path.join(imp.find_module('neuron')[1] + '/hoc.so')
-
-        nrndll = ctypes.cdll[hoc_so]
-        ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
+        if platform.system()!='Windows':
+            # hoc.so does not exist on NEURON Windows
+            # although \\hoc.pyd can work here, it gives an error for nrn_nobanner_ line
+            hoc_so = os.path.join(imp.find_module('neuron')[1] + '/hoc.so')
+            nrndll = ctypes.cdll[hoc_so]
+            ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
 
         import neuron  # NOQA
 
