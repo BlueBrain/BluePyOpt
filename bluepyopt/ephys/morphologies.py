@@ -22,6 +22,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=W0511
 
 import os
+import platform
 import logging
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
@@ -94,7 +95,12 @@ class NrnFileMorphology(Morphology, DictMixin):
         # TODO this is to get rid of stdout print of neuron
         # probably should be more intelligent here, and filter out the
         # lines we don't want
-        sim.neuron.h.hoc_stdout('/dev/null')
+
+        if platform.system()=='Windows':
+            sim.neuron.h.hoc_stdout('NUL') 
+        else:
+            sim.neuron.h.hoc_stdout('/dev/null') 
+
         imorphology.input(str(self.morphology_path))
         sim.neuron.h.hoc_stdout()
 
