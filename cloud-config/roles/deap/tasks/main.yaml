@@ -25,6 +25,12 @@
 - name: Install scoop
   pip: name=scoop version="{{ scoop_version }}" virtualenv={{ venv }}
 
+- name: Add virtualenv to setup.sh file
+  lineinfile:
+    dest="{{ workspace }}/setup.sh"
+    create=yes
+    line="source {{ venv }}"
+
 - name: Install ssh key
   authorized_key:
     user: "{{ user_name }}"
