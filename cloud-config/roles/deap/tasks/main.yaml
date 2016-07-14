@@ -22,14 +22,15 @@
 - name: Install scoop
   pip: name=scoop version="{{ scoop_version }}" virtualenv={{ venv }}
 
-- name: Install scoop
-  pip: name=scoop version="{{ scoop_version }}" virtualenv={{ venv }}
+#Use the latest version
+- name: Install BluePyOpt
+  pip: name=bluepyopt virtualenv={{ venv }}
 
 - name: Add virtualenv to setup.sh file
   lineinfile:
     dest="{{ workspace }}/setup.sh"
     create=yes
-    line="source {{ venv }}"
+    line="source {{ venv }}/bin/activate"
 
 - name: Install ssh key
   authorized_key:
