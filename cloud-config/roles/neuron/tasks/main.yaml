@@ -52,3 +52,9 @@
     state=present
     line="export PATH={{ venv }}/bin:{{ install_dir }}/nrnpython/x86_64/bin/:$PATH"
   when: "{{ add_bin_path }}"
+
+- name: Add paths to setup.sh file
+  lineinfile:
+    dest="{{ workspace }}/setup.sh"
+    create=yes
+    line="export PATH={{ venv }}/bin:{{ install_dir }}/nrnpython/x86_64/bin/:$PATH"
