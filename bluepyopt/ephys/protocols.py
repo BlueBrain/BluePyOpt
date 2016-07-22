@@ -21,6 +21,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint: disable=W0511
 
+import collections
+
 # TODO: maybe find a better name ? -> sweep ?
 import logging
 logger = logging.getLogger(__name__)
@@ -58,7 +60,7 @@ class SequenceProtocol(Protocol):
     def run(self, cell_model, param_values, sim=None, isolate=None):
         """Instantiate protocol"""
 
-        responses = {}
+        responses = collections.OrderedDict({})
 
         for protocol in self.protocols:
             responses.update(
@@ -69,6 +71,16 @@ class SequenceProtocol(Protocol):
                     isolate=isolate))
 
         return responses
+
+    def subprotocols(self):
+        """Return subprotocols"""
+
+        subprotocols = collections.OrderedDict({self.name: self})
+
+        for protocol in self.protocols:
+            subprotocols.update(protocol.subprotocols())
+
+        return subprotocols
 
 
 class SweepProtocol(Protocol):
@@ -102,6 +114,11 @@ class SweepProtocol(Protocol):
 
         return max([stimulus.total_duration for stimulus in self.stimuli])
 
+    def subprotocols(self):
+        """Return subprotocols"""
+
+        return collections.OrderedDict({self.name: self})
+
     def _run_func(self, cell_model, param_values, sim=None):
         """Run protocols"""
 
@@ -118,11 +135,11 @@ class SweepProtocol(Protocol):
                     'SweepProtocol: Running of parameter set {%s} generated '
                     'RuntimeError, returning None in responses',
                     str(param_values))
-                responses = {recording.name:
+                responses = {'%s.%s' % (self.name, recording.name):
                              None for recording in self.recordings}
             else:
                 responses = {
-                    recording.name: recording.response
+                    '%s.%s' % (self.name, recording.name): recording.response
                     for recording in self.recordings}
 
             self.destroy(sim=sim)
@@ -207,3 +224,47 @@ class SweepProtocol(Protocol):
             content += '    %s\n' % str(recording)
 
         return content
+
+
+class StepProtocol(SweepProtocol):
+
+    """Protocol consisting of step and holding current"""
+
+    def __init__(
+            self,
+            name=None,
+            step_stimulus=None,
+            holding_stimulus=None,
+            recordings=None,
+            cvode_active=None):
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            step_stimulus (list of Stimuli): Stimulus objects used in protocol
+            recordings (list of Recordings): Recording objects used in the
+                protocol
+            cvode_active (bool): whether to use variable time step
+        """
+
+        super(StepProtocol, self).__init__(
+            name,
+            stimuli=[
+                step_stimulus,
+                holding_stimulus]
+            if holding_stimulus is not None else [step_stimulus],
+            recordings=recordings,
+            cvode_active=cvode_active)
+
+        self.step_stimulus = step_stimulus
+        self.holding_stimulus = holding_stimulus
+
+    @property
+    def step_delay(self):
+        """Time stimulus starts"""
+        return self.step_stimulus.step_delay
+
+    @property
+    def step_duration(self):
+        """Time stimulus starts"""
+        return self.step_stimulus.step_duration
