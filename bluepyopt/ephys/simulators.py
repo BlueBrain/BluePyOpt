@@ -4,6 +4,10 @@
 
 import os
 import logging
+import imp
+import ctypes
+import platform
+
 logger = logging.getLogger(__name__)
 
 
@@ -14,22 +18,9 @@ class NrnSimulator(object):
     def __init__(self, dt=None, cvode_active=True, cvode_minstep=None):
         """Constructor"""
 
-        import imp
-        import ctypes
-        import platform
+        self.neuron.h.load_file('stdrun.hoc')
 
-        if platform.system()!='Windows':
-            # hoc.so does not exist on NEURON Windows
-            # although \\hoc.pyd can work here, it gives an error for nrn_nobanner_ line
-            hoc_so = os.path.join(imp.find_module('neuron')[1] + '/hoc.so')
-            nrndll = ctypes.cdll[hoc_so]
-            ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
-
-        import neuron  # NOQA
-
-        neuron.h.load_file('stdrun.hoc')
-
-        self.dt = dt if dt is not None else neuron.h.dt
+        self.dt = dt if dt is not None else self.neuron.h.dt
 
         self.neuron.h.cvode_active(1 if cvode_active else 0)
         if cvode_minstep is not None:
@@ -61,6 +52,14 @@ class NrnSimulator(object):
     @property
     def neuron(self):
         """Return neuron module"""
+
+        if platform.system() != 'Windows':
+            # hoc.so does not exist on NEURON Windows
+            # although \\hoc.pyd can work here, it gives an error for
+            # nrn_nobanner_ line
+            hoc_so = os.path.join(imp.find_module('neuron')[1] + '/hoc.so')
+            nrndll = ctypes.cdll[hoc_so]
+            ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
 
         import neuron  # NOQA
 
