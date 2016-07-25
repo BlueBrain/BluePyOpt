@@ -159,6 +159,10 @@ class eFELFeature(EFeature, DictMixin):
             import efel
             self._setup_efel()
 
+            if not efel.FeatureNameExists(self.efel_feature_name):
+                raise ValueError("eFEL doesn't have a feature called %s" %
+                                 self.efel_feature_name)
+
             score = efel.getDistance(
                 efel_trace,
                 self.efel_feature_name,
