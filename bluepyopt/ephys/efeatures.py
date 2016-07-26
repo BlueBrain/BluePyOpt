@@ -122,6 +122,10 @@ class eFELFeature(EFeature, DictMixin):
         if self.stimulus_current is not None:
             efel.setDoubleSetting('stimulus_current', self.stimulus_current)
 
+        if not efel.FeatureNameExists(self.efel_feature_name):
+            raise ValueError("eFEL doesn't have a feature called %s" %
+                             self.efel_feature_name)
+
     def calculate_feature(self, responses, raise_warnings=False):
         """Calculate feature value"""
 
@@ -130,9 +134,9 @@ class eFELFeature(EFeature, DictMixin):
         if efel_trace is None:
             feature_value = None
         else:
-            import efel
             self._setup_efel()
 
+            import efel
             values = efel.getMeanFeatureValues(
                 [efel_trace],
                 [self.efel_feature_name],
@@ -156,13 +160,9 @@ class eFELFeature(EFeature, DictMixin):
         if efel_trace is None:
             score = 250.0
         else:
-            import efel
             self._setup_efel()
 
-            if not efel.FeatureNameExists(self.efel_feature_name):
-                raise ValueError("eFEL doesn't have a feature called %s" %
-                                 self.efel_feature_name)
-
+            import efel
             score = efel.getDistance(
                 efel_trace,
                 self.efel_feature_name,
