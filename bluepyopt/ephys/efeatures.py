@@ -96,7 +96,9 @@ class eFELFeature(EFeature, DictMixin):
 
             if recording_name not in responses:
                 logger.debug(
-                    "Recording named %s not found in responses", recording_name)
+                    "Recording named %s not found in responses %s",
+                    recording_name,
+                    str(responses))
                 return None
 
             if responses[self.recording_names['']] is None or \
