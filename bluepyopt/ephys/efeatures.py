@@ -52,6 +52,7 @@ class eFELFeature(EFeature, DictMixin):
             exp_mean=None,
             exp_std=None,
             threshold=None,
+            stimulus_current=None,
             comment=''):
         """Constructor
 
@@ -78,6 +79,7 @@ class eFELFeature(EFeature, DictMixin):
         self.stim_start = stim_start
         self.stim_end = stim_end
         self.threshold = threshold
+        self.stimulus_current = stimulus_current
 
     def _construct_efel_trace(self, responses):
         """Construct trace that can be passed to eFEL"""
@@ -92,6 +94,11 @@ class eFELFeature(EFeature, DictMixin):
             else:
                 postfix = ';%s' % location_name
 
+            if recording_name not in responses:
+                logger.debug(
+                    "Recording named %s not found in responses", recording_name)
+                return None
+
             if responses[self.recording_names['']] is None or \
                     responses[recording_name] is None:
                 return None
@@ -103,6 +110,18 @@ class eFELFeature(EFeature, DictMixin):
 
         return trace
 
+    def _setup_efel(self):
+        """Set up efel before extracting the feature"""
+
+        import efel
+        efel.reset()
+
+        if self.threshold is not None:
+            efel.setThreshold(self.threshold)
+
+        if self.stimulus_current is not None:
+            efel.setDoubleSetting('stimulus_current', self.stimulus_current)
+
     def calculate_feature(self, responses, raise_warnings=False):
         """Calculate feature value"""
 
@@ -111,9 +130,8 @@ class eFELFeature(EFeature, DictMixin):
         if efel_trace is None:
             feature_value = None
         else:
-
             import efel
-            efel.reset()
+            self._setup_efel()
 
             values = efel.getMeanFeatureValues(
                 [efel_trace],
@@ -122,6 +140,11 @@ class eFELFeature(EFeature, DictMixin):
             feature_value = values[0][self.efel_feature_name]
 
             efel.reset()
+
+        logger.debug(
+            'Calculated value for %s: %s',
+            self.name,
+            str(feature_value))
 
         return feature_value
 
@@ -134,14 +157,7 @@ class eFELFeature(EFeature, DictMixin):
             score = 250.0
         else:
             import efel
-            efel.reset()
-
-            if not efel.FeatureNameExists(self.efel_feature_name):
-                raise ValueError("eFEL doesn't have a feature called %s" %
-                                 self.efel_feature_name)
-
-            if self.threshold:
-                efel.setThreshold(self.threshold)
+            self._setup_efel()
 
             score = efel.getDistance(
                 efel_trace,
