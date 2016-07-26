@@ -136,6 +136,10 @@ class eFELFeature(EFeature, DictMixin):
             import efel
             efel.reset()
 
+            if not efel.FeatureNameExists(self.efel_feature_name):
+                raise ValueError("eFEL doesn't have a feature called %s" %
+                                 self.efel_feature_name)
+
             if self.threshold:
                 efel.setThreshold(self.threshold)
 
