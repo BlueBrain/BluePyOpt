@@ -1,3 +1,5 @@
+"""Tests for ephys.efeatures"""
+
 import os
 from os.path import join as joinp
 import nose.tools as nt
@@ -8,11 +10,13 @@ from bluepyopt.ephys.serializer import instantiator
 
 
 def test_EFeature():
+    """ephys.efeatures: Testing EFeature creation"""
     efeature = efeatures.EFeature('name')
     nt.eq_(efeature.name, 'name')
 
 
 def test_eFELFeature():
+    """ephys.efeatures: Testing eFELFeature creation"""
     recording_names = {'': 'square_pulse_step1.soma.v'}
     efeature = efeatures.eFELFeature(name='test_eFELFeature',
                                      efel_feature_name='voltage_base',
@@ -25,20 +29,20 @@ def test_eFELFeature():
     response = TimeVoltageResponse('mock_response')
     testdata_dir = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
     response.read_csv(joinp(testdata_dir, 'TimeVoltageResponse.csv'))
-    responses = {'square_pulse_step1.soma.v': response,
-                 }
+    responses = {'square_pulse_step1.soma.v': response, }
 
     ret = efeature.calculate_feature(responses, raise_warnings=True)
     nt.assert_almost_equal(ret, -72.069487699766668)
 
     score = efeature.calculate_score(responses)
-    nt.assert_almost_equal(score, 73.05758438592171)
+    nt.assert_almost_equal(score, 73.06948769976667)
 
     nt.eq_(efeature.name, 'test_eFELFeature')
     nt.ok_('voltage_base' in str(efeature))
 
 
 def test_eFELFeature_serialize():
+    """ephys.efeatures: Testing eFELFeature serialization"""
     recording_names = {'': 'square_pulse_step1.soma.v'}
     efeature = efeatures.eFELFeature(name='test_eFELFeature',
                                      efel_feature_name='voltage_base',
