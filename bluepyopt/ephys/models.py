@@ -260,23 +260,19 @@ def load_hoc_template(sim, hoc_path):
     return template_name
 
 
+class HocMorphology(morphologies.Morphology):
+
+    '''wrapper for Morphology so that it has a morphology_path'''
+
+    def __init__(self, morphology_path):
+        if not os.path.exists(morphology_path):
+            raise Exception('HocCellModel: Morphology not found at: %s'
+                            % morphology_path)
+        self.morphology_path = morphology_path
+
 class HocCellModel(CellModel):
 
     '''Wrapper class for a hoc template so it can be used by BluePyOpt'''
-    class Morphology(morphologies.Morphology):
-
-        '''wrapper for Morphology so that it has a morphology_path'''
-
-        # TODO refactor this
-        # we shouldn't have nested classes, problematic for pickling
-
-        def __init__(self, morphology_path):
-            super(HocCellModel.Morphology, self).__init__()
-            if not os.path.exists(morphology_path):
-                raise Exception('HocCellModel: Morphology not found at: %s'
-                                % morphology_path)
-            self.morphology_path = morphology_path
-
     def __init__(self, name, morphology_path, hoc_path):
         """Constructor
 
@@ -292,7 +288,7 @@ class HocCellModel(CellModel):
                                            mechs=[],
                                            params=[])
         self.hoc_path = hoc_path
-        self.morphology = HocCellModel.Morphology(morphology_path)
+        self.morphology = HocMorphology(morphology_path)
         self.cell = None
         self.icell = None
 
