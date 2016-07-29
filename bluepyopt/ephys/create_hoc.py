@@ -50,6 +50,7 @@ def _generate_parameters(parameters):
                     value = param.value_scaler.distribution
                     value = re.sub(r'math\.', '', value)
                     value = re.sub('{distance}', '%g', value)
+                    value = re.sub('{value}', str(param.value), value)
                     range_params.append(Range(loc, param.param_name, value))
                 elif isinstance(param.value_scaler, NrnSegmentLinearScaler):
                     section_params[loc].append(
