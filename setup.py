@@ -50,4 +50,7 @@ setuptools.setup(
         'Operating System :: POSIX',
         'Topic :: Scientific/Engineering',
         'Topic :: Utilities'],
-    package_data={})
+
+    package_data={
+        'bluepyopt': ['ephys/templates/cell_template.jinja2', ],
+    })
