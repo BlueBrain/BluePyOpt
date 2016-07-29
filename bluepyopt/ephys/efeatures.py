@@ -154,7 +154,7 @@ class eFELFeature(EFeature, DictMixin):
 
         return feature_value
 
-    def calculate_score(self, responses):
+    def calculate_score(self, responses, trace_check=False):
         """Calculate the score"""
 
         efel_trace = self._construct_efel_trace(responses)
@@ -169,7 +169,8 @@ class eFELFeature(EFeature, DictMixin):
                 efel_trace,
                 self.efel_feature_name,
                 self.exp_mean,
-                self.exp_std)
+                self.exp_std,
+                trace_check=trace_check)
 
             efel.reset()
 

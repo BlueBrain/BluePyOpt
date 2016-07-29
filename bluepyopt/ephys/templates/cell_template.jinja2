@@ -1,0 +1,187 @@
+load_file("nrngui.hoc")
+load_file("import3d.hoc")
+
+begintemplate {{template_name}}
+  public init, morphology, geom_nseg_fixed, geom_nsec
+  public soma, dend, apic, axon
+  create soma[1], dend[1], apic[1], axon[1], myelin[1]
+
+  objref this, morphology, CellRef, segCounts
+
+  public all, somatic, apical, axonal, basal, APC
+  objref all, somatic, apical, axonal, basal, APC
+
+proc init(/* ignored, morphology_path */) {
+  all = new SectionList()
+  apical = new SectionList()
+  axonal = new SectionList()
+  basal = new SectionList()
+  somatic = new SectionList()
+
+  //For compatibility with BBP CCells
+  CellRef = this
+
+  forall delete_section()
+  {% if morphology is not none %}
+  if(numarg() != 2) {
+    load_morphology("{{morphology}}")
+  } else {
+    load_morphology($s2)
+  }
+  {%- else %}
+  load_morphology($s2)
+  {%- endif %}
+
+  geom_nseg()
+  delete_axon()
+  insertChannel()
+  biophys()
+}
+
+proc load_morphology(/* morphology_path */) {localobj m, nl, import
+  nl = new Import3d_Neurolucida3()
+  nl.quiet = 1
+  nl.input($s1)
+  import = new Import3d_GUI(nl, 0)
+  import.instantiate(this)
+}
+
+//This distance function matches the BluePyOpt method of assigning mechanism values
+proc distribute_distance(){local x localobj sl
+  strdef stmp, distfunc, mech
+
+  sl = $o1
+  mech = $s2
+  distfunc = $s3
+  this.soma[0] distance(0, 0.5)
+  sprint(distfunc, "%%s %s(%%f) = %s", mech, distfunc)
+  forsec sl for(x, 0) {
+    sprint(stmp, distfunc, secname(), x, distance(x))
+  }
+}
+
+proc geom_nseg() {
+  this.geom_nsec() //To count all sections
+  //TODO: geom_nseg_fixed depends on segCounts which is calculated by
+  //  geom_nsec.  Can this be collapsed?
+  this.geom_nseg_fixed(40)
+  this.geom_nsec() //To count all sections
+}
+
+proc insertChannel() {
+  {%- for location, names in channels.items() %}
+  forsec this.{{location}} {
+  {%- for channel in names %}
+    insert {{channel}}
+  {%- endfor %}
+  }
+  {%- endfor %}
+}
+
+proc biophys() {
+  {% for loc, parameters in section_params %}
+  forsec CellRef.{{ loc }} {
+  {%- for param in parameters %}
+    {{ param.name }} = {{ param.value }}
+  {%- endfor %}
+  }
+  {% endfor %}
+  {%- for location, param_name, value in range_params %}
+  distribute_distance(CellRef.{{location}}, "{{param_name}}", "{{value}}")
+  {%- endfor %}
+}
+
+func sec_count(/* SectionList */) { local nSec
+  nSec = 0
+  forsec $o1 {
+      nSec += 1
+  }
+  return nSec
+}
+
+/*
+ * Replace the axon built from the original morphology file with a stub axon
+ */
+proc delete_axon(){ local nSec, D1, D2
+  // preserve the number of original axonal sections
+  nSec = sec_count(axonal)
+
+  // Try to grab info from original axon
+  if(nSec == 0) { //No axon section present
+    D1 = D2 = 1
+  } else if(nSec == 1) {
+    access axon[0]
+    D1 = D2 = diam
+  } else {
+    access axon[0]
+    D1 = diam
+    access soma distance() //to calculate distance from soma
+    forsec axonal{
+      //if section is longer than 60um then store diam and exit from loop
+      if( distance(0.5) > 60 ){
+        D2 = diam
+        break
+      }
+    }
+  }
+
+  // get rid of the old axon
+  forsec axonal{
+    delete_section()
+  }
+
+  create axon[2]
+
+  access axon[0] {
+    L = 30
+    diam = D1
+    nseg = 1 + 2*int(L/40)
+    all.append()
+    axonal.append()
+  }
+  access axon[1] {
+    L = 30
+    diam = D2
+    nseg = 1 + 2*int(L/40)
+    all.append()
+    axonal.append()
+  }
+  nSecAxonal = 2
+  soma[0] connect axon[0](0), 1
+  axon[0] connect axon[1](0), 1
+}
+
+/*
+ * Iterate over the section and compute how many segments should be allocate to
+ * each.
+ */
+proc geom_nseg_fixed(/* chunkSize */) { local secIndex, chunkSize
+  chunkSize = $1
+  soma area(.5) // make sure diam reflects 3d points
+  secIndex = 0
+  forsec all {
+    nseg = 1 + 2*int(L/chunkSize)
+    segCounts.x[secIndex] = nseg
+    secIndex += 1
+  }
+}
+
+/*
+ * Count up the number of sections
+ */
+proc geom_nsec() { local nSec
+  nSecAll = sec_count(all)
+  nSecSoma = sec_count(somatic)
+  nSecApical = sec_count(apical)
+  nSecBasal = sec_count(basal)
+  nSecAxonalOrig = nSecAxonal = sec_count(axonal)
+
+  segCounts = new Vector()
+  segCounts.resize(nSecAll)
+  nSec = 0
+  forsec all {
+    segCounts.x[nSec] = nseg
+    nSec += 1
+  }
+}
+endtemplate {{template_name}}

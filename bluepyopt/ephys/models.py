@@ -190,6 +190,27 @@ class CellModel(Model):
                     'set before simulation' %
                     param_name)
 
+    def create_hoc(self, param_values, template_name='CCell',
+                   template='cell_template.jinja2'):
+        from bluepyopt.ephys.create_hoc import create_hoc
+
+        to_unfreeze = []
+        for param in self.params.values():
+            if not param.frozen:
+                param.freeze(param_values[param.name])
+                to_unfreeze.append(param.name)
+
+        ret = create_hoc(mechanisms=self.mechanisms,
+                         parameters=self.params.values(),
+                         morphology=self.morphology.morphology_path,
+                         template_name=template_name,
+                         template=template)
+
+        self.unfreeze(to_unfreeze)
+
+        return ret
+
+
     def __str__(self):
         """Return string representation"""
 
