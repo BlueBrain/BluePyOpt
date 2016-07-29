@@ -11,12 +11,12 @@
 '''
 import sys
 
-from bluepyopt.ephys import create_hoc
-from l5pc_model import define_parameters, define_mechanisms
+from bluepyopt.ephys.models import CellModel
+import l5pc_model
 
 def main():
     '''main'''
-    freeze_params = {
+    param_values = {
         'gNaTs2_tbar_NaTs2_t.apical': 0.026145,
         'gSKv3_1bar_SKv3_1.apical': 0.004226,
         'gImbar_Im.apical': 0.000143,
@@ -38,14 +38,8 @@ def main():
         'decay_CaDynamics_E2.somatic': 210.485284,
         'gCa_LVAstbar_Ca_LVAst.somatic': 0.000333,
     }
-    parameters = define_parameters()
-    mechanisms = define_mechanisms()
-
-    for param in parameters:
-        if not param.frozen:
-            param.freeze(freeze_params[param.name])
-
-    print create_hoc.create_hoc(mechanisms, parameters, template_name='CCell')
+    cell = l5pc_model.create()
+    print cell.create_hoc(param_values)
 
 if __name__ == '__main__':
     if '-h' in sys.argv or '--help' in sys.argv:

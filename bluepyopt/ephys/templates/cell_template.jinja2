@@ -22,8 +22,15 @@ proc init(/* ignored, morphology_path */) {
   CellRef = this
 
   forall delete_section()
-
+  {% if morphology is not none %}
+  if(numarg() != 2) {
+    load_morphology("{{morphology}}")
+  } else {
+    load_morphology($s2)
+  }
+  {%- else %}
   load_morphology($s2)
+  {%- endif %}
 
   geom_nseg()
   delete_axon()

@@ -64,8 +64,8 @@ def _generate_parameters(parameters):
     return ordered_section_params, range_params
 
 
-def create_hoc(mechanisms, parameters, template_name='CCell',
-               template='cell_template.jinja2'):
+def create_hoc(mechanisms, parameters, morphology=None,
+               template_name='CCell', template='cell_template.jinja2'):
     '''return a string containing the hoc template
 
     Args:
@@ -84,5 +84,6 @@ def create_hoc(mechanisms, parameters, template_name='CCell',
 
     return template.render(template_name=template_name,
                            channels=channels,
+                           morphology=morphology,
                            section_params=section_params,
                            range_params=range_params)
