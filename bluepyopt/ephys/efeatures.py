@@ -173,6 +173,8 @@ class eFELFeature(EFeature, DictMixin):
 
             efel.reset()
 
+        self.calculate_feature(responses)
+
         logger.debug('Calculated score for %s: %f', self.name, score)
 
         return score
