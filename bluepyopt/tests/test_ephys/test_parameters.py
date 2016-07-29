@@ -2,28 +2,13 @@ import json
 
 import nose.tools as nt
 
+import utils
 from bluepyopt import ephys
-from bluepyopt.ephys.parameters import (NrnGlobalParameter, NrnSectionParameter,
-                                        NrnRangeParameter, )
-
-from bluepyopt.ephys.locations import NrnSeclistLocation
 from bluepyopt.ephys.serializer import instantiator
 
 
 def test_serialize():
-    value, frozen, bounds, param_name = 65, False, [0, 100.0], 'gSKv3_1bar_SKv3_1'
-    value_scaler = ephys.parameterscalers.NrnSegmentLinearScaler()
-    locations = (NrnSeclistLocation('Location0', 'somatic'),
-                 NrnSeclistLocation('Location1', 'apical'),
-                 )
-
-    parameters = (
-        NrnGlobalParameter('NrnGlobalParameter', value, frozen, bounds, param_name),
-        NrnSectionParameter(
-            'NrnSectionParameter', value, frozen, bounds, param_name, value_scaler, locations ),
-        NrnRangeParameter(
-            'NrnRangeParameter', value, frozen, bounds, param_name, value_scaler, locations),
-    )
+    parameters = utils.make_parameters()
 
     for param in parameters:
         serialized = param.to_dict()
