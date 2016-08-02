@@ -34,12 +34,14 @@ def _generate_channels_by_location(mechanisms):
 def _generate_parameters(parameters):
     '''create a list of parameters that need to be added to the hoc template'''
     param_locations = defaultdict(list)
+    global_params = {}
     for param in parameters:
         if isinstance(param, NrnGlobalParameter):
-            continue
-        assert isinstance(param.locations, (tuple, list)), 'Must have locations list'
-        for location in param.locations:
-            param_locations[location.seclist_name].append(param)
+            global_params[param.name] = param.value
+        else:
+            assert isinstance(param.locations, (tuple, list)), 'Must have locations list'
+            for location in param.locations:
+                param_locations[location.seclist_name].append(param)
 
     section_params = defaultdict(list)
     range_params = []
@@ -66,7 +68,7 @@ def _generate_parameters(parameters):
     ordered_section_params = [(loc, section_params[loc])
                               for loc in LOCATION_ORDER]
 
-    return ordered_section_params, range_params
+    return global_params, ordered_section_params, range_params
 
 
 def create_hoc(mechanisms, parameters, morphology=None,
@@ -85,10 +87,12 @@ def create_hoc(mechanisms, parameters, morphology=None,
         template = jinja2.Template(template)
 
     channels = _generate_channels_by_location(mechanisms)
-    section_params, range_params = _generate_parameters(parameters)
+    global_params, section_params, range_params = \
+        _generate_parameters(parameters)
 
     return template.render(template_name=template_name,
                            channels=channels,
                            morphology=morphology,
                            section_params=section_params,
-                           range_params=range_params)
+                           range_params=range_params,
+                           global_params=global_params)
