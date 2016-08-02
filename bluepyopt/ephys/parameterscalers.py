@@ -28,6 +28,10 @@ from bluepyopt.ephys.serializer import DictMixin
 FLOAT_FORMAT = '%.17g'
 
 
+def format_float(value):
+    return FLOAT_FORMAT % value
+
+
 class ParameterScaler(BaseEPhys):
 
     """Parameter scalers"""
@@ -108,12 +112,10 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
         # Find something to generalise this
         import math  # pylint:disable=W0611 #NOQA
 
-        value = FLOAT_FORMAT % value
-        distance = FLOAT_FORMAT % distance
-
         # This eval is unsafe (but is it ever dangerous ?)
         # pylint: disable=W0123
-        dist = self.distribution.format(distance=distance, value=value)
+        dist = self.distribution.format(distance=format_float(distance),
+                                        value=format_float(value))
         return eval(dist)
 
     def __str__(self):
