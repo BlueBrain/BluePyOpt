@@ -11,6 +11,7 @@ from bluepyopt.ephys.parameters import (NrnGlobalParameter,
                                         )
 from bluepyopt.ephys.parameterscalers import (NrnSegmentSomaDistanceScaler,
                                               NrnSegmentLinearScaler,
+                                              FLOAT_FORMAT,
                                               )
 
 Location = namedtuple('Location', 'name, value')
@@ -47,15 +48,15 @@ def _generate_parameters(parameters):
         for param in param_locations[loc]:
             if isinstance(param, NrnRangeParameter):
                 if isinstance(param.value_scaler, NrnSegmentSomaDistanceScaler):
-                    float_format = param.value_scaler.float_format
                     value = param.value_scaler.distribution
                     value = re.sub(r'math\.', '', value)
-                    value = re.sub('{distance}', float_format, value)
-                    value = re.sub('{value}', float_format % param.value, value)
+                    value = re.sub('{distance}', FLOAT_FORMAT, value)
+                    value = re.sub('{value}', FLOAT_FORMAT % param.value, value)
                     range_params.append(Range(loc, param.param_name, value))
                 elif isinstance(param.value_scaler, NrnSegmentLinearScaler):
+                    value = param.value_scale_func(param.value)
                     section_params[loc].append(
-                        Location(param.param_name, param.value))
+                        Location(param.param_name, value))
             elif isinstance(param, NrnSectionParameter):
                 section_params[loc].append(
                     Location(param.param_name, param.value))

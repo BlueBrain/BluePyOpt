@@ -25,6 +25,9 @@ from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
 
+FLOAT_FORMAT = '%.17g'
+
+
 class ParameterScaler(BaseEPhys):
 
     """Parameter scalers"""
@@ -67,9 +70,6 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
         return '%s * value + %s' % (self.multiplier, self.offset)
 
 
-FLOAT_FORMAT = '%.9g'
-
-
 class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
 
     """Scaler based on distance from soma"""
@@ -79,8 +79,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
             self,
             name=None,
             distribution=None,
-            comment='',
-            float_format=FLOAT_FORMAT):
+            comment=''):
         """Constructor
 
         Args:
@@ -89,13 +88,10 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
                 from soma. string can contain `distance` and/or `value` as
                 placeholders for the distance to the soma and parameter value
                 respectivily
-            float_format (str): printf style format string used to convert floating
-                point numbers to strings
         """
 
         super(NrnSegmentSomaDistanceScaler, self).__init__(name, comment)
         self.distribution = distribution
-        self.float_format = float_format
 
     def scale(self, value, segment, sim=None):
         """Scale a value based on a segment"""
@@ -112,8 +108,8 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
         # Find something to generalise this
         import math  # pylint:disable=W0611 #NOQA
 
-        value = self.float_format % value
-        distance = self.float_format % distance
+        value = FLOAT_FORMAT % value
+        distance = FLOAT_FORMAT % distance
 
         # This eval is unsafe (but is it ever dangerous ?)
         # pylint: disable=W0123
