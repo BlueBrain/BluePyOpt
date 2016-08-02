@@ -47,10 +47,11 @@ def _generate_parameters(parameters):
         for param in param_locations[loc]:
             if isinstance(param, NrnRangeParameter):
                 if isinstance(param.value_scaler, NrnSegmentSomaDistanceScaler):
+                    float_format = param.value_scaler.float_format
                     value = param.value_scaler.distribution
                     value = re.sub(r'math\.', '', value)
-                    value = re.sub('{distance}', '%g', value)
-                    value = re.sub('{value}', str(param.value), value)
+                    value = re.sub('{distance}', float_format, value)
+                    value = re.sub('{value}', float_format % param.value, value)
                     range_params.append(Range(loc, param.param_name, value))
                 elif isinstance(param.value_scaler, NrnSegmentLinearScaler):
                     section_params[loc].append(
