@@ -57,6 +57,7 @@ proc distribute_distance(){local x localobj sl
   sprint(distfunc, "%%s %s(%%f) = %s", mech, distfunc)
   forsec sl for(x, 0) {
     sprint(stmp, distfunc, secname(), x, distance(x))
+    execute(stmp)
   }
 }
 
