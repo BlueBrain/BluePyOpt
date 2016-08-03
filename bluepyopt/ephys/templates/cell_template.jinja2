@@ -1,7 +1,7 @@
-load_file("nrngui.hoc")
+load_file("stdrun.hoc")
 load_file("import3d.hoc")
 
-{% if global_params %}
+{%- if global_params %}
 /*
  * Check that global parameters are the same as with the optimization
  */
@@ -14,9 +14,16 @@ proc check_parameter(/* name, expected_value, value */){
 }
 proc check_simulator() {
   {%- for param, value in global_params.items() %}
-  //check_parameter("{{param}}", {{value}}, {{param}})
+  check_parameter("{{param}}", {{value}}, {{param}})
   {%- endfor %}
 }
+{%- endif %}
+{%- if ignored_global_params %}
+/* The following global parameters were set in BluePyOpt
+{%- for param, value in ignored_global_params.items() %}
+ * {{param}} = {{value}}
+{%- endfor %}
+ */
 {%- endif %}
 
 begintemplate {{template_name}}

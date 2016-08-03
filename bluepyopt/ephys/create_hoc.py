@@ -71,13 +71,17 @@ def _generate_parameters(parameters):
     return global_params, ordered_section_params, range_params
 
 
-def create_hoc(mechanisms, parameters, morphology=None,
+def create_hoc(mechanisms, parameters, morphology=None, ignored_globals=(),
                template_name='CCell', template='cell_template.jinja2'):
     '''return a string containing the hoc template
 
     Args:
         mechanisms(): All the mechanisms for the hoc template
         parameters(): All the parameters in the hoc template
+        morpholgy(str path): Path to morphology
+        ignored_globals(iterable str): HOC coded is added for each NrnGlobalParameter
+        that exists, to test that it matches the values set in the parameters.  This
+        iterable contains parameter names that aren't checked
         template(str): name of the template to use 'cell_template.jinja2',
     '''
     templates_basepath = os.path.abspath(os.path.dirname(__file__))
@@ -90,9 +94,16 @@ def create_hoc(mechanisms, parameters, morphology=None,
     global_params, section_params, range_params = \
         _generate_parameters(parameters)
 
+    ignored_global_params = {}
+    for ignored_global in ignored_globals:
+        if ignored_global in global_params:
+            ignored_global_params[ignored_global] = global_params[ignored_global]
+            del global_params[ignored_global]
+
     return template.render(template_name=template_name,
                            channels=channels,
                            morphology=morphology,
                            section_params=section_params,
                            range_params=range_params,
-                           global_params=global_params)
+                           global_params=global_params,
+                           ignored_global_params=ignored_global_params)
