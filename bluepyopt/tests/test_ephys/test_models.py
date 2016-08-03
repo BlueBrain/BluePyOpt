@@ -10,29 +10,19 @@ from nose.plugins.attrib import attr
 
 from contextlib import contextmanager
 
-import bluepyopt.ephys as ephys
+from bluepyopt import ephys
+from bluepyopt.ephys.models import CellModel
 
 SIM = ephys.simulators.NrnSimulator()
 TESTDATA_DIR = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
 MORPHOLOGY_PATH = joinp(TESTDATA_DIR, 'simple.swc')
 
 
-@contextmanager
-def yield_blank_hoc(template_name):
-    """Create blank hoc template"""
-    hoc_template = ephys.models.CellModel.create_empty_template(template_name)
-    temp_file = tempfile.NamedTemporaryFile(suffix='test_models')
-    with temp_file as fd:
-        fd.write(hoc_template)
-        fd.flush()
-        yield temp_file.name
-
-
 @attr('unit')
 def test_create_empty_template():
     """ephys.models: Test creation of empty template"""
     template_name = 'FakeTemplate'
-    hoc_template = ephys.models.CellModel.create_empty_template(template_name)
+    hoc_template = CellModel.create_empty_template(template_name)
     SIM.neuron.h(hoc_template)
     nt.ok_(hasattr(SIM.neuron.h, template_name))
 
@@ -51,8 +41,8 @@ def test_load_hoc_template():
     """ephys.models: Test loading of hoc template"""
 
     template_name = 'test_load_hoc'
-    with yield_blank_hoc(template_name) as hoc_path:
-        ephys.models.load_hoc_template(SIM, hoc_path)
+    hoc_string = CellModel.create_empty_template(template_name)
+    ephys.models.load_hoc_template(SIM, hoc_string)
     nt.ok_(hasattr(SIM.neuron.h, template_name))
 
 
@@ -60,24 +50,22 @@ def test_load_hoc_template():
 def test_HocCellModel():
     """ephys.models: Test HOCCellModel class"""
     template_name = 'test_HocCellModel'
-    with yield_blank_hoc(template_name) as hoc_path:
-        hoc_cell = ephys.models.HocCellModel(
-            'test_hoc_model',
-            MORPHOLOGY_PATH,
-            hoc_path)
-        hoc_cell.instantiate(SIM)
-        nt.ok_(hoc_cell.icell is not None)
-        nt.ok_(hoc_cell.cell is not None)
+    hoc_string = CellModel.create_empty_template(template_name)
+    hoc_cell = ephys.models.HocCellModel(
+        'test_hoc_model', MORPHOLOGY_PATH, hoc_string)
+    hoc_cell.instantiate(SIM)
+    nt.ok_(hoc_cell.icell is not None)
+    nt.ok_(hoc_cell.cell is not None)
 
-        nt.ok_('simple.swc' in str(hoc_cell))
+    nt.ok_('simple.swc' in str(hoc_cell))
 
-        # these should be callable, but don't do anything
-        hoc_cell.freeze(None)
-        hoc_cell.unfreeze(None)
-        hoc_cell.check_nonfrozen_params(None)
-        hoc_cell.params_by_names(None)
+    # these should be callable, but don't do anything
+    hoc_cell.freeze(None)
+    hoc_cell.unfreeze(None)
+    hoc_cell.check_nonfrozen_params(None)
+    hoc_cell.params_by_names(None)
 
-        hoc_cell.destroy(sim=SIM)
+    hoc_cell.destroy(sim=SIM)
 
 
 @attr('unit')

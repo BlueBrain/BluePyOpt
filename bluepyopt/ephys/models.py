@@ -230,10 +230,26 @@ class CellModel(Model):
         return content
 
 
-def load_hoc_template(sim, hoc_path):
-    '''have neuron load a hoc file, and detect what the name template name is
+def get_template_name(hoc_string):
+    '''find the template name from hoc_string
 
-    Note: this may fail if there is a begintemplate in a /* */ style comment
+    Note: this will fail if there is a begintemplate in a /* */ style comment
+    before the real begintemplate
+    '''
+    for i, line in enumerate(hoc_string.split('\n')):
+        if 'begintemplate' in line:
+            line = line.strip().split()
+            assert line[0] == 'begintemplate', \
+                'begintemplate must come first, line %d' % i
+            template_name = line[1]
+            logger.info('Found template %s on line %d', template_name, i)
+            return template_name
+    else:
+        raise Exception('Could not find begintemplate in hoc file')
+
+
+def load_hoc_template(sim, hoc_string):
+    '''have neuron hoc template, and detect what the name template name is
 
     The template must have an init that takes two parameters, the second of
     which is the path to a morphology.
@@ -241,20 +257,9 @@ def load_hoc_template(sim, hoc_path):
     It must also have a CellRef member that is the result of
         `Import3d_GUI(...).instantiate()`
     '''
-    with open(hoc_path) as fd:
-        for i, line in enumerate(fd):
-            if 'begintemplate' in line:
-                line = line.strip().split()
-                assert line[0] == 'begintemplate', \
-                    'begintemplate must come first, line %d' % i
-                template_name = line[1]
-                logger.info('Found template %s on line %d', template_name, i)
-                break
-        else:
-            raise Exception('Could not find begintemplate in hoc file')
-
+    template_name = get_template_name(hoc_string)
     if not hasattr(sim.neuron.h, template_name):
-        sim.neuron.h.load_file(hoc_path)
+        sim.neuron.h(hoc_string)
         assert hasattr(sim.neuron.h, template_name), \
             'NEURON does not have template: ' + template_name
 
@@ -271,10 +276,11 @@ class HocMorphology(morphologies.Morphology):
                             % morphology_path)
         self.morphology_path = morphology_path
 
+
 class HocCellModel(CellModel):
 
     '''Wrapper class for a hoc template so it can be used by BluePyOpt'''
-    def __init__(self, name, morphology_path, hoc_path):
+    def __init__(self, name, morphology_path, hoc_string=None):
         """Constructor
 
         Args:
@@ -282,13 +288,13 @@ class HocCellModel(CellModel):
             sim(NrnSimulator): simulator in which to instatiate hoc_path
             morphology_path(str path): path to morphology that can be loaded by
                                        Neuron
-            hoc_path(str path): path to .hoc file that will be used
+            hoc_string(str): String that of hoc code that defines a template
         """
         super(HocCellModel, self).__init__(name,
                                            morph=None,
                                            mechs=[],
                                            params=[])
-        self.hoc_path = hoc_path
+        self.hoc_string = hoc_string
         self.morphology = HocMorphology(morphology_path)
         self.cell = None
         self.icell = None
@@ -304,7 +310,7 @@ class HocCellModel(CellModel):
 
     def instantiate(self, sim=None):
         sim.neuron.h.load_file('stdrun.hoc')
-        template_name = load_hoc_template(sim, self.hoc_path)
+        template_name = load_hoc_template(sim, self.hoc_string)
         morph_path = self.morphology.morphology_path
         self.cell = getattr(sim.neuron.h, template_name)(0, morph_path)
         self.icell = self.cell.CellRef
@@ -319,5 +325,5 @@ class HocCellModel(CellModel):
     def __str__(self):
         """Return string representation"""
         return ('%s: %s of %s(%s)' %
-                (self.__class__, self.name, self.hoc_path,
+                (self.__class__, self.name, get_template_name(self.hoc_string),
                  self.morphology.morphology_path, ))
