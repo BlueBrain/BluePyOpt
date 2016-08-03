@@ -18,8 +18,10 @@ def test__generate_channels_by_location():
 def test__generate_parameters():
     parameters = utils.make_parameters()
 
-    section_params, range_params = create_hoc._generate_parameters(parameters)
+    global_params, section_params, range_params = \
+        create_hoc._generate_parameters(parameters)
 
+    nt.eq_(global_params, {'NrnGlobalParameter': 65})
     nt.eq_(len(section_params[1]), 2)
     nt.eq_(len(section_params[4]), 2)
     nt.eq_(section_params[4][0], 'somatic')

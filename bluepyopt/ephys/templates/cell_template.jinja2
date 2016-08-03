@@ -1,5 +1,30 @@
-load_file("nrngui.hoc")
+load_file("stdrun.hoc")
 load_file("import3d.hoc")
+
+{%- if global_params %}
+/*
+ * Check that global parameters are the same as with the optimization
+ */
+proc check_parameter(/* name, expected_value, value */){
+  strdef error
+  if($2 != $3){
+    sprint(error, "Parameter %s has different value %f != %f", $s1, $2, $3)
+    execerror(error)
+  }
+}
+proc check_simulator() {
+  {%- for param, value in global_params.items() %}
+  check_parameter("{{param}}", {{value}}, {{param}})
+  {%- endfor %}
+}
+{%- endif %}
+{%- if ignored_global_params %}
+/* The following global parameters were set in BluePyOpt
+{%- for param, value in ignored_global_params.items() %}
+ * {{param}} = {{value}}
+{%- endfor %}
+ */
+{%- endif %}
 
 begintemplate {{template_name}}
   public init, morphology, geom_nseg_fixed, geom_nsec
@@ -46,7 +71,10 @@ proc load_morphology(/* morphology_path */) {localobj m, nl, import
   import.instantiate(this)
 }
 
-//This distance function matches the BluePyOpt method of assigning mechanism values
+/*
+ * Assignment of mechanism values based on distance from the soma
+ * Matches the BluePyOpt method
+ */
 proc distribute_distance(){local x localobj sl
   strdef stmp, distfunc, mech
 
@@ -119,7 +147,7 @@ proc delete_axon(){ local nSec, D1, D2
     access soma distance() //to calculate distance from soma
     forsec axonal{
       //if section is longer than 60um then store diam and exit from loop
-      if( distance(0.5) > 60 ){
+      if(distance(0.5) > 60){
         D2 = diam
         break
       }

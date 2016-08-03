@@ -191,7 +191,7 @@ class CellModel(Model):
                     param_name)
 
     def create_hoc(self, param_values, template_name='CCell',
-                   template='cell_template.jinja2'):
+                   ignored_globals=(), template='cell_template.jinja2'):
         from bluepyopt.ephys.create_hoc import create_hoc
 
         to_unfreeze = []
@@ -203,6 +203,7 @@ class CellModel(Model):
         ret = create_hoc(mechanisms=self.mechanisms,
                          parameters=self.params.values(),
                          morphology=self.morphology.morphology_path,
+                         ignored_globals=ignored_globals,
                          template_name=template_name,
                          template=template)
 
@@ -302,6 +303,7 @@ class HocCellModel(CellModel):
         pass
 
     def instantiate(self, sim=None):
+        sim.neuron.h.load_file('stdrun.hoc')
         template_name = load_hoc_template(sim, self.hoc_path)
         morph_path = self.morphology.morphology_path
         self.cell = getattr(sim.neuron.h, template_name)(0, morph_path)
