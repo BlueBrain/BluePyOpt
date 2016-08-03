@@ -135,11 +135,11 @@ class SweepProtocol(Protocol):
                     'SweepProtocol: Running of parameter set {%s} generated '
                     'RuntimeError, returning None in responses',
                     str(param_values))
-                responses = {'%s.%s' % (self.name, recording.name):
+                responses = {recording.name:
                              None for recording in self.recordings}
             else:
                 responses = {
-                    '%s.%s' % (self.name, recording.name): recording.response
+                    recording.name: recording.response
                     for recording in self.recordings}
 
             self.destroy(sim=sim)
