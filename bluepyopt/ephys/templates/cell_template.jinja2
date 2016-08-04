@@ -1,3 +1,5 @@
+/* {{banner}}
+ */
 load_file("stdrun.hoc")
 load_file("import3d.hoc")
 
@@ -27,16 +29,16 @@ proc check_simulator() {
 {%- endif %}
 
 begintemplate {{template_name}}
-  public init, morphology, geom_nseg_fixed, geom_nsec
+  public init, geom_nseg_fixed, geom_nsec
   public soma, dend, apic, axon
-  create soma[1], dend[1], apic[1], axon[1], myelin[1]
+  create soma[1], dend[1], apic[1], axon[1]
 
-  objref this, morphology, CellRef, segCounts
+  objref this, CellRef, segCounts
 
   public all, somatic, apical, axonal, basal, APC
   objref all, somatic, apical, axonal, basal, APC
 
-proc init(/* ignored, morphology_path */) {
+proc init(/* args: morphology_dir, morphology_name */) {
   all = new SectionList()
   apical = new SectionList()
   axonal = new SectionList()
@@ -47,15 +49,16 @@ proc init(/* ignored, morphology_path */) {
   CellRef = this
 
   forall delete_section()
-  {% if morphology is not none %}
-  if(numarg() != 2) {
-    load_morphology("{{morphology}}")
+
+  if(numarg() >= 2) {
+    load_morphology($s1, $s2)
   } else {
-    load_morphology($s2)
-  }
+  {%- if morphology %}
+    load_morphology($s1, "{{morphology}}")
   {%- else %}
-  load_morphology($s2)
+    execerror("Template {{template_name}} requires morphology name to instantiate")
   {%- endif %}
+  }
 
   geom_nseg()
   delete_axon()
@@ -63,10 +66,14 @@ proc init(/* ignored, morphology_path */) {
   biophys()
 }
 
-proc load_morphology(/* morphology_path */) {localobj m, nl, import
+proc load_morphology(/* morphology_dir, morphology_name */) {localobj nl, import
+  strdef morph_path
+  sprint(morph_path, "%s/%s", $s1, $s2)
+
   nl = new Import3d_Neurolucida3()
   nl.quiet = 1
-  nl.input($s1)
+  nl.input(morph_path)
+
   import = new Import3d_GUI(nl, 0)
   import.instantiate(this)
 }
@@ -131,6 +138,9 @@ func sec_count(/* SectionList */) { local nSec
 /*
  * Replace the axon built from the original morphology file with a stub axon
  */
+{%- if delete_axon is not none %}
+{{delete_axon}}
+{% else %}
 proc delete_axon(){ local nSec, D1, D2
   // preserve the number of original axonal sections
   nSec = sec_count(axonal)
@@ -179,6 +189,7 @@ proc delete_axon(){ local nSec, D1, D2
   soma[0] connect axon[0](0), 1
   axon[0] connect axon[1](0), 1
 }
+{%- endif %}
 
 /*
  * Iterate over the section and compute how many segments should be allocate to

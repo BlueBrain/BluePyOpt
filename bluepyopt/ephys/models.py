@@ -200,10 +200,14 @@ class CellModel(Model):
                 param.freeze(param_values[param.name])
                 to_unfreeze.append(param.name)
 
+        morphology = os.path.basename(self.morphology.morphology_path)
+        delete_axon = self.morphology.delete_axon_hoc
+
         ret = create_hoc(mechanisms=self.mechanisms,
                          parameters=self.params.values(),
-                         morphology=self.morphology.morphology_path,
+                         morphology=morphology,
                          ignored_globals=ignored_globals,
+                         delete_axon=delete_axon,
                          template_name=template_name,
                          template=template)
 
@@ -267,7 +271,6 @@ def load_hoc_template(sim, hoc_string):
 
 
 class HocMorphology(morphologies.Morphology):
-
     '''wrapper for Morphology so that it has a morphology_path'''
 
     def __init__(self, morphology_path):
@@ -310,9 +313,20 @@ class HocCellModel(CellModel):
 
     def instantiate(self, sim=None):
         sim.neuron.h.load_file('stdrun.hoc')
-        template_name = load_hoc_template(sim, self.hoc_string)
+        template_name = load_hoc_template(sim, self.hoc_path)
+
         morph_path = self.morphology.morphology_path
-        self.cell = getattr(sim.neuron.h, template_name)(0, morph_path)
+        assert os.path.exists(morph_path), \
+            'Morphology path does not exist: %s' % morph_path
+        if os.path.isdir(morph_path):
+            # will use the built in morphology name, if the init() only
+            # gets one parameter
+            self.cell = getattr(sim.neuron.h, template_name)(morph_path)
+        else:
+            morph_dir = os.path.dirname(morph_path)
+            morph_name = os.path.basename(morph_path)
+            self.cell = getattr(sim.neuron.h, template_name)(morph_dir,
+                                                             morph_name)
         self.icell = self.cell.CellRef
 
     def destroy(self, sim=None):

@@ -41,14 +41,16 @@ class Morphology(BaseEPhys):
 class NrnFileMorphology(Morphology, DictMixin):
 
     """Morphology loaded from a file"""
-    SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg')
+    SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg',
+                         'delete_axon_hoc', )
 
     def __init__(
             self,
             morphology_path,
             do_replace_axon=False,
             do_set_nseg=True,
-            comment=''):
+            comment='',
+            delete_axon_hoc=None):
         """Constructor
 
         Args:
@@ -56,6 +58,9 @@ class NrnFileMorphology(Morphology, DictMixin):
                 morphology
             do_replace_axon(bool): Does the axon need to be replaced by an AIS
                 stub ?
+            delete_axon_hoc(str): String replacement for the 'delete_axon'
+            command in hoc  Must include 'proc delete_axon(){ ... }  If None,
+            the default delete_axon is used in any created hoc files
         """
         name = os.path.basename(morphology_path)
         super(NrnFileMorphology, self).__init__(name=name, comment=comment)
@@ -64,6 +69,7 @@ class NrnFileMorphology(Morphology, DictMixin):
         self.morphology_path = morphology_path
         self.do_replace_axon = do_replace_axon
         self.do_set_nseg = do_set_nseg
+        self.delete_axon_hoc = delete_axon_hoc
 
     def __str__(self):
         """Return string representation"""
@@ -97,9 +103,9 @@ class NrnFileMorphology(Morphology, DictMixin):
         # lines we don't want
 
         if platform.system()=='Windows':
-            sim.neuron.h.hoc_stdout('NUL') 
+            sim.neuron.h.hoc_stdout('NUL')
         else:
-            sim.neuron.h.hoc_stdout('/dev/null') 
+            sim.neuron.h.hoc_stdout('/dev/null')
 
         imorphology.input(str(self.morphology_path))
         sim.neuron.h.hoc_stdout()
