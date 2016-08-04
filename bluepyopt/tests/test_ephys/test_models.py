@@ -52,7 +52,7 @@ def test_HocCellModel():
     template_name = 'test_HocCellModel'
     hoc_string = CellModel.create_empty_template(template_name)
     hoc_cell = ephys.models.HocCellModel(
-        'test_hoc_model', MORPHOLOGY_PATH, hoc_string)
+        'test_hoc_model', hoc_string, MORPHOLOGY_PATH)
     hoc_cell.instantiate(SIM)
     nt.ok_(hoc_cell.icell is not None)
     nt.ok_(hoc_cell.cell is not None)

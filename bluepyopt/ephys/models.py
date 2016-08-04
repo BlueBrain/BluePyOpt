@@ -283,15 +283,15 @@ class HocMorphology(morphologies.Morphology):
 class HocCellModel(CellModel):
 
     '''Wrapper class for a hoc template so it can be used by BluePyOpt'''
-    def __init__(self, name, morphology_path, hoc_string=None):
+    def __init__(self, name, hoc_string, morphology_path):
         """Constructor
 
         Args:
             name(str): name of this object
-            sim(NrnSimulator): simulator in which to instatiate hoc_path
+            sim(NrnSimulator): simulator in which to instatiate hoc_string
+            hoc_string(str): String that of hoc code that defines a template
             morphology_path(str path): path to morphology that can be loaded by
                                        Neuron
-            hoc_string(str): String that of hoc code that defines a template
         """
         super(HocCellModel, self).__init__(name,
                                            morph=None,
@@ -313,7 +313,7 @@ class HocCellModel(CellModel):
 
     def instantiate(self, sim=None):
         sim.neuron.h.load_file('stdrun.hoc')
-        template_name = load_hoc_template(sim, self.hoc_path)
+        template_name = load_hoc_template(sim, self.hoc_string)
 
         morph_path = self.morphology.morphology_path
         assert os.path.exists(morph_path), \
