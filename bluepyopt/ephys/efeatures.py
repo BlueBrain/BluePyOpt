@@ -88,7 +88,7 @@ class eFELFeature(EFeature, DictMixin):
         if '' not in self.recording_names:
             raise Exception(
                 'eFELFeature: \'\' needs to be in recording_names')
-        for location_name, recording_name in self.recording_names.iteritems():
+        for location_name, recording_name in self.recording_names.items():
             if location_name == '':
                 postfix = ''
             else:

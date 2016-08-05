@@ -23,7 +23,7 @@ def yield_blank_hoc(template_name):
     hoc_template = ephys.models.CellModel.create_empty_template(template_name)
     temp_file = tempfile.NamedTemporaryFile(suffix='test_models')
     with temp_file as fd:
-        fd.write(hoc_template)
+        fd.write(hoc_template.encode('utf-8'))
         fd.flush()
         yield temp_file.name
 

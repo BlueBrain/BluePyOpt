@@ -21,21 +21,21 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint: disable=W0511
 
-import simulators  # NOQA
-import models  # NOQA
-import evaluators  # NOQA
-import mechanisms  # NOQA
-import locations  # NOQA
-import parameterscalers  # NOQA
-import parameters  # NOQA
-import morphologies  # NOQA
-import efeatures  # NOQA
-import objectives  # NOQA
-import protocols  # NOQA
-import responses  # NOQA
-import recordings  # NOQA
-import objectivescalculators  # NOQA
-import stimuli  # NOQA
+from . import simulators  # NOQA
+from . import models  # NOQA
+from . import evaluators  # NOQA
+from . import mechanisms  # NOQA
+from . import locations  # NOQA
+from . import parameterscalers  # NOQA
+from . import parameters  # NOQA
+from . import morphologies  # NOQA
+from . import efeatures  # NOQA
+from . import objectives  # NOQA
+from . import protocols  # NOQA
+from . import responses  # NOQA
+from . import recordings  # NOQA
+from . import objectivescalculators  # NOQA
+from . import stimuli  # NOQA
 
 # TODO create all the necessary abstract methods
 # TODO check inheritance structure
