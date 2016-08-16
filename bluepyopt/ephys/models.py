@@ -110,14 +110,14 @@ class CellModel(Model):
         '''create an hoc template named template_name for an empty cell'''
         return '''\
         begintemplate %(template_name)s
-          objref all, apical, basal, somatic, axonal, myelin, this, CellRef
+          objref all, apical, basal, somatic, axonal, myelinated, this, CellRef
           proc init() {
             all = new SectionList()
             somatic = new SectionList()
             basal = new SectionList()
             apical = new SectionList()
             axonal = new SectionList()
-            myelin = new SectionList()
+            myelinated = new SectionList()
             forall delete_section()
             CellRef = this
           }
