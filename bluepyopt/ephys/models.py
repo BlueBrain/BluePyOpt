@@ -110,13 +110,14 @@ class CellModel(Model):
         '''create an hoc template named template_name for an empty cell'''
         return '''\
         begintemplate %(template_name)s
-          objref all, apical, basal, somatic, axonal, this, CellRef
+          objref all, apical, basal, somatic, axonal, myelin, this, CellRef
           proc init() {
             all = new SectionList()
             somatic = new SectionList()
             basal = new SectionList()
             apical = new SectionList()
             axonal = new SectionList()
+            myelin = new SectionList()
             forall delete_section()
             CellRef = this
           }
@@ -125,7 +126,7 @@ class CellModel(Model):
             CellRef = nil
           }
 
-          create soma[1], dend[1], apic[1], axon[1]
+          create soma[1], dend[1], apic[1], axon[1], myelin[1]
         endtemplate %(template_name)s
                ''' % dict(template_name=template_name)
 
@@ -192,6 +193,8 @@ class CellModel(Model):
 
     def create_hoc(self, param_values, template_name='CCell',
                    ignored_globals=(), template='cell_template.jinja2'):
+        """Create hoc code for this model"""
+
         from bluepyopt.ephys.create_hoc import create_hoc
 
         to_unfreeze = []
@@ -210,7 +213,6 @@ class CellModel(Model):
         self.unfreeze(to_unfreeze)
 
         return ret
-
 
     def __str__(self):
         """Return string representation"""
@@ -266,14 +268,17 @@ class HocMorphology(morphologies.Morphology):
     '''wrapper for Morphology so that it has a morphology_path'''
 
     def __init__(self, morphology_path):
+        super(HocMorphology, self).__init__()
         if not os.path.exists(morphology_path):
             raise Exception('HocCellModel: Morphology not found at: %s'
                             % morphology_path)
         self.morphology_path = morphology_path
 
+
 class HocCellModel(CellModel):
 
     '''Wrapper class for a hoc template so it can be used by BluePyOpt'''
+
     def __init__(self, name, morphology_path, hoc_path):
         """Constructor
 
