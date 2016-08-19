@@ -151,10 +151,10 @@ class CellModel(Model):
         """Instantiate model in simulator"""
 
         # TODO replace this with the real template name
-        if not hasattr(sim.neuron.h, 'Cell'):
-            self.icell = self.create_empty_cell('Cell', sim=sim)
+        if not hasattr(sim.neuron.h, self.name):
+            self.icell = self.create_empty_cell(self.name, sim=sim)
         else:
-            self.icell = sim.neuron.h.Cell()
+            self.icell = getattr(sim.neuron.h, self.name)()
 
         self.icell.gid = self.gid
 
