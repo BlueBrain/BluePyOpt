@@ -16,7 +16,7 @@ from bluepyopt.ephys.parameterscalers import (NrnSegmentSomaDistanceScaler,
 
 Location = namedtuple('Location', 'name, value')
 Range = namedtuple('Range', 'location, param_name, value')
-LOCATION_ORDER = ('all', 'apical', 'axonal', 'basal', 'somatic', 'myelin')
+LOCATION_ORDER = ('all', 'apical', 'axonal', 'basal', 'somatic', 'myelinated')
 
 
 def _generate_channels_by_location(mechanisms):
