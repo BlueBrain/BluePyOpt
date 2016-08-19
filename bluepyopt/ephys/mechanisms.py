@@ -149,7 +149,6 @@ class NrnMODMechanism(Mechanism, DictMixin):
 
         # Load hash function in hoc, only do this once
         if not hasattr(sim.neuron.h, 'hash_str'):
-            print "Loading hash function"
             sim.neuron.h(NrnMODMechanism.hash_hoc_string)
 
         return sim.neuron.h.hash_str(string)
