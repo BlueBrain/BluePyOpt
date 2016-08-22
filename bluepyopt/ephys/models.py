@@ -90,9 +90,9 @@ class CellModel(Model):
         self.param_values = None
         self.gid = gid
         self.seclist_names = \
-            ['all', 'somatic', 'basal', 'apical', 'myelinated']
+            ['all', 'somatic', 'basal', 'apical', 'axonal', 'myelinated']
         self.secarray_names = \
-            ['soma', 'dend', 'apic', 'myelin']
+            ['soma', 'dend', 'apic', 'axon', 'myelin']
 
     def params_by_names(self, param_names):
         """Get parameter objects by name"""
