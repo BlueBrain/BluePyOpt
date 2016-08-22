@@ -64,7 +64,8 @@ class CellModel(Model):
             name,
             morph=None,
             mechs=None,
-            params=None):
+            params=None,
+            gid=0):
         """Constructor
 
         Args:
@@ -87,6 +88,7 @@ class CellModel(Model):
         self.icell = None
 
         self.param_values = None
+        self.gid = gid
 
     def params_by_names(self, param_names):
         """Get parameter objects by name"""
@@ -122,6 +124,8 @@ class CellModel(Model):
             CellRef = this
           }
 
+          gid = 0
+
           proc destroy() {localobj nil
             CellRef = nil
           }
@@ -147,10 +151,12 @@ class CellModel(Model):
         """Instantiate model in simulator"""
 
         # TODO replace this with the real template name
-        if not hasattr(sim.neuron.h, 'Cell'):
-            self.icell = self.create_empty_cell('Cell', sim=sim)
+        if not hasattr(sim.neuron.h, self.name):
+            self.icell = self.create_empty_cell(self.name, sim=sim)
         else:
-            self.icell = sim.neuron.h.Cell()
+            self.icell = getattr(sim.neuron.h, self.name)()
+
+        self.icell.gid = self.gid
 
         self.morphology.instantiate(sim=sim, icell=self.icell)
 

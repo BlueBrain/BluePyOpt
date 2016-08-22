@@ -1,0 +1,3 @@
+"""Init"""
+
+import simplecell  # NOQA

@@ -12,7 +12,7 @@ from contextlib import contextmanager
 
 import bluepyopt.ephys as ephys
 
-SIM = ephys.simulators.NrnSimulator()
+sim = ephys.simulators.NrnSimulator()
 TESTDATA_DIR = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
 MORPHOLOGY_PATH = joinp(TESTDATA_DIR, 'simple.swc')
 
@@ -33,8 +33,8 @@ def test_create_empty_template():
     """ephys.models: Test creation of empty template"""
     template_name = 'FakeTemplate'
     hoc_template = ephys.models.CellModel.create_empty_template(template_name)
-    SIM.neuron.h(hoc_template)
-    nt.ok_(hasattr(SIM.neuron.h, template_name))
+    sim.neuron.h(hoc_template)
+    nt.assert_true(hasattr(sim.neuron.h, template_name))
 
 
 @attr('unit')
@@ -43,7 +43,7 @@ def test_model():
     model = ephys.models.Model('test_model')
     model.instantiate(sim=None)
     model.destroy(sim=None)
-    nt.ok_(isinstance(model, ephys.models.Model))
+    nt.assert_true(isinstance(model, ephys.models.Model))
 
 
 @attr('unit')
@@ -52,8 +52,8 @@ def test_load_hoc_template():
 
     template_name = 'test_load_hoc'
     with yield_blank_hoc(template_name) as hoc_path:
-        ephys.models.load_hoc_template(SIM, hoc_path)
-    nt.ok_(hasattr(SIM.neuron.h, template_name))
+        ephys.models.load_hoc_template(sim, hoc_path)
+    nt.assert_true(hasattr(sim.neuron.h, template_name))
 
 
 @attr('unit')
@@ -65,11 +65,11 @@ def test_HocCellModel():
             'test_hoc_model',
             MORPHOLOGY_PATH,
             hoc_path)
-        hoc_cell.instantiate(SIM)
-        nt.ok_(hoc_cell.icell is not None)
-        nt.ok_(hoc_cell.cell is not None)
+        hoc_cell.instantiate(sim)
+        nt.assert_true(hoc_cell.icell is not None)
+        nt.assert_true(hoc_cell.cell is not None)
 
-        nt.ok_('simple.swc' in str(hoc_cell))
+        nt.assert_true('simple.swc' in str(hoc_cell))
 
         # these should be callable, but don't do anything
         hoc_cell.freeze(None)
@@ -77,45 +77,44 @@ def test_HocCellModel():
         hoc_cell.check_nonfrozen_params(None)
         hoc_cell.params_by_names(None)
 
-        hoc_cell.destroy(sim=SIM)
+        hoc_cell.destroy(sim=sim)
 
 
 @attr('unit')
 def test_CellModel_create_empty_cell():
     """ephys.models: Test create_empty_cell"""
     template_name = 'create_empty_cell'
-    cell = ephys.models.CellModel.create_empty_cell(template_name, SIM)
-    nt.ok_(callable(cell))
-    nt.ok_(hasattr(SIM.neuron.h, template_name))
+    cell = ephys.models.CellModel.create_empty_cell(template_name, sim)
+    nt.assert_true(callable(cell))
+    nt.assert_true(hasattr(sim.neuron.h, template_name))
 
 
 @attr('unit')
 def test_CellModel_destroy():
     """ephys.models: Test CellModel destroy"""
     morph0 = ephys.morphologies.NrnFileMorphology(MORPHOLOGY_PATH)
-    cell_model0 = ephys.models.CellModel('CellModel_destroy0',
+    cell_model0 = ephys.models.CellModel('CellModel_destroy',
                                          morph=morph0,
                                          mechs=[],
                                          params=[])
     morph1 = ephys.morphologies.NrnFileMorphology(MORPHOLOGY_PATH)
-    cell_model1 = ephys.models.CellModel('CellModel_destroy1',
+    cell_model1 = ephys.models.CellModel('CellModel_destroy',
                                          morph=morph1,
                                          mechs=[],
                                          params=[])
 
-    nt.ok_(not hasattr(SIM.neuron.h, 'Cell'))
+    nt.assert_true(not hasattr(sim.neuron.h, 'CellModel_destroy'))
 
-    cell_model0.instantiate(sim=SIM)
-    nt.ok_(hasattr(SIM.neuron.h, 'Cell'))
-    nt.eq_(1, len(SIM.neuron.h.Cell))
+    cell_model0.instantiate(sim=sim)
+    nt.assert_true(hasattr(sim.neuron.h, 'CellModel_destroy'))
+    nt.assert_equal(1, len(sim.neuron.h.CellModel_destroy))
 
-    cell_model1.instantiate(sim=SIM)
-    nt.eq_(2, len(SIM.neuron.h.Cell))
+    cell_model1.instantiate(sim=sim)
+    nt.assert_equal(2, len(sim.neuron.h.CellModel_destroy))
 
     # make sure cleanup works
-    cell_model0.destroy(sim=SIM)
+    cell_model0.destroy(sim=sim)
+    nt.assert_equal(1, len(sim.neuron.h.CellModel_destroy))
 
-    nt.eq_(1, len(SIM.neuron.h.Cell))
-
-    cell_model1.destroy(sim=SIM)
-    nt.eq_(0, len(SIM.neuron.h.Cell))
+    cell_model1.destroy(sim=sim)
+    nt.assert_equal(0, len(sim.neuron.h.CellModel_destroy))
