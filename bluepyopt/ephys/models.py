@@ -89,6 +89,10 @@ class CellModel(Model):
 
         self.param_values = None
         self.gid = gid
+        self.seclist_names = \
+            ['all', 'somatic', 'basal', 'apical', 'myelinated']
+        self.secarray_names = \
+            ['soma', 'dend', 'apic', 'myelin']
 
     def params_by_names(self, param_names):
         """Get parameter objects by name"""
@@ -108,18 +112,33 @@ class CellModel(Model):
             self.params[param_name].unfreeze()
 
     @staticmethod
-    def create_empty_template(template_name):
+    def create_empty_template(
+            template_name,
+            seclist_names=None,
+            secarray_names=None):
         '''create an hoc template named template_name for an empty cell'''
-        return '''\
+
+        objref_str = 'objref this, CellRef'
+        newseclist_str = ''
+
+        if seclist_names:
+            for seclist_name in seclist_names:
+                objref_str += ', %s' % seclist_name
+                newseclist_str += \
+                    '             %s = new SectionList()\n' % seclist_name
+
+        create_str = ''
+        if secarray_names:
+            create_str = 'create '
+            create_str += ', '.join(
+                '%s[1]' % secarray_name
+                for secarray_name in secarray_names)
+            create_str += '\n'
+
+        template = '''\
         begintemplate %(template_name)s
-          objref all, apical, basal, somatic, axonal, myelinated, this, CellRef
-          proc init() {
-            all = new SectionList()
-            somatic = new SectionList()
-            basal = new SectionList()
-            apical = new SectionList()
-            axonal = new SectionList()
-            myelinated = new SectionList()
+          %(objref_str)s
+          proc init() {\n%(newseclist_str)s
             forall delete_section()
             CellRef = this
           }
@@ -130,17 +149,28 @@ class CellModel(Model):
             CellRef = nil
           }
 
-          create soma[1], dend[1], apic[1], axon[1], myelin[1]
+          %(create_str)s
         endtemplate %(template_name)s
-               ''' % dict(template_name=template_name)
+               ''' % dict(template_name=template_name, objref_str=objref_str,
+                          newseclist_str=newseclist_str,
+                          create_str=create_str)
+
+        return template
 
     @staticmethod
-    def create_empty_cell(name, sim):
+    def create_empty_cell(
+            name,
+            sim,
+            seclist_names=None,
+            secarray_names=None):
         """Create an empty cell in Neuron"""
 
         # TODO minize hardcoded definition
         # E.g. sectionlist can be procedurally generated
-        hoc_template = CellModel.create_empty_template(name)
+        hoc_template = CellModel.create_empty_template(
+            name,
+            seclist_names,
+            secarray_names)
         sim.neuron.h(hoc_template)
 
         template_function = getattr(sim.neuron.h, name)
@@ -152,7 +182,11 @@ class CellModel(Model):
 
         # TODO replace this with the real template name
         if not hasattr(sim.neuron.h, self.name):
-            self.icell = self.create_empty_cell(self.name, sim=sim)
+            self.icell = self.create_empty_cell(
+                self.name,
+                sim=sim,
+                seclist_names=self.seclist_names,
+                secarray_names=self.secarray_names)
         else:
             self.icell = getattr(sim.neuron.h, self.name)()
 
