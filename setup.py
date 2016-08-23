@@ -52,5 +52,6 @@ setuptools.setup(
         'Topic :: Utilities'],
 
     package_data={
-        'bluepyopt': ['ephys/templates/cell_template.jinja2', ],
+        'bluepyopt': ['ephys/templates/cell_template.jinja2',
+                      'ephys/examples/simplecell/simple.swc'],
     })

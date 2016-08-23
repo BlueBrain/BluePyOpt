@@ -7,22 +7,20 @@ from collections import defaultdict, namedtuple, OrderedDict
 import jinja2
 from bluepyopt.ephys.parameters import (NrnGlobalParameter,
                                         NrnSectionParameter,
-                                        NrnRangeParameter,
-                                        )
+                                        NrnRangeParameter)
+
 from bluepyopt.ephys.parameterscalers import (NrnSegmentSomaDistanceScaler,
                                               NrnSegmentLinearScaler,
                                               FLOAT_FORMAT,
-                                              format_float,
-                                              )
+                                              format_float)
 
 Location = namedtuple('Location', 'name, value')
 Range = namedtuple('Range', 'location, param_name, value')
-LOCATION_ORDER = ('all', 'apical', 'axonal', 'basal', 'somatic',
-                  )
+LOCATION_ORDER = ('all', 'apical', 'axonal', 'basal', 'somatic', 'myelinated')
 
 
 def _generate_channels_by_location(mechanisms):
-    '''create a OrderedDictionary of all channel mechanisms for the hoc template'''
+    """Create a OrderedDictionary of all channel mechanisms for hoc template."""
     channels = OrderedDict((location, []) for location in LOCATION_ORDER)
     for mech in mechanisms:
         name = mech.prefix
@@ -32,14 +30,15 @@ def _generate_channels_by_location(mechanisms):
 
 
 def _generate_parameters(parameters):
-    '''create a list of parameters that need to be added to the hoc template'''
+    """Create a list of parameters that need to be added to the hoc template."""
     param_locations = defaultdict(list)
     global_params = {}
     for param in parameters:
         if isinstance(param, NrnGlobalParameter):
             global_params[param.name] = param.value
         else:
-            assert isinstance(param.locations, (tuple, list)), 'Must have locations list'
+            assert isinstance(
+                param.locations, (tuple, list)), 'Must have locations list'
             for location in param.locations:
                 param_locations[location.seclist_name].append(param)
 
@@ -79,9 +78,10 @@ def create_hoc(mechanisms, parameters, morphology=None, ignored_globals=(),
         mechanisms(): All the mechanisms for the hoc template
         parameters(): All the parameters in the hoc template
         morpholgy(str path): Path to morphology
-        ignored_globals(iterable str): HOC coded is added for each NrnGlobalParameter
-        that exists, to test that it matches the values set in the parameters.  This
-        iterable contains parameter names that aren't checked
+        ignored_globals(iterable str): HOC coded is added for each
+        NrnGlobalParameter that exists, to test that it matches the values
+        set in the parameters.  This iterable contains parameter names that
+        aren't checked
         template(str): name of the template to use 'cell_template.jinja2',
     '''
     templates_basepath = os.path.abspath(os.path.dirname(__file__))
@@ -97,7 +97,8 @@ def create_hoc(mechanisms, parameters, morphology=None, ignored_globals=(),
     ignored_global_params = {}
     for ignored_global in ignored_globals:
         if ignored_global in global_params:
-            ignored_global_params[ignored_global] = global_params[ignored_global]
+            ignored_global_params[
+                ignored_global] = global_params[ignored_global]
             del global_params[ignored_global]
 
     return template.render(template_name=template_name,
