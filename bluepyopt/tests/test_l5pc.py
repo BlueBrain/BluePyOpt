@@ -185,10 +185,10 @@ def test_exec():
                     exec(compile(l5pc_file.read(), 'L5PC.py', 'exec'))  # NOQA
         stdout = output.getvalue()
         # first and last values of optimal individual
-        nt.ok_('0.001017834439738432' in stdout)
-        nt.ok_('202.18814057682334' in stdout)
-        nt.ok_(
-            "u'gamma_CaDynamics_E2.somatic': 0.03229357096515606" in stdout)
+        nt.assert_true('0.001017834439738432' in stdout)
+        nt.assert_true('202.18814057682334' in stdout)
+        nt.assert_true(
+            "'gamma_CaDynamics_E2.somatic': 0.03229357096515606" in stdout)
     finally:
         os.chdir(old_cwd)
         output.close()

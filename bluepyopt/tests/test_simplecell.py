@@ -34,7 +34,11 @@ class TestSimpleCellClass(object):
         # When using import instead of execfile this doesn't work
         # Probably because multiprocessing doesn't work correctly during
         # import
-        execfile('simplecell.py')  # NOQA
+        if sys.version_info[0] < 3:
+            execfile('simplecell.py')  # NOQA
+        else:
+            with open('simplecell.py') as sc_file:
+                exec(compile(sc_file.read(), 'simplecell.py', 'exec'))  # NOQA
 
     def teardown(self):
         """Tear down"""

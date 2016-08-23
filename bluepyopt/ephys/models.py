@@ -26,6 +26,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # machines
 # TODO rename this to 'CellModel' -> definitely
 
+import sys
 import os
 import collections
 import string
@@ -102,11 +103,16 @@ class CellModel(Model):
     def check_name(self):
         """Check if name complies with requirements"""
 
-        allowed_chars = string.letters + string.digits + '_'
+        allowed_chars = string.ascii_letters + string.digits + '_'
+
+        if sys.version_info[0] < 3:
+            translate_args = [None, allowed_chars]
+        else:
+            translate_args = [str.maketrans('', '', allowed_chars)]
 
         if self.name == '' \
-                or self.name[0] not in string.letters \
-                or not self.name.translate(None, allowed_chars) == '':
+                or self.name[0] not in string.ascii_letters \
+                or not self.name.translate(*translate_args) == '':
             raise TypeError(
                 'CellModel: name "%s" provided to constructor does not comply '
                 'with the rules for Neuron template name: name should be '

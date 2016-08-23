@@ -101,14 +101,20 @@ def _calc_fitnesses(population, components):
         individual.ibea_fitness = ibea_fitness
 
 
+def _choice(seq):
+    """Python 2 implementation of choice"""
+
+    return seq[int(random.random() * len(seq))]
+
+
 def _mating_selection(population, mu, tournament_n):
     """Returns the n_of_parents individuals with the best fitness"""
 
     parents = []
     for _ in xrange(mu):
-        winner = random.choice(population)
+        winner = _choice(population)
         for _ in xrange(tournament_n - 1):
-            individual = random.choice(population)
+            individual = _choice(population)
             # Save winner is element with smallest fitness
             if individual.ibea_fitness < winner.ibea_fitness:
                 winner = individual
