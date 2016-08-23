@@ -26,8 +26,9 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # machines
 # TODO rename this to 'CellModel' -> definitely
 
-import collections
 import os
+import collections
+import string
 
 from bluepyopt.ephys import morphologies
 
@@ -70,6 +71,8 @@ class CellModel(Model):
 
         Args:
             name (str): name of this object
+                        should be alphanumeric string, underscores are allowed,
+                        first char should be a letter
             morph (Morphology):
                 underlying Morphology of the cell
             mechs (list of Mechanisms):
@@ -78,11 +81,13 @@ class CellModel(Model):
                 Parameters of the cell model
         """
         super(CellModel, self).__init__(name)
+        self.check_name()
         self.morphology = morph
         self.mechanisms = mechs
         self.params = collections.OrderedDict()
-        for param in params:
-            self.params[param.name] = param
+        if params is not None:
+            for param in params:
+                self.params[param.name] = param
 
         # Cell instantiation in simulator
         self.icell = None
@@ -93,6 +98,21 @@ class CellModel(Model):
             ['all', 'somatic', 'basal', 'apical', 'axonal', 'myelinated']
         self.secarray_names = \
             ['soma', 'dend', 'apic', 'axon', 'myelin']
+
+    def check_name(self):
+        """Check if name complies with requirements"""
+
+        allowed_chars = string.letters + string.digits + '_'
+
+        if self.name == '' \
+                or self.name[0] not in string.letters \
+                or not self.name.translate(None, allowed_chars) == '':
+            raise TypeError(
+                'CellModel: name "%s" provided to constructor does not comply '
+                'with the rules for Neuron template name: name should be '
+                'alphanumeric '
+                'non-empty string, underscores are allowed, '
+                'first char should be letter' % self.name)
 
     def params_by_names(self, param_names):
         """Get parameter objects by name"""
