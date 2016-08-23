@@ -1,16 +1,12 @@
 """Test l5pc example"""
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import open
-from future import standard_library
-standard_library.install_aliases()
 
 import os
 import sys
 from contextlib import contextmanager
-from io import StringIO
+if sys.version_info[0] < 3:
+    from StringIO import StringIO
+else:
+    from io import StringIO
 
 import nose.tools as nt
 from nose.plugins.attrib import attr
@@ -174,7 +170,7 @@ def stdout_redirector(stream):
 @attr('slow')
 def test_exec():
     """L5PC Notebook: test execution"""
-    old_cwd = os.getcwdu()
+    old_cwd = os.getcwd()
     output = StringIO()
     try:
         os.chdir(L5PC_PATH)
@@ -182,7 +178,11 @@ def test_exec():
             # When using import instead of execfile this doesn't work
             # Probably because multiprocessing doesn't work correctly during
             # import
-            exec(open('L5PC.py', 'r', encoding='utf-8').read())  # NOQA
+            if sys.version_info[0] < 3:
+                execfile('L5PC.py')  # NOQA
+            else:
+                with open('L5PC.py') as l5pc_file:
+                    exec(compile(l5pc_file.read(), 'L5PC.py', 'exec'))  # NOQA
         stdout = output.getvalue()
         # first and last values of optimal individual
         nt.ok_('0.001017834439738432' in stdout)

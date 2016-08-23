@@ -1,3 +1,3 @@
 """Init"""
 
-from simplecell import *  # NOQA
+from .simplecell import *  # NOQA
