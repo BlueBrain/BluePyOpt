@@ -3,7 +3,10 @@
 import os
 import sys
 from contextlib import contextmanager
-from StringIO import StringIO
+if sys.version_info[0] < 3:
+    from StringIO import StringIO
+else:
+    from io import StringIO
 
 import nose.tools as nt
 from nose.plugins.attrib import attr
@@ -138,9 +141,14 @@ class TestL5PCEvaluator(object):
         # expected_results['TestL5PCEvaluator.test_eval'] = result
         # dump_to_json(expected_results, 'expected_results.json')
 
-        nt.assert_items_equal(
-            result,
-            expected_results['TestL5PCEvaluator.test_eval'])
+        try:
+            nt.assert_count_equal(
+                result,
+                expected_results['TestL5PCEvaluator.test_eval'])
+        except AttributeError:
+            nt.assert_items_equal(
+                result,
+                expected_results['TestL5PCEvaluator.test_eval'])
 
     def teardown(self):
         """Teardown"""
@@ -158,6 +166,7 @@ def stdout_redirector(stream):
     finally:
         sys.stdout = old_stdout
 
+
 @attr('slow')
 def test_exec():
     """L5PC Notebook: test execution"""
@@ -169,13 +178,17 @@ def test_exec():
             # When using import instead of execfile this doesn't work
             # Probably because multiprocessing doesn't work correctly during
             # import
-            execfile('L5PC.py')  # NOQA
+            if sys.version_info[0] < 3:
+                execfile('L5PC.py')  # NOQA
+            else:
+                with open('L5PC.py') as l5pc_file:
+                    exec(compile(l5pc_file.read(), 'L5PC.py', 'exec'))  # NOQA
         stdout = output.getvalue()
         # first and last values of optimal individual
-        nt.ok_('0.001017834439738432' in stdout)
-        nt.ok_('202.18814057682334' in stdout)
-        nt.ok_(
-            "u'gamma_CaDynamics_E2.somatic': 0.03229357096515606" in stdout)
+        nt.assert_true('0.001017834439738432' in stdout)
+        nt.assert_true('202.18814057682334' in stdout)
+        nt.assert_true(
+            "'gamma_CaDynamics_E2.somatic': 0.03229357096515606" in stdout)
     finally:
         os.chdir(old_cwd)
         output.close()

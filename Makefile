@@ -33,11 +33,13 @@ install_test_requirements:
 	pip install -q $(TEST_REQUIREMENTS) --upgrade
 test: clean unit functional
 unit: install install_test_requirements
-	cd bluepyopt/tests; nosetests -a 'unit' -s -v -x --with-coverage --cover-xml \
-		--cover-package bluepyopt
+	cd bluepyopt/tests; nosetests -a 'unit' -s -v -x
+	# cd bluepyopt/tests; nosetests -a 'unit' -s -v -x --with-coverage --cover-xml \
+	# 	--cover-package bluepyopt
 functional: install install_test_requirements l5pc_prepare sc_prepare
-	cd bluepyopt/tests; nosetests -a '!unit' -s -v -x --with-coverage --cover-xml \
-		--cover-package bluepyopt
+	cd bluepyopt/tests; nosetests -a '!unit' -s -v -x
+	# cd bluepyopt/tests; nosetests -a '!unit' -s -v -x --with-coverage --cover-xml \
+	#	--cover-package bluepyopt
 pypi: test
 	pip install twine --upgrade
 	rm -rf dist
