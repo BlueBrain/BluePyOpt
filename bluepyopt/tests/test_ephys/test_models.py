@@ -16,6 +16,8 @@ sim = ephys.simulators.NrnSimulator()
 TESTDATA_DIR = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
 MORPHOLOGY_PATH = joinp(TESTDATA_DIR, 'simple.swc')
 
+test_morph = ephys.morphologies.NrnFileMorphology(MORPHOLOGY_PATH)
+
 
 @contextmanager
 def yield_blank_hoc(template_name):
@@ -44,6 +46,33 @@ def test_model():
     model.instantiate(sim=None)
     model.destroy(sim=None)
     nt.assert_true(isinstance(model, ephys.models.Model))
+
+
+@attr('unit')
+def test_cellmodel():
+    """ephys.models: Test CellModel class"""
+    model = ephys.models.CellModel('test_model', morph=test_morph, mechs=[])
+    model.instantiate(sim=sim)
+    model.destroy(sim=sim)
+    nt.assert_true(isinstance(model, ephys.models.CellModel))
+
+
+@attr('unit')
+def test_cellmodel_namecheck():
+    """ephys.models: Test CellModel class name checking"""
+
+    # Test valid name
+    for name in ['test3', 'test_3']:
+        ephys.models.CellModel(name, morph=test_morph, mechs=[])
+
+    # Test invalid names
+    for name in ['3test', '', 'test$', 'test 3']:
+        nt.assert_raises(
+            TypeError,
+            ephys.models.CellModel,
+            name,
+            morph=test_morph,
+            mechs=[])
 
 
 @attr('unit')

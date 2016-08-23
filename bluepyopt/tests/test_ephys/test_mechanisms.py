@@ -44,8 +44,6 @@ def test_nrnmod_instantiate():
 
     simple_cell.destroy(sim=sim)
 
-    print sim.neuron.h.topology()
-
 
 @attr('unit')
 def test_string_hash_functions():
