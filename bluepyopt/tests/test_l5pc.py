@@ -172,23 +172,24 @@ def test_exec():
     """L5PC Notebook: test execution"""
     old_cwd = os.getcwd()
     output = StringIO()
-    try:
-        os.chdir(L5PC_PATH)
-        with stdout_redirector(output):
-            # When using import instead of execfile this doesn't work
-            # Probably because multiprocessing doesn't work correctly during
-            # import
-            if sys.version_info[0] < 3:
-                execfile('L5PC.py')  # NOQA
-            else:
-                with open('L5PC.py') as l5pc_file:
-                    exec(compile(l5pc_file.read(), 'L5PC.py', 'exec'))  # NOQA
-        stdout = output.getvalue()
-        # first and last values of optimal individual
-        nt.assert_true('0.001017834439738432' in stdout)
-        nt.assert_true('202.18814057682334' in stdout)
-        nt.assert_true(
-            "'gamma_CaDynamics_E2.somatic': 0.03229357096515606" in stdout)
-    finally:
-        os.chdir(old_cwd)
-        output.close()
+    with StringIO() as output:
+        try:
+            os.chdir(L5PC_PATH)
+            with stdout_redirector(output):
+                # When using import instead of execfile this doesn't work
+                # Probably because multiprocessing doesn't work correctly during
+                # import
+                if sys.version_info[0] < 3:
+                    execfile('L5PC.py')  # NOQA
+                else:
+                    with open('L5PC.py') as l5pc_file:
+                        exec(l5pc_file.read())  # NOQA
+            stdout = output.getvalue()
+        finally:
+            os.chdir(old_cwd)
+
+    # first and last values of optimal individual
+    nt.assert_true('0.001017834439738432' in stdout)
+    nt.assert_true('202.18814057682334' in stdout)
+    nt.assert_true(
+        "'gamma_CaDynamics_E2.somatic': 0.03229357096515606" in stdout)
