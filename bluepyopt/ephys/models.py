@@ -106,7 +106,7 @@ class CellModel(Model):
 
         if self.name == '' \
                 or self.name[0] not in string.letters \
-                or not self.name.translate(None, allowed_chars) == '':
+                or not str(self.name).translate(None, allowed_chars) == '':
             raise TypeError(
                 'CellModel: name "%s" provided to constructor does not comply '
                 'with the rules for Neuron template name: name should be '
