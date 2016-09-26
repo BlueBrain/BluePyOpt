@@ -107,7 +107,7 @@ class NrnMODMechanism(Mechanism, DictMixin):
     def instantiate_determinism(self, deterministic, icell, isec, sim):
         """Instantiate enable/disable determinism"""
 
-        if self.prefix == 'StochKv':
+        if 'Stoch' in self.prefix:
             setattr(
                 isec,
                 'deterministic_%s' %
@@ -119,16 +119,16 @@ class NrnMODMechanism(Mechanism, DictMixin):
                 short_secname = sim.neuron.h.secname(sec=isec).split('.')[-1]
                 for iseg in isec:
                     seg_name = '%s.%.19g' % (short_secname, iseg.x)
-                    sim.neuron.h.setdata_StochKv(iseg.x, sec=isec)
+                    exec("sim.neuron.h.setdata_" + self.prefix + "(iseg.x, sec=isec)")
                     seed_id1 = icell.gid
                     seed_id2 = self.hash_py(seg_name)
-                    sim.neuron.h.setRNG_StochKv(seed_id1, seed_id2)
+                    exec("sim.neuron.h.setRNG_" + self.prefix + "(seed_id1, seed_id2)")
         else:
             if not deterministic:
-                # can't do this for non-StochKv channels
+                # can't do this for non-Stoch channels
                 raise TypeError(
                     'Deterministic can only be set to False for '
-                    'channel StochKv, not %s' %
+                    'Stoch channel, not %s' %
                     self.prefix)
 
     def destroy(self, sim=None):
