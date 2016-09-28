@@ -119,10 +119,10 @@ class NrnMODMechanism(Mechanism, DictMixin):
                 short_secname = sim.neuron.h.secname(sec=isec).split('.')[-1]
                 for iseg in isec:
                     seg_name = '%s.%.19g' % (short_secname, iseg.x)
-                    exec("sim.neuron.h.setdata_" + self.prefix + "(iseg.x, sec=isec)")
+                    getattr(sim.neuron.h, "setdata_" + self.prefix)(iseg.x, sec=isec)
                     seed_id1 = icell.gid
                     seed_id2 = self.hash_py(seg_name)
-                    exec("sim.neuron.h.setRNG_" + self.prefix + "(seed_id1, seed_id2)")
+                    getattr(sim.neuron.h, "setRNG_" + self.prefix)(seed_id1, seed_id2)
         else:
             if not deterministic:
                 # can't do this for non-Stoch channels

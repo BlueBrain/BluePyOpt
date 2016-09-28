@@ -37,8 +37,6 @@ class HocModel(object):
         """Instantiate model in simulator"""
 
         self.cell = bglibpy.Cell(self.template, self.morphology)
-
-        self.cell.re_init_rng()
         self.name = self.cell.cellname
 
         #self.sim = bglibpy.Simulation()
