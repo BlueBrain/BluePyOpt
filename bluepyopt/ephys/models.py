@@ -251,7 +251,7 @@ class CellModel(Model):
                     'set before simulation' %
                     param_name)
 
-    def create_hoc(self, param_values, template_name='CCell',
+    def create_hoc(self, param_values,
                    ignored_globals=(), template='cell_template.jinja2'):
         """Create hoc code for this model"""
 
@@ -263,6 +263,7 @@ class CellModel(Model):
                 param.freeze(param_values[param.name])
                 to_unfreeze.append(param.name)
 
+        template_name = self.name
         morphology = os.path.basename(self.morphology.morphology_path)
         delete_axon = self.morphology.delete_axon_hoc
 
