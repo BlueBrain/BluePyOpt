@@ -69,7 +69,7 @@ def test_load_hoc_template():
 
     template_name = 'test_load_hoc'
     hoc_string = ephys.models.CellModel.create_empty_template(template_name)
-    ephys.models.load_hoc_template(sim, hoc_string)
+    ephys.models.HocCellModel.load_hoc_template(sim, hoc_string)
     nt.ok_(hasattr(sim.neuron.h, template_name))
 
 
