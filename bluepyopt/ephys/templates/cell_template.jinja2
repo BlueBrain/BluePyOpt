@@ -139,58 +139,7 @@ func sec_count(/* SectionList */) { local nSec
 /*
  * Replace the axon built from the original morphology file with a stub axon
  */
-{%- if delete_axon is not none %}
 {{delete_axon}}
-{% else %}
-proc delete_axon(){ local nSec, D1, D2
-  // preserve the number of original axonal sections
-  nSec = sec_count(axonal)
-
-  // Try to grab info from original axon
-  if(nSec == 0) { //No axon section present
-    D1 = D2 = 1
-  } else if(nSec == 1) {
-    access axon[0]
-    D1 = D2 = diam
-  } else {
-    access axon[0]
-    D1 = diam
-    access soma distance() //to calculate distance from soma
-    forsec axonal{
-      //if section is longer than 60um then store diam and exit from loop
-      if(distance(0.5) > 60){
-        D2 = diam
-        break
-      }
-    }
-  }
-
-  // get rid of the old axon
-  forsec axonal{
-    delete_section()
-  }
-
-  create axon[2]
-
-  access axon[0] {
-    L = 30
-    diam = D1
-    nseg = 1 + 2*int(L/40)
-    all.append()
-    axonal.append()
-  }
-  access axon[1] {
-    L = 30
-    diam = D2
-    nseg = 1 + 2*int(L/40)
-    all.append()
-    axonal.append()
-  }
-  nSecAxonal = 2
-  soma[0] connect axon[0](0), 1
-  axon[0] connect axon[1](0), 1
-}
-{%- endif %}
 
 /*
  * Iterate over the section and compute how many segments should be allocate to

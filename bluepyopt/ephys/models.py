@@ -296,42 +296,6 @@ class CellModel(Model):
         return content
 
 
-def get_template_name(hoc_string):
-    '''find the template name from hoc_string
-
-    Note: this will fail if there is a begintemplate in a /* */ style comment
-    before the real begintemplate
-    '''
-    for i, line in enumerate(hoc_string.split('\n')):
-        if 'begintemplate' in line:
-            line = line.strip().split()
-            assert line[0] == 'begintemplate', \
-                'begintemplate must come first, line %d' % i
-            template_name = line[1]
-            logger.info('Found template %s on line %d', template_name, i)
-            return template_name
-    else:  # pylint: disable=W0120
-        raise Exception('Could not find begintemplate in hoc file')
-
-
-def load_hoc_template(sim, hoc_string):
-    '''have neuron hoc template, and detect what the name template name is
-
-    The template must have an init that takes two parameters, the second of
-    which is the path to a morphology.
-
-    It must also have a CellRef member that is the result of
-        `Import3d_GUI(...).instantiate()`
-    '''
-    template_name = get_template_name(hoc_string)
-    if not hasattr(sim.neuron.h, template_name):
-        sim.neuron.h(hoc_string)
-        assert hasattr(sim.neuron.h, template_name), \
-            'NEURON does not have template: ' + template_name
-
-    return template_name
-
-
 class HocMorphology(morphologies.Morphology):
 
     '''wrapper for Morphology so that it has a morphology_path'''
@@ -392,7 +356,7 @@ class HocCellModel(CellModel):
 
     def instantiate(self, sim=None):
         sim.neuron.h.load_file('stdrun.hoc')
-        template_name = load_hoc_template(sim, self.hoc_string)
+        template_name = self.load_hoc_template(sim, self.hoc_string)
 
         morph_path = self.morphology.morphology_path
         assert os.path.exists(morph_path), \
@@ -417,6 +381,45 @@ class HocCellModel(CellModel):
 
     def __str__(self):
         """Return string representation"""
-        return ('%s: %s of %s(%s)' %
-                (self.__class__, self.name, get_template_name(self.hoc_string),
-                 self.morphology.morphology_path, ))
+        return (
+            '%s: %s of %s(%s)' %
+            (self.__class__,
+             self.name,
+             self.get_template_name(self.hoc_string),
+             self.morphology.morphology_path,))
+
+    @staticmethod
+    def get_template_name(hoc_string):
+        """Find the template name from hoc_string
+
+        Note: this will fail if there is a begintemplate in a /* */ style
+        comment before the real begintemplate
+        """
+        for i, line in enumerate(hoc_string.split('\n')):
+            if 'begintemplate' in line:
+                line = line.strip().split()
+                assert line[0] == 'begintemplate', \
+                    'begintemplate must come first, line %d' % i
+                template_name = line[1]
+                logger.info('Found template %s on line %d', template_name, i)
+                return template_name
+        else:  # pylint: disable=W0120
+            raise Exception('Could not find begintemplate in hoc file')
+
+    @staticmethod
+    def load_hoc_template(sim, hoc_string):
+        """Have neuron hoc template, and detect what the name template name is
+
+        The template must have an init that takes two parameters, the second of
+        which is the path to a morphology.
+
+        It must also have a CellRef member that is the result of
+            `Import3d_GUI(...).instantiate()`
+        """
+        template_name = HocCellModel.get_template_name(hoc_string)
+        if not hasattr(sim.neuron.h, template_name):
+            sim.neuron.h(hoc_string)
+            assert hasattr(sim.neuron.h, template_name), \
+                'NEURON does not have template: ' + template_name
+
+        return template_name
