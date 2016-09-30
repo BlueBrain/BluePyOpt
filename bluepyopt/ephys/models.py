@@ -26,8 +26,9 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # machines
 # TODO rename this to 'CellModel' -> definitely
 
-import collections
 import os
+import collections
+import string
 
 from bluepyopt.ephys import morphologies
 
@@ -64,11 +65,14 @@ class CellModel(Model):
             name,
             morph=None,
             mechs=None,
-            params=None):
+            params=None,
+            gid=0):
         """Constructor
 
         Args:
             name (str): name of this object
+                        should be alphanumeric string, underscores are allowed,
+                        first char should be a letter
             morph (Morphology):
                 underlying Morphology of the cell
             mechs (list of Mechanisms):
@@ -77,16 +81,38 @@ class CellModel(Model):
                 Parameters of the cell model
         """
         super(CellModel, self).__init__(name)
+        self.check_name()
         self.morphology = morph
         self.mechanisms = mechs
         self.params = collections.OrderedDict()
-        for param in params:
-            self.params[param.name] = param
+        if params is not None:
+            for param in params:
+                self.params[param.name] = param
 
         # Cell instantiation in simulator
         self.icell = None
 
         self.param_values = None
+        self.gid = gid
+        self.seclist_names = \
+            ['all', 'somatic', 'basal', 'apical', 'axonal', 'myelinated']
+        self.secarray_names = \
+            ['soma', 'dend', 'apic', 'axon', 'myelin']
+
+    def check_name(self):
+        """Check if name complies with requirements"""
+
+        allowed_chars = string.letters + string.digits + '_'
+
+        if self.name == '' \
+                or self.name[0] not in string.letters \
+                or not str(self.name).translate(None, allowed_chars) == '':
+            raise TypeError(
+                'CellModel: name "%s" provided to constructor does not comply '
+                'with the rules for Neuron template name: name should be '
+                'alphanumeric '
+                'non-empty string, underscores are allowed, '
+                'first char should be letter' % self.name)
 
     def params_by_names(self, param_names):
         """Get parameter objects by name"""
@@ -106,36 +132,65 @@ class CellModel(Model):
             self.params[param_name].unfreeze()
 
     @staticmethod
-    def create_empty_template(template_name):
+    def create_empty_template(
+            template_name,
+            seclist_names=None,
+            secarray_names=None):
         '''create an hoc template named template_name for an empty cell'''
-        return '''\
+
+        objref_str = 'objref this, CellRef'
+        newseclist_str = ''
+
+        if seclist_names:
+            for seclist_name in seclist_names:
+                objref_str += ', %s' % seclist_name
+                newseclist_str += \
+                    '             %s = new SectionList()\n' % seclist_name
+
+        create_str = ''
+        if secarray_names:
+            create_str = 'create '
+            create_str += ', '.join(
+                '%s[1]' % secarray_name
+                for secarray_name in secarray_names)
+            create_str += '\n'
+
+        template = '''\
         begintemplate %(template_name)s
-          objref all, apical, basal, somatic, axonal, this, CellRef
-          proc init() {
-            all = new SectionList()
-            somatic = new SectionList()
-            basal = new SectionList()
-            apical = new SectionList()
-            axonal = new SectionList()
+          %(objref_str)s
+          proc init() {\n%(newseclist_str)s
             forall delete_section()
             CellRef = this
           }
+
+          gid = 0
 
           proc destroy() {localobj nil
             CellRef = nil
           }
 
-          create soma[1], dend[1], apic[1], axon[1]
+          %(create_str)s
         endtemplate %(template_name)s
-               ''' % dict(template_name=template_name)
+               ''' % dict(template_name=template_name, objref_str=objref_str,
+                          newseclist_str=newseclist_str,
+                          create_str=create_str)
+
+        return template
 
     @staticmethod
-    def create_empty_cell(name, sim):
+    def create_empty_cell(
+            name,
+            sim,
+            seclist_names=None,
+            secarray_names=None):
         """Create an empty cell in Neuron"""
 
         # TODO minize hardcoded definition
         # E.g. sectionlist can be procedurally generated
-        hoc_template = CellModel.create_empty_template(name)
+        hoc_template = CellModel.create_empty_template(
+            name,
+            seclist_names,
+            secarray_names)
         sim.neuron.h(hoc_template)
 
         template_function = getattr(sim.neuron.h, name)
@@ -146,10 +201,16 @@ class CellModel(Model):
         """Instantiate model in simulator"""
 
         # TODO replace this with the real template name
-        if not hasattr(sim.neuron.h, 'Cell'):
-            self.icell = self.create_empty_cell('Cell', sim=sim)
+        if not hasattr(sim.neuron.h, self.name):
+            self.icell = self.create_empty_cell(
+                self.name,
+                sim=sim,
+                seclist_names=self.seclist_names,
+                secarray_names=self.secarray_names)
         else:
-            self.icell = sim.neuron.h.Cell()
+            self.icell = getattr(sim.neuron.h, self.name)()
+
+        self.icell.gid = self.gid
 
         self.morphology.instantiate(sim=sim, icell=self.icell)
 
@@ -192,6 +253,8 @@ class CellModel(Model):
 
     def create_hoc(self, param_values, template_name='CCell',
                    ignored_globals=(), template='cell_template.jinja2'):
+        """Create hoc code for this model"""
+
         from bluepyopt.ephys.create_hoc import create_hoc
 
         to_unfreeze = []
@@ -214,7 +277,6 @@ class CellModel(Model):
         self.unfreeze(to_unfreeze)
 
         return ret
-
 
     def __str__(self):
         """Return string representation"""
@@ -248,7 +310,7 @@ def get_template_name(hoc_string):
             template_name = line[1]
             logger.info('Found template %s on line %d', template_name, i)
             return template_name
-    else:
+    else:  # pylint: disable=W0120
         raise Exception('Could not find begintemplate in hoc file')
 
 
@@ -271,9 +333,11 @@ def load_hoc_template(sim, hoc_string):
 
 
 class HocMorphology(morphologies.Morphology):
+
     '''wrapper for Morphology so that it has a morphology_path'''
 
     def __init__(self, morphology_path):
+        super(HocMorphology, self).__init__()
         if not os.path.exists(morphology_path):
             raise Exception('HocCellModel: Morphology not found at: %s'
                             % morphology_path)
@@ -283,13 +347,19 @@ class HocMorphology(morphologies.Morphology):
 class HocCellModel(CellModel):
 
     '''Wrapper class for a hoc template so it can be used by BluePyOpt'''
-    def __init__(self, name, hoc_string, morphology_path):
+
+    def __init__(self, name, morphology_path, hoc_path=None, hoc_string=None):
         """Constructor
 
         Args:
             name(str): name of this object
             sim(NrnSimulator): simulator in which to instatiate hoc_string
+            hoc_path(str): Path to a hoc file
+                (hoc_path and hoc_string can't be used simultaneously,
+                but one of them has to specified)
             hoc_string(str): String that of hoc code that defines a template
+                (hoc_path and hoc_string can't be used simultaneously,
+                but one of them has to specified))
             morphology_path(str path): path to morphology that can be loaded by
                                        Neuron
         """
@@ -297,7 +367,16 @@ class HocCellModel(CellModel):
                                            morph=None,
                                            mechs=[],
                                            params=[])
-        self.hoc_string = hoc_string
+
+        if hoc_path is not None and hoc_string is not None:
+            raise TypeError('HocCellModel: cant specify both hoc_string '
+                            'and hoc_path argument')
+        if hoc_path is not None:
+            with open(hoc_path) as hoc_file:
+                self.hoc_string = hoc_file.read()
+        else:
+            self.hoc_string = hoc_string
+
         self.morphology = HocMorphology(morphology_path)
         self.cell = None
         self.icell = None

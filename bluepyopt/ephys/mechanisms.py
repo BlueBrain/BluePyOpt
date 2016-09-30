@@ -61,6 +61,7 @@ class NrnMODMechanism(Mechanism, DictMixin):
             prefix=None,
             locations=None,
             preloaded=True,
+            deterministic=True,
             comment=''):
         """Constructor
 
@@ -81,6 +82,7 @@ class NrnMODMechanism(Mechanism, DictMixin):
         self.locations = locations
         self.preloaded = preloaded
         self.cell_model = None
+        self.deterministic = deterministic
 
     def instantiate(self, sim=None, icell=None):
         """Instantiate"""
@@ -92,9 +94,42 @@ class NrnMODMechanism(Mechanism, DictMixin):
                     isec.insert(self.prefix)
                 except ValueError as e:
                     raise ValueError(str(e) + ': ' + self.prefix)
+                self.instantiate_determinism(
+                    self.deterministic,
+                    icell,
+                    isec,
+                    sim)
+
             logger.debug(
                 'Inserted %s in %s', self.prefix, [
                     str(location) for location in self.locations])
+
+    def instantiate_determinism(self, deterministic, icell, isec, sim):
+        """Instantiate enable/disable determinism"""
+
+        if self.prefix == 'StochKv':
+            setattr(
+                isec,
+                'deterministic_%s' %
+                (self.prefix),
+                1 if deterministic else 0)
+
+            if not deterministic:
+                # Set the seeds
+                short_secname = sim.neuron.h.secname(sec=isec).split('.')[-1]
+                for iseg in isec:
+                    seg_name = '%s.%.19g' % (short_secname, iseg.x)
+                    sim.neuron.h.setdata_StochKv(iseg.x, sec=isec)
+                    seed_id1 = icell.gid
+                    seed_id2 = self.hash_py(seg_name)
+                    sim.neuron.h.setRNG_StochKv(seed_id1, seed_id2)
+        else:
+            if not deterministic:
+                # can't do this for non-StochKv channels
+                raise TypeError(
+                    'Deterministic can only be set to False for '
+                    'channel StochKv, not %s' %
+                    self.prefix)
 
     def destroy(self, sim=None):
         """Destroy mechanism instantiation"""
@@ -107,3 +142,45 @@ class NrnMODMechanism(Mechanism, DictMixin):
         return "%s: %s at %s" % (
             self.name, self.prefix,
             [str(location) for location in self.locations])
+
+    @staticmethod
+    def hash_hoc(string, sim):
+        """Calculate hash value of string in Python"""
+
+        # Load hash function in hoc, only do this once
+        if not hasattr(sim.neuron.h, 'hash_str'):
+            sim.neuron.h(NrnMODMechanism.hash_hoc_string)
+
+        return sim.neuron.h.hash_str(string)
+
+    @staticmethod
+    def hash_py(string):
+        """Calculate hash value of string in Python"""
+
+        hash_value = 0.0
+        for char in string:
+            # Multiplicative hash function using Mersenne prime close to 2^32
+            hash_value = (hash_value * 31 + ord(char)) % (pow(2, 31) - 1)
+
+        return hash_value
+
+    hash_hoc_string = \
+        """
+            func hash_str() {localobj sf strdef right
+                sf = new StringFunctions()
+
+                right = $s1
+
+                n_of_c = sf.len(right)
+
+                hash = 0
+                char_int = 0
+                for i = 0, n_of_c-1 {
+                    sscanf(right, "%c", &char_int)
+                    hash = (hash*31 + char_int) % (2^31 - 1)
+                    sf.right(right, 1)
+                }
+
+                return hash
+            }
+        """

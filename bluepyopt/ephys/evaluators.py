@@ -92,11 +92,27 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         objective_dict = {}
         objective_names = [objective.name
                            for objective in self.fitness_calculator.objectives]
+
+        if len(objective_names) != len(objective_array):
+            raise Exception(
+                'CellEvaluator: list given to objective_dict() '
+                'has wrong number of objectives')
+
         for objective_name, objective_value in \
                 zip(objective_names, objective_array):
             objective_dict[objective_name] = objective_value
 
         return objective_dict
+
+    def objective_list(self, objective_dict):
+        """Convert objective_dict in objective_list"""
+        objective_list = []
+        objective_names = [objective.name
+                           for objective in self.fitness_calculator.objectives]
+        for objective_name in objective_names:
+            objective_list.append(objective_dict[objective_name])
+
+        return objective_list
 
     def run_protocol(self, protocol, param_values, isolate=None):
         """Run protocol"""
@@ -142,7 +158,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
 
         obj_dict = self.evaluate_with_dicts(param_dict=param_dict)
 
-        return obj_dict.values()
+        return self.objective_list(obj_dict)
 
     def evaluate(self, param_list=None):
         """Run evaluation with lists as input and outputs"""
