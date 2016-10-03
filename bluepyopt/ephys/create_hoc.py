@@ -10,6 +10,8 @@ from datetime import datetime
 
 import jinja2
 import bluepyopt
+from . import mechanisms
+
 from bluepyopt.ephys.parameters import (NrnGlobalParameter,
                                         NrnSectionParameter,
                                         NrnRangeParameter)
@@ -24,14 +26,31 @@ Range = namedtuple('Range', 'location, param_name, value')
 LOCATION_ORDER = ('all', 'apical', 'axonal', 'basal', 'somatic', 'myelinated')
 
 
-def _generate_channels_by_location(mechanisms):
-    """Create a OrderedDictionary of all channel mechanisms for hoc template."""
+def _generate_channels_by_location(mechs):
+    """Create a OrderedDictionary of all channel mechs for hoc template."""
     channels = OrderedDict((location, []) for location in LOCATION_ORDER)
-    for mech in mechanisms:
+    for mech in mechs:
         name = mech.prefix
         for location in mech.locations:
+            # TODO this is dangerous, implicitely assumes type of location
             channels[location.seclist_name].append(name)
     return channels
+
+
+def _generate_reinitrng(mechs):
+    """Create re_init_rng function"""
+
+    reinitrng_hoc_blocks = ''
+
+    for mech in mechs:
+        reinitrng_hoc_blocks += mech.generate_reinitrng_hoc_block()
+
+    reinitrng_content = mechanisms.NrnMODMechanism.hash_hoc_string
+
+    reinitrng_content += mechanisms.NrnMODMechanism.reinitrng_hoc_string % {
+        'reinitrng_hoc_blocks': reinitrng_hoc_blocks}
+
+    return reinitrng_content
 
 
 def _generate_parameters(parameters):
@@ -75,13 +94,13 @@ def _generate_parameters(parameters):
     return global_params, ordered_section_params, range_params
 
 
-def create_hoc(mechanisms, parameters, morphology=None, ignored_globals=(),
+def create_hoc(mechs, parameters, morphology=None, ignored_globals=(),
                delete_axon=None, template_name='CCell',
                template='cell_template.jinja2'):
     '''return a string containing the hoc template
 
     Args:
-        mechanisms(): All the mechanisms for the hoc template
+        mechs(): All the mechs for the hoc template
         parameters(): All the parameters in the hoc template
         morpholgy(str): Name of morphology
         ignored_globals(iterable str): HOC coded is added for each
@@ -98,7 +117,7 @@ def create_hoc(mechanisms, parameters, morphology=None, ignored_globals=(),
         template = fd.read()
         template = jinja2.Template(template)
 
-    channels = _generate_channels_by_location(mechanisms)
+    channels = _generate_channels_by_location(mechs)
     global_params, section_params, range_params = \
         _generate_parameters(parameters)
 
@@ -112,6 +131,8 @@ def create_hoc(mechanisms, parameters, morphology=None, ignored_globals=(),
     banner = 'Created by BluePyOpt(%s) at %s' % (
         bluepyopt.__version__, datetime.now())
 
+    re_init_rng = _generate_reinitrng(mechs)
+
     return template.render(template_name=template_name,
                            banner=banner,
                            channels=channels,
@@ -119,5 +140,6 @@ def create_hoc(mechanisms, parameters, morphology=None, ignored_globals=(),
                            section_params=section_params,
                            range_params=range_params,
                            global_params=global_params,
+                           re_init_rng=re_init_rng,
                            delete_axon=delete_axon,
                            ignored_global_params=ignored_global_params)

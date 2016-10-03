@@ -27,21 +27,21 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 
-from bluepyopt.ephys.base import BaseEPhys
-from bluepyopt.ephys.serializer import DictMixin
+from . import base
+from . import serializer
 
 logger = logging.getLogger(__name__)
 
 # TODO: use Location class to specify location
 
 
-class Mechanism(BaseEPhys):
+class Mechanism(base.BaseEPhys):
 
     """Base parameter class"""
     pass
 
 
-class NrnMODMechanism(Mechanism, DictMixin):
+class NrnMODMechanism(Mechanism, serializer.DictMixin):
 
     """Neuron mechanism"""
 
@@ -119,10 +119,13 @@ class NrnMODMechanism(Mechanism, DictMixin):
                 short_secname = sim.neuron.h.secname(sec=isec).split('.')[-1]
                 for iseg in isec:
                     seg_name = '%s.%.19g' % (short_secname, iseg.x)
-                    getattr(sim.neuron.h, "setdata_" + self.prefix)(iseg.x, sec=isec)
+                    getattr(sim.neuron.h,
+                            "setdata_%s" % self.prefix)(iseg.x, sec=isec)
                     seed_id1 = icell.gid
                     seed_id2 = self.hash_py(seg_name)
-                    getattr(sim.neuron.h, "setRNG_" + self.prefix)(seed_id1, seed_id2)
+                    getattr(
+                        sim.neuron.h,
+                        "setRNG_%s" % self.prefix)(seed_id1, seed_id2)
         else:
             if not deterministic:
                 # can't do this for non-Stoch channels
@@ -164,23 +167,66 @@ class NrnMODMechanism(Mechanism, DictMixin):
 
         return hash_value
 
+    def generate_reinitrng_hoc_block(self):
+        """"Create re_init_rng code blocks for this channel"""
+
+        reinitrng_hoc_block = ''
+
+        if 'Stoch' in self.prefix:
+            # TODO this is dangerous, implicitely assumes type of location
+            for location in self.locations:
+                if self.deterministic:
+                    reinitrng_hoc_block += \
+                        'forsec %(seclist_name)s { ' \
+                        'deterministic_%(prefix)s = 1 }\n' % {
+                            'seclist_name': location.seclist_name,
+                            'prefix': self.prefix}
+                else:
+                    reinitrng_hoc_block += \
+                        'forsec %(seclist_name)s { %(mech_reinitrng)s }\n' % {
+                            'seclist_name': location.seclist_name,
+                            'mech_reinitrng':
+                            self.mech_reinitrng_block_template % {
+                                'prefix': self.prefix}}
+
+        return reinitrng_hoc_block
+
     hash_hoc_string = \
         """
-            func hash_str() {localobj sf strdef right
-                sf = new StringFunctions()
+func hash_str() {localobj sf strdef right
+  sf = new StringFunctions()
 
-                right = $s1
+  right = $s1
 
-                n_of_c = sf.len(right)
+  n_of_c = sf.len(right)
 
-                hash = 0
-                char_int = 0
-                for i = 0, n_of_c-1 {
-                    sscanf(right, "%c", &char_int)
-                    hash = (hash*31 + char_int) % (2^31 - 1)
-                    sf.right(right, 1)
-                }
+  hash = 0
+  char_int = 0
+  for i = 0, n_of_c - 1 {
+     sscanf(right, "%c", & char_int)
+     hash = (hash * 31 + char_int) % (2 ^ 31 - 1)
+     sf.right(right, 1)
+  }
 
-                return hash
+  return hash
+}
+"""
+
+    reinitrng_hoc_string = """
+proc re_init_rng() {localobj sf
+  strdef full_str, name
+
+  sf = new StringFunctions()
+
+  %(reinitrng_hoc_blocks)s
+}
+"""
+
+    mech_reinitrng_block_template = """
+            for (x, 0) {
+                setdata_%(prefix)s(x)
+                sf.tail(secname(), "\\\\.", name)
+                sprint(full_str, "%%s.%%.19g", name, x)
+                setRNG_%(prefix)s(0, hash_str(full_str))
             }
         """

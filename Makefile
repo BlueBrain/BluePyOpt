@@ -22,6 +22,9 @@ l5pc_zip:
 	cd examples/l5pc && \
 		zip -qr l5_config.zip config/ morphology/ mechanisms/ l5pc_model.py l5pc_evaluator.py checkpoints/checkpoint.pkl	
 l5pc_prepare: l5pc_zip l5pc_nbconvert l5pc_nrnivmodl
+stochkv_prepare: 
+	cd examples/stochkv && \
+	nrnivmodl mechanisms
 sc_prepare: jupyter
 	cd examples/simplecell && \
 		jupyter nbconvert --to python simplecell.ipynb && \
@@ -35,8 +38,8 @@ test: clean unit functional
 unit: install install_test_requirements
 	cd bluepyopt/tests; nosetests -a 'unit' -s -v -x --with-coverage --cover-xml \
 		--cover-package bluepyopt
-functional: install install_test_requirements l5pc_prepare sc_prepare
-	cd bluepyopt/tests; nosetests -a '!unit' -s -v -x --with-coverage --cover-xml \
+functional: install install_test_requirements stochkv_prepare l5pc_prepare sc_prepare
+	cd bluepyopt/tests; nosetests -a '!unit' --tests 'test_stochkv' -s -v -x --with-coverage --cover-xml \
 		--cover-package bluepyopt
 pypi: test
 	pip install twine --upgrade

@@ -30,7 +30,9 @@ import os
 import collections
 import string
 
-from bluepyopt.ephys import morphologies
+from . import create_hoc
+from . import morphologies
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -255,8 +257,6 @@ class CellModel(Model):
                    ignored_globals=(), template='cell_template.jinja2'):
         """Create hoc code for this model"""
 
-        from bluepyopt.ephys.create_hoc import create_hoc
-
         to_unfreeze = []
         for param in self.params.values():
             if not param.frozen:
@@ -265,15 +265,18 @@ class CellModel(Model):
 
         template_name = self.name
         morphology = os.path.basename(self.morphology.morphology_path)
-        delete_axon = self.morphology.delete_axon_hoc
+        if self.morphology.do_replace_axon:
+            delete_axon = self.morphology.delete_axon_hoc
+        else:
+            delete_axon = None
 
-        ret = create_hoc(mechanisms=self.mechanisms,
-                         parameters=self.params.values(),
-                         morphology=morphology,
-                         ignored_globals=ignored_globals,
-                         delete_axon=delete_axon,
-                         template_name=template_name,
-                         template=template)
+        ret = create_hoc.create_hoc(mechs=self.mechanisms,
+                                    parameters=self.params.values(),
+                                    morphology=morphology,
+                                    ignored_globals=ignored_globals,
+                                    delete_axon=delete_axon,
+                                    template_name=template_name,
+                                    template=template)
 
         self.unfreeze(to_unfreeze)
 
