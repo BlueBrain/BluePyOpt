@@ -96,7 +96,7 @@ def _generate_parameters(parameters):
 
 def create_hoc(mechs, parameters, morphology=None, ignored_globals=(),
                delete_axon=None, template_name='CCell',
-               template='cell_template.jinja2'):
+               template='cell_template.jinja2', disable_banner=None):
     '''return a string containing the hoc template
 
     Args:
@@ -128,8 +128,11 @@ def create_hoc(mechs, parameters, morphology=None, ignored_globals=(),
                 ignored_global] = global_params[ignored_global]
             del global_params[ignored_global]
 
-    banner = 'Created by BluePyOpt(%s) at %s' % (
-        bluepyopt.__version__, datetime.now())
+    if not disable_banner:
+        banner = 'Created by BluePyOpt(%s) at %s' % (
+            bluepyopt.__version__, datetime.now())
+    else:
+        banner = None
 
     re_init_rng = _generate_reinitrng(mechs)
 

@@ -1,5 +1,5 @@
-/* Created by BluePyOpt(1.2.61) at 2016-10-03 17:05:11.962198
- */
+/*
+*/
 {load_file("stdrun.hoc")}
 {load_file("import3d.hoc")}
 /*

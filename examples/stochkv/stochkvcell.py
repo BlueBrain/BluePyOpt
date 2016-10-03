@@ -84,7 +84,9 @@ def run_stochkv_model():
     best_param_values = {'gkbar_StochKv': 0.5}
     responses = protocol.run(stochkv_cell, best_param_values, sim=nrn)
 
-    hoc_string = stochkv_cell.create_hoc(param_values=best_param_values)
+    hoc_string = stochkv_cell.create_hoc(
+        param_values=best_param_values,
+        disable_banner=True)
 
     stochkv_hoc_cell = ephys.models.HocCellModel(
         'stochkv_hoc_cell',
