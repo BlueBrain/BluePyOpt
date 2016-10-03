@@ -108,7 +108,9 @@ def test_CellModel_create_empty_cell():
 def test_CellModel_create_hoc():
     """ephys.models: Test create_hoc"""
 
-    morph0 = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
+    morph0 = ephys.morphologies.NrnFileMorphology(
+        simple_morphology_path,
+        do_replace_axon=True)
 
     cell_model = ephys.models.CellModel('CellModel',
                                         morph=morph0,
@@ -116,7 +118,6 @@ def test_CellModel_create_hoc():
                                         params=[])
 
     hoc_string = cell_model.create_hoc({})
-    print hoc_string
     nt.assert_true('begintemplate CellModel' in hoc_string)
     nt.assert_true('proc delete_axon()' in hoc_string)
     cell_model_hoc = ephys.models.HocCellModel(
