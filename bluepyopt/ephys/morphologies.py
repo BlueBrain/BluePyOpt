@@ -42,7 +42,7 @@ class NrnFileMorphology(Morphology, DictMixin):
 
     """Morphology loaded from a file"""
     SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg',
-                         'delete_axon_hoc', )
+                         'replace_axon_hoc', )
 
     def __init__(
             self,
@@ -50,7 +50,7 @@ class NrnFileMorphology(Morphology, DictMixin):
             do_replace_axon=False,
             do_set_nseg=True,
             comment='',
-            delete_axon_hoc=None):
+            replace_axon_hoc=None):
         """Constructor
 
         Args:
@@ -58,9 +58,9 @@ class NrnFileMorphology(Morphology, DictMixin):
                 morphology
             do_replace_axon(bool): Does the axon need to be replaced by an AIS
                 stub ?
-            delete_axon_hoc(str): String replacement for the 'delete_axon'
-            command in hoc  Must include 'proc delete_axon(){ ... }  If None,
-            the default delete_axon is used in any created hoc files
+            replace_axon_hoc(str): String replacement for the 'replace_axon'
+            command in hoc  Must include 'proc replace_axon(){ ... }  If None,
+            the default replace_axon is used in any created hoc files
         """
         name = os.path.basename(morphology_path)
         super(NrnFileMorphology, self).__init__(name=name, comment=comment)
@@ -70,10 +70,10 @@ class NrnFileMorphology(Morphology, DictMixin):
         self.do_replace_axon = do_replace_axon
         self.do_set_nseg = do_set_nseg
 
-        if delete_axon_hoc is None:
-            self.delete_axon_hoc = self.default_delete_axon_hoc
+        if replace_axon_hoc is None:
+            self.replace_axon_hoc = self.default_replace_axon_hoc
         else:
-            self.delete_axon_hoc = delete_axon_hoc
+            self.replace_axon_hoc = replace_axon_hoc
 
     def __str__(self):
         """Return string representation"""
@@ -179,9 +179,9 @@ class NrnFileMorphology(Morphology, DictMixin):
 
         logger.debug('Replace axon with AIS')
 
-    default_delete_axon_hoc = \
+    default_replace_axon_hoc = \
         '''
-proc delete_axon(){ local nSec, D1, D2
+proc replace_axon(){ local nSec, D1, D2
   // preserve the number of original axonal sections
   nSec = sec_count(axonal)
 
