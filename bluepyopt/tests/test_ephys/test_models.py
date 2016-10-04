@@ -119,7 +119,7 @@ def test_CellModel_create_hoc():
 
     hoc_string = cell_model.create_hoc({})
     nt.assert_true('begintemplate CellModel' in hoc_string)
-    nt.assert_true('proc delete_axon()' in hoc_string)
+    nt.assert_true('proc replace_axon()' in hoc_string)
     cell_model_hoc = ephys.models.HocCellModel(
         'CellModelHOC',
         simple_morphology_path,

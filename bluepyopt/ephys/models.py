@@ -267,15 +267,15 @@ class CellModel(Model):
         template_name = self.name
         morphology = os.path.basename(self.morphology.morphology_path)
         if self.morphology.do_replace_axon:
-            delete_axon = self.morphology.delete_axon_hoc
+            replace_axon = self.morphology.replace_axon_hoc
         else:
-            delete_axon = None
+            replace_axon = None
 
         ret = create_hoc.create_hoc(mechs=self.mechanisms,
                                     parameters=self.params.values(),
                                     morphology=morphology,
                                     ignored_globals=ignored_globals,
-                                    delete_axon=delete_axon,
+                                    replace_axon=replace_axon,
                                     template_name=template_name,
                                     template=template,
                                     disable_banner=disable_banner)

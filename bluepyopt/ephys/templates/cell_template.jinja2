@@ -65,8 +65,8 @@ proc init(/* args: morphology_dir, morphology_name */) {
   }
 
   geom_nseg()
-  {%- if delete_axon %}
-    delete_axon()
+  {%- if replace_axon %}
+    replace_axon()
   {%- endif %}
   insertChannel()
   biophys()
@@ -194,8 +194,8 @@ proc geom_nsec() { local nSec
 /*
  * Replace the axon built from the original morphology file with a stub axon
  */
-{%- if delete_axon %}
-    {{delete_axon}}
+{%- if replace_axon %}
+    {{replace_axon}}
 {%- endif %}
 
 

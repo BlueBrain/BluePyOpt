@@ -95,7 +95,7 @@ def _generate_parameters(parameters):
 
 
 def create_hoc(mechs, parameters, morphology=None, ignored_globals=(),
-               delete_axon=None, template_name='CCell',
+               replace_axon=None, template_name='CCell',
                template='cell_template.jinja2', disable_banner=None):
     '''return a string containing the hoc template
 
@@ -107,8 +107,8 @@ def create_hoc(mechs, parameters, morphology=None, ignored_globals=(),
         NrnGlobalParameter
         that exists, to test that it matches the values set in the parameters.
         This iterable contains parameter names that aren't checked
-        delete_axon(str): String replacement for the 'delete_axon' command.
-        Must include 'proc delete_axon(){ ... }
+        replace_axon(str): String replacement for the 'replace_axon' command.
+        Must include 'proc replace_axon(){ ... }
         template(str): name of the template to use 'cell_template.jinja2',
     '''
     templates_basepath = os.path.abspath(os.path.dirname(__file__))
@@ -144,5 +144,5 @@ def create_hoc(mechs, parameters, morphology=None, ignored_globals=(),
                            range_params=range_params,
                            global_params=global_params,
                            re_init_rng=re_init_rng,
-                           delete_axon=delete_axon,
+                           replace_axon=replace_axon,
                            ignored_global_params=ignored_global_params)
