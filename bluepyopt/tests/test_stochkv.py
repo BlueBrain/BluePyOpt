@@ -29,23 +29,25 @@ def test_run():
     """StochKv example: test run"""
 
     import stochkvcell  # NOQA
-    py_response, hoc_response, hoc_string = stochkvcell.run_stochkv_model()
+    for deterministic in [True, False]:
+        py_response, hoc_response, hoc_string = stochkvcell.run_stochkv_model(
+            deterministic=deterministic)
 
-    # print py_response['Step.soma.v']['time']
-    nt.assert_true(
-        py_response['Step.soma.v']['time'].equals(
-            hoc_response['Step.soma.v']['time']))
-    nt.assert_true(
-        py_response['Step.soma.v']['voltage'].equals(
-            hoc_response['Step.soma.v']['voltage']))
+        # print py_response['Step.soma.v']['time']
+        nt.assert_true(
+            py_response['Step.soma.v']['time'].equals(
+                hoc_response['Step.soma.v']['time']))
+        nt.assert_true(
+            py_response['Step.soma.v']['voltage'].equals(
+                hoc_response['Step.soma.v']['voltage']))
 
-    expected_hoc_filename = os.path.join(
-        STOCHKV_PATH,
-        stochkvcell.stochkv_hoc_filename)
+        expected_hoc_filename = os.path.join(
+            STOCHKV_PATH,
+            stochkvcell.stochkv_hoc_filename(deterministic=deterministic))
 
-    with open(expected_hoc_filename) as expected_hoc_file:
-        expected_hoc_string = expected_hoc_file.read()
+        with open(expected_hoc_filename) as expected_hoc_file:
+            expected_hoc_string = expected_hoc_file.read()
 
-    nt.assert_equal(
-        hoc_string,
-        expected_hoc_string)
+        nt.assert_equal(
+            hoc_string,
+            expected_hoc_string)

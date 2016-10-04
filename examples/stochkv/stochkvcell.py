@@ -8,10 +8,17 @@ import bluepyopt.ephys as ephys
 
 script_dir = os.path.dirname(__file__)
 morph_dir = os.path.join(script_dir, 'morphology')
-stochkv_hoc_filename = os.path.join(script_dir, 'stochkvcell.hoc')
 
 
-def run_stochkv_model():
+def stochkv_hoc_filename(deterministic=False):
+    """Return stochkv hoc model filename"""
+    return os.path.join(
+        script_dir,
+        'stochkvcell%s.hoc' %
+        ('_det' if deterministic else ''))
+
+
+def run_stochkv_model(deterministic=False):
     """Run stochkv model"""
 
     morph = ephys.morphologies.NrnFileMorphology(
@@ -26,7 +33,7 @@ def run_stochkv_model():
         name='StochKv',
         prefix='StochKv',
         locations=[somatic_loc],
-        deterministic=False)
+        deterministic=deterministic)
     pas_mech = ephys.mechanisms.NrnMODMechanism(
         name='pas',
         prefix='pas',
@@ -104,28 +111,32 @@ def main():
     """Main"""
     import matplotlib.pyplot as plt
 
-    stochkv_responses, stochkv_hoc_responses, stochkv_hoc_string = \
-        run_stochkv_model()
+    for deterministic in [True, False]:
+        stochkv_responses, stochkv_hoc_responses, stochkv_hoc_string = \
+            run_stochkv_model(deterministic=deterministic)
 
-    with open(stochkv_hoc_filename, 'w') as stochkv_hoc_file:
-        stochkv_hoc_file.write(stochkv_hoc_string)
+        with open(stochkv_hoc_filename(deterministic=deterministic), 'w') as \
+                stochkv_hoc_file:
+            stochkv_hoc_file.write(stochkv_hoc_string)
 
-    time = stochkv_responses['Step.soma.v']['time']
-    py_voltage = stochkv_responses['Step.soma.v']['voltage']
-    hoc_voltage = stochkv_hoc_responses['Step.soma.v']['voltage']
+        time = stochkv_responses['Step.soma.v']['time']
+        py_voltage = stochkv_responses['Step.soma.v']['voltage']
+        hoc_voltage = stochkv_hoc_responses['Step.soma.v']['voltage']
 
-    plt.figure()
-    plt.plot(time, py_voltage, label='py')
-    plt.plot(time, hoc_voltage, label='hoc')
-    plt.xlabel('time (ms)')
-    plt.ylabel('voltage (mV)')
-    plt.legend()
+        plt.figure()
+        plt.plot(time, py_voltage - hoc_voltage, label='py - hoc diff')
+        plt.xlabel('time (ms)')
+        plt.ylabel('voltage diff(mV)')
+        plt.title('Deterministic' if deterministic else 'Stochastic')
+        plt.legend()
 
-    plt.figure()
-    plt.plot(time, py_voltage - hoc_voltage, label='py - hoc diff')
-    plt.xlabel('time (ms)')
-    plt.ylabel('voltage diff(mV)')
-    plt.legend()
+        plt.figure()
+        plt.plot(time, py_voltage, label='py')
+        plt.plot(time, hoc_voltage, label='hoc')
+        plt.xlabel('time (ms)')
+        plt.ylabel('voltage (mV)')
+        plt.title('Deterministic' if deterministic else 'Stochastic')
+        plt.legend()
 
     plt.show()
 
