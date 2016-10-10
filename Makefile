@@ -21,7 +21,7 @@ l5pc_nrnivmodl:
 l5pc_zip:
 	cd examples/l5pc && \
 		zip -qr l5_config.zip config/ morphology/ mechanisms/ l5pc_model.py l5pc_evaluator.py checkpoints/checkpoint.pkl	
-l5pc_prepare: l5pc_zip l5pc_nbconvert l5pc_nrnivmodl
+l5pc_prepare: l5pc_nbconvert l5pc_nrnivmodl
 stochkv_prepare: 
 	cd examples/stochkv && \
 	nrnivmodl mechanisms
