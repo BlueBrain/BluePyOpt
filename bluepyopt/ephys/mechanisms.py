@@ -62,6 +62,7 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
             locations=None,
             preloaded=True,
             deterministic=True,
+            base_seed=0,
             comment=''):
         """Constructor
 
@@ -83,6 +84,7 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
         self.preloaded = preloaded
         self.cell_model = None
         self.deterministic = deterministic
+        self.base_seed = base_seed
 
     def instantiate(self, sim=None, icell=None):
         """Instantiate"""
@@ -121,7 +123,7 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
                     seg_name = '%s.%.19g' % (short_secname, iseg.x)
                     getattr(sim.neuron.h,
                             "setdata_%s" % self.prefix)(iseg.x, sec=isec)
-                    seed_id1 = icell.gid
+                    seed_id1 = icell.gid+self.base_seed
                     seed_id2 = self.hash_py(seg_name)
                     getattr(
                         sim.neuron.h,
