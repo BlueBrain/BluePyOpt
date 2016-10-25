@@ -23,13 +23,15 @@ def test_uint32_seed():
     random.seed(1)
 
     hashes = []
+    strings = []
     for _ in range(1000):
         string = ''.join(
             (chr(random.randint(0, 127)) for x in
-             xrange(random.randint(0, 255))))
-
+             xrange(random.randint(10, 255))))
+        strings.append(string)
         hashes.append(bpoptools.uint32_seed(string))
 
+    nt.assert_equal(len(strings), len(set(strings)))
     nt.assert_equal(len(hashes), len(set(hashes)))
 
     import numpy
