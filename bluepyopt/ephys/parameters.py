@@ -65,8 +65,7 @@ class NrnParameter(bluepyopt.parameters.Parameter):
 class NrnGlobalParameter(NrnParameter, DictMixin):
 
     """Parameter set in the global namespace of neuron"""
-    SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',
-                         )
+    SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',)
 
     def __init__(
             self,
@@ -180,7 +179,7 @@ class NrnSectionParameter(NrnParameter, DictMixin):
                                    self.param_name,
                                    self.value if self.frozen else self.bounds)
 
-# TODO change mech_prefix and mech_param to param_name, and maybe add
+# TODO change mech_suffix and mech_param to param_name, and maybe add
 # NrnRangeMechParameter
 
 

@@ -51,7 +51,7 @@ def define_mechanisms():
             mechanisms.append(ephys.mechanisms.NrnMODMechanism(
                 name='%s.%s' % (channel, sectionlist),
                 mod_path=None,
-                prefix=channel,
+                suffix=channel,
                 locations=[seclist_loc],
                 preloaded=True))
 

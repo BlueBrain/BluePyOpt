@@ -15,7 +15,7 @@ somatic_loc = ephys.locations.NrnSeclistLocation(
     seclist_name='somatic')
 hh_mech = ephys.mechanisms.NrnMODMechanism(
     name='hh',
-    prefix='hh',
+    suffix='hh',
     locations=[somatic_loc])
 
 
