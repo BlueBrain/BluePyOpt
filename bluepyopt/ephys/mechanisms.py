@@ -245,9 +245,9 @@ proc re_init_rng() {localobj sf
 
     mech_reinitrng_block_template = """
             for (x, 0) {
-                setdata_%(prefix)s(x)
+                setdata_%(suffix)s(x)
                 sf.tail(secname(), "\\\\.", name)
                 sprint(full_str, "%%s.%%.19g", name, x)
-                setRNG_%(prefix)s(0, hash_str(full_str))
+                setRNG_%(suffix)s(0, hash_str(full_str))
             }
         """
