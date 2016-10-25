@@ -30,16 +30,23 @@ def test_run():
 
     import stochkvcell  # NOQA
     for deterministic in [True, False]:
-        py_response, hoc_response, hoc_string = stochkvcell.run_stochkv_model(
-            deterministic=deterministic)
+        py_response, hoc_response, different_seed_response, hoc_string = \
+            stochkvcell.run_stochkv_model(deterministic=deterministic)
 
-        # print py_response['Step.soma.v']['time']
         nt.assert_true(
             py_response['Step.soma.v']['time'].equals(
                 hoc_response['Step.soma.v']['time']))
         nt.assert_true(
             py_response['Step.soma.v']['voltage'].equals(
                 hoc_response['Step.soma.v']['voltage']))
+        if deterministic:
+            nt.assert_true(
+                py_response['Step.soma.v']['voltage'].equals(
+                    different_seed_response['Step.soma.v']['voltage']))
+        else:
+            nt.assert_false(
+                py_response['Step.soma.v']['voltage'].equals(
+                    different_seed_response['Step.soma.v']['voltage']))
 
         expected_hoc_filename = os.path.join(
             STOCHKV_PATH,
