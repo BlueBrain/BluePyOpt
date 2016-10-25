@@ -69,7 +69,7 @@ def define_parameters():
             frozen = True
             value = param_config['value']
             bounds = None
-        elif 'bounds':
+        elif 'bounds' in param_config:
             frozen = False
             bounds = param_config['bounds']
             value = None
