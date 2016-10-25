@@ -26,6 +26,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import bluepyopt as bpopt
+import bluepyopt.tools
 
 
 class CellEvaluator(bpopt.evaluators.Evaluator):
@@ -39,7 +40,8 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             fitness_protocols=None,
             fitness_calculator=None,
             isolate_protocols=None,
-            sim=None):
+            sim=None,
+            use_params_for_seed=False):
         """Constructor
 
         Args:
@@ -57,6 +59,8 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
                 hinder the reproducability of the simulations)
             sim (ephys.simulators.NrnSimulator): simulator to use for the cell
                 evaluation
+            use_params_for_seed (bool): use a hashed version of the parameter
+                dictionary as a seed for the simulator
         """
 
         super(CellEvaluator, self).__init__(
@@ -77,6 +81,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         self.fitness_calculator = fitness_calculator
 
         self.isolate_protocols = isolate_protocols
+        self.use_params_for_seed = use_params_for_seed
 
     def param_dict(self, param_array):
         """Convert param_array in param_dict"""
@@ -92,19 +97,56 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         objective_dict = {}
         objective_names = [objective.name
                            for objective in self.fitness_calculator.objectives]
+
+        if len(objective_names) != len(objective_array):
+            raise Exception(
+                'CellEvaluator: list given to objective_dict() '
+                'has wrong number of objectives')
+
         for objective_name, objective_value in \
                 zip(objective_names, objective_array):
             objective_dict[objective_name] = objective_value
 
         return objective_dict
 
-    def run_protocol(self, protocol, param_values, isolate=None):
+    def objective_list(self, objective_dict):
+        """Convert objective_dict in objective_list"""
+        objective_list = []
+        objective_names = [objective.name
+                           for objective in self.fitness_calculator.objectives]
+        for objective_name in objective_names:
+            objective_list.append(objective_dict[objective_name])
+
+        return objective_list
+
+    @staticmethod
+    def seed_from_param_dict(param_dict):
+        """Return a seed value based on a param_dict"""
+
+        sorted_keys = sorted(param_dict.keys())
+
+        string = ''
+        for key in sorted_keys:
+            string += '%s%s' % (key, str(param_dict[key]))
+
+        return bluepyopt.tools.uint32_seed(string)
+
+    def run_protocol(
+            self,
+            protocol,
+            param_values,
+            isolate=None,
+            cell_model=None,
+            sim=None):
         """Run protocol"""
 
+        if self.use_params_for_seed:
+            sim.random123_globalindex = self.seed_from_param_dict(param_values)
+
         return protocol.run(
-            self.cell_model,
+            self.cell_model if cell_model is None else cell_model,
             param_values,
-            sim=self.sim,
+            sim=self.sim if sim is None else sim,
             isolate=isolate)
 
     def run_protocols(self, protocols, param_values):
@@ -142,7 +184,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
 
         obj_dict = self.evaluate_with_dicts(param_dict=param_dict)
 
-        return obj_dict.values()
+        return self.objective_list(obj_dict)
 
     def evaluate(self, param_list=None):
         """Run evaluation with lists as input and outputs"""

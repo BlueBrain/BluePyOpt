@@ -2,24 +2,22 @@
 
 import os
 import tempfile
-
-from os.path import join as joinp
+import contextlib
 
 import nose.tools as nt
 from nose.plugins.attrib import attr
 
-from contextlib import contextmanager
-
-import bluepyopt.ephys as ephys
+from bluepyopt import ephys
 
 sim = ephys.simulators.NrnSimulator()
-TESTDATA_DIR = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
-MORPHOLOGY_PATH = joinp(TESTDATA_DIR, 'simple.swc')
+TESTDATA_DIR = os.path.join(
+    os.path.dirname(
+        os.path.abspath(__file__)),
+    'testdata')
+simple_morphology_path = os.path.join(TESTDATA_DIR, 'simple.swc')
 
-test_morph = ephys.morphologies.NrnFileMorphology(MORPHOLOGY_PATH)
 
-
-@contextmanager
+@contextlib.contextmanager
 def yield_blank_hoc(template_name):
     """Create blank hoc template"""
     hoc_template = ephys.models.CellModel.create_empty_template(template_name)
@@ -28,6 +26,8 @@ def yield_blank_hoc(template_name):
         fd.write(hoc_template.encode('utf-8'))
         fd.flush()
         yield temp_file.name
+
+test_morph = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
 
 
 @attr('unit')
@@ -80,33 +80,31 @@ def test_load_hoc_template():
     """ephys.models: Test loading of hoc template"""
 
     template_name = 'test_load_hoc'
-    with yield_blank_hoc(template_name) as hoc_path:
-        ephys.models.load_hoc_template(sim, hoc_path)
-    nt.assert_true(hasattr(sim.neuron.h, template_name))
+    hoc_string = ephys.models.CellModel.create_empty_template(template_name)
+    ephys.models.HocCellModel.load_hoc_template(sim, hoc_string)
+    nt.ok_(hasattr(sim.neuron.h, template_name))
 
 
 @attr('unit')
 def test_HocCellModel():
     """ephys.models: Test HOCCellModel class"""
     template_name = 'test_HocCellModel'
-    with yield_blank_hoc(template_name) as hoc_path:
-        hoc_cell = ephys.models.HocCellModel(
-            'test_hoc_model',
-            MORPHOLOGY_PATH,
-            hoc_path)
-        hoc_cell.instantiate(sim)
-        nt.assert_true(hoc_cell.icell is not None)
-        nt.assert_true(hoc_cell.cell is not None)
+    hoc_string = ephys.models.CellModel.create_empty_template(template_name)
+    hoc_cell = ephys.models.HocCellModel(
+        'test_hoc_model', simple_morphology_path, hoc_string=hoc_string)
+    hoc_cell.instantiate(sim)
+    nt.ok_(hoc_cell.icell is not None)
+    nt.ok_(hoc_cell.cell is not None)
 
-        nt.assert_true('simple.swc' in str(hoc_cell))
+    nt.ok_('simple.swc' in str(hoc_cell))
 
-        # these should be callable, but don't do anything
-        hoc_cell.freeze(None)
-        hoc_cell.unfreeze(None)
-        hoc_cell.check_nonfrozen_params(None)
-        hoc_cell.params_by_names(None)
+    # these should be callable, but don't do anything
+    hoc_cell.freeze(None)
+    hoc_cell.unfreeze(None)
+    hoc_cell.check_nonfrozen_params(None)
+    hoc_cell.params_by_names(None)
 
-        hoc_cell.destroy(sim=sim)
+    hoc_cell.destroy(sim=sim)
 
 
 @attr('unit')
@@ -119,14 +117,38 @@ def test_CellModel_create_empty_cell():
 
 
 @attr('unit')
+def test_CellModel_create_hoc():
+    """ephys.models: Test create_hoc"""
+
+    morph0 = ephys.morphologies.NrnFileMorphology(
+        simple_morphology_path,
+        do_replace_axon=True)
+
+    cell_model = ephys.models.CellModel('CellModel',
+                                        morph=morph0,
+                                        mechs=[],
+                                        params=[])
+
+    hoc_string = cell_model.create_hoc({})
+    nt.assert_true('begintemplate CellModel' in hoc_string)
+    nt.assert_true('proc replace_axon()' in hoc_string)
+    cell_model_hoc = ephys.models.HocCellModel(
+        'CellModelHOC',
+        simple_morphology_path,
+        hoc_string=hoc_string)
+
+    nt.assert_true(isinstance(cell_model_hoc, ephys.models.HocCellModel))
+
+
+@attr('unit')
 def test_CellModel_destroy():
     """ephys.models: Test CellModel destroy"""
-    morph0 = ephys.morphologies.NrnFileMorphology(MORPHOLOGY_PATH)
+    morph0 = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
     cell_model0 = ephys.models.CellModel('CellModel_destroy',
                                          morph=morph0,
                                          mechs=[],
                                          params=[])
-    morph1 = ephys.morphologies.NrnFileMorphology(MORPHOLOGY_PATH)
+    morph1 = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
     cell_model1 = ephys.models.CellModel('CellModel_destroy',
                                          morph=morph1,
                                          mechs=[],

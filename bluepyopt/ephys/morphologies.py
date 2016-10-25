@@ -41,14 +41,16 @@ class Morphology(BaseEPhys):
 class NrnFileMorphology(Morphology, DictMixin):
 
     """Morphology loaded from a file"""
-    SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg')
+    SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg',
+                         'replace_axon_hoc', )
 
     def __init__(
             self,
             morphology_path,
             do_replace_axon=False,
             do_set_nseg=True,
-            comment=''):
+            comment='',
+            replace_axon_hoc=None):
         """Constructor
 
         Args:
@@ -56,6 +58,9 @@ class NrnFileMorphology(Morphology, DictMixin):
                 morphology
             do_replace_axon(bool): Does the axon need to be replaced by an AIS
                 stub ?
+            replace_axon_hoc(str): String replacement for the 'replace_axon'
+            command in hoc  Must include 'proc replace_axon(){ ... }  If None,
+            the default replace_axon is used in any created hoc files
         """
         name = os.path.basename(morphology_path)
         super(NrnFileMorphology, self).__init__(name=name, comment=comment)
@@ -64,6 +69,11 @@ class NrnFileMorphology(Morphology, DictMixin):
         self.morphology_path = morphology_path
         self.do_replace_axon = do_replace_axon
         self.do_set_nseg = do_set_nseg
+
+        if replace_axon_hoc is None:
+            self.replace_axon_hoc = self.default_replace_axon_hoc
+        else:
+            self.replace_axon_hoc = replace_axon_hoc
 
     def __str__(self):
         """Return string representation"""
@@ -96,10 +106,10 @@ class NrnFileMorphology(Morphology, DictMixin):
         # probably should be more intelligent here, and filter out the
         # lines we don't want
 
-        if platform.system()=='Windows':
-            sim.neuron.h.hoc_stdout('NUL') 
+        if platform.system() == 'Windows':
+            sim.neuron.h.hoc_stdout('NUL')
         else:
-            sim.neuron.h.hoc_stdout('/dev/null') 
+            sim.neuron.h.hoc_stdout('/dev/null')
 
         imorphology.input(str(self.morphology_path))
         sim.neuron.h.hoc_stdout()
@@ -134,15 +144,22 @@ class NrnFileMorphology(Morphology, DictMixin):
     def replace_axon(sim=None, icell=None):
         """Replace axon"""
 
-        ais_diams = [icell.axon[0].diam, icell.axon[0].diam]
+        nsec = len([sec for sec in icell.axonal])
 
-        # Define origin of distance function
-        sim.neuron.h.distance(sec=icell.soma[0])
-        for section in icell.axonal:
-            # If distance to soma is larger than 60, store diameter
-            if sim.neuron.h.distance(0.5, sec=section) > 60:
-                ais_diams[1] = section.diam
-                break
+        if nsec == 0:
+            ais_diams = [1, 1]
+        elif nsec == 1:
+            ais_diams = [icell.axon[0].diam, icell.axon[0].diam]
+        else:
+            ais_diams = [icell.axon[0].diam, icell.axon[0].diam]
+            # Define origin of distance function
+            sim.neuron.h.distance(sec=icell.soma[0])
+
+            for section in icell.axonal:
+                # If distance to soma is larger than 60, store diameter
+                if sim.neuron.h.distance(0.5, sec=section) > 60:
+                    ais_diams[1] = section.diam
+                    break
 
         for section in icell.axonal:
             sim.neuron.h.delete_section(sec=section)
@@ -161,3 +178,55 @@ class NrnFileMorphology(Morphology, DictMixin):
         icell.axon[1].connect(icell.axon[0], 1.0, 0.0)
 
         logger.debug('Replace axon with AIS')
+
+    default_replace_axon_hoc = \
+        '''
+proc replace_axon(){ local nSec, D1, D2
+  // preserve the number of original axonal sections
+  nSec = sec_count(axonal)
+
+  // Try to grab info from original axon
+  if(nSec == 0) { //No axon section present
+    D1 = D2 = 1
+  } else if(nSec == 1) {
+    access axon[0]
+    D1 = D2 = diam
+  } else {
+    access axon[0]
+    D1 = diam
+    access soma distance() //to calculate distance from soma
+    forsec axonal{
+      //if section is longer than 60um then store diam and exit from loop
+      if(distance(0.5) > 60){
+        D2 = diam
+        break
+      }
+    }
+  }
+
+  // get rid of the old axon
+  forsec axonal{
+    delete_section()
+  }
+
+  create axon[2]
+
+  access axon[0] {
+    L = 30
+    diam = D1
+    nseg = 1 + 2*int(L/40)
+    all.append()
+    axonal.append()
+  }
+  access axon[1] {
+    L = 30
+    diam = D2
+    nseg = 1 + 2*int(L/40)
+    all.append()
+    axonal.append()
+  }
+  nSecAxonal = 2
+  soma[0] connect axon[0](0), 1
+  axon[0] connect axon[1](0), 1
+}
+        '''

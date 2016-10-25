@@ -34,7 +34,7 @@ def test_nrnmod_instantiate():
 
     test_mech = ephys.mechanisms.NrnMODMechanism(
         'test.pas',
-        prefix='pas',
+        suffix='pas',
         locations=[simplecell.somatic_loc])
 
     simple_cell.instantiate(sim=sim)

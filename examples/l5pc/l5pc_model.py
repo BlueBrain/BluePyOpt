@@ -51,7 +51,7 @@ def define_mechanisms():
             mechanisms.append(ephys.mechanisms.NrnMODMechanism(
                 name='%s.%s' % (channel, sectionlist),
                 mod_path=None,
-                prefix=channel,
+                suffix=channel,
                 locations=[seclist_loc],
                 preloaded=True))
 
@@ -69,7 +69,7 @@ def define_parameters():
             frozen = True
             value = param_config['value']
             bounds = None
-        elif 'bounds':
+        elif 'bounds' in param_config:
             frozen = False
             bounds = param_config['bounds']
             value = None
