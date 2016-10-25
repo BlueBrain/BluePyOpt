@@ -21,10 +21,12 @@ logging.basicConfig(level=logging.WARN)
 # verbose output is needed
 LOGGING_DEBUG = False
 
+
 def logging_debug_vec(fmt, vec):
     '''log to debug a vector'''
     if LOGGING_DEBUG:
         logging.debug(fmt, ', '.join(map(str, vec)))
+
 
 def logging_debug(*args):
     '''wrapper to log to debug a vector'''
@@ -184,7 +186,7 @@ class CalciumTrace(object):
         trace = np.zeros(n)
         for j in xrange(len(self.__evnt)):
             offset = int((self.time[j] - tstart) / dt)
-            component = self.amplitude[j] * np.exp(-(tvec[:n-offset] / self.model['tau_ca']))
+            component = self.amplitude[j] * np.exp(-(tvec[:n - offset] / self.model['tau_ca']))
             trace[offset:] += component
 
         return tvec, trace
@@ -369,4 +371,3 @@ def protocol_outcome(protocol, param=param_cortical):
          (param['beta'] + (1.0 - param['beta']) * param['b'])
 
     return sg
-

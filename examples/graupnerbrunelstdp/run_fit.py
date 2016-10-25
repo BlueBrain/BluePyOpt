@@ -136,10 +136,10 @@ def plot_dt_scan(best_ind_dict, good_solutions, dt, sg, stderr):
         sg_vec.append(model_sg)
 
     try:
-        sg_good_sol_vec = pickle.load(open( "sg_good_sol_vec.pkl", "rb" ))
+        sg_good_sol_vec = pickle.load(open("sg_good_sol_vec.pkl", "rb"))
     except IOError:
         sg_good_sol_vec = []
-        for i, good_sol in enumerate(good_solutions):
+        for _, good_sol in enumerate(good_solutions):
             #print(len(good_solutions), i)
             sg_ind = []
             for model_dt in dt_vec:
@@ -149,10 +149,10 @@ def plot_dt_scan(best_ind_dict, good_solutions, dt, sg, stderr):
                 model_sg = stdputil.protocol_outcome(protocol, good_sol)
                 sg_ind.append(model_sg)
             sg_good_sol_vec.append(sg_ind)
-        pickle.dump(sg_good_sol_vec, open( "sg_good_sol_vec.pkl", "wb" ))
-        
+        pickle.dump(sg_good_sol_vec, open("sg_good_sol_vec.pkl", "wb"))
+
     fig3, ax3 = plt.subplots(figsize=(10, 10), facecolor='white')
-    ax3.set_rasterization_zorder(1) 
+    ax3.set_rasterization_zorder(1)
 
     for sg_ind in sg_good_sol_vec:
         ax3.plot(dt_vec * 1000.0, sg_ind, lw=1, color='lightblue', zorder=0)
@@ -177,8 +177,6 @@ def plot_dt_scan(best_ind_dict, good_solutions, dt, sg, stderr):
 def analyse():
     """Generate plot"""
 
-    plt.rcParams['lines.linewidth'] = 2
-
     cp = pickle.load(open(cp_filename, "r"))
     results = (
         cp['population'],
@@ -195,7 +193,8 @@ def analyse():
     for attribute, value in best_ind_dict.iteritems():
         print('\t{} : {}'.format(attribute, value))
 
-    good_solutions = [evaluator.get_param_dict(ind) for ind in hst.genealogy_history.itervalues() if np.all(np.array(ind.fitness.values) < 1)]
+    good_solutions = [evaluator.get_param_dict(ind) for ind in hst.genealogy_history.itervalues()
+                      if np.all(np.array(ind.fitness.values) < 1)]
 
     # model_sg = evaluator.compute_synaptic_gain_with_lists(best_ind)
 
@@ -203,6 +202,7 @@ def analyse():
     protocols, sg, _, stderr = stdputil.load_neviansakmann()
     dt = np.array([float(p.prot_id[:3]) for p in protocols])
 
+    plt.rcParams['lines.linewidth'] = 2
     # plot_epspamp_discrete(dt, model_sg, sg, stderr)
     plot_dt_scan(best_ind_dict, good_solutions, dt, sg, stderr)
     plot_calcium_transients(protocols, best_ind_dict)
