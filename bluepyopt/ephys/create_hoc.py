@@ -30,7 +30,7 @@ def _generate_channels_by_location(mechs):
     """Create a OrderedDictionary of all channel mechs for hoc template."""
     channels = OrderedDict((location, []) for location in LOCATION_ORDER)
     for mech in mechs:
-        name = mech.prefix
+        name = mech.suffix
         for location in mech.locations:
             # TODO this is dangerous, implicitely assumes type of location
             channels[location.seclist_name].append(name)
