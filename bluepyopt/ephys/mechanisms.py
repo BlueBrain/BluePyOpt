@@ -49,7 +49,7 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
         'name',
         'comment',
         'mod_path',
-        'prefix',
+        'suffix',
         'locations',
         'preloaded',
     )
@@ -58,31 +58,40 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
             self,
             name,
             mod_path=None,
-            prefix=None,
+            suffix=None,
             locations=None,
             preloaded=True,
             deterministic=True,
+            prefix=None,
             comment=''):
         """Constructor
 
         Args:
             name (str): name of this object
             mod_path (str): path to the MOD file (not used for the moment)
-            prefix (str): prefix of this mechanism in the MOD file
+            suffix (str): suffix of this mechanism in the MOD file
             locations (list of Locations): a list of Location objects pointing
                 to where this mechanism should be added to.
             preloaded (bool): should this mechanism be side-loaded by BluePyOpt,
                 or was it already loaded and compiled by the user ?
                 (not used for the moment)
+            prefix (str): Deprecated. Use suffix instead.
         """
 
         super(NrnMODMechanism, self).__init__(name, comment)
         self.mod_path = mod_path
-        self.prefix = prefix
+        self.suffix = suffix
         self.locations = locations
         self.preloaded = preloaded
         self.cell_model = None
         self.deterministic = deterministic
+
+        if prefix is not None and suffix is not None:
+            raise TypeError('NrnMODMechanism: it is not allowed to set both '
+                            'prefix and suffix in constructor: %s %s' %
+                            (self.prefix, self.suffix))
+        elif prefix is not None:
+            self.suffix = self.prefix
 
     def instantiate(self, sim=None, icell=None):
         """Instantiate"""
@@ -91,9 +100,9 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
             isec_list = location.instantiate(sim=sim, icell=icell)
             for isec in isec_list:
                 try:
-                    isec.insert(self.prefix)
+                    isec.insert(self.suffix)
                 except ValueError as e:
-                    raise ValueError(str(e) + ': ' + self.prefix)
+                    raise ValueError(str(e) + ': ' + self.suffix)
                 self.instantiate_determinism(
                     self.deterministic,
                     icell,
@@ -101,17 +110,17 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
                     sim)
 
             logger.debug(
-                'Inserted %s in %s', self.prefix, [
+                'Inserted %s in %s', self.suffix, [
                     str(location) for location in self.locations])
 
     def instantiate_determinism(self, deterministic, icell, isec, sim):
         """Instantiate enable/disable determinism"""
 
-        if 'Stoch' in self.prefix:
+        if 'Stoch' in self.suffix:
             setattr(
                 isec,
                 'deterministic_%s' %
-                (self.prefix),
+                (self.suffix),
                 1 if deterministic else 0)
 
             if not deterministic:
@@ -120,19 +129,19 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
                 for iseg in isec:
                     seg_name = '%s.%.19g' % (short_secname, iseg.x)
                     getattr(sim.neuron.h,
-                            "setdata_%s" % self.prefix)(iseg.x, sec=isec)
+                            "setdata_%s" % self.suffix)(iseg.x, sec=isec)
                     seed_id1 = icell.gid
                     seed_id2 = self.hash_py(seg_name)
                     getattr(
                         sim.neuron.h,
-                        "setRNG_%s" % self.prefix)(seed_id1, seed_id2)
+                        "setRNG_%s" % self.suffix)(seed_id1, seed_id2)
         else:
             if not deterministic:
                 # can't do this for non-Stoch channels
                 raise TypeError(
                     'Deterministic can only be set to False for '
                     'Stoch channel, not %s' %
-                    self.prefix)
+                    self.suffix)
 
     def destroy(self, sim=None):
         """Destroy mechanism instantiation"""
@@ -143,7 +152,7 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
         """String representation"""
 
         return "%s: %s at %s" % (
-            self.name, self.prefix,
+            self.name, self.suffix,
             [str(location) for location in self.locations])
 
     @staticmethod
@@ -172,24 +181,36 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
 
         reinitrng_hoc_block = ''
 
-        if 'Stoch' in self.prefix:
+        if 'Stoch' in self.suffix:
             # TODO this is dangerous, implicitely assumes type of location
             for location in self.locations:
                 if self.deterministic:
                     reinitrng_hoc_block += \
                         'forsec %(seclist_name)s { ' \
-                        'deterministic_%(prefix)s = 1 }\n' % {
+                        'deterministic_%(suffix)s = 1 }\n' % {
                             'seclist_name': location.seclist_name,
-                            'prefix': self.prefix}
+                            'suffix': self.suffix}
                 else:
                     reinitrng_hoc_block += \
                         'forsec %(seclist_name)s { %(mech_reinitrng)s }\n' % {
                             'seclist_name': location.seclist_name,
                             'mech_reinitrng':
                             self.mech_reinitrng_block_template % {
-                                'prefix': self.prefix}}
+                                'suffix': self.suffix}}
 
         return reinitrng_hoc_block
+
+    @property
+    def prefix(self):
+        """Deprecated, prefix is now replaced by suffix"""
+
+        return self.suffix
+
+    @prefix.setter
+    def prefix(self, value):
+        """Deprecated, prefix is now replaced by suffix"""
+
+        self.suffix = value
 
     hash_hoc_string = \
         """
@@ -224,9 +245,9 @@ proc re_init_rng() {localobj sf
 
     mech_reinitrng_block_template = """
             for (x, 0) {
-                setdata_%(prefix)s(x)
+                setdata_%(suffix)s(x)
                 sf.tail(secname(), "\\\\.", name)
                 sprint(full_str, "%%s.%%.19g", name, x)
-                setRNG_%(prefix)s(0, hash_str(full_str))
+                setRNG_%(suffix)s(0, hash_str(full_str))
             }
         """

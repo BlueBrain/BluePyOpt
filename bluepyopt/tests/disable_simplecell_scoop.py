@@ -41,7 +41,7 @@ somatic_loc = nrpel.locations.NrnSeclistLocation('somatic',
                                                  seclist_name='somatic')
 
 hh_mech = nrpel.mechanisms.NrnMODMechanism(name='hh',
-                                           prefix='hh',
+                                           suffix='hh',
                                            locations=[somatic_loc])
 
 cm_param = nrpel.parameters.NrnSectionParameter(name='cm',
