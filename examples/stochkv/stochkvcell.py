@@ -55,11 +55,12 @@ def run_stochkv_model(deterministic=False):
         param_name='celsius',
         value=34.0,
         frozen=True)
+    params = [epas_param, celsius_param, gkbar_param]
     stochkv_cell = ephys.models.CellModel(
         name='stochkv_cell',
         morph=morph,
         mechs=[pas_mech, stochkv_mech],
-        params=[epas_param, celsius_param, gkbar_param])
+        params=params)
 
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma',
@@ -88,8 +89,18 @@ def run_stochkv_model(deterministic=False):
 
     nrn = ephys.simulators.NrnSimulator(cvode_active=False)
 
+    evaluator = ephys.evaluators.CellEvaluator(
+        cell_model=stochkv_cell,
+        param_names=[param.name for param in params],
+        fitness_calculator=ephys.objectivescalculators.ObjectivesCalculator(),
+        sim=nrn)
+
     best_param_values = {'gkbar_StochKv': 0.5}
-    responses = protocol.run(stochkv_cell, best_param_values, sim=nrn)
+    responses = evaluator.run_protocol(
+        protocol,
+        cell_model=stochkv_cell,
+        param_values=best_param_values,
+        sim=nrn)
 
     hoc_string = stochkv_cell.create_hoc(
         param_values=best_param_values,
@@ -104,10 +115,11 @@ def run_stochkv_model(deterministic=False):
 
     hoc_responses = protocol.run(stochkv_hoc_cell, best_param_values, sim=nrn)
 
-    nrn.random123_globalindex = 1.0
-    different_seed_responses = protocol.run(
-        stochkv_cell,
-        best_param_values,
+    evaluator.use_params_for_seed = True
+    different_seed_responses = evaluator.run_protocol(
+        protocol,
+        cell_model=stochkv_cell,
+        param_values=best_param_values,
         sim=nrn)
 
     return responses, hoc_responses, different_seed_responses, hoc_string
