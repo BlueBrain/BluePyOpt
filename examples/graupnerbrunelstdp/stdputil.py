@@ -9,13 +9,16 @@ Utility functions for calcium-based STDP using simplified calcium model as in
 @remark: Copyright © BBP/EPFL 2005-2016; All rights reserved.
          Do not distribute without further notice.
 """
+
+# pylint: disable=R0914, R0912
+
 import logging
 import numpy as np
-from scipy.special import erf
+from scipy.special import erf  # NOQA
 
 logging.basicConfig(level=logging.WARN)
 
-#Note: having debug logging statements increases the run time by ~ 25%,
+# Note: having debug logging statements increases the run time by ~ 25%,
 # because they exist in tight loops, and expand their outputs, even when
 # debug is off, so we disable logging if possible.  Set this to true if
 # verbose output is needed
@@ -70,7 +73,10 @@ param_hippocampal = {
     'b': 5.28145}
 
 
-class Protocol:
+class Protocol(object):
+
+    """Protocol"""
+
     def __init__(self, stim_vec, delta_vec, f, n, prot_id=None):
         """A stimulation protocol.
 
@@ -88,7 +94,8 @@ class Protocol:
         # Check stim strings
         valid_stim = set(['pre', 'post'])
         for s in stim_vec:
-            assert s in valid_stim, '\'{0}\' is not a recognised stimulus'.format(s)
+            assert s in valid_stim, \
+                '\'{0}\' is not a recognised stimulus'.format(s)
 
         self.stim_vec = np.array(stim_vec, dtype='a10')
         self.delta_vec = np.array(delta_vec)
@@ -125,8 +132,11 @@ class Protocol:
 
 
 class CalciumTrace(object):
+
+    """CalciumTrace"""
+
     def __init__(self, protocol, model):
-        """Calcium trace produced by **model** when stimulated with **protocol**.
+        """Calcium trace produced by **model** when stimulated by **protocol**.
 
         :param protocol: stdputil.Protocol
             The stimulation protocol.
@@ -175,6 +185,7 @@ class CalciumTrace(object):
         self.__amp = amplitude[index_vec]
 
     def materializetrace(self):
+        """Materialize trace"""
         # Create exemplary traces for plotting
         period = 1.0 / self.protocol.f
         tstart = -0.01
@@ -186,32 +197,43 @@ class CalciumTrace(object):
         trace = np.zeros(n)
         for j in xrange(len(self.__evnt)):
             offset = int((self.time[j] - tstart) / dt)
-            component = self.amplitude[j] * np.exp(-(tvec[:n - offset] / self.model['tau_ca']))
+            component = self.amplitude[
+                j] * np.exp(-(tvec[:n - offset] / self.model['tau_ca']))
             trace[offset:] += component
 
         return tvec, trace
 
     @property
     def event(self):
+        """Event"""
         return self.__evnt
 
     @property
     def time(self):
+        """Time"""
         return self.__t
 
     @property
     def amplitude(self):
+        """Amplitude"""
         return self.__amp
 
 
 def load_neviansakmann():
     """Load in vitro data, from figure 2B in (Nevian and Sakmann, 2006)."""
-    protocols = [Protocol(['post', 'post', 'post', 'pre'], [20e-3, 20e-3, 50e-3], 0.1, 60.0, prot_id='-90ms'),
-                 Protocol(['post', 'post', 'post', 'pre'], [20e-3, 20e-3, 10e-3], 0.1, 60.0, prot_id='-50ms'),
-                 Protocol(['post', 'post', 'pre', 'post'], [20e-3, 10e-3, 10e-3], 0.1, 60.0, prot_id='-30ms'),
-                 Protocol(['post', 'pre', 'post', 'post'], [10e-3, 10e-3, 20e-3], 0.1, 60.0, prot_id='-10ms'),
-                 Protocol(['pre', 'post', 'post', 'post'], [10e-3, 20e-3, 20e-3], 0.1, 60.0, prot_id='+10ms'),
-                 Protocol(['pre', 'post', 'post', 'post'], [50e-3, 20e-3, 20e-3], 0.1, 60.0, prot_id='+50ms')]
+    protocols = [
+        Protocol(['post', 'post', 'post', 'pre'],
+                 [20e-3, 20e-3, 50e-3], 0.1, 60.0, prot_id='-90ms'),
+        Protocol(['post', 'post', 'post', 'pre'],
+                 [20e-3, 20e-3, 10e-3], 0.1, 60.0, prot_id='-50ms'),
+        Protocol(['post', 'post', 'pre', 'post'],
+                 [20e-3, 10e-3, 10e-3], 0.1, 60.0, prot_id='-30ms'),
+        Protocol(['post', 'pre', 'post', 'post'],
+                 [10e-3, 10e-3, 20e-3], 0.1, 60.0, prot_id='-10ms'),
+        Protocol(['pre', 'post', 'post', 'post'],
+                 [10e-3, 20e-3, 20e-3], 0.1, 60.0, prot_id='+10ms'),
+        Protocol(['pre', 'post', 'post', 'post'],
+                 [50e-3, 20e-3, 20e-3], 0.1, 60.0, prot_id='+50ms')]
 
     sg = [1.0, 0.68, 0.98, 1.42, 2.01, 0.92]
 
@@ -248,8 +270,9 @@ def time_above_threshold(protocol, param):
     if A_f != 1.0:
         baseline = (A_f - 1.0) * (ca_event_amp[0])
         for i in xrange(len(ca_event_amp) - 1):
-            baseline += (A_f - 1.0) * (
-                ca_event_amp[i + 1] * np.exp(np.sum(np.abs(ca_event_delta[:i + 1])) / param['tau_ca']))
+            baseline += (A_f - 1.0) * \
+                (ca_event_amp[i + 1] * np.exp(
+                    np.sum(np.abs(ca_event_delta[:i + 1])) / param['tau_ca']))
     else:
         baseline = 0.0
 
@@ -258,10 +281,14 @@ def time_above_threshold(protocol, param):
     n_events = len(ca_event_amp)
     C_amp = np.zeros(2 * n_events)
     for i in xrange(n_events - 1):
-        C_amp[i] = baseline * np.exp(-np.sum(np.abs(ca_event_delta[:i + 1])) / param['tau_ca'])
+        C_amp[i] = baseline * \
+            np.exp(-np.sum(np.abs(ca_event_delta[:i + 1])) / param['tau_ca'])
         logging_debug('C_amp[%d] = 0.0', i)
         for j in xrange(i + 1):
-            C_amp[i] += ca_event_amp[j] * np.exp(-np.sum(np.abs(ca_event_delta[j:i + 1])) / param['tau_ca'])
+            C_amp[i] += \
+                ca_event_amp[j] * \
+                np.exp(-np.sum(
+                    np.abs(ca_event_delta[j:i + 1])) / param['tau_ca'])
             logging_debug('C_amp[%d] += %s * exp(-sum(abs(deltas[%d:%d])))',
                           i, protocol.stim_vec[j], j, i + 1)
         logging_debug('C_amp[%d] = %f', i, C_amp[i])
@@ -280,7 +307,8 @@ def time_above_threshold(protocol, param):
         if C_amp[i] > param['theta_d']:
             t_d[i] = ca_event_delta[i]
         elif C_amp[i] <= param['theta_d'] < C_amp[i + n_events]:
-            t_d[i] = param['tau_ca'] * np.log(C_amp[i + n_events] / param['theta_d'])
+            t_d[i] = param['tau_ca'] * \
+                np.log(C_amp[i + n_events] / param['theta_d'])
         else:
             t_d[i] = 0.0
     t_d_tot = np.sum(t_d)
@@ -292,7 +320,8 @@ def time_above_threshold(protocol, param):
         if C_amp[i] > param['theta_p']:
             t_p[i] = ca_event_delta[i]
         elif C_amp[i] <= param['theta_p'] < C_amp[i + n_events]:
-            t_p[i] = param['tau_ca'] * np.log(C_amp[i + n_events] / param['theta_p'])
+            t_p[i] = param['tau_ca'] * \
+                np.log(C_amp[i + n_events] / param['theta_p'])
         else:
             t_p[i] = 0.0
     t_p_tot = np.sum(t_p)
@@ -301,7 +330,7 @@ def time_above_threshold(protocol, param):
     return t_d_tot, t_p_tot
 
 
-def transition_prob(protocol, param=param_cortical):
+def transition_prob(protocol, param=None):
     """Compute transition probabilities for the given protocol and model
     parameters.
 
@@ -310,6 +339,9 @@ def transition_prob(protocol, param=param_cortical):
     :param model: dict
         Parameters of the Graupner-Brunel model
     """
+
+    if param is None:
+        param = param_cortical
     # Sort the protocol if not already sorted
     protocol.sort()
 
@@ -335,25 +367,30 @@ def transition_prob(protocol, param=param_cortical):
 
     # Compute rho bar
     rho_bar = big_gamma_p / (big_gamma_p + big_gamma_d)
-    sigma_rho_sq = param['sigma'] ** 2 * (alpha_p + alpha_d) / (big_gamma_p + big_gamma_d)
+    sigma_rho_sq = param['sigma'] ** 2 * \
+        (alpha_p + alpha_d) / (big_gamma_p + big_gamma_d)
     tau_eff = param['tau'] / (big_gamma_p + big_gamma_d)
 
     # Up transition
     rho_0 = 0.0
-    erf_arg = -((param['rho_star'] - rho_bar + (rho_bar - rho_0) * np.exp(-n / (tau_eff * f))) /
-                (np.sqrt(sigma_rho_sq * (1.0 - np.exp(-2.0 * n / (tau_eff * f))))))
+    erf_arg = -((param['rho_star'] - rho_bar +
+                 (rho_bar - rho_0) * np.exp(-n / (tau_eff * f))) /
+                (np.sqrt(sigma_rho_sq * (1.0 -
+                                         np.exp(-2.0 * n / (tau_eff * f))))))
     up = 0.5 * (1.0 + erf(erf_arg))
 
     # Down transition
     rho_0 = 1.0
-    erf_arg = -((param['rho_star'] - rho_bar + (rho_bar - rho_0) * np.exp(-n / (tau_eff * f))) /
-                (np.sqrt(sigma_rho_sq * (1.0 - np.exp(-2.0 * n / (tau_eff * f))))))
+    erf_arg = -((param['rho_star'] - rho_bar +
+                 (rho_bar - rho_0) * np.exp(-n / (tau_eff * f))) /
+                (np.sqrt(sigma_rho_sq * (1.0 -
+                                         np.exp(-2.0 * n / (tau_eff * f))))))
     down = 0.5 * (1.0 - erf(erf_arg))
 
     return up, down
 
 
-def protocol_outcome(protocol, param=param_cortical):
+def protocol_outcome(protocol, param=None):
     """Compute the average synaptic gain for a given stimulation protocol and
     model parameters.
 
@@ -362,12 +399,16 @@ def protocol_outcome(protocol, param=param_cortical):
     :param model: dict
         Parameters of the Graupner-Brunel model
     """
+
+    if param is None:
+        param = param_cortical
     # Compute Up and Down transition probabilities
     up, down = transition_prob(protocol, param)
 
     # Compute synaptic gain
     sg = ((1.0 - up) * param['beta'] + down * (1.0 - param['beta']) +
-          param['b'] * (up * param['beta'] + (1.0 - down) * (1.0 - param['beta']))) / \
+          param['b'] * (up * param['beta'] +
+                        (1.0 - down) * (1.0 - param['beta']))) / \
          (param['beta'] + (1.0 - param['beta']) * param['b'])
 
     return sg

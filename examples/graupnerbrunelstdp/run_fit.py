@@ -140,7 +140,6 @@ def plot_dt_scan(best_ind_dict, good_solutions, dt, sg, stderr):
     except IOError:
         sg_good_sol_vec = []
         for _, good_sol in enumerate(good_solutions):
-            #print(len(good_solutions), i)
             sg_ind = []
             for model_dt in dt_vec:
                 protocol = stdputil.Protocol(
@@ -193,8 +192,11 @@ def analyse():
     for attribute, value in best_ind_dict.iteritems():
         print('\t{} : {}'.format(attribute, value))
 
-    good_solutions = [evaluator.get_param_dict(ind) for ind in hst.genealogy_history.itervalues()
-                      if np.all(np.array(ind.fitness.values) < 1)]
+    good_solutions = [
+        evaluator.get_param_dict
+        (ind)
+        for ind in hst.genealogy_history.itervalues
+        () if np.all(np.array(ind.fitness.values) < 1)]
 
     # model_sg = evaluator.compute_synaptic_gain_with_lists(best_ind)
 
