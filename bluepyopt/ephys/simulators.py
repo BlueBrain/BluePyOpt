@@ -15,7 +15,8 @@ class NrnSimulator(object):
 
     """Neuron simulator"""
 
-    def __init__(self, dt=None, cvode_active=True, cvode_minstep=None):
+    def __init__(self, dt=None, cvode_active=True, cvode_minstep=None,
+                 random123_globalindex=None):
         """Constructor"""
 
         self.neuron.h.load_file('stdrun.hoc')
@@ -27,6 +28,8 @@ class NrnSimulator(object):
             self.cvode_minstep = cvode_minstep
 
         self.cvode_active = cvode_active
+
+        self.random123_globalindex = random123_globalindex
 
     @property
     def cvode(self):
@@ -65,7 +68,12 @@ class NrnSimulator(object):
 
         return neuron
 
-    def run(self, tstop=None, dt=None, cvode_active=None):
+    def run(
+            self,
+            tstop=None,
+            dt=None,
+            cvode_active=None,
+            random123_globalindex=None):
         """Run protocol"""
 
         self.neuron.h.tstop = tstop
@@ -99,6 +107,13 @@ class NrnSimulator(object):
                 'Running Neuron simulator %.6g ms, with dt=%r',
                 tstop,
                 dt)
+
+        if random123_globalindex is None:
+            random123_globalindex = self.random123_globalindex
+
+        if random123_globalindex is not None:
+            rng = self.neuron.h.Random()
+            rng.Random123_globalindex(random123_globalindex)
 
         self.neuron.h.run()
 

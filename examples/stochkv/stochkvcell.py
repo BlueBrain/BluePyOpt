@@ -104,7 +104,13 @@ def run_stochkv_model(deterministic=False):
 
     hoc_responses = protocol.run(stochkv_hoc_cell, best_param_values, sim=nrn)
 
-    return responses, hoc_responses, hoc_string
+    nrn.random123_globalindex = 1.0
+    different_seed_responses = protocol.run(
+        stochkv_cell,
+        best_param_values,
+        sim=nrn)
+
+    return responses, hoc_responses, different_seed_responses, hoc_string
 
 
 def main():
@@ -112,7 +118,8 @@ def main():
     import matplotlib.pyplot as plt
 
     for deterministic in [True, False]:
-        stochkv_responses, stochkv_hoc_responses, stochkv_hoc_string = \
+        stochkv_responses, stochkv_hoc_responses, different_seed_responses, \
+            stochkv_hoc_string = \
             run_stochkv_model(deterministic=deterministic)
 
         with open(stochkv_hoc_filename(deterministic=deterministic), 'w') as \
@@ -122,6 +129,8 @@ def main():
         time = stochkv_responses['Step.soma.v']['time']
         py_voltage = stochkv_responses['Step.soma.v']['voltage']
         hoc_voltage = stochkv_hoc_responses['Step.soma.v']['voltage']
+        different_seed_voltage = \
+            different_seed_responses['Step.soma.v']['voltage']
 
         plt.figure()
         plt.plot(time, py_voltage - hoc_voltage, label='py - hoc diff')
@@ -133,6 +142,14 @@ def main():
         plt.figure()
         plt.plot(time, py_voltage, label='py')
         plt.plot(time, hoc_voltage, label='hoc')
+        plt.xlabel('time (ms)')
+        plt.ylabel('voltage (mV)')
+        plt.title('Deterministic' if deterministic else 'Stochastic')
+        plt.legend()
+
+        plt.figure()
+        plt.plot(time, py_voltage, label='py')
+        plt.plot(time, different_seed_voltage, label='different seed')
         plt.xlabel('time (ms)')
         plt.ylabel('voltage (mV)')
         plt.title('Deterministic' if deterministic else 'Stochastic')
