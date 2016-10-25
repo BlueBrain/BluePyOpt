@@ -91,7 +91,7 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
                             'prefix and suffix in constructor: %s %s' %
                             (self.prefix, self.suffix))
         elif prefix is not None:
-            self.suffix = self.prefix
+            self.suffix = prefix
 
     def instantiate(self, sim=None, icell=None):
         """Instantiate"""
