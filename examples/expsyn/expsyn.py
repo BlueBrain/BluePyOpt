@@ -1,4 +1,4 @@
-"""Simple cell test model"""
+"""Expsyn synapse parameter fitting"""
 
 # pylint: disable=R0914
 
