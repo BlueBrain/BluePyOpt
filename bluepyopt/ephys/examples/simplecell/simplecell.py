@@ -13,6 +13,11 @@ morph = ephys.morphologies.NrnFileMorphology(
 somatic_loc = ephys.locations.NrnSeclistLocation(
     'somatic',
     seclist_name='somatic')
+somacenter_loc = ephys.locations.NrnSeclistCompLocation(
+    name='somacenter',
+    seclist_name='somatic',
+    sec_index=0,
+    comp_x=0.5)
 hh_mech = ephys.mechanisms.NrnMODMechanism(
     name='hh',
     suffix='hh',

@@ -104,6 +104,36 @@ class NrnSeclistCompLocation(Location, DictMixin):
         return '%s[%s](%s)' % (self.seclist_name, self.sec_index, self.comp_x)
 
 
+class NrnPointProcessLocation(Location):
+
+    """Point process location"""
+
+    def __init__(
+            self,
+            name,
+            pprocess_mech,
+            comment=''):
+        """Constructor
+
+        Args:
+            name (str): name of the object
+            pprocess_mech (str): point process mechanism
+        """
+
+        super(NrnPointProcessLocation, self).__init__(name, comment)
+        self.pprocess_mech = pprocess_mech
+
+    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
+        """Find the instantiated point processes"""
+
+        return self.pprocess_mech.pprocesses
+
+    def __str__(self):
+        """String representation"""
+
+        return '%s' % (self.pprocess_mech.name)
+
+
 class NrnSeclistLocation(Location, DictMixin):
 
     """Section in a sectionlist"""
