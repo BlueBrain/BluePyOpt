@@ -88,6 +88,72 @@ class NrnCurrentPlayStimulus(Stimulus):
 
         return "Current play at %s" % (self.location)
 
+
+class NrnNetStimStimulus(Stimulus):
+
+    """Current stimulus based on current amplitude and time series"""
+
+    def __init__(self,
+                 locations=None,
+                 total_duration=None,
+                 interval=None,
+                 number=None,
+                 start=None,
+                 noise=0,
+                 weight=1):
+        """Constructor
+
+        Args:
+            location: synapse point process location to connect to
+            interval: time between spikes (ms)
+            number: average number of spikes
+            start: most likely start time of first spike (ms)
+            noise: fractional randomness (0 deterministic,
+                   1 negexp interval distrubtion)
+        """
+
+        super(NrnNetStimStimulus, self).__init__()
+        if total_duration is None:
+            raise ValueError(
+                'NrnNetStimStimulus: Need to specify a total duration')
+        else:
+            self.total_duration = total_duration
+
+        self.locations = locations
+        self.interval = interval
+        self.number = number
+        self.start = start
+        self.noise = noise
+        self.weight = weight
+        self.connections = {}
+
+    def instantiate(self, sim=None, icell=None):
+        """Run stimulus"""
+
+        for location in self.locations:
+            for synapse in location.instantiate(sim=sim, icell=icell):
+                netstim = sim.neuron.h.NetStim()
+                netstim.interval = self.interval
+                netstim.number = self.number
+                netstim.start = self.start
+                netstim.noise = self.noise
+                netcon = sim.neuron.h.NetCon(netstim, synapse)
+                netcon.weight[0] = self.weight
+
+                self.connections[location.name] = (netcon, netstim)
+
+    def destroy(self, sim=None):
+        """Destroy stimulus"""
+
+        self.connections = None
+
+    def __str__(self):
+        """String representation"""
+
+        return "Netstim at %s" % ','.join(
+            location
+            for location in self.locations)
+
 # TODO Add 'current' to the name
 
 
