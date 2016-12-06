@@ -75,7 +75,7 @@ class TestNrnSomaDistanceCompLocation(object):
         cell.testdend.append(sec=dend1)
         cell.testdend.append(sec=dend2)
 
-        nt.assert_raises(Exception,
+        nt.assert_raises(ephys.locations.EPhysLocInstantiateException,
                          self.loc.instantiate,
                          sim=self.sim,
                          icell=cell)
