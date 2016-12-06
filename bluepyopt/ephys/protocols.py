@@ -27,6 +27,8 @@ import collections
 import logging
 logger = logging.getLogger(__name__)
 
+from . import locations
+
 
 class Protocol(object):
 
@@ -199,7 +201,12 @@ class SweepProtocol(Protocol):
             stimulus.instantiate(sim=sim, icell=icell)
 
         for recording in self.recordings:
-            recording.instantiate(sim=sim, icell=icell)
+            try:
+                recording.instantiate(sim=sim, icell=icell)
+            except locations.EPhysLocInstantiateException:
+                logger.debug(
+                    'SweepProtocol: Instantiating recording generated location '
+                    'exception, will return empty response for this recording')
 
     def destroy(self, sim=None):
         """Destroy protocol"""

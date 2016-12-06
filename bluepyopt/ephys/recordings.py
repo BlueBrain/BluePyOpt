@@ -76,8 +76,7 @@ class CompRecording(Recording):
         """Return recording response"""
 
         if not self.instantiated:
-            raise Exception(
-                'Recording not instantiated before requesting response')
+            return None
 
         return responses.TimeVoltageResponse(self.name,
                                              self.tvector.to_python(),
