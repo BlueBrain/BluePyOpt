@@ -53,8 +53,9 @@ class eFELFeature(EFeature, DictMixin):
             exp_std=None,
             threshold=None,
             stimulus_current=None,
-            interp_step=None,
-            comment=''):
+            comment='',
+            interp_step=None
+    ):
         """Constructor
 
         Args:
@@ -68,8 +69,8 @@ class eFELFeature(EFeature, DictMixin):
             exp_mean (float): experimental mean of this eFeature
             exp_std(float): experimental standard deviation of this eFeature
             threshold(float): spike detection threshold (mV)
-            interp_step(float): interpolation step (ms)
             comment (str): comment
+            interp_step(float): interpolation step (ms)
         """
 
         super(eFELFeature, self).__init__(name, comment)
