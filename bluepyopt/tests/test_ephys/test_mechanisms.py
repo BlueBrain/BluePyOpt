@@ -46,6 +46,31 @@ def test_nrnmod_instantiate():
 
 
 @attr('unit')
+def test_pprocess_instantiate():
+    """ephys.mechanisms: Testing insert point process"""
+
+    test_pprocess = ephys.mechanisms.NrnMODPointProcessMechanism(
+        name='expsyn',
+        suffix='ExpSyn',
+        locations=[simplecell.somacenter_loc])
+
+    simple_cell.instantiate(sim=sim)
+
+    nt.assert_equal(test_pprocess.pprocesses, None)
+
+    test_pprocess.instantiate(sim=sim, icell=simple_cell.icell)
+    nt.assert_equal(len(test_pprocess.pprocesses), 1)
+    pprocess = test_pprocess.pprocesses[0]
+
+    nt.assert_true(hasattr(pprocess, 'tau'))
+
+    test_pprocess.destroy(sim=sim)
+    nt.assert_equal(test_pprocess.pprocesses, None)
+
+    simple_cell.destroy(sim=sim)
+
+
+@attr('unit')
 def test_string_hash_functions():
     """ephys.mechanisms: Testing string hash function"""
 

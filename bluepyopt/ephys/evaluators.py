@@ -140,13 +140,15 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             sim=None):
         """Run protocol"""
 
+        sim = self.sim if sim is None else sim
+
         if self.use_params_for_seed:
             sim.random123_globalindex = self.seed_from_param_dict(param_values)
 
         return protocol.run(
             self.cell_model if cell_model is None else cell_model,
             param_values,
-            sim=self.sim if sim is None else sim,
+            sim=sim,
             isolate=isolate)
 
     def run_protocols(self, protocols, param_values):

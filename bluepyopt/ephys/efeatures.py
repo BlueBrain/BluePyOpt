@@ -53,7 +53,9 @@ class eFELFeature(EFeature, DictMixin):
             exp_std=None,
             threshold=None,
             stimulus_current=None,
-            comment=''):
+            comment='',
+            interp_step=None
+    ):
         """Constructor
 
         Args:
@@ -68,6 +70,7 @@ class eFELFeature(EFeature, DictMixin):
             exp_std(float): experimental standard deviation of this eFeature
             threshold(float): spike detection threshold (mV)
             comment (str): comment
+            interp_step(float): interpolation step (ms)
         """
 
         super(eFELFeature, self).__init__(name, comment)
@@ -79,6 +82,7 @@ class eFELFeature(EFeature, DictMixin):
         self.stim_start = stim_start
         self.stim_end = stim_end
         self.threshold = threshold
+        self.interp_step = interp_step
         self.stimulus_current = stimulus_current
 
     def _construct_efel_trace(self, responses):
@@ -123,6 +127,9 @@ class eFELFeature(EFeature, DictMixin):
 
         if self.stimulus_current is not None:
             efel.setDoubleSetting('stimulus_current', self.stimulus_current)
+
+        if self.interp_step is not None:
+            efel.setDoubleSetting('interp_step', self.interp_step)
 
         if not efel.FeatureNameExists(self.efel_feature_name):
             raise ValueError("eFEL doesn't have a feature called %s" %

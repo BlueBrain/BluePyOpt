@@ -251,3 +251,65 @@ proc re_init_rng() {localobj sf
                 setRNG_%(suffix)s(0, hash_str(full_str))
             }
         """
+
+
+class NrnMODPointProcessMechanism(Mechanism):
+
+    """Neuron mechanism"""
+
+    def __init__(
+            self,
+            name,
+            mod_path=None,
+            suffix=None,
+            locations=None,
+            preloaded=True,
+            comment=''):
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            mod_path (str): path to the MOD file (not used for the moment)
+            suffix (str): suffix of this mechanism in the MOD file
+            locations (list of Locations): a list of Location objects pointing
+                to compartments where this mechanism should be added to.
+            preloaded (bool): should this mechanism be side-loaded by BluePyOpt,
+                or was it already loaded and compiled by the user ?
+                (not used for the moment)
+        """
+
+        super(NrnMODPointProcessMechanism, self).__init__(name, comment)
+        self.mod_path = mod_path
+        self.suffix = suffix
+        self.locations = locations
+        self.preloaded = preloaded
+        self.cell_model = None
+        self.pprocesses = None
+
+    def instantiate(self, sim=None, icell=None):
+        """Instantiate"""
+
+        self.pprocesses = []
+        for location in self.locations:
+            icomp = location.instantiate(sim=sim, icell=icell)
+            try:
+                iclass = getattr(sim.neuron.h, self.suffix)
+                self.pprocesses.append(iclass(icomp.x, sec=icomp.sec))
+            except ValueError as e:
+                raise ValueError(str(e) + ': ' + self.suffix)
+
+            logger.debug(
+                'Inserted %s at %s ', self.suffix, [
+                    str(location) for location in self.locations])
+
+    def destroy(self, sim=None):
+        """Destroy mechanism instantiation"""
+
+        self.pprocesses = None
+
+    def __str__(self):
+        """String representation"""
+
+        return "%s: %s at %s" % (
+            self.name, self.suffix,
+            [str(location) for location in self.locations])
