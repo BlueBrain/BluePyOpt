@@ -43,7 +43,7 @@ def define_mechanisms():
                 'mechanisms.json')))
 
     mechanisms = []
-    for sectionlist, channels in mech_definitions.iteritems():
+    for sectionlist, channels in mech_definitions.items():
         seclist_loc = ephys.locations.NrnSeclistLocation(
             sectionlist,
             seclist_name=sectionlist)

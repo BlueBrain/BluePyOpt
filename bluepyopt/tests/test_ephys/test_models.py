@@ -1,7 +1,8 @@
 """Test ephys model objects"""
 
 import os
-
+import tempfile
+import contextlib
 
 import nose.tools as nt
 from nose.plugins.attrib import attr
@@ -14,6 +15,17 @@ TESTDATA_DIR = os.path.join(
         os.path.abspath(__file__)),
     'testdata')
 simple_morphology_path = os.path.join(TESTDATA_DIR, 'simple.swc')
+
+
+@contextlib.contextmanager
+def yield_blank_hoc(template_name):
+    """Create blank hoc template"""
+    hoc_template = ephys.models.CellModel.create_empty_template(template_name)
+    temp_file = tempfile.NamedTemporaryFile(suffix='test_models')
+    with temp_file as fd:
+        fd.write(hoc_template.encode('utf-8'))
+        fd.flush()
+        yield temp_file.name
 
 test_morph = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
 

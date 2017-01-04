@@ -172,7 +172,7 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
         hash_value = 0.0
         for char in string:
             # Multiplicative hash function using Mersenne prime close to 2^32
-            hash_value = (hash_value * 31 + ord(char)) % (pow(2, 31) - 1)
+            hash_value = (hash_value * 31.0 + ord(char)) % (2.0 ** 31.0 - 1.0)
 
         return hash_value
 

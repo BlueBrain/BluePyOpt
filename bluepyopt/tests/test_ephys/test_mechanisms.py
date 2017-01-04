@@ -93,4 +93,4 @@ def test_string_hash_functions():
         (test_string, simplecell.nrn_sim) for test_string in test_strings]
 
     nt.assert_equal(hashes_py, hashes_hoc)
-    nt.assert_equal(hashes_py[:3], [0.0, 97.0, 504588430.0])
+    nt.assert_equal(hashes_py[:2], [0.0, 97.0])

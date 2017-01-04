@@ -169,9 +169,9 @@ class SweepProtocol(Protocol):
                 """Overwrite reduce"""
                 return (getattr, (meth.__self__, meth.__func__.__name__))
 
-            import copy_reg
+            import copyreg
             import types
-            copy_reg.pickle(types.MethodType, _reduce_method)
+            copyreg.pickle(types.MethodType, _reduce_method)
 
             import multiprocessing
 

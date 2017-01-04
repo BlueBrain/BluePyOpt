@@ -49,6 +49,24 @@ class NrnSimulator(object):
 
         self.cvode.minstep(value)
 
+    @staticmethod
+    def _nrn_disable_banner():
+        """Disable Neuron banner"""
+
+        nrnpy_path = os.path.join(imp.find_module('neuron')[1])
+        import glob
+        hoc_so_list = \
+            glob.glob(os.path.join(nrnpy_path, 'hoc*.so'))
+
+        if len(hoc_so_list) != 1:
+            raise Exception(
+                'hoc shared library not found in %s' %
+                nrnpy_path)
+
+        hoc_so = hoc_so_list[0]
+        nrndll = ctypes.cdll[hoc_so]
+        ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
+
     # pylint: disable=R0201
     # TODO function below should probably a class property or something in that
     # sense
@@ -60,9 +78,7 @@ class NrnSimulator(object):
             # hoc.so does not exist on NEURON Windows
             # although \\hoc.pyd can work here, it gives an error for
             # nrn_nobanner_ line
-            hoc_so = os.path.join(imp.find_module('neuron')[1] + '/hoc.so')
-            nrndll = ctypes.cdll[hoc_so]
-            ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
+            NrnSimulator._nrn_disable_banner()
 
         import neuron  # NOQA
 

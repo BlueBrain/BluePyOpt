@@ -6,14 +6,14 @@ import nose.tools as nt
 
 @attr('unit')
 def test_load():
-    """Tools: test import"""
+    """bluepyopt.tools: test import"""
 
     import bluepyopt.tools  # NOQA
 
 
 @attr('unit')
 def test_uint32_seed():
-    """Tools: test uint32_seed"""
+    """bluepyopt.tools: test uint32_seed"""
 
     import bluepyopt.tools as bpoptools
 
@@ -27,7 +27,7 @@ def test_uint32_seed():
     for _ in range(1000):
         string = ''.join(
             (chr(random.randint(0, 127)) for x in
-             xrange(random.randint(10, 255))))
+             range(random.randint(10, 255))))
         strings.append(string)
         hashes.append(bpoptools.uint32_seed(string))
 

@@ -209,9 +209,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         def _reduce_method(meth):
             """Overwrite reduce"""
             return (getattr, (meth.__self__, meth.__func__.__name__))
-        import copy_reg
+        import copyreg
         import types
-        copy_reg.pickle(types.MethodType, _reduce_method)
+        copyreg.pickle(types.MethodType, _reduce_method)
 
         if self.use_scoop:
             if self.map_function:
