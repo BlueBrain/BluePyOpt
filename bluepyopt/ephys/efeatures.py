@@ -54,7 +54,8 @@ class eFELFeature(EFeature, DictMixin):
             threshold=None,
             stimulus_current=None,
             comment='',
-            interp_step=None
+            interp_step=None,
+            double_settings=None,
     ):
         """Constructor
 
@@ -71,6 +72,8 @@ class eFELFeature(EFeature, DictMixin):
             threshold(float): spike detection threshold (mV)
             comment (str): comment
             interp_step(float): interpolation step (ms)
+            double_settings(dict): dictionary with efel double settings that
+            should be set before extracting the features
         """
 
         super(eFELFeature, self).__init__(name, comment)
@@ -84,6 +87,7 @@ class eFELFeature(EFeature, DictMixin):
         self.threshold = threshold
         self.interp_step = interp_step
         self.stimulus_current = stimulus_current
+        self.double_settings = double_settings
 
     def _construct_efel_trace(self, responses):
         """Construct trace that can be passed to eFEL"""
@@ -130,6 +134,10 @@ class eFELFeature(EFeature, DictMixin):
 
         if self.interp_step is not None:
             efel.setDoubleSetting('interp_step', self.interp_step)
+
+        if self.double_settings is not None:
+            for setting_name, setting_value in self.double_settings.items():
+                efel.setDoubleSetting(setting_name, setting_value)
 
         if not efel.FeatureNameExists(self.efel_feature_name):
             raise ValueError("eFEL doesn't have a feature called %s" %
