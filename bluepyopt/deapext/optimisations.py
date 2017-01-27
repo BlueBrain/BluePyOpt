@@ -108,16 +108,16 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             evaluator (Evaluator): Evaluator object
             seed (float): Random number generator seed
             offspring_size (int): Number of offspring individuals in each
-            generation
+                generation
             eta (float): Parameter that controls how far the crossover and
             mutation operator disturbe the original individuals
             mutpb (float): Mutation probability
             cxpb (float): Crossover probability
             map_function (function): Function used to map (parallelise) the
-            evaluation function calls
+                evaluation function calls
             hof (hof): Hall of Fame object
             selector_name (str): The selector used in the evolutionary
-            algorithm, possible values are 'IBEA' or 'NSGA2'
+                algorithm, possible values are 'IBEA' or 'NSGA2'
         """
 
         super(DEAPOptimisation, self).__init__(evaluator=evaluator)
