@@ -68,7 +68,7 @@ class Evaluator(object):
                 The parameter values to be evaluated.
 
         Returns:
-            objectives (Objectives):
+            objectives (list of Objectives):
                 List of Objectives with values calculated by the Evaluator.
 
         """
