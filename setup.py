@@ -27,7 +27,7 @@ setuptools.setup(
     name="bluepyopt",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    install_requires=['numpy>=1.6', 'pandas>=0.18', 'deap', 'efel>=2.6',
+    install_requires=['numpy>=1.6', 'pandas>=0.18', 'deap', 'efel>=2.11',
                       'scoop>=0.7', 'ipyparallel', 'pickleshare>=0.7.3',
                       'Jinja2>=2.8', 'future'],
     packages=setuptools.find_packages(exclude=('examples', )),

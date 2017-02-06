@@ -56,6 +56,7 @@ class eFELFeature(EFeature, DictMixin):
             comment='',
             interp_step=None,
             double_settings=None,
+            int_settings=None,
     ):
         """Constructor
 
@@ -73,7 +74,9 @@ class eFELFeature(EFeature, DictMixin):
             comment (str): comment
             interp_step(float): interpolation step (ms)
             double_settings(dict): dictionary with efel double settings that
-            should be set before extracting the features
+                should be set before extracting the features
+            int_settings(dict): dictionary with efel int settings that
+                should be set before extracting the features
         """
 
         super(eFELFeature, self).__init__(name, comment)
@@ -88,6 +91,7 @@ class eFELFeature(EFeature, DictMixin):
         self.interp_step = interp_step
         self.stimulus_current = stimulus_current
         self.double_settings = double_settings
+        self.int_settings = int_settings
 
     def _construct_efel_trace(self, responses):
         """Construct trace that can be passed to eFEL"""
@@ -138,6 +142,10 @@ class eFELFeature(EFeature, DictMixin):
         if self.double_settings is not None:
             for setting_name, setting_value in self.double_settings.items():
                 efel.setDoubleSetting(setting_name, setting_value)
+
+        if self.int_settings is not None:
+            for setting_name, setting_value in self.int_settings.items():
+                efel.setIntSetting(setting_name, setting_value)
 
         if not efel.FeatureNameExists(self.efel_feature_name):
             raise ValueError("eFEL doesn't have a feature called %s" %
