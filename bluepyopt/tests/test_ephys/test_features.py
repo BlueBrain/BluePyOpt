@@ -79,6 +79,39 @@ def test_eFELFeature_double_settings():
     nt.assert_true(vb_other_perc != vb)
 
 
+@attr('unit')
+def test_eFELFeature_int_settings():
+    """ephys.efeatures: Testing eFELFeature int_settings"""
+    recording_names = {'': 'square_pulse_step1.soma.v'}
+    efeature = efeatures.eFELFeature(name='test_eFELFeature',
+                                     efel_feature_name='Spikecount',
+                                     recording_names=recording_names,
+                                     stim_start=1200,
+                                     stim_end=2000,
+                                     exp_mean=1,
+                                     exp_std=1)
+    efeature_strict = efeatures.eFELFeature(
+        name='test_eFELFeature_strict',
+        efel_feature_name='Spikecount',
+        recording_names=recording_names,
+        stim_start=1200,
+        stim_end=2000,
+        exp_mean=1,
+        exp_std=1,
+        int_settings={
+            'strict_stiminterval': True})
+
+    response = TimeVoltageResponse('mock_response')
+    testdata_dir = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
+    response.read_csv(joinp(testdata_dir, 'TimeVoltageResponse.csv'))
+    responses = {'square_pulse_step1.soma.v': response, }
+
+    spikecount = efeature.calculate_feature(responses)
+    spikecount_strict = efeature_strict.calculate_feature(responses)
+
+    nt.assert_true(spikecount_strict != spikecount)
+
+
 def test_eFELFeature_serialize():
     """ephys.efeatures: Testing eFELFeature serialization"""
     recording_names = {'': 'square_pulse_step1.soma.v'}
