@@ -33,7 +33,7 @@ import string
 
 from . import create_hoc
 from . import morphologies
-
+from . import simulators
 
 import logging
 logger = logging.getLogger(__name__)
@@ -269,6 +269,8 @@ class CellModel(Model):
             if not param.frozen:
                 param.freeze(param_values[param.name])
                 to_unfreeze.append(param.name)
+
+        self.instantiate(simulators.NrnSimulator())
 
         template_name = self.name
         morphology = os.path.basename(self.morphology.morphology_path)
