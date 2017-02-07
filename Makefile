@@ -4,7 +4,7 @@ all: install
 install:
 	pip install -q . --upgrade
 doc: install
-	pip install -q sphinx sphinx-autobuild
+	pip install -q sphinx sphinx-autobuild sphinx_rtd_theme
 	cd docs; $(MAKE) clean; $(MAKE) html
 docopen: doc
 	open docs/build/html/index.html

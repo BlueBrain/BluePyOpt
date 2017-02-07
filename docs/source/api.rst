@@ -11,3 +11,4 @@ Python API
 
    optimisations
    ephys
+   deapext

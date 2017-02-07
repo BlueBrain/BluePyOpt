@@ -3,14 +3,16 @@
 import numpy as np
 from nose.tools import ok_, eq_
 
-from bluepyopt.deapext.tools.selIBEA import (_calc_fitness_components,
-                                             _mating_selection,
-                                             )
-from utils import make_mock_population
+from bluepyopt.deapext.tools.selIBEA \
+    import (_calc_fitness_components, _mating_selection,)
+from deapext_test_utils import make_mock_population
+
+from nose.plugins.attrib import attr
+
 
 @attr('unit')
 def test_calc_fitness_components():
-    """selIBEA: test calc_fitness_components"""
+    """deapext.selIBEA: test calc_fitness_components"""
     KAPPA = 0.05
     population = make_mock_population()
 
@@ -33,7 +35,10 @@ def test_calc_fitness_components():
     ok_(np.allclose(expected, components))
 
 
+@attr('unit')
 def test_mating_selection():
+    """deapext.selIBEA: test mating selection"""
+
     PARENT_COUNT = 10
     population = make_mock_population()
     parents = _mating_selection(population, PARENT_COUNT, 5)

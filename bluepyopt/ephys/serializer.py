@@ -3,9 +3,10 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-from builtins import object
-from future import standard_library
-standard_library.install_aliases()
+
+# Disabling lines below, generate error when loading ephys.examples
+# from future import standard_library
+# standard_library.install_aliases()
 
 
 SENTINAL = 'class'
@@ -18,9 +19,11 @@ class DictMixin(object):
 
     @staticmethod
     def _serializer(value):
+        """_serializer"""
         if hasattr(value, 'to_dict'):
             return value.to_dict()
-        elif isinstance(value, (list, tuple)) and value and hasattr(value[0], 'to_dict'):
+        elif isinstance(value, (list, tuple)) and \
+                value and hasattr(value[0], 'to_dict'):
             return [v.to_dict() for v in value]
         elif(isinstance(value, dict) and value and
              hasattr(next(iter(list(value.values()))), 'to_dict')):
@@ -29,6 +32,7 @@ class DictMixin(object):
 
     @staticmethod
     def _deserializer(value):
+        """_deserializer"""
         if(isinstance(value, list) and value and
            isinstance(value[0], dict) and SENTINAL in value[0]):
             return [instantiator(v) for v in value]
@@ -61,6 +65,7 @@ class DictMixin(object):
 
 
 def instantiator(fields):
+    """instantiator"""
     klass = fields[SENTINAL]
     for subclass in DictMixin.__subclasses__():
         if repr(subclass) == klass:
