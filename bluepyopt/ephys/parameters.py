@@ -62,6 +62,47 @@ class NrnParameter(bluepyopt.parameters.Parameter):
         pass
 
 
+class DistParameter(bluepyopt.parameters.Parameter):
+
+    """Abstract Parameter class for Neuron object parameters"""
+
+    def __init__(
+            self,
+            name,
+            param_name=None,
+            dist=None,
+            value=None,
+            frozen=False,
+            bounds=None):
+        """Contructor"""
+
+        super(DistParameter, self).__init__(
+            name,
+            value=value,
+            frozen=frozen,
+            bounds=bounds)
+
+        self.param_name = param_name
+        self.dist = dist
+
+    def instantiate(self, sim=None, icell=None):
+        """Instantiate the parameter in the simulator"""
+
+        self.dist.distribution = re.sub('{%s}' % self.param_name, format_float(self.value), self.dist.distribution)
+        logger.debug('Set %s in distribution %s to %s', self.param_name, self.dist.name, str(self.dist.distribution))
+
+
+    def destroy(self, sim=None):
+        """Remove parameter from the simulator"""
+        pass
+
+    def __str__(self):
+        """String representation"""
+        return '%s: %s = %s' % (self.name,
+                                self.param_name,
+                                self.value if self.frozen else self.bounds)
+
+
 class NrnGlobalParameter(NrnParameter, DictMixin):
 
     """Parameter set in the global namespace of neuron"""
