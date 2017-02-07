@@ -33,7 +33,7 @@ import string
 
 from . import create_hoc
 from . import morphologies
-from . import simulators
+from . import parameters.DistParameter
 
 import logging
 logger = logging.getLogger(__name__)
@@ -270,7 +270,11 @@ class CellModel(Model):
                 param.freeze(param_values[param.name])
                 to_unfreeze.append(param.name)
 
-        self.instantiate(simulators.NrnSimulator())
+        # If class is DistParameter it has to be
+        # initialised before writing the hoc
+        for param in self.params.values():
+            if isinstance(param, DistParameter):
+                param.instantiate(icell=self.icell)
 
         template_name = self.name
         morphology = os.path.basename(self.morphology.morphology_path)
