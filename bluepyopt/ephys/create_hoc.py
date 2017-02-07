@@ -60,8 +60,7 @@ def _generate_parameters(parameters):
     for param in parameters:
         if isinstance(param, NrnGlobalParameter):
             global_params[param.name] = param.value
-        elif ((isinstance(param, NrnSectionParameter) is False)
-            and (isinstance(param, NrnRangeParameter) is False)):
+        elif isinstance(param, DistParameter):
             pass
         else:
             assert isinstance(
