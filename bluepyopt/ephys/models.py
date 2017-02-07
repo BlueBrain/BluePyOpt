@@ -33,7 +33,7 @@ import string
 
 from . import create_hoc
 from . import morphologies
-from . import parameters.DistParameter
+from bluepyopt.ephys.parameters import DistParameter
 
 import logging
 logger = logging.getLogger(__name__)
@@ -273,7 +273,7 @@ class CellModel(Model):
         # If class is DistParameter it has to be
         # initialised before writing the hoc
         for param in self.params.values():
-            if isinstance(param, DistParameter):
+            if param.__class__.__name__ == 'DistParameter':
                 param.instantiate(icell=self.icell)
 
         template_name = self.name
