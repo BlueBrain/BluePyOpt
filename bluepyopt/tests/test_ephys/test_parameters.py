@@ -54,3 +54,23 @@ def test_serialize():
         deserialized = instantiator(serialized)
         nt.ok_(isinstance(deserialized, param.__class__))
         nt.eq_(deserialized.name, param.__class__.__name__)
+
+
+@attr('unit')
+def test_metaparameter():
+    """ephys.parameters: Test MetaParameter"""
+
+    dist = "({A} + {B} * math.exp({distance} * {C}) * {value}"
+
+    scaler = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
+        distribution=dist, dist_param_names=['A', 'B', 'C'])
+
+    scaler.A = -0.9
+    scaler.B = 2
+    scaler.C = 0.003
+
+    meta_param = ephys.parameters.MetaParameter('Param A', scaler, 'A', -1)
+
+    nt.assert_equal(meta_param.attr_name, 'A')
+    nt.assert_equal(meta_param.value, -1)
+    nt.assert_equal(scaler.A, -1)

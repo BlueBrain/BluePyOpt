@@ -109,9 +109,9 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
             for dist_param_name in self.dist_param_names:
                 if dist_param_name not in self.distribution:
                     raise ValueError(
-                        'NrnSegmentSomaDistanceScaler: %s '
-                        'missing from distribution string' %
-                        dist_param_name)
+                        'NrnSegmentSomaDistanceScaler: "{%s}" '
+                        'missing from distribution string "%s"' %
+                        (dist_param_name, distribution))
                 setattr(self, dist_param_name, None)
 
     def create_dist(self, value, distance):

@@ -66,14 +66,14 @@ class NrnParameter(bluepyopt.parameters.Parameter):
         pass
 
 
-class MetaParameter(bluepyopt.parameters.Parameter):
+class MetaParameter(NrnParameter):
 
     """Parameter class that controls attributes of other objects"""
 
     def __init__(
             self,
             name,
-            param=None,
+            obj=None,
             attr_name=None,
             value=None,
             frozen=False,
@@ -86,19 +86,21 @@ class MetaParameter(bluepyopt.parameters.Parameter):
             frozen=frozen,
             bounds=bounds)
 
-        self.param = param
+        self.obj = obj
         self.attr_name = attr_name
+        setattr(self.obj, self.attr_name, value)
 
     @bluepyopt.parameters.Parameter.value.setter
     def value(self, _value):
         """Setter for value"""
-        super(MetaParameter, self).value = _value
-        setattr(self.param, self.attr_name, _value)
+        # Call setter of superclass
+        super(MetaParameter, self.__class__).value.fset(self, _value)
+        setattr(self.obj, self.attr_name, _value)
 
     def __str__(self):
         """String representation"""
         return '%s: %s.%s = %s' % (self.name,
-                                   self.param.name,
+                                   self.obj.name,
                                    self.attr_name,
                                    self.value)
 

@@ -15,6 +15,7 @@ TESTDATA_DIR = os.path.join(
         os.path.abspath(__file__)),
     'testdata')
 simple_morphology_path = os.path.join(TESTDATA_DIR, 'simple.swc')
+apic_morphology_path = os.path.join(TESTDATA_DIR, 'apic.swc')
 
 
 @contextlib.contextmanager
@@ -169,3 +170,53 @@ def test_CellModel_destroy():
 
     cell_model1.destroy(sim=sim)
     nt.assert_equal(0, len(sim.neuron.h.CellModel_destroy))
+
+
+@attr('unit')
+def test_metaparameter():
+    """ephys.models: Test model with MetaParameter"""
+
+    morph = ephys.morphologies.NrnFileMorphology(apic_morphology_path)
+
+    dist = "({A} + {B} * math.exp({distance} * {C})) * {value}"
+
+    scaler = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
+        distribution=dist, dist_param_names=['A', 'B', 'C'])
+
+    paramA = ephys.parameters.MetaParameter('ParamA', scaler, 'A', -1)
+    paramB = ephys.parameters.MetaParameter(
+        'ParamB',
+        scaler,
+        'B',
+        bounds=[1.0, 3.0])
+    paramC = ephys.parameters.MetaParameter(
+        'ParamC',
+        obj=scaler,
+        attr_name='C',
+        value=0.003,
+        frozen=True)
+
+    cell_model = ephys.models.CellModel('CellModel',
+                                        morph=morph,
+                                        mechs=[],
+                                        params=[paramA, paramB, paramC])
+
+    cell_model.instantiate(sim=sim)
+
+    nt.assert_raises(Exception,
+                     cell_model.freeze,
+                     {'ParamC': 2.0})
+
+    cell_model.freeze({'ParamA': -1, 'ParamB': 2.0})
+
+    nt.assert_equal(scaler.create_dist(1.0, 1.0),
+                    '(-1 + 2.0 * math.exp(1 * 0.003)) * 1')
+
+    nt.assert_almost_equal(
+        scaler.scale(
+            1.0,
+            cell_model.icell.apic[0](.5),
+            sim=sim),
+        1.045510068328892)
+
+    cell_model.destroy(sim=sim)
