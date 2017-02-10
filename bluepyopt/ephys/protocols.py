@@ -28,6 +28,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from . import locations
+from . import simulators
 
 
 class Protocol(object):
@@ -132,10 +133,10 @@ class SweepProtocol(Protocol):
 
             try:
                 sim.run(self.total_duration, cvode_active=self.cvode_active)
-            except RuntimeError:
+            except (RuntimeError, simulators.NrnSimulatorException):
                 logger.debug(
                     'SweepProtocol: Running of parameter set {%s} generated '
-                    'RuntimeError, returning None in responses',
+                    'an exception, returning None in responses',
                     str(param_values))
                 responses = {recording.name:
                              None for recording in self.recordings}
