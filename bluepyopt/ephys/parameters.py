@@ -21,8 +21,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint: disable=W0511
 
-from abc import abstractmethod
-
 import logging
 
 import bluepyopt
@@ -32,6 +30,13 @@ from . import parameterscalers
 logger = logging.getLogger(__name__)
 
 # TODO location and stimulus parameters should also be optimisable
+
+FLOAT_FORMAT = '%.17g'
+
+
+def format_float(value):
+    """Format float string"""
+    return FLOAT_FORMAT % value
 
 
 class NrnParameter(bluepyopt.parameters.Parameter):
@@ -52,7 +57,6 @@ class NrnParameter(bluepyopt.parameters.Parameter):
             frozen=frozen,
             bounds=bounds)
 
-    @abstractmethod
     def instantiate(self, sim=None, icell=None):
         """Instantiate the parameter in the simulator"""
         pass
@@ -62,45 +66,41 @@ class NrnParameter(bluepyopt.parameters.Parameter):
         pass
 
 
-class DistParameter(bluepyopt.parameters.Parameter):
+class MetaParameter(bluepyopt.parameters.Parameter):
 
-    """Abstract Parameter class for Neuron object parameters"""
+    """Parameter class that controls attributes of other objects"""
 
     def __init__(
             self,
             name,
-            param_name=None,
-            dist=None,
+            param=None,
+            attr_name=None,
             value=None,
             frozen=False,
             bounds=None):
-        """Contructor"""
+        """Constructor"""
 
-        super(DistParameter, self).__init__(
+        super(MetaParameter, self).__init__(
             name,
             value=value,
             frozen=frozen,
             bounds=bounds)
 
-        self.param_name = param_name
-        self.dist = dist
+        self.param = param
+        self.attr_name = attr_name
 
-    def instantiate(self, sim=None, icell=None):
-        """Instantiate the parameter in the simulator"""
-
-        self.dist.distribution = re.sub('{%s}' % self.param_name, format_float(self.value), self.dist.distribution)
-        logger.debug('Set %s in distribution %s to %s', self.param_name, self.dist.name, str(self.dist.distribution))
-
-
-    def destroy(self, sim=None):
-        """Remove parameter from the simulator"""
-        pass
+    @bluepyopt.parameters.Parameter.value.setter
+    def value(self, _value):
+        """Setter for value"""
+        super(MetaParameter, self).value = _value
+        setattr(self.param, self.attr_name, _value)
 
     def __str__(self):
         """String representation"""
-        return '%s: %s = %s' % (self.name,
-                                self.param_name,
-                                self.value if self.frozen else self.bounds)
+        return '%s: %s.%s = %s' % (self.name,
+                                   self.param.name,
+                                   self.attr_name,
+                                   self.value)
 
 
 class NrnGlobalParameter(NrnParameter, DictMixin):
