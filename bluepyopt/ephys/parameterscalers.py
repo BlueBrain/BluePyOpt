@@ -29,6 +29,7 @@ FLOAT_FORMAT = '%.17g'
 
 
 def format_float(value):
+    """Return formatted float string"""
     return FLOAT_FORMAT % value
 
 
@@ -83,7 +84,8 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
             self,
             name=None,
             distribution=None,
-            comment=''):
+            comment='',
+            dist_param_names=None):
         """Constructor
 
         Args:
@@ -92,10 +94,42 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
                 from soma. string can contain `distance` and/or `value` as
                 placeholders for the distance to the soma and parameter value
                 respectivily
+            dist_params (list): list of names of parameters that parametrise the
+                distribution. These names will become attributes of this object.
+                The distribution string should contain these names, and they
+                will be replaced by values of the corresponding attributes
         """
 
         super(NrnSegmentSomaDistanceScaler, self).__init__(name, comment)
         self.distribution = distribution
+
+        self.dist_param_names = dist_param_names
+
+        if self.dist_param_names is not None:
+            for dist_param_name in self.dist_param_names:
+                if dist_param_name not in self.distribution:
+                    raise ValueError(
+                        'NrnSegmentSomaDistanceScaler: "{%s}" '
+                        'missing from distribution string "%s"' %
+                        (dist_param_name, distribution))
+                setattr(self, dist_param_name, None)
+
+    def create_dist(self, value, distance):
+        """Create the final dist string"""
+
+        dist_dict = {}
+        dist_dict['distance'] = format_float(distance)
+        dist_dict['value'] = format_float(value)
+
+        if self.dist_param_names is not None:
+            for dist_param_name in self.dist_param_names:
+                dist_param_value = getattr(self, dist_param_name)
+                if dist_param_value is None:
+                    raise ValueError('NrnSegmentSomaDistanceScaler: %s '
+                                     'was uninitialised' % dist_param_name)
+                dist_dict[dist_param_name] = dist_param_value
+
+        return self.distribution.format(**dist_dict)
 
     def scale(self, value, segment, sim=None):
         """Scale a value based on a segment"""
@@ -114,9 +148,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
 
         # This eval is unsafe (but is it ever dangerous ?)
         # pylint: disable=W0123
-        dist = self.distribution.format(distance=format_float(distance),
-                                        value=format_float(value))
-        return eval(dist)
+        return eval(self.create_dist(value, distance))
 
     def __str__(self):
         """String representation"""

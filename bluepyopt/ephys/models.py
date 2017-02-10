@@ -34,7 +34,6 @@ import string
 from . import create_hoc
 from . import morphologies
 
-
 import logging
 logger = logging.getLogger(__name__)
 

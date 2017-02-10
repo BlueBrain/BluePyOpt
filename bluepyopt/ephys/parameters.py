@@ -21,8 +21,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint: disable=W0511
 
-from abc import abstractmethod
-
 import logging
 
 import bluepyopt
@@ -32,6 +30,13 @@ from . import parameterscalers
 logger = logging.getLogger(__name__)
 
 # TODO location and stimulus parameters should also be optimisable
+
+FLOAT_FORMAT = '%.17g'
+
+
+def format_float(value):
+    """Format float string"""
+    return FLOAT_FORMAT % value
 
 
 class NrnParameter(bluepyopt.parameters.Parameter):
@@ -52,7 +57,6 @@ class NrnParameter(bluepyopt.parameters.Parameter):
             frozen=frozen,
             bounds=bounds)
 
-    @abstractmethod
     def instantiate(self, sim=None, icell=None):
         """Instantiate the parameter in the simulator"""
         pass
@@ -60,6 +64,45 @@ class NrnParameter(bluepyopt.parameters.Parameter):
     def destroy(self, sim=None):
         """Remove parameter from the simulator"""
         pass
+
+
+class MetaParameter(NrnParameter):
+
+    """Parameter class that controls attributes of other objects"""
+
+    def __init__(
+            self,
+            name,
+            obj=None,
+            attr_name=None,
+            value=None,
+            frozen=False,
+            bounds=None):
+        """Constructor"""
+
+        super(MetaParameter, self).__init__(
+            name,
+            value=value,
+            frozen=frozen,
+            bounds=bounds)
+
+        self.obj = obj
+        self.attr_name = attr_name
+        setattr(self.obj, self.attr_name, value)
+
+    @bluepyopt.parameters.Parameter.value.setter
+    def value(self, _value):
+        """Setter for value"""
+        # Call setter of superclass
+        super(MetaParameter, self.__class__).value.fset(self, _value)
+        setattr(self.obj, self.attr_name, _value)
+
+    def __str__(self):
+        """String representation"""
+        return '%s: %s.%s = %s' % (self.name,
+                                   self.obj.name,
+                                   self.attr_name,
+                                   self.value)
 
 
 class NrnGlobalParameter(NrnParameter, DictMixin):
