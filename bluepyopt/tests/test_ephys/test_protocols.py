@@ -102,6 +102,85 @@ def run_NrnSimulatorException(
 
 
 @attr('unit')
+def test_sweepprotocol_init():
+    """ephys.protocols: Test SweepProtocol init"""
+
+    nrn_sim = ephys.simulators.NrnSimulator()
+    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    # icell = dummy_cell.instantiate(sim=nrn_sim)
+    soma_loc = ephys.locations.NrnSeclistCompLocation(
+        name='soma_loc',
+        seclist_name='somatic',
+        sec_index=0,
+        comp_x=.5)
+
+    rec_soma = ephys.recordings.CompRecording(
+        name='soma.v',
+        location=soma_loc,
+        variable='v')
+
+    stim = ephys.stimuli.NrnSquarePulse(
+        step_amplitude=0.0,
+        step_delay=0.0,
+        step_duration=50,
+        total_duration=50,
+        location=soma_loc)
+
+    protocol = ephys.protocols.SweepProtocol(
+        name='prot',
+        stimuli=[stim],
+        recordings=[rec_soma])
+
+    nt.assert_true(isinstance(protocol, ephys.protocols.SweepProtocol))
+    nt.assert_equal(protocol.total_duration, 50)
+
+    protocol.destroy(sim=nrn_sim)
+    dummy_cell.destroy(sim=nrn_sim)
+
+
+@attr('unit')
+def test_sweepprotocol_run_unisolated():
+    """ephys.protocols: Test SweepProtocol unisolated run"""
+
+    nrn_sim = ephys.simulators.NrnSimulator()
+    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    # icell = dummy_cell.instantiate(sim=nrn_sim)
+    soma_loc = ephys.locations.NrnSeclistCompLocation(
+        name='soma_loc',
+        seclist_name='somatic',
+        sec_index=0,
+        comp_x=.5)
+
+    rec_soma = ephys.recordings.CompRecording(
+        name='soma.v',
+        location=soma_loc,
+        variable='v')
+
+    stim = ephys.stimuli.NrnSquarePulse(
+        step_amplitude=0.0,
+        step_delay=0.0,
+        step_duration=50,
+        total_duration=50,
+        location=soma_loc)
+
+    protocol = ephys.protocols.SweepProtocol(
+        name='prot',
+        stimuli=[stim],
+        recordings=[rec_soma])
+
+    responses = protocol.run(
+        cell_model=dummy_cell,
+        param_values={},
+        sim=nrn_sim,
+        isolate=False)
+
+    nt.assert_true(responses is not None)
+
+    protocol.destroy(sim=nrn_sim)
+    dummy_cell.destroy(sim=nrn_sim)
+
+
+@attr('unit')
 def test_nrnsimulator_exception():
     """ephys.protocols: test if protocol raise nrn sim exception"""
 
