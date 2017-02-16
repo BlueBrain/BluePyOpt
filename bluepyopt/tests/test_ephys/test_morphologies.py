@@ -47,6 +47,7 @@ def test_nrnfilemorphology_init():
     morph.destroy(sim=sim)
 
 
+@attr('unit')
 def test_serialize():
     """ephys.morphology: testing serialization"""
 

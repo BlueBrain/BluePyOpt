@@ -112,6 +112,7 @@ def test_eFELFeature_int_settings():
     nt.assert_true(spikecount_strict != spikecount)
 
 
+@attr('unit')
 def test_eFELFeature_serialize():
     """ephys.efeatures: Testing eFELFeature serialization"""
     recording_names = {'': 'square_pulse_step1.soma.v'}
