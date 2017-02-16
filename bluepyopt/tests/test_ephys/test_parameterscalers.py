@@ -32,7 +32,7 @@ def test_NrnSegmentSomaDistanceScaler_dist_params():
     scaler.C = 0.003
     nt.assert_equal(scaler.C, 0.003)
 
-    nt.assert_equal(scaler.create_dist(1.0, 1.0),
+    nt.assert_equal(scaler.eval_dist(1.0, 1.0),
                     '(-0.9 + 2 * math.exp(1 * 0.003) * 1')
 
 

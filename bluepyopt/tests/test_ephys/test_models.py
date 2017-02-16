@@ -183,6 +183,8 @@ def test_metaparameter():
     scaler = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
         distribution=dist, dist_param_names=['A', 'B', 'C'])
 
+    all_loc = ephys.locations.NrnSeclistLocation('all', 'all')
+
     paramA = ephys.parameters.MetaParameter('ParamA', scaler, 'A', -1)
     paramB = ephys.parameters.MetaParameter(
         'ParamB',
@@ -196,20 +198,29 @@ def test_metaparameter():
         value=0.003,
         frozen=True)
 
+    cm = ephys.parameters.NrnRangeParameter(
+        name='cm',
+        param_name='cm',
+        bounds=[.5, 1.5],
+        value_scaler=scaler,
+        locations=[all_loc])
+
+    test_params = {'ParamA': -1, 'ParamB': 2.0, 'cm': 1.0}
+
     cell_model = ephys.models.CellModel('CellModel',
                                         morph=morph,
                                         mechs=[],
-                                        params=[paramA, paramB, paramC])
-
-    cell_model.instantiate(sim=sim)
+                                        params=[cm, paramA, paramB, paramC])
 
     nt.assert_raises(Exception,
                      cell_model.freeze,
                      {'ParamC': 2.0})
 
-    cell_model.freeze({'ParamA': -1, 'ParamB': 2.0})
+    cell_model.freeze(test_params)
 
-    nt.assert_equal(scaler.create_dist(1.0, 1.0),
+    cell_model.instantiate(sim=sim)
+
+    nt.assert_equal(scaler.eval_dist(1.0, 1.0),
                     '(-1 + 2.0 * math.exp(1 * 0.003)) * 1')
 
     nt.assert_almost_equal(
@@ -218,5 +229,12 @@ def test_metaparameter():
             cell_model.icell.apic[0](.5),
             sim=sim),
         1.045510068328892)
+
+    cell_model.unfreeze(param_names=['ParamA', 'ParamB'])
+
+    hoc_code = cell_model.create_hoc(param_values=test_params)
+
+    nt.assert_true('distribute_distance(CellRef.all, "cm", "(-1 + 2.0 * '
+                   'exp(%.17g * 0.003)) * 1")' in hoc_code)
 
     cell_model.destroy(sim=sim)

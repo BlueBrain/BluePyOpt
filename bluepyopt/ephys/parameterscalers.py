@@ -114,12 +114,16 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
                         (dist_param_name, distribution))
                 setattr(self, dist_param_name, None)
 
-    def create_dist(self, value, distance):
-        """Create the final dist string"""
+    @property
+    def inst_distribution(self):
+        """The instantiated distribution"""
 
-        dist_dict = {}
-        dist_dict['distance'] = format_float(distance)
-        dist_dict['value'] = format_float(value)
+        class MissingDict(dict):
+
+            def __missing__(self, key):
+                return '{' + key + '}'
+
+        dist_dict = MissingDict()
 
         if self.dist_param_names is not None:
             for dist_param_name in self.dist_param_names:
@@ -129,7 +133,17 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
                                      'was uninitialised' % dist_param_name)
                 dist_dict[dist_param_name] = dist_param_value
 
-        return self.distribution.format(**dist_dict)
+        import string
+        return string.Formatter().vformat(self.distribution, (), dist_dict)
+
+    def eval_dist(self, value, distance):
+        """Create the final dist string"""
+
+        scale_dict = {}
+        scale_dict['distance'] = format_float(distance)
+        scale_dict['value'] = format_float(value)
+
+        return self.inst_distribution.format(**scale_dict)
 
     def scale(self, value, segment, sim=None):
         """Scale a value based on a segment"""
@@ -148,7 +162,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
 
         # This eval is unsafe (but is it ever dangerous ?)
         # pylint: disable=W0123
-        return eval(self.create_dist(value, distance))
+        return eval(self.eval_dist(value, distance))
 
     def __str__(self):
         """String representation"""
