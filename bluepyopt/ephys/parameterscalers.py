@@ -21,6 +21,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint: disable=W0511
 
+import string
+
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
@@ -31,6 +33,15 @@ FLOAT_FORMAT = '%.17g'
 def format_float(value):
     """Return formatted float string"""
     return FLOAT_FORMAT % value
+
+
+class MissingFormatDict(dict):
+
+    """Extend dict for string formatting with missing values"""
+
+    def __missing__(self, key):  # pylint: disable=R0201
+        """Return string with format key for missing keys"""
+        return '{' + key + '}'
 
 
 class ParameterScaler(BaseEPhys):
@@ -118,12 +129,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
     def inst_distribution(self):
         """The instantiated distribution"""
 
-        class MissingDict(dict):
-
-            def __missing__(self, key):
-                return '{' + key + '}'
-
-        dist_dict = MissingDict()
+        dist_dict = MissingFormatDict()
 
         if self.dist_param_names is not None:
             for dist_param_name in self.dist_param_names:
@@ -133,7 +139,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
                                      'was uninitialised' % dist_param_name)
                 dist_dict[dist_param_name] = dist_param_value
 
-        import string
+        # Use this special formatting to bypass missing keys
         return string.Formatter().vformat(self.distribution, (), dist_dict)
 
     def eval_dist(self, value, distance):
