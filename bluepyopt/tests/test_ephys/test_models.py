@@ -238,3 +238,7 @@ def test_metaparameter():
                    'exp(%.17g * 0.003)) * 1")' in hoc_code)
 
     cell_model.destroy(sim=sim)
+
+    hoc_model = ephys.models.HocCellModel('hoc_model', '.', hoc_string=hoc_code)
+    hoc_model.instantiate(sim=sim)
+    hoc_model.destroy()
