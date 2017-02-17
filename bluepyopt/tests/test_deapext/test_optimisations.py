@@ -26,6 +26,23 @@ def test_DEAPOptimisation_constructor():
 
 
 @attr('unit')
+def test_DEAPOptimisation_run():
+    "deapext.optimisation: Testing DEAPOptimisation run"
+
+    optimisation = bluepyopt.optimisations.DEAPOptimisation(
+        examples.simplecell.cell_evaluator, offspring_size=1)
+
+    pop, hof, log, hist = optimisation.run(max_ngen=1)
+
+    ind = [0.06007731830843009, 0.06508319290092013]
+    nt.assert_equal(len(pop), 1)
+    nt.assert_almost_equal(pop[0], ind)
+    nt.assert_almost_equal(hof[0], ind)
+    nt.assert_equal(log[0]['nevals'], 1)
+    nt.assert_almost_equal(hist.genealogy_history[1], ind)
+
+
+@attr('unit')
 def test_selectorname():
     "deapext.optimisation: Testing selector_name argument"
 
