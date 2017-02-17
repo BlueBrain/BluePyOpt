@@ -50,7 +50,7 @@ def test_NrnNetStimStimulus_init():
 
 @attr('unit')
 def test_NrnNetStimStimulus_instantiate():
-    """ephys.stimuli: test if NrnNetStimStimulus constructor works"""
+    """ephys.stimuli: test if NrnNetStimStimulus instantiate works"""
 
     nrn_sim = ephys.simulators.NrnSimulator()
     dummy_cell = testmodels.dummycells.DummyCellModel1()
@@ -87,6 +87,38 @@ def test_NrnNetStimStimulus_instantiate():
 
     expsyn_mech.destroy(sim=nrn_sim)
     netstim.destroy(sim=nrn_sim)
+    dummy_cell.destroy(sim=nrn_sim)
+
+
+@attr('unit')
+def test_NrnCurrentPlayStimulus_instantiate():
+    """ephys.stimuli: test if NrnNetStimStimulus instantiate works"""
+
+    nrn_sim = ephys.simulators.NrnSimulator()
+    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    icell = dummy_cell.instantiate(sim=nrn_sim)
+
+    somacenter_loc = ephys.locations.NrnSeclistCompLocation(
+        name=None,
+        seclist_name='somatic',
+        sec_index=0,
+        comp_x=.5)
+
+    time_points = [10, 50]
+    current_points = [0.1, 0.2]
+    current_stim = ephys.stimuli.NrnCurrentPlayStimulus(
+        time_points=time_points,
+        current_points=current_points,
+        location=somacenter_loc)
+
+    nt.assert_equal(current_stim.time_points, time_points)
+    nt.assert_equal(current_stim.current_points, current_points)
+    nt.assert_equal(str(current_stim), 'Current play at somatic[0](0.5)')
+    current_stim.instantiate(sim=nrn_sim, icell=icell)
+
+    nrn_sim.run(100)
+
+    current_stim.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
 
 
