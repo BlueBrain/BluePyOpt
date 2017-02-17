@@ -19,6 +19,16 @@ class NrnSimulator(object):
                  random123_globalindex=None):
         """Constructor"""
 
+        if platform.system() == 'Windows':
+            # hoc.so does not exist on NEURON Windows
+            # although \\hoc.pyd can work here, it gives an error for
+            # nrn_nobanner_ line
+            self.disable_banner = False
+            self.banner_disabled = False
+        else:
+            self.disable_banner = True
+            self.banner_disabled = False
+
         self.neuron.h.load_file('stdrun.hoc')
 
         self.dt = dt if dt is not None else self.neuron.h.dt
@@ -74,11 +84,9 @@ class NrnSimulator(object):
     def neuron(self):
         """Return neuron module"""
 
-        if platform.system() != 'Windows':
-            # hoc.so does not exist on NEURON Windows
-            # although \\hoc.pyd can work here, it gives an error for
-            # nrn_nobanner_ line
+        if self.disable_banner and not self.banner_disabled:
             NrnSimulator._nrn_disable_banner()
+            self.banner_disabled = True
 
         import neuron  # NOQA
 
