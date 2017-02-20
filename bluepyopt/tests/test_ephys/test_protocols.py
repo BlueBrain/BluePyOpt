@@ -133,8 +133,100 @@ def test_sweepprotocol_init():
 
     nt.assert_true(isinstance(protocol, ephys.protocols.SweepProtocol))
     nt.assert_equal(protocol.total_duration, 50)
+    nt.assert_equal(
+        protocol.subprotocols(), {'prot': protocol})
+
+    nt.assert_true('somatic[0](0.5)' in str(protocol))
 
     protocol.destroy(sim=nrn_sim)
+    dummy_cell.destroy(sim=nrn_sim)
+
+
+@attr('unit')
+def test_sequenceprotocol_init():
+    """ephys.protocols: Test SequenceProtocol init"""
+
+    nrn_sim = ephys.simulators.NrnSimulator()
+    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    # icell = dummy_cell.instantiate(sim=nrn_sim)
+    soma_loc = ephys.locations.NrnSeclistCompLocation(
+        name='soma_loc',
+        seclist_name='somatic',
+        sec_index=0,
+        comp_x=.5)
+
+    rec_soma = ephys.recordings.CompRecording(
+        name='soma.v',
+        location=soma_loc,
+        variable='v')
+
+    stim = ephys.stimuli.NrnSquarePulse(
+        step_amplitude=0.0,
+        step_delay=0.0,
+        step_duration=50,
+        total_duration=50,
+        location=soma_loc)
+
+    sweep_protocol = ephys.protocols.SweepProtocol(
+        name='sweep_prot',
+        stimuli=[stim],
+        recordings=[rec_soma])
+
+    seq_protocol = ephys.protocols.SequenceProtocol(
+        name='seq_prot',
+        protocols=[sweep_protocol])
+
+    nt.assert_true(isinstance(seq_protocol, ephys.protocols.SequenceProtocol))
+    nt.assert_equal(
+        seq_protocol.subprotocols(), {
+            'seq_prot': seq_protocol, 'sweep_prot': sweep_protocol})
+
+    sweep_protocol.destroy(sim=nrn_sim)
+    dummy_cell.destroy(sim=nrn_sim)
+
+
+@attr('unit')
+def test_sequenceprotocol_run():
+    """ephys.protocols: Test SequenceProtocol run"""
+
+    nrn_sim = ephys.simulators.NrnSimulator()
+    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    # icell = dummy_cell.instantiate(sim=nrn_sim)
+    soma_loc = ephys.locations.NrnSeclistCompLocation(
+        name='soma_loc',
+        seclist_name='somatic',
+        sec_index=0,
+        comp_x=.5)
+
+    rec_soma = ephys.recordings.CompRecording(
+        name='soma.v',
+        location=soma_loc,
+        variable='v')
+
+    stim = ephys.stimuli.NrnSquarePulse(
+        step_amplitude=0.0,
+        step_delay=0.0,
+        step_duration=50,
+        total_duration=50,
+        location=soma_loc)
+
+    sweep_protocol = ephys.protocols.SweepProtocol(
+        name='sweep_prot',
+        stimuli=[stim],
+        recordings=[rec_soma])
+
+    seq_protocol = ephys.protocols.SequenceProtocol(
+        name='seq_prot',
+        protocols=[sweep_protocol])
+
+    responses = seq_protocol.run(
+        cell_model=dummy_cell,
+        param_values={},
+        sim=nrn_sim)
+
+    nt.assert_true(responses is not None)
+
+    sweep_protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
 
 

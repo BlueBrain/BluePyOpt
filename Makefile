@@ -30,6 +30,10 @@ sc_prepare: jupyter
 		jupyter nbconvert --to python simplecell.ipynb && \
 		sed '/get_ipython/d;/plt\./d;/plot_responses/d;/import matplotlib/d' simplecell.py >simplecell.tmp && \
 		mv simplecell.tmp simplecell.py
+coverage_unit: unit
+	cd bluepyopt/tests; coverage html -d coverage_html; open coverage_html/index.html 
+coverage_test: test
+	cd bluepyopt/tests; coverage html -d coverage_html; open coverage_html/index.html 
 jupyter:
 	pip install -q jupyter
 install_test_requirements:
@@ -37,7 +41,7 @@ install_test_requirements:
 test: clean unit functional
 unit: install install_test_requirements
 	cd bluepyopt/tests; nosetests -a 'unit' -s -v -x --with-coverage --cover-xml \
-		--cover-package bluepyopt
+		--cover-package bluepyopt;
 functional: install install_test_requirements stochkv_prepare l5pc_prepare sc_prepare
 	cd bluepyopt/tests; nosetests -a '!unit' -s -v -x --with-coverage --cover-xml \
 		--cover-package bluepyopt
