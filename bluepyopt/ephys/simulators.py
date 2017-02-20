@@ -110,8 +110,6 @@ class NrnSimulator(object):
         if cvode_active is None:
             cvode_active = self.cvode_active
 
-        self.neuron.h.cvode_active(1 if cvode_active else 0)
-
         if not cvode_active and dt is None:  # use dt of simulator
             if self.neuron.h.dt != self.dt:
                 raise Exception(
@@ -121,6 +119,8 @@ class NrnSimulator(object):
                     'current dt: %.6g\n'
                     'init dt: %.6g' % (self.neuron.h.dt, self.dt))
             dt = self.dt
+
+        self.neuron.h.cvode_active(1 if cvode_active else 0)
 
         if cvode_active:
             logger.debug('Running Neuron simulator %.6g ms, with cvode', tstop)
