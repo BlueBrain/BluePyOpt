@@ -170,6 +170,8 @@ def stdout_redirector(stream):
 @attr('slow')
 def test_exec():
     """L5PC Notebook: test execution"""
+    import numpy
+    numpy.seterr(all='raise')
     old_cwd = os.getcwd()
     output = StringIO()
     try:

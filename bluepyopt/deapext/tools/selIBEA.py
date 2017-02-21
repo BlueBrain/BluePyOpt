@@ -72,21 +72,25 @@ def _calc_fitness_components(population, kappa):
     box_ranges = (numpy.max(population_matrix, axis=0) -
                   numpy.min(population_matrix, axis=0))
 
+    # Replace all possible zeros to avoid division by zero
+    # Basically 0/0 is replaced by 0/1
+    box_ranges[box_ranges == 0] = 1.0
+
     components_matrix = numpy.zeros((pop_len, pop_len))
     for i in xrange(0, pop_len):
         diff = population_matrix - population_matrix[i, :]
         components_matrix[i, :] = numpy.max(
-            numpy.divide(
-                diff,
-                box_ranges),
+            numpy.divide(diff, box_ranges),
             axis=1)
 
     # Calculate max of absolute value of all elements in matrix
     max_absolute_indicator = numpy.max(numpy.abs(components_matrix))
 
     # Normalisation
-    components_matrix = numpy.exp((-1.0 / (kappa * max_absolute_indicator)) *
-                                  components_matrix.T)
+    if max_absolute_indicator != 0:
+        components_matrix = numpy.exp(
+            (-1.0 / (kappa * max_absolute_indicator)) * components_matrix.T)
+
     return components_matrix
 
 
