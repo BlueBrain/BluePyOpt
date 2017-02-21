@@ -31,13 +31,6 @@ logger = logging.getLogger(__name__)
 
 # TODO location and stimulus parameters should also be optimisable
 
-FLOAT_FORMAT = '%.17g'
-
-
-def format_float(value):
-    """Format float string"""
-    return FLOAT_FORMAT % value
-
 
 class NrnParameter(bluepyopt.parameters.Parameter):
 

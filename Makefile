@@ -58,6 +58,7 @@ clean:
 	rm -rf docs/build
 	rm -rf bluepyopt/tests/.coverage
 	rm -rf bluepyopt/tests/coverage.xml
+	rm -rf bluepyopt/tests/coverage_html
 	rm -rf examples/l5pc/x86_64
 	rm -rf examples/stochkv/x86_64
 	find . -name "*.pyc" -exec rm -rf {} \;

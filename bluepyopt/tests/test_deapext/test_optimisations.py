@@ -14,15 +14,33 @@ import deap.tools
 def test_DEAPOptimisation_constructor():
     "deapext.optimisation: Testing constructor DEAPOptimisation"
 
-    optimisation = bluepyopt.optimisations.DEAPOptimisation(
-        examples.simplecell.cell_evaluator)
+    optimisation = bluepyopt.deapext.optimisations.DEAPOptimisation(
+        examples.simplecell.cell_evaluator, map_function=map)
 
     nt.assert_is_instance(
         optimisation,
-        bluepyopt.optimisations.DEAPOptimisation)
+        bluepyopt.deapext.optimisations.DEAPOptimisation)
     nt.assert_is_instance(
         optimisation.evaluator,
         bluepyopt.evaluators.Evaluator)
+
+    nt.assert_raises(
+        ValueError,
+        bluepyopt.deapext.optimisations.DEAPOptimisation,
+        examples.simplecell.cell_evaluator,
+        selector_name='wrong')
+
+
+@attr('unit')
+def test_IBEADEAPOptimisation_constructor():
+    "deapext.optimisation: Testing constructor IBEADEAPOptimisation"
+
+    optimisation = bluepyopt.deapext.optimisations.IBEADEAPOptimisation(
+        examples.simplecell.cell_evaluator, map_function=map)
+
+    nt.assert_is_instance(
+        optimisation,
+        bluepyopt.deapext.optimisations.IBEADEAPOptimisation)
 
 
 @attr('unit')
