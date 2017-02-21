@@ -43,4 +43,5 @@ class ObjectivesCalculator(object):
 
     def __str__(self):
         return 'objectives:\n  %s' % '\n  '.join(
-            [str(obj) for obj in self.objectives])
+            [str(obj) for obj in self.objectives]) \
+            if self.objectives is not None else 'objectives:\n'

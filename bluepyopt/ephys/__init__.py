@@ -21,6 +21,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint: disable=W0511
 
+from . import base  # NOQA
 from . import simulators  # NOQA
 from . import models  # NOQA
 from . import evaluators  # NOQA

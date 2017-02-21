@@ -33,6 +33,11 @@ def test_CellEvaluator_init():
         sim=sim)
 
     nt.assert_true(isinstance(evaluator, ephys.evaluators.CellEvaluator))
+    nt.assert_equal(
+        str(evaluator),
+        'cell evaluator:\n  cell model:\n    test_model:\n  morphology:\n  '
+        'mechanisms:\n  params:\n\n  fitness protocols:\n  '
+        'fitness calculator:\n    objectives:\n\n')
 
 
 @attr('unit')

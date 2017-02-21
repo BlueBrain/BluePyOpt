@@ -37,12 +37,27 @@ def test_nrnmod_instantiate():
         suffix='pas',
         locations=[simplecell.somatic_loc])
 
+    nt.assert_equal(str(test_mech), "test.pas: pas at ['somatic']")
+
     simple_cell.instantiate(sim=sim)
 
     test_mech.instantiate(sim=sim, icell=simple_cell.icell)
     test_mech.destroy(sim=sim)
 
     simple_cell.destroy(sim=sim)
+
+    nt.assert_raises(TypeError, ephys.mechanisms.NrnMODMechanism,
+                     'test.pas',
+                     suffix='pas',
+                     prefix='pas',
+                     locations=[simplecell.somatic_loc])
+
+    test_mech = ephys.mechanisms.NrnMODMechanism(
+        'test.pas',
+        prefix='pas',
+        locations=[simplecell.somatic_loc])
+
+    nt.assert_equal(test_mech.suffix, 'pas')
 
 
 @attr('unit')

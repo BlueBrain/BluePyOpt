@@ -47,6 +47,8 @@ def test_NrnNetStimStimulus_init():
     stim = ephys.stimuli.NrnNetStimStimulus(total_duration=100)
     nt.assert_is_instance(stim, ephys.stimuli.NrnNetStimStimulus)
 
+    nt.assert_equal(str(stim), 'Netstim')
+
 
 @attr('unit')
 def test_NrnNetStimStimulus_instantiate():
@@ -158,6 +160,12 @@ def test_NrnRampPulse_instantiate():
         ramp_duration=ramp_duration,
         total_duration=total_duration,
         location=soma_loc)
+
+    nt.assert_equal(
+        str(stim),
+        'Ramp pulse amp_start 0.100000 amp_end 1.000000 '
+        'delay 20.000000 duration 20.000000 totdur 50.000000'
+        ' at somatic[0](0.5)')
     stim.instantiate(sim=nrn_sim, icell=icell)
 
     recording.instantiate(sim=nrn_sim, icell=icell)

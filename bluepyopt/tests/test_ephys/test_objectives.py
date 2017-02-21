@@ -68,6 +68,7 @@ def test_SingletonObjective():
 
     nt.assert_equal(s_obj.name, 'singleton')
     nt.assert_equal(s_obj.features, [efeature])
+    nt.assert_equal(str(s_obj), '( %s )' % str(efeature))
 
     response = ephys.responses.TimeVoltageResponse('mock_response')
     testdata_dir = os.path.join(
@@ -172,3 +173,8 @@ def test_WeightedSumObjective():
     nt.assert_almost_equal(
         w_obj.calculate_score(responses),
         abs(efeature_value - mean) * weight)
+
+    nt.assert_raises(Exception, ephys.objectives.WeightedSumObjective,
+                     'weighted',
+                     features=[efeature],
+                     weights=[1, 2])

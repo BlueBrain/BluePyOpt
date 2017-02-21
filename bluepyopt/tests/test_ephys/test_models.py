@@ -53,6 +53,12 @@ def test_model():
 def test_cellmodel():
     """ephys.models: Test CellModel class"""
     model = ephys.models.CellModel('test_model', morph=test_morph, mechs=[])
+
+    nt.assert_equal(
+        str(model),
+        'test_model:\n  morphology:\n    %s\n  mechanisms:\n  params:\n' %
+        simple_morphology_path)
+
     model.instantiate(sim=sim)
     model.destroy(sim=sim)
     nt.assert_true(isinstance(model, ephys.models.CellModel))

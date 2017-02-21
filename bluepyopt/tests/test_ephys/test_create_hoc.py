@@ -1,34 +1,46 @@
+"""Tests for create_hoc.py"""
+
+# pylint: disable=W0212
+
 import utils
 from bluepyopt.ephys import create_hoc
 
 import nose.tools as nt
+from nose.plugins.attrib import attr
 
 
+@attr('unit')
 def test__generate_channels_by_location():
+    """ephys.create_hoc: Test _generate_channels_by_location"""
     mech = utils.make_mech()
     channels = create_hoc._generate_channels_by_location([mech, ])
 
-    nt.eq_(len(channels['apical']), 1)
-    nt.eq_(len(channels['basal']), 1)
+    nt.assert_equal(len(channels['apical']), 1)
+    nt.assert_equal(len(channels['basal']), 1)
 
-    nt.eq_(channels['apical'], ['Ih'])
-    nt.eq_(channels['basal'], ['Ih'])
+    nt.assert_equal(channels['apical'], ['Ih'])
+    nt.assert_equal(channels['basal'], ['Ih'])
 
 
+@attr('unit')
 def test__generate_parameters():
+    """ephys.create_hoc: Test _generate_parameters"""
     parameters = utils.make_parameters()
 
     global_params, section_params, range_params = \
         create_hoc._generate_parameters(parameters)
 
-    nt.eq_(global_params, {'NrnGlobalParameter': 65})
-    nt.eq_(len(section_params[1]), 2)
-    nt.eq_(len(section_params[4]), 2)
-    nt.eq_(section_params[4][0], 'somatic')
-    nt.eq_(len(section_params[4][1]), 2)
+    nt.assert_equal(global_params, {'NrnGlobalParameter': 65})
+    nt.assert_equal(len(section_params[1]), 2)
+    nt.assert_equal(len(section_params[4]), 2)
+    nt.assert_equal(section_params[4][0], 'somatic')
+    nt.assert_equal(len(section_params[4][1]), 2)
+    nt.assert_equal(range_params, [])
 
 
+@attr('unit')
 def test_create_hoc():
+    """ephys.create_hoc: Test create_hoc"""
     mech = utils.make_mech()
     parameters = utils.make_parameters()
 
