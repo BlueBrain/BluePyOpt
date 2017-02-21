@@ -1,8 +1,11 @@
 """selIBEA tests"""
 
-import numpy as np
-from nose.tools import ok_, eq_
+import nose.tools as nt
 
+import deap
+import numpy
+
+import bluepyopt.deapext
 from bluepyopt.deapext.tools.selIBEA \
     import (_calc_fitness_components, _mating_selection,)
 from deapext_test_utils import make_mock_population
@@ -18,7 +21,7 @@ def test_calc_fitness_components():
 
     components = _calc_fitness_components(population, kappa=KAPPA)
 
-    expected = np.array(
+    expected = numpy.array(
         [
             [1.00000000e+00, 4.30002298e-05, 4.26748513e-09, 2.06115362e-09,
              9.71587289e-03],
@@ -32,7 +35,7 @@ def test_calc_fitness_components():
              1.00000000e+00]
         ])
 
-    ok_(np.allclose(expected, components))
+    nt.assert_true(numpy.allclose(expected, components))
 
 
 @attr('unit')
@@ -42,6 +45,31 @@ def test_mating_selection():
     PARENT_COUNT = 10
     population = make_mock_population()
     parents = _mating_selection(population, PARENT_COUNT, 5)
-    eq_(len(parents), PARENT_COUNT)
+    nt.assert_equal(len(parents), PARENT_COUNT)
     expected = [1, 1, 1, 1, 1, 0, 1, 0, 0, 0]
-    eq_(expected, [ind.ibea_fitness for ind in parents])
+    nt.assert_equal(expected, [ind.ibea_fitness for ind in parents])
+
+
+@attr('unit')
+def test_selibea_init():
+    """deapext.selIBEA: test selIBEA init"""
+
+    deap.creator.create('fit', deap.base.Fitness, weights=(-1.0,))
+    deap.creator.create(
+        'ind',
+        numpy.ndarray,
+        fitness=deap.creator.__dict__['fit'])
+
+    numpy.random.seed(1)
+
+    population = [deap.creator.__dict__['ind'](x)
+                  for x in numpy.random.uniform(0, 1,
+                                                (10, 2))]
+
+    for ind in population:
+        ind.fitness.values = (numpy.random.uniform(0, 1), )
+
+    mu = 5
+    parents = bluepyopt.deapext.tools.selIBEA(population, mu)
+
+    nt.assert_equal(len(parents), mu)

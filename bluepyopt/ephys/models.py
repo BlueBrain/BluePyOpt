@@ -295,14 +295,19 @@ class CellModel(Model):
         content = '%s:\n' % self.name
 
         content += '  morphology:\n'
-        content += '    %s\n' % str(self.morphology)
+
+        if self.morphology is not None:
+            content += '    %s\n' % str(self.morphology)
 
         content += '  mechanisms:\n'
-        for mechanism in self.mechanisms:
-            content += '    %s\n' % mechanism
+        if self.mechanisms is not None:
+            for mechanism in self.mechanisms:
+                content += '    %s\n' % mechanism
+
         content += '  params:\n'
-        for param in self.params.values():
-            content += '    %s\n' % param
+        if self.params is not None:
+            for param in self.params.values():
+                content += '    %s\n' % param
 
         return content
 

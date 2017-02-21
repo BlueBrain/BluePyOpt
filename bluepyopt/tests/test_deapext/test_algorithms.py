@@ -27,6 +27,9 @@ def test_DEAPOptimisation_constructor():
 
     toolbox = deap.base.Toolbox()
     toolbox.register("evaluate", deap.benchmarks.sphere)
+    toolbox.register("mate", lambda x, y: (x, y))
+    toolbox.register("mutate", lambda x: (x,))
+    toolbox.register("select", lambda pop, mu: pop)
 
     population, logbook, history = \
         bluepyopt.deapext.algorithms.eaAlphaMuPlusLambdaCheckpoint(
@@ -35,7 +38,7 @@ def test_DEAPOptimisation_constructor():
             mu=1.0,
             cxpb=1.0,
             mutpb=1.0,
-            ngen=1,
+            ngen=2,
             stats=None,
             halloffame=None,
             cp_frequency=1,
@@ -43,6 +46,6 @@ def test_DEAPOptimisation_constructor():
             continue_cp=False)
 
     nt.assert_true(isinstance(population, list))
-    nt.assert_equal(len(population), 10)
+    nt.assert_equal(len(population), 20)
     nt.assert_true(isinstance(logbook, deap.tools.support.Logbook))
     nt.assert_true(isinstance(history, deap.tools.support.History))

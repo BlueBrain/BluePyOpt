@@ -152,7 +152,8 @@ class NrnNetStimStimulus(Stimulus):
 
         return "Netstim at %s" % ','.join(
             location
-            for location in self.locations)
+            for location in self.locations) \
+            if self.locations is not None else "Netstim"
 
 # TODO Add 'current' to the name
 

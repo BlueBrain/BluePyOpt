@@ -21,6 +21,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint:disable=W0612
 
+import nose.tools as nt
 from nose.plugins.attrib import attr
 
 
@@ -28,3 +29,12 @@ from nose.plugins.attrib import attr
 def test_import():
     """ephys: test importing bluepyopt.ephys"""
     import bluepyopt.ephys  # NOQA
+
+
+@attr('unit')
+def test_ephys_base():
+    """ephys: test ephys base class"""
+    import bluepyopt.ephys as ephys
+    base = ephys.base.BaseEPhys(name='test', comment='comm')
+
+    nt.assert_equal(str(base), 'BaseEPhys: test (comm)')
