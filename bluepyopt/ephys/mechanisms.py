@@ -295,8 +295,8 @@ class NrnMODPointProcessMechanism(Mechanism):
             try:
                 iclass = getattr(sim.neuron.h, self.suffix)
                 self.pprocesses.append(iclass(icomp.x, sec=icomp.sec))
-            except ValueError as e:
-                raise ValueError(str(e) + ': ' + self.suffix)
+            except AttributeError as e:
+                raise AttributeError(str(e) + ': ' + self.suffix)
 
             logger.debug(
                 'Inserted %s at %s ', self.suffix, [

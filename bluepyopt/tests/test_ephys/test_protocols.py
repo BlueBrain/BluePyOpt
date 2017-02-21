@@ -231,12 +231,9 @@ def test_sequenceprotocol_run():
 
 
 @attr('unit')
-def test_sweepprotocol_run_unisolated():
-    """ephys.protocols: Test SweepProtocol unisolated run"""
+def test_stepprotocol_init():
+    """ephys.protocols: Test StepProtocol init"""
 
-    nrn_sim = ephys.simulators.NrnSimulator()
-    dummy_cell = testmodels.dummycells.DummyCellModel1()
-    # icell = dummy_cell.instantiate(sim=nrn_sim)
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma_loc',
         seclist_name='somatic',
@@ -250,6 +247,55 @@ def test_sweepprotocol_run_unisolated():
 
     stim = ephys.stimuli.NrnSquarePulse(
         step_amplitude=0.0,
+        step_delay=5.0,
+        step_duration=50,
+        total_duration=50,
+        location=soma_loc)
+    hold_stim = ephys.stimuli.NrnSquarePulse(
+        step_amplitude=0.0,
+        step_delay=0.0,
+        step_duration=50,
+        total_duration=50,
+        location=soma_loc)
+
+    step_protocol = ephys.protocols.StepProtocol(
+        name='step_prot',
+        step_stimulus=stim,
+        holding_stimulus=hold_stim,
+        recordings=[rec_soma])
+
+    nt.assert_equal(step_protocol.step_delay, 5.0)
+    nt.assert_equal(step_protocol.step_duration, 50)
+
+
+@attr('unit')
+def test_sweepprotocol_run_unisolated():
+    """ephys.protocols: Test SweepProtocol unisolated run"""
+
+    nrn_sim = ephys.simulators.NrnSimulator()
+    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    # icell = dummy_cell.instantiate(sim=nrn_sim)
+    soma_loc = ephys.locations.NrnSeclistCompLocation(
+        name='soma_loc',
+        seclist_name='somatic',
+        sec_index=0,
+        comp_x=.5)
+    unknown_loc = ephys.locations.NrnSomaDistanceCompLocation(
+        name='unknown_loc',
+        seclist_name='somatic',
+        soma_distance=100)
+
+    rec_soma = ephys.recordings.CompRecording(
+        name='soma.v',
+        location=soma_loc,
+        variable='v')
+    rec_unknown = ephys.recordings.CompRecording(
+        name='unknown.v',
+        location=unknown_loc,
+        variable='v')
+
+    stim = ephys.stimuli.NrnSquarePulse(
+        step_amplitude=0.0,
         step_delay=0.0,
         step_duration=50,
         total_duration=50,
@@ -258,7 +304,7 @@ def test_sweepprotocol_run_unisolated():
     protocol = ephys.protocols.SweepProtocol(
         name='prot',
         stimuli=[stim],
-        recordings=[rec_soma])
+        recordings=[rec_soma, rec_unknown])
 
     responses = protocol.run(
         cell_model=dummy_cell,
@@ -266,7 +312,9 @@ def test_sweepprotocol_run_unisolated():
         sim=nrn_sim,
         isolate=False)
 
-    nt.assert_true(responses is not None)
+    nt.assert_true('soma.v' in responses)
+    nt.assert_true('unknown.v' in responses)
+    nt.assert_equal(responses['unknown.v'], None)
 
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
@@ -278,7 +326,6 @@ def test_nrnsimulator_exception():
 
     nrn_sim = ephys.simulators.NrnSimulator()
     dummy_cell = testmodels.dummycells.DummyCellModel1()
-    # icell = dummy_cell.instantiate(sim=nrn_sim)
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma_loc',
         seclist_name='somatic',
@@ -307,7 +354,8 @@ def test_nrnsimulator_exception():
     responses = protocol.run(
         cell_model=dummy_cell,
         param_values={},
-        sim=nrn_sim)
+        sim=nrn_sim,
+        isolate=False)
 
     nt.assert_equal(responses['soma.v'], None)
 
@@ -316,7 +364,8 @@ def test_nrnsimulator_exception():
     responses = protocol.run(
         cell_model=dummy_cell,
         param_values={},
-        sim=nrn_sim)
+        sim=nrn_sim,
+        isolate=False)
 
     nt.assert_equal(responses['soma.v'], None)
 
