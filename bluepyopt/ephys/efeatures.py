@@ -147,10 +147,6 @@ class eFELFeature(EFeature, DictMixin):
             for setting_name, setting_value in self.int_settings.items():
                 efel.setIntSetting(setting_name, setting_value)
 
-        if not efel.FeatureNameExists(self.efel_feature_name):
-            raise ValueError("eFEL doesn't have a feature called %s" %
-                             self.efel_feature_name)
-
     def calculate_feature(self, responses, raise_warnings=False):
         """Calculate feature value"""
 
