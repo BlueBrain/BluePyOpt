@@ -260,7 +260,8 @@ class CellModel(Model):
 
     def create_hoc(self, param_values,
                    ignored_globals=(), template='cell_template.jinja2',
-                   disable_banner=False):
+                   disable_banner=False,
+                   template_dir=None):
         """Create hoc code for this model"""
 
         to_unfreeze = []
@@ -282,7 +283,8 @@ class CellModel(Model):
                                     ignored_globals=ignored_globals,
                                     replace_axon=replace_axon,
                                     template_name=template_name,
-                                    template=template,
+                                    template_filename=template,
+                                    template_dir=template_dir,
                                     disable_banner=disable_banner)
 
         self.unfreeze(to_unfreeze)

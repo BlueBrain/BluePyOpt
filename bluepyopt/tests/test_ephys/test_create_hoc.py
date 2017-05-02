@@ -2,6 +2,8 @@
 
 # pylint: disable=W0212
 
+import os
+
 import utils
 from bluepyopt.ephys import create_hoc
 
@@ -49,3 +51,23 @@ def test_create_hoc():
     nt.ok_('CCell' in hoc)
     nt.ok_('begintemplate' in hoc)
     nt.ok_('endtemplate' in hoc)
+
+
+@attr('unit')
+def test_create_hoc_filename():
+    """ephys.create_hoc: Test create_hoc template_filename"""
+    mech = utils.make_mech()
+    parameters = utils.make_parameters()
+
+    hoc = create_hoc.create_hoc([mech, ],
+                                parameters, template_name='CCell',
+                                template_filename='test.jinja2',
+                                template_dir=os.path.join(
+                                    os.path.dirname(__file__),
+                                    'testdata'))
+    nt.ok_('load_file' in hoc)
+    nt.ok_('CCell' in hoc)
+    nt.ok_('begintemplate' in hoc)
+    nt.ok_('endtemplate' in hoc)
+    nt.ok_('Test template' in hoc)
+
