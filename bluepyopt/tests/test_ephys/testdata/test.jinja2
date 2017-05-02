@@ -1,0 +1,206 @@
+/* 
+Test template
+
+{%- if banner %}
+{{banner}} 
+{%- endif %}
+*/
+{load_file("stdrun.hoc")}
+{load_file("import3d.hoc")}
+
+{%- if global_params %}
+/*
+ * Check that global parameters are the same as with the optimization
+ */
+proc check_parameter(/* name, expected_value, value */){
+  strdef error
+  if($2 != $3){
+    sprint(error, "Parameter %s has different value %f != %f", $s1, $2, $3)
+    execerror(error)
+  }
+}
+proc check_simulator() {
+  {%- for param, value in global_params.items() %}
+  check_parameter("{{param}}", {{value}}, {{param}})
+  {%- endfor %}
+}
+{%- endif %}
+{%- if ignored_global_params %}
+/* The following global parameters were set in BluePyOpt
+{%- for param, value in ignored_global_params.items() %}
+ * {{param}} = {{value}}
+{%- endfor %}
+ */
+{%- endif %}
+
+begintemplate {{template_name}}
+  public init, morphology, geom_nseg_fixed, geom_nsec
+  public soma, dend, apic, axon, myelin
+  create soma[1], dend[1], apic[1], axon[1], myelin[1]
+
+  objref this, CellRef, segCounts
+
+  public all, somatic, apical, axonal, basal, myelinated, APC
+  objref all, somatic, apical, axonal, basal, myelinated, APC
+
+proc init(/* args: morphology_dir, morphology_name */) {
+  all = new SectionList()
+  apical = new SectionList()
+  axonal = new SectionList()
+  basal = new SectionList()
+  somatic = new SectionList()
+  myelinated = new SectionList()
+
+  //For compatibility with BBP CCells
+  CellRef = this
+
+  forall delete_section()
+
+  if(numarg() >= 2) {
+    load_morphology($s1, $s2)
+  } else {
+  {%- if morphology %}
+    load_morphology($s1, "{{morphology}}")
+  {%- else %}
+    execerror("Template {{template_name}} requires morphology name to instantiate")
+  {%- endif %}
+  }
+
+  geom_nseg()
+  {%- if replace_axon %}
+    replace_axon()
+  {%- endif %}
+  insertChannel()
+  biophys()
+  re_init_rng()
+}
+
+proc load_morphology(/* morphology_dir, morphology_name */) {localobj morph, import, sf, extension
+  strdef morph_path
+  sprint(morph_path, "%s/%s", $s1, $s2)
+
+  sf = new StringFunctions()
+  extension = new String()
+
+  sscanf(morph_path, "%s", extension.s)
+  sf.right(extension.s, sf.len(extension.s)-4)
+
+  if( strcmp(extension.s, ".asc") == 0 ) {
+    morph = new Import3d_Neurolucida3()
+  } else if( strcmp(extension.s, ".swc" ) == 0) {
+    morph = new Import3d_SWC_read()
+  } else {
+    printf("Unsupported file format: Morphology file has to end with .asc or .swc" )
+    quit()
+  }
+
+  morph.quiet = 1
+  morph.input(morph_path)
+
+  import = new Import3d_GUI(morph, 0)
+  import.instantiate(this)
+}
+
+/*
+ * Assignment of mechanism values based on distance from the soma
+ * Matches the BluePyOpt method
+ */
+proc distribute_distance(){local x localobj sl
+  strdef stmp, distfunc, mech
+
+  sl = $o1
+  mech = $s2
+  distfunc = $s3
+  this.soma[0] distance(0, 0.5)
+  sprint(distfunc, "%%s %s(%%f) = %s", mech, distfunc)
+  forsec sl for(x, 0) {
+    sprint(stmp, distfunc, secname(), x, distance(x))
+    execute(stmp)
+  }
+}
+
+proc geom_nseg() {
+  this.geom_nsec() //To count all sections
+  //TODO: geom_nseg_fixed depends on segCounts which is calculated by
+  //  geom_nsec.  Can this be collapsed?
+  this.geom_nseg_fixed(40)
+  this.geom_nsec() //To count all sections
+}
+
+proc insertChannel() {
+  {%- for location, names in channels.items() %}
+  forsec this.{{location}} {
+  {%- for channel in names %}
+    insert {{channel}}
+  {%- endfor %}
+  }
+  {%- endfor %}
+}
+
+proc biophys() {
+  {% for loc, parameters in section_params %}
+  forsec CellRef.{{ loc }} {
+  {%- for param in parameters %}
+    {{ param.name }} = {{ param.value }}
+  {%- endfor %}
+  }
+  {% endfor %}
+  {%- for location, param_name, value in range_params %}
+  distribute_distance(CellRef.{{location}}, "{{param_name}}", "{{value}}")
+  {%- endfor %}
+}
+
+func sec_count(/* SectionList */) { local nSec
+  nSec = 0
+  forsec $o1 {
+      nSec += 1
+  }
+  return nSec
+}
+
+/*
+ * Iterate over the section and compute how many segments should be allocate to
+ * each.
+ */
+proc geom_nseg_fixed(/* chunkSize */) { local secIndex, chunkSize
+  chunkSize = $1
+  soma area(.5) // make sure diam reflects 3d points
+  secIndex = 0
+  forsec all {
+    nseg = 1 + 2*int(L/chunkSize)
+    segCounts.x[secIndex] = nseg
+    secIndex += 1
+  }
+}
+
+/*
+ * Count up the number of sections
+ */
+proc geom_nsec() { local nSec
+  nSecAll = sec_count(all)
+  nSecSoma = sec_count(somatic)
+  nSecApical = sec_count(apical)
+  nSecBasal = sec_count(basal)
+  nSecMyelinated = sec_count(myelinated)
+  nSecAxonalOrig = nSecAxonal = sec_count(axonal)
+
+  segCounts = new Vector()
+  segCounts.resize(nSecAll)
+  nSec = 0
+  forsec all {
+    segCounts.x[nSec] = nseg
+    nSec += 1
+  }
+}
+
+/*
+ * Replace the axon built from the original morphology file with a stub axon
+ */
+{%- if replace_axon %}
+    {{replace_axon}}
+{%- endif %}
+
+
+{{re_init_rng}}
+
+endtemplate {{template_name}}

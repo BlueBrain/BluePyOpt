@@ -76,7 +76,9 @@ def _generate_parameters(parameters):
             continue
         for param in param_locations[loc]:
             if isinstance(param, NrnRangeParameter):
-                if isinstance(param.value_scaler, NrnSegmentSomaDistanceScaler):
+                if isinstance(
+                        param.value_scaler,
+                        NrnSegmentSomaDistanceScaler):
                     value = param.value_scaler.inst_distribution
                     value = re.sub(r'math\.', '', value)
                     value = re.sub('{distance}', FLOAT_FORMAT, value)
@@ -97,27 +99,41 @@ def _generate_parameters(parameters):
     return global_params, ordered_section_params, range_params
 
 
-def create_hoc(mechs, parameters, morphology=None, ignored_globals=(),
-               replace_axon=None, template_name='CCell',
-               template='cell_template.jinja2', disable_banner=None):
+def create_hoc(
+        mechs,
+        parameters,
+        morphology=None,
+        ignored_globals=(),
+        replace_axon=None,
+        template_name='CCell',
+        template_filename='cell_template.jinja2',
+        disable_banner=None,
+        template_dir=None):
     '''return a string containing the hoc template
 
     Args:
-        mechs(): All the mechs for the hoc template
-        parameters(): All the parameters in the hoc template
-        morpholgy(str): Name of morphology
-        ignored_globals(iterable str): HOC coded is added for each
+        mechs (): All the mechs for the hoc template
+        parameters (): All the parameters in the hoc template
+        morpholgy (str): Name of morphology
+        ignored_globals (iterable str): HOC coded is added for each
         NrnGlobalParameter
         that exists, to test that it matches the values set in the parameters.
         This iterable contains parameter names that aren't checked
-        replace_axon(str): String replacement for the 'replace_axon' command.
+        replace_axon (str): String replacement for the 'replace_axon' command.
         Must include 'proc replace_axon(){ ... }
-        template(str): name of the template to use 'cell_template.jinja2',
+        template (str): file name of the jinja2 template
+        template_dir (str): dir name of the jinja2 template
     '''
-    templates_basepath = os.path.abspath(os.path.dirname(__file__))
-    template = os.path.join(templates_basepath, 'templates', template)
-    with open(template) as fd:
-        template = fd.read()
+
+    if template_dir is None:
+        template_dir = os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),
+                'templates'))
+
+    template_path = os.path.join(template_dir, template_filename)
+    with open(template_path) as template_file:
+        template = template_file.read()
         template = jinja2.Template(template)
 
     channels = _generate_channels_by_location(mechs)
