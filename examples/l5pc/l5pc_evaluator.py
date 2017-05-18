@@ -52,7 +52,7 @@ def define_protocols():
         sec_index=0,
         comp_x=0.5)
 
-    for protocol_name, protocol_definition in protocol_definitions.items():
+    for protocol_name, protocol_definition in list(protocol_definitions.items()):
         # By default include somatic recording
         somav_recording = ephys.recordings.CompRecording(
             name='%s.soma.v' %
@@ -110,9 +110,9 @@ def define_fitness_calculator(protocols):
     # TODO: add bAP stimulus
     objectives = []
 
-    for protocol_name, locations in feature_definitions.items():
-        for location, features in locations.items():
-            for efel_feature_name, meanstd in features.items():
+    for protocol_name, locations in list(feature_definitions.items()):
+        for location, features in list(locations.items()):
+            for efel_feature_name, meanstd in list(features.items()):
                 feature_name = '%s.%s.%s' % (
                     protocol_name, location, efel_feature_name)
                 recording_names = {'': '%s.%s.v' % (protocol_name, location)}
@@ -158,7 +158,7 @@ def create():
     fitness_calculator = define_fitness_calculator(fitness_protocols)
 
     param_names = [param.name
-                   for param in l5pc_cell.params.values()
+                   for param in list(l5pc_cell.params.values())
                    if not param.frozen]
 
     sim = ephys.simulators.NrnSimulator()

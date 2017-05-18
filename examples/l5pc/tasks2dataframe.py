@@ -91,5 +91,5 @@ if __name__ == '__main__':
 
     pandas.set_option('display.expand_frame_repr', False)
     title = '10 Longest times'
-    print '%s\n%s' % (title, '*' * len(title))
-    print df.nlargest(10, 'run_time')[['run_time', ] + arg_names + result_names]
+    print('%s\n%s' % (title, '*' * len(title)))
+    print(df.nlargest(10, 'run_time')[['run_time', ] + arg_names + result_names])

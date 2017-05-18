@@ -97,11 +97,11 @@ efel_feature_means = {'step1': {'Spikecount': 1}, 'step2': {'Spikecount': 5}}
 
 objectives = []
 
-for protocol_name, protocol in protocols.iteritems():
+for protocol_name, protocol in protocols.items():
     stim_start = protocol.stimuli[0].step_delay
     stim_end = stim_start + protocol.stimuli[0].step_duration
     for efel_feature_name, mean in \
-            efel_feature_means[protocol_name].iteritems():
+            efel_feature_means[protocol_name].items():
         feature_name = '%s.%s' % (protocol_name, efel_feature_name)
         feature = nrpel.efeatures.eFELFeature(
             feature_name,
@@ -134,4 +134,4 @@ optimisation = nrp.Optimisation(
 
 if __name__ == '__main__':
     final_pop, hall_of_fame, logs, hist = optimisation.run(max_ngen=2)
-    print 'BEST:', hall_of_fame[0]
+    print('BEST:', hall_of_fame[0])

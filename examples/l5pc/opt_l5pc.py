@@ -89,8 +89,8 @@ def main():
 
     if args.compile:
         logger.debug('Doing compile')
-        import commands
-        commands.getstatusoutput('cd mechanisms/; nrnivmodl; cd ..')
+        import subprocess
+        subprocess.getstatusoutput('cd mechanisms/; nrnivmodl; cd ..')
 
     # TODO store definition dicts in json
     # TODO add functionality to read settings of every object from config format

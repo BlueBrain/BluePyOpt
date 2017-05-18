@@ -39,7 +39,7 @@ def make_population(features_count=5, population_count=5):
     MU, SIGMA = 0, 1
     random.seed(0)
 
-    population = [creator.Individual(range(i*features_count,
-                                           (i + 1)*features_count))
+    population = [creator.Individual(list(range(i*features_count,
+                                           (i + 1)*features_count)))
                   for i in range(population_count)]
     return population

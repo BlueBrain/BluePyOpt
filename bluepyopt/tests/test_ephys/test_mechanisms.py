@@ -186,7 +186,7 @@ def test_string_hash_functions():
     test_strings += [''.join
                      (random.choice
                       (string.printable)
-                      for _ in range(random.choice(range(max_size))))
+                      for _ in range(random.choice(list(range(max_size)))))
                      for _ in range(n_of_strings)]
     hashes_py = [
         ephys.mechanisms.NrnMODMechanism.hash_py

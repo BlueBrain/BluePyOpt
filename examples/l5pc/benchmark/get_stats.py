@@ -11,5 +11,5 @@ total_time = datetime.timedelta()
 for task in completed:
     # print task['started'], task['completed'] - task['started']
     total_time += task['completed'] - task['started']
-print total_time, total_time / len(completed)
-print len(set(task['engine_uuid'] for task in completed)), len(completed)
+print(total_time, total_time / len(completed))
+print(len(set(task['engine_uuid'] for task in completed)), len(completed))

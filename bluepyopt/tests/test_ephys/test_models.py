@@ -8,6 +8,7 @@ import nose.tools as nt
 from nose.plugins.attrib import attr
 
 from bluepyopt import ephys
+import collections
 
 sim = ephys.simulators.NrnSimulator()
 TESTDATA_DIR = os.path.join(
@@ -119,7 +120,7 @@ def test_CellModel_create_empty_cell():
     """ephys.models: Test create_empty_cell"""
     template_name = 'create_empty_cell'
     cell = ephys.models.CellModel.create_empty_cell(template_name, sim)
-    nt.assert_true(callable(cell))
+    nt.assert_true(isinstance(cell, collections.Callable))
     nt.assert_true(hasattr(sim.neuron.h, template_name))
 
 

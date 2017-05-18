@@ -149,7 +149,7 @@ class SweepProtocol(Protocol):
 
             cell_model.destroy(sim=sim)
 
-            cell_model.unfreeze(param_values.keys())
+            cell_model.unfreeze(list(param_values.keys()))
 
             return responses
         except:

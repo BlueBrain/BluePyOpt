@@ -39,10 +39,10 @@ def main():
         'gCa_LVAstbar_Ca_LVAst.somatic': 0.000333,
     }
     cell = l5pc_model.create()
-    print cell.create_hoc(param_values)
+    print(cell.create_hoc(param_values))
 
 if __name__ == '__main__':
     if '-h' in sys.argv or '--help' in sys.argv:
-        print __doc__
+        print(__doc__)
     else:
         main()

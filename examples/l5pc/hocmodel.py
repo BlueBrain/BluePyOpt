@@ -81,9 +81,9 @@ class HocModel(object):
         try:
 
             responses = {}
-            for protocol in protocols.itervalues():
+            for protocol in protocols.values():
                 protocol_responses = self.run_protocol(protocol)
-                for response_name, response in protocol_responses.iteritems():
+                for response_name, response in protocol_responses.items():
                     if response_name in responses:
                         raise Exception(
                             'CellModel: response name used twice: %s' %
