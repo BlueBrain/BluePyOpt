@@ -70,7 +70,7 @@ def main():
 
     ec2 = boto3.resource('ec2')
 
-    print 'Instances:', list(i.id for i in ec2.instances.all())
+    print('Instances:', list(i.id for i in ec2.instances.all()))
 
     env = Environment()
     hosts = env.from_string(hosts_template)
@@ -86,10 +86,10 @@ def main():
                                             private_key=KEY_NAME)
 
     if args.dry_run:
-        print '{:*^30}'.format(' Hosts ')
-        print hosts_rendered
-        print '{:*^30}'.format(' ssh_config ')
-        print ssh_config_rendered
+        print('{:*^30}'.format(' Hosts '))
+        print(hosts_rendered)
+        print('{:*^30}'.format(' ssh_config '))
+        print(ssh_config_rendered)
     else:
         with open('hosts', 'w') as fd:
             fd.write(hosts_rendered)

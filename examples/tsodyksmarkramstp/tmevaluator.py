@@ -53,13 +53,13 @@ class TsodyksMarkramEvaluator(bpop.evaluators.Evaluator):
         psp_start = np.searchsorted(t, tstim+offset)
         psp_stop = psp_start + window_samples
         psp_stop[-1] += 2*window_samples  # Extend last psp window (RTR case)
-        self.split_idx = zip(psp_start, psp_stop)
+        self.split_idx = list(zip(psp_start, psp_stop))
         # Parameters to be optimized
         self.params = [bpop.parameters.Parameter(name, bounds=(minval, maxval))
                        for name, minval, maxval in self.params]
         # Objectives
         self.objectives = [bpop.objectives.Objective('interval_%d' % (i,))
-                           for i in xrange(len(self.split_idx))]
+                           for i in range(len(self.split_idx))]
 
     def generate_model(self, individual):
         v, _ = tmodeint.integrate(self.stimidx, self.nsamples, self.dx,

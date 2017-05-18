@@ -76,7 +76,7 @@ def integrate(sampstim, nsamples, dt, vRest, Trec, Tfac, ASE, USE, Rinput, Tmem,
     P[0] = 0
     U[0] = USE
     # Integrate TM model ODE
-    for i in xrange(1, nsamples):
+    for i in range(1, nsamples):
         R[i] = R[i-1] + dt*(1-R[i-1]-E[i-1])*1e3/Trec - U[i-1]*R[i-1]*AP[i-1]
         E[i] = E[i-1] - dt*E[i-1]*1e3/Tinac + U[i-1]*R[i-1]*AP[i-1]
         U[i] = U[i-1] - dt*(U[i-1]-USE)*1e3/Tfac + USE*(1-U[i-1])*AP[i-1]

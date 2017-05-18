@@ -129,7 +129,7 @@ class CellModel(Model):
     def freeze(self, param_dict):
         """Set params"""
 
-        for param_name, param_value in param_dict.items():
+        for param_name, param_value in list(param_dict.items()):
             self.params[param_name].freeze(param_value)
 
     def unfreeze(self, param_names):
@@ -223,7 +223,7 @@ class CellModel(Model):
 
         for mechanism in self.mechanisms:
             mechanism.instantiate(sim=sim, icell=self.icell)
-        for param in self.params.values():
+        for param in list(self.params.values()):
             param.instantiate(sim=sim, icell=self.icell)
 
     def destroy(self, sim=None):  # pylint: disable=W0613
@@ -245,13 +245,13 @@ class CellModel(Model):
         self.morphology.destroy(sim=sim)
         for mechanism in self.mechanisms:
             mechanism.destroy(sim=sim)
-        for param in self.params.values():
+        for param in list(self.params.values()):
             param.destroy(sim=sim)
 
     def check_nonfrozen_params(self, param_names):  # pylint: disable=W0613
         """Check if all nonfrozen params are set"""
 
-        for param_name, param in self.params.items():
+        for param_name, param in list(self.params.items()):
             if not param.frozen:
                 raise Exception(
                     'CellModel: Nonfrozen param %s needs to be '
@@ -265,7 +265,7 @@ class CellModel(Model):
         """Create hoc code for this model"""
 
         to_unfreeze = []
-        for param in self.params.values():
+        for param in list(self.params.values()):
             if not param.frozen:
                 param.freeze(param_values[param.name])
                 to_unfreeze.append(param.name)
@@ -278,7 +278,7 @@ class CellModel(Model):
             replace_axon = None
 
         ret = create_hoc.create_hoc(mechs=self.mechanisms,
-                                    parameters=self.params.values(),
+                                    parameters=list(self.params.values()),
                                     morphology=morphology,
                                     ignored_globals=ignored_globals,
                                     replace_axon=replace_axon,
@@ -308,7 +308,7 @@ class CellModel(Model):
 
         content += '  params:\n'
         if self.params is not None:
-            for param in self.params.values():
+            for param in list(self.params.values()):
                 content += '    %s\n' % param
 
         return content

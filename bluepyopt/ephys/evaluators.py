@@ -174,7 +174,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         logger.debug('Evaluating %s', self.cell_model.name)
 
         responses = self.run_protocols(
-            self.fitness_protocols.values(),
+            list(self.fitness_protocols.values()),
             param_dict)
 
         return self.fitness_calculator.calculate_scores(responses)
@@ -203,7 +203,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
 
         content += '  fitness protocols:\n'
         if self.fitness_protocols is not None:
-            for fitness_protocol in self.fitness_protocols.values():
+            for fitness_protocol in list(self.fitness_protocols.values()):
                 content += '    %s\n' % str(fitness_protocol)
 
         content += '  fitness calculator:\n'

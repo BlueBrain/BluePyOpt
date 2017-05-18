@@ -100,7 +100,7 @@ class eFELFeature(EFeature, DictMixin):
         if '' not in self.recording_names:
             raise Exception(
                 'eFELFeature: \'\' needs to be in recording_names')
-        for location_name, recording_name in self.recording_names.items():
+        for location_name, recording_name in list(self.recording_names.items()):
             if location_name == '':
                 postfix = ''
             else:
@@ -140,11 +140,11 @@ class eFELFeature(EFeature, DictMixin):
             efel.setDoubleSetting('interp_step', self.interp_step)
 
         if self.double_settings is not None:
-            for setting_name, setting_value in self.double_settings.items():
+            for setting_name, setting_value in list(self.double_settings.items()):
                 efel.setDoubleSetting(setting_name, setting_value)
 
         if self.int_settings is not None:
-            for setting_name, setting_value in self.int_settings.items():
+            for setting_name, setting_value in list(self.int_settings.items()):
                 efel.setIntSetting(setting_name, setting_value)
 
     def calculate_feature(self, responses, raise_warnings=False):

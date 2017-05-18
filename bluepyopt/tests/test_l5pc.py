@@ -4,7 +4,7 @@ import os
 import sys
 from contextlib import contextmanager
 if sys.version_info[0] < 3:
-    from StringIO import StringIO
+    from io import StringIO
 else:
     from io import StringIO
 
@@ -181,7 +181,7 @@ def test_exec():
             # Probably because multiprocessing doesn't work correctly during
             # import
             if sys.version_info[0] < 3:
-                execfile('L5PC.py')  # NOQA
+                exec(compile(open('L5PC.py').read(), 'L5PC.py', 'exec'))  # NOQA
             else:
                 with open('L5PC.py') as l5pc_file:
                     exec(compile(l5pc_file.read(), 'L5PC.py', 'exec'))  # NOQA

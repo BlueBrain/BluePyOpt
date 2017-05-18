@@ -35,7 +35,7 @@ class TestSimpleCellClass(object):
         # Probably because multiprocessing doesn't work correctly during
         # import
         if sys.version_info[0] < 3:
-            execfile('simplecell.py')  # NOQA
+            exec(compile(open('simplecell.py').read(), 'simplecell.py', 'exec'))  # NOQA
         else:
             with open('simplecell.py') as sc_file:
                 exec(compile(sc_file.read(), 'simplecell.py', 'exec'))  # NOQA

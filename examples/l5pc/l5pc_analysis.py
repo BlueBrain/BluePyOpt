@@ -75,7 +75,7 @@ def get_responses(cell_evaluator, individuals, filename):
         individual_dict = cell_evaluator.param_dict(individual)
         responses.append(
             cell_evaluator.run_protocols(
-                cell_evaluator.fitness_protocols.values(),
+                list(cell_evaluator.fitness_protocols.values()),
                 param_values=individual_dict)) 
 
     if filename:
@@ -104,7 +104,7 @@ def analyse_cp(opt, cp_filename, responses_filename, figs):
 
     nrn = ephys.simulators.NrnSimulator()
 
-    for protocol in fitness_protocols.values():
+    for protocol in list(fitness_protocols.values()):
         response = protocol.run(
             cell_model=opt.evaluator.cell_model,
             param_values=parameter_values,
@@ -188,7 +188,7 @@ def plot_objectives(objectives, fig=None, box=None):
     """Plot objectives of the cell model"""
 
     import collections
-    objectives = collections.OrderedDict(sorted(objectives.iteritems()))
+    objectives = collections.OrderedDict(sorted(objectives.items()))
     left_margin = box['width'] * 0.4
     right_margin = box['width'] * 0.05
     top_margin = box['height'] * 0.05
@@ -200,16 +200,16 @@ def plot_objectives(objectives, fig=None, box=None):
          box['width'] - left_margin - right_margin,
          box['height'] - bottom_margin - top_margin))
 
-    ytick_pos = [x + 0.5 for x in range(len(objectives.keys()))]
+    ytick_pos = [x + 0.5 for x in range(len(list(objectives.keys())))]
 
     axes.barh(ytick_pos,
-              objectives.values(),
+              list(objectives.values()),
               height=0.5,
               align='center',
               color='#779ECB')
     axes.set_yticks(ytick_pos)
-    axes.set_yticklabels(objectives.keys(), size='x-small')
-    axes.set_ylim(-0.5, len(objectives.values()) + 0.5)
+    axes.set_yticklabels(list(objectives.keys()), size='x-small')
+    axes.set_ylim(-0.5, len(list(objectives.values())) + 0.5)
     axes.set_xlabel('Objective value (# std)')
     axes.set_ylabel('Objectives')
 
@@ -344,7 +344,7 @@ def plot_validation(opt, parameters):
         paramsets['model%d' % index] = param_values
 
     if write_pickle:
-        for paramset_name, paramset in paramsets.items():
+        for paramset_name, paramset in list(paramsets.items()):
             validation_responses[paramset_name] = opt.evaluator.run_protocols(
                 [validation_protocol],
                 param_values=paramset)
@@ -356,7 +356,7 @@ def plot_validation(opt, parameters):
 
     peaktimes = {}
     import efel
-    for index, model_name in enumerate(validation_responses.keys()):
+    for index, model_name in enumerate(list(validation_responses.keys())):
         trace = {}
         trace['T'] = validation_responses[
             model_name]['validation.soma.v']['time']
@@ -384,10 +384,10 @@ def plot_validation(opt, parameters):
     ax[0].set_ylabel('Current\n (nA)', rotation=0, labelpad=25)
 
     for index, (model_name, peak_time) in enumerate(sorted(peaktimes.items())):
-        print model_name
+        print(model_name)
         if model_name == 'release':
             color = 'red'
-            print color, peak_time
+            print(color, peak_time)
         elif model_name == 'model0':
             color = 'darkblue'
         else:
@@ -455,7 +455,7 @@ def analyse_releasecircuit_model(opt, figs, box=None):
     nrn = ephys.simulators.NrnSimulator()
 
     responses = {}
-    for protocol in fitness_protocols.values():
+    for protocol in list(fitness_protocols.values()):
         response = protocol.run(
             cell_model=opt.evaluator.cell_model,
             param_values=release_params,
@@ -566,7 +566,7 @@ def plot_diversity(opt, checkpoint_file, fig, param_names):
     plot_individual_params(
         opt,
         ax,
-        checkpoint['history'].genealogy_history.values(),
+        list(checkpoint['history'].genealogy_history.values()),
         marker='.',
         color='grey',
         plot_bounds=True) 
@@ -584,7 +584,7 @@ def plot_diversity(opt, checkpoint_file, fig, param_names):
     labels = [name.replace('.', '\n') for name in param_names]
 
     param_count = len(checkpoint['halloffame'][0])
-    x = range(param_count)
+    x = list(range(param_count))
     for xline in x:
         ax.axvline(xline, linewidth=1, color='grey', linestyle=':')
 

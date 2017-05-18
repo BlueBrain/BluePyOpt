@@ -64,7 +64,7 @@ class GraupnerBrunelEvaluator(bpop.evaluators.Evaluator):
         :param param_values: iterable
             Parameters list
         """
-        return gbParam(zip(self.param_names, param_values))
+        return gbParam(list(zip(self.param_names, param_values)))
 
     def compute_synaptic_gain_with_lists(self, param_values):
         """Compute synaptic gain for all protocols.

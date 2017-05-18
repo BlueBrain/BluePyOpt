@@ -105,7 +105,7 @@ class Protocol(object):
 
         # Compute time of stimuli
         self.stim_t = np.zeros(len(self.stim_vec))
-        for i in xrange(len(self.delta_vec)):
+        for i in range(len(self.delta_vec)):
             self.stim_t[i + 1] = self.stim_t[i] + self.delta_vec[i]
 
     def sort(self):
@@ -153,7 +153,7 @@ class CalciumTrace(object):
         event = []
         time = []
         amplitude = []
-        for i in xrange(n_stim):
+        for i in range(n_stim):
             if protocol.stim_vec[i] == 'pre':
                 event.append('Cpre')
                 time.append(curr_time + model['D'])
@@ -195,7 +195,7 @@ class CalciumTrace(object):
         tvec = np.linspace(tstart, tstop, n)
 
         trace = np.zeros(n)
-        for j in xrange(len(self.__evnt)):
+        for j in range(len(self.__evnt)):
             offset = int((self.time[j] - tstart) / dt)
             component = self.amplitude[
                 j] * np.exp(-(tvec[:n - offset] / self.model['tau_ca']))
@@ -269,7 +269,7 @@ def time_above_threshold(protocol, param):
     A_f = (1.0 / (1.0 - np.exp(-1.0 / (protocol.f * param['tau_ca']))))
     if A_f != 1.0:
         baseline = (A_f - 1.0) * (ca_event_amp[0])
-        for i in xrange(len(ca_event_amp) - 1):
+        for i in range(len(ca_event_amp) - 1):
             baseline += (A_f - 1.0) * \
                 (ca_event_amp[i + 1] * np.exp(
                     np.sum(np.abs(ca_event_delta[:i + 1])) / param['tau_ca']))
@@ -280,11 +280,11 @@ def time_above_threshold(protocol, param):
     logging_debug('Calcium amplitudes')
     n_events = len(ca_event_amp)
     C_amp = np.zeros(2 * n_events)
-    for i in xrange(n_events - 1):
+    for i in range(n_events - 1):
         C_amp[i] = baseline * \
             np.exp(-np.sum(np.abs(ca_event_delta[:i + 1])) / param['tau_ca'])
         logging_debug('C_amp[%d] = 0.0', i)
-        for j in xrange(i + 1):
+        for j in range(i + 1):
             C_amp[i] += \
                 ca_event_amp[j] * \
                 np.exp(-np.sum(
@@ -296,14 +296,14 @@ def time_above_threshold(protocol, param):
     logging_debug('C_amp[%d] = 0.0', n_events - 1)
     C_amp[n_events] = baseline + ca_event_amp[0]  # For convenience
     logging_debug('C_amp[%d] = %f', n_events, ca_event_amp[0])
-    for i in xrange(n_events + 1, 2 * n_events):
+    for i in range(n_events + 1, 2 * n_events):
         C_amp[i] = C_amp[i - n_events - 1] + ca_event_amp[i - n_events]
         logging_debug('C_amp[%d] = C_amp[%d] + %s',
                       i, i - n_events - 1, ca_event_amp[i - n_events])
 
     # Time spent above depression threshold
     t_d = np.zeros(n_events)
-    for i in xrange(n_events):
+    for i in range(n_events):
         if C_amp[i] > param['theta_d']:
             t_d[i] = ca_event_delta[i]
         elif C_amp[i] <= param['theta_d'] < C_amp[i + n_events]:
@@ -316,7 +316,7 @@ def time_above_threshold(protocol, param):
 
     # Time spent above potentiation threshold
     t_p = np.zeros(n_events)
-    for i in xrange(n_events):
+    for i in range(n_events):
         if C_amp[i] > param['theta_p']:
             t_p[i] = ca_event_delta[i]
         elif C_amp[i] <= param['theta_p'] < C_amp[i + n_events]:
