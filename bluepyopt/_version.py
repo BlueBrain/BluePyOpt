@@ -353,6 +353,23 @@ def render_pep440_pre(pieces):
     return rendered
 
 
+def render_pep440_minor(pieces):
+    """TAG[.DISTANCE] . No -dirty
+
+    Exceptions:
+    1: no tags. 0.DISTANCE
+    """
+
+    if pieces["closest-tag"]:
+        rendered = pieces["closest-tag"]
+        if pieces["distance"]:
+            rendered += ".%d" % pieces["distance"]
+    else:
+        # exception #1
+        rendered = "0.%d" % pieces["distance"]
+    return rendered
+
+
 def render_pep440_post(pieces):
     """TAG[.postDISTANCE[.dev0]+gHEX] .
 
@@ -458,6 +475,8 @@ def render(pieces, style):
         rendered = render_pep440(pieces)
     elif style == "pep440-pre":
         rendered = render_pep440_pre(pieces)
+    elif style == "pep440-minor":
+        rendered = render_pep440_minor(pieces)
     elif style == "pep440-post":
         rendered = render_pep440_post(pieces)
     elif style == "pep440-old":
