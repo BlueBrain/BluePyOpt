@@ -42,11 +42,12 @@ setuptools.setup(
         'BlueBrainProject'),
     url='https://github.com/BlueBrain/BluePyOpt',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'License :: OSI Approved :: GNU Lesser General Public '
         'License v3 (LGPLv3)',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.6',
         'Operating System :: POSIX',
         'Topic :: Scientific/Engineering',
         'Topic :: Utilities'],
