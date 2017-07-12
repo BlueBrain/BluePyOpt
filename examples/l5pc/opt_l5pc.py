@@ -111,7 +111,6 @@ The folling environment variables are considered:
 
 def main():  # pylint: disable=too-many-statements
     """Main"""
-
     args = get_parser().parse_args()
 
     if args.verbose > 2:
