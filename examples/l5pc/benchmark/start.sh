@@ -1,29 +1,39 @@
 #!/bin/bash
 
 set -e
-set -x 
+set -x
+
+PWD=$(pwd)
+LOGS=$PWD/logs
+mkdir -p $LOGS
 
 cd ..
 
 OFFSPRING_SIZE=100
 MAX_NGEN=100
 
-export L5PCBENCHMARK_USEIPYP=1
-export IPYTHONDIR="`pwd`/.ipython"
-export IPYTHON_PROFILE=benchmark.${SLURM_JOBID} 
-# ipython profile create --profile=${IPYTHON_PROFILE}
+export IPYTHONDIR=${PWD}/.ipython
+export IPYTHON_PROFILE=benchmark.${SLURM_JOBID}
+
 ipcontroller --init --ip='*' --sqlitedb --profile=${IPYTHON_PROFILE} &
 sleep 10
-srun ipengine --profile=${IPYTHON_PROFILE} &
+srun --output="${LOGS}/engine_%j_%2t.out" ipengine --profile=${IPYTHON_PROFILE} &
+sleep 10
 
 CHECKPOINTS_DIR="checkpoints/run.${SLURM_JOBID}"
 mkdir -p ${CHECKPOINTS_DIR}
 
 pids=""
-for seed in `seq 1 4`
-do
-    BLUEPYOPT_SEED=${seed} python opt_l5pc.py --offspring_size=${OFFSPRING_SIZE} --max_ngen=${MAX_NGEN} --start --checkpoint "${CHECKPOINTS_DIR}/seed${seed}.pkl" &
-    pids="${pids} $!"
+for seed in {1..4}; do
+    python opt_l5pc.py                     \
+        -vv                                \
+        --offspring_size=${OFFSPRING_SIZE} \
+        --max_ngen=${MAX_NGEN}             \
+        --seed=${seed}                     \
+        --ipyparallel                      \
+        --start                            \
+        --checkpoint "${CHECKPOINTS_DIR}/seed${seed}.pkl" &
+    pids+="$! "
 done
 
 wait $pids
