@@ -87,7 +87,7 @@ Install the `anaconda` environment manager:
     
     $ conda install anaconda-client
 
-Install the BluePy suite:
+Install the BluePyOpt suite:
 
     $ conda env create bluepyopt/gecco2017
 
