@@ -96,10 +96,6 @@ model with 2 HH channels can be found at
 
 https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/simplecell.ipynb
 
-There is a Binder Virtual Machine available that allows you to run this notebook in your browser:
-
-http://mybinder.org/repo/BlueBrain/BluePyOpt/examples/simplecell/simplecell.ipynb
-
 ![Landscape example](https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/figures/landscape_example.png)
 **Figure**: The solution space of a single compartmental model with two parameters: the maximal conductance of Na and K ion channels. The color represents how well the model fits two objectives: when injected with two different currents, the model has to fire 1 and 4 action potential respectively during the stimuli. Dark blue is the best fitness. The blue circles represent solutions with a perfect score.
 
@@ -111,10 +107,6 @@ Scripts for a more complex neocortical L5PC are in
 With a notebook:
 
 https://github.com/BlueBrain/BluePyOpt/blob/master/examples/l5pc/L5PC.ipynb
-
-And you can run this in a VM:
-
-http://mybinder.org/repo/BlueBrain/BluePyOpt/examples/l5pc/L5PC.ipynb
 
 API documentation
 ==================
