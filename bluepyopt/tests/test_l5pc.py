@@ -1,7 +1,9 @@
 """Test l5pc example"""
 
+import json
 import os
 import sys
+
 from contextlib import contextmanager
 if sys.version_info[0] < 3:
     from StringIO import StringIO
@@ -55,16 +57,12 @@ release_parameters = {
 def load_from_json(filename):
     """Load structure from json"""
 
-    import json
-
     with open(filename) as json_file:
         return json.load(json_file)
 
 
 def dump_to_json(content, filename):
     """Dump structure to json"""
-
-    import json
 
     with open(filename, 'w') as json_file:
         return json.dump(content, json_file, indent=4, separators=(',', ': '))
@@ -76,9 +74,6 @@ def test_import():
     import l5pc_model  # NOQA
     import l5pc_evaluator  # NOQA
     import opt_l5pc  # NOQA
-
-    # Delete the optimisation inside the module
-    del opt_l5pc.opt
 
 
 class TestL5PCModel(object):

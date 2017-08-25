@@ -1,4 +1,9 @@
-"""Run simple cell optimisation"""
+#!/usr/bin/env python
+"""Run simple cell optimisation
+
+This optimisation is based on L5PC optimisations developed by Etay Hay in the
+context of the BlueBrain project
+"""
 
 """
 Copyright (c) 2016, EPFL/Blue Brain Project
@@ -19,55 +24,65 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-"""
-This optimisation is based on L5PC optimisations developed by Etay Hay in the
-context of the BlueBrain project
-"""
-
-# pylint: disable=R0914, W0403
-import os
-import sys
 
 import argparse
-# pylint: disable=R0914
 import logging
-logging.basicConfig(stream=sys.stdout)
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+import os
+import sys
+import textwrap
+
+from datetime import datetime
 
 import bluepyopt
+
+import l5pc_evaluator
+
+logger = logging.getLogger()
 
 # TODO store definition dicts in json
 # TODO add functionality to read settings of every object from config format
 
 
-import l5pc_evaluator
-evaluator = l5pc_evaluator.create()
+def create_optimizer(args):
+    '''returns configured bluepyopt.optimisations.DEAPOptimisation'''
+    if args.ipyparallel or os.getenv('L5PCBENCHMARK_USEIPYP'):
+        from ipyparallel import Client
+        rc = Client(profile=os.getenv('IPYTHON_PROFILE'))
+
+        logger.debug('Using ipyparallel with %d engines', len(rc))
+
+        lview = rc.load_balanced_view()
+
+        def mapper(func, it):
+            start_time = datetime.now()
+            ret = lview.map_sync(func, it)
+            logger.debug('Generation took %s', datetime.now() - start_time)
+            return ret
+
+        map_function = mapper
+    else:
+        map_function = None
+
+    evaluator = l5pc_evaluator.create()
+    seed = os.getenv('BLUEPYOPT_SEED', args.seed)
+    opt = bluepyopt.optimisations.DEAPOptimisation(
+        evaluator=evaluator,
+        map_function=map_function,
+        seed=seed)
+
+    return opt
 
 
-def evaluate(parameter_array):
-    """Global evaluate function"""
-
-    return evaluator.evaluate(parameter_array)
-
-if os.getenv('L5PCBENCHMARK_USEIPYP') == '1':
-    from ipyparallel import Client
-    rc = Client(profile=os.getenv('IPYTHON_PROFILE'))
-    lview = rc.load_balanced_view()
-
-    map_function = lview.map_sync
-else:
-    map_function = None
-
-opt = bluepyopt.optimisations.DEAPOptimisation(
-    evaluator=evaluator,
-    map_function=map_function,
-    seed=os.getenv('BLUEPYOPT_SEED'))
-
-
-def main():
-    """Main"""
-    parser = argparse.ArgumentParser(description='L5PC example')
+def get_parser():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description='L5PC example',
+        epilog=textwrap.dedent('''\
+The folling environment variables are considered:
+    L5PCBENCHMARK_USEIPYP: if set, will use ipyparallel
+    IPYTHON_PROFILE: if set, used as the path to the ipython profile
+    BLUEPYOPT_SEED: The seed used for initial randomization
+        '''))
     parser.add_argument('--start', action="store_true")
     parser.add_argument('--continu', action="store_false", default=False)
     parser.add_argument('--checkpoint', required=False, default=None,
@@ -81,19 +96,36 @@ def main():
     parser.add_argument('--analyse', action="store_true")
     parser.add_argument('--compile', action="store_true")
     parser.add_argument('--hocanalyse', action="store_true")
+    parser.add_argument('--seed', type=int, default=42,
+                        help='Seed to use for optimization')
+    parser.add_argument('--ipyparallel', action="store_true", default=False,
+                        help='Use ipyparallel')
     parser.add_argument(
         '--diversity',
         help='plot the diversity of parameters from checkpoint pickle file')
+    parser.add_argument('-v', '--verbose', action='count', dest='verbose',
+                        default=0, help='-v for INFO, -vv for DEBUG')
 
-    args = parser.parse_args()
+    return parser
+
+
+def main():  # pylint: disable=too-many-statements
+    """Main"""
+    args = get_parser().parse_args()
+
+    if args.verbose > 2:
+        sys.exit('cannot be more verbose than -vv')
+    logging.basicConfig(level=(logging.WARNING,
+                               logging.INFO,
+                               logging.DEBUG)[args.verbose],
+                        stream=sys.stdout)
+
+    opt = create_optimizer(args)
 
     if args.compile:
         logger.debug('Doing compile')
         import commands
         commands.getstatusoutput('cd mechanisms/; nrnivmodl; cd ..')
-
-    # TODO store definition dicts in json
-    # TODO add functionality to read settings of every object from config format
 
     if args.hocanalyse:
         logger.debug('Doing hocanalyse')
@@ -156,11 +188,9 @@ def main():
     elif args.hocanalyse:
         logger.debug('Continuing hocanalyse')
 
+        import matplotlib.pyplot as plt
         import l5pc_analysis
 
-        # _, axes_obj = plt.subplots(n_of_rows, n_of_cols, facecolor='white')
-        # axes = numpy.ravel(axes_obj)
-        import matplotlib.pyplot as plt
         fig_release = plt.figure(figsize=(10, 10), facecolor='white')
 
         box = {
@@ -193,6 +223,7 @@ def main():
                                      opt.evaluator.param_names)
         fig_diversity.savefig('figures/l5pc_diversity.eps')
         plt.show()
+
 
 if __name__ == '__main__':
     main()
