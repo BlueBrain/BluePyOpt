@@ -59,6 +59,9 @@ def get_engine_data(tasksdb_filename):
 
             tasks[engine_uuid].append(task)
 
+    if len(tasks) == 0:
+        raise Exception("No completed tasks found in the db")
+
     engine_number_map = dict(zip(tasks.keys(), range(len(tasks.keys()))))
     return tasks, engine_number_map
 
