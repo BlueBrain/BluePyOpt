@@ -30,15 +30,18 @@ def test_eFELFeature():
                                      exp_std=1)
 
     response = TimeVoltageResponse('mock_response')
-    testdata_dir = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
+    testdata_dir = joinp(
+        os.path.dirname(
+            os.path.abspath(__file__)),
+        'testdata')
     response.read_csv(joinp(testdata_dir, 'TimeVoltageResponse.csv'))
     responses = {'square_pulse_step1.soma.v': response, }
 
     ret = efeature.calculate_feature(responses, raise_warnings=True)
-    nt.assert_almost_equal(ret, -72.069487699766668)
+    nt.assert_almost_equal(ret, -72.0575843859)
 
     score = efeature.calculate_score(responses)
-    nt.assert_almost_equal(score, 73.06948769976667)
+    nt.assert_almost_equal(score, 73.05758438592171)
 
     nt.eq_(efeature.name, 'test_eFELFeature')
     nt.ok_('voltage_base' in str(efeature))
@@ -67,7 +70,10 @@ def test_eFELFeature_double_settings():
             'voltage_base_start_perc': 0.01})
 
     response = TimeVoltageResponse('mock_response')
-    testdata_dir = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
+    testdata_dir = joinp(
+        os.path.dirname(
+            os.path.abspath(__file__)),
+        'testdata')
     response.read_csv(joinp(testdata_dir, 'TimeVoltageResponse.csv'))
     responses = {'square_pulse_step1.soma.v': response, }
 
@@ -102,7 +108,10 @@ def test_eFELFeature_int_settings():
             'strict_stiminterval': True})
 
     response = TimeVoltageResponse('mock_response')
-    testdata_dir = joinp(os.path.dirname(os.path.abspath(__file__)), 'testdata')
+    testdata_dir = joinp(
+        os.path.dirname(
+            os.path.abspath(__file__)),
+        'testdata')
     response.read_csv(joinp(testdata_dir, 'TimeVoltageResponse.csv'))
     responses = {'square_pulse_step1.soma.v': response, }
 
