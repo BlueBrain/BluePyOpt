@@ -19,6 +19,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# pylint: disable=R0914
 
 import logging
 
@@ -57,6 +58,8 @@ class eFELFeature(EFeature, DictMixin):
             interp_step=None,
             double_settings=None,
             int_settings=None,
+            force_max_score=False,
+            max_score=250
     ):
         """Constructor
 
@@ -92,6 +95,8 @@ class eFELFeature(EFeature, DictMixin):
         self.stimulus_current = stimulus_current
         self.double_settings = double_settings
         self.int_settings = int_settings
+        self.force_max_score = force_max_score
+        self.max_score = max_score
 
     def _construct_efel_trace(self, responses):
         """Construct trace that can be passed to eFEL"""
@@ -179,7 +184,7 @@ class eFELFeature(EFeature, DictMixin):
         efel_trace = self._construct_efel_trace(responses)
 
         if efel_trace is None:
-            score = 250.0
+            score = self.max_score
         else:
             self._setup_efel()
 
@@ -189,7 +194,11 @@ class eFELFeature(EFeature, DictMixin):
                 self.efel_feature_name,
                 self.exp_mean,
                 self.exp_std,
-                trace_check=trace_check)
+                trace_check=trace_check,
+                error_dist=self.max_score
+            )
+            if self.force_max_score:
+                score = max(score, self.max_score)
 
             efel.reset()
 
