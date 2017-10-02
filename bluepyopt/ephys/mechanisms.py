@@ -109,9 +109,9 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
                     isec,
                     sim)
 
-            logger.debug(
-                'Inserted %s in %s', self.suffix, [
-                    str(location) for location in self.locations])
+        logger.debug(
+            'Inserted %s in %s', self.suffix, [
+                str(location) for location in self.locations])
 
     def instantiate_determinism(self, deterministic, icell, isec, sim):
         """Instantiate enable/disable determinism"""
@@ -298,9 +298,9 @@ class NrnMODPointProcessMechanism(Mechanism):
             except AttributeError as e:
                 raise AttributeError(str(e) + ': ' + self.suffix)
 
-            logger.debug(
-                'Inserted %s at %s ', self.suffix, [
-                    str(location) for location in self.locations])
+        logger.debug(
+            'Inserted %s at %s ', self.suffix, [
+                str(location) for location in self.locations])
 
     def destroy(self, sim=None):
         """Destroy mechanism instantiation"""

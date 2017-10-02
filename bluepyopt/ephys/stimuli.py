@@ -131,6 +131,7 @@ class NrnNetStimStimulus(Stimulus):
         """Run stimulus"""
 
         for location in self.locations:
+            self.connections[location.name] = []
             for synapse in location.instantiate(sim=sim, icell=icell):
                 netstim = sim.neuron.h.NetStim()
                 netstim.interval = self.interval
@@ -140,7 +141,7 @@ class NrnNetStimStimulus(Stimulus):
                 netcon = sim.neuron.h.NetCon(netstim, synapse)
                 netcon.weight[0] = self.weight
 
-                self.connections[location.name] = (netcon, netstim)
+                self.connections[location.name].append((netcon, netstim))
 
     def destroy(self, sim=None):
         """Destroy stimulus"""
