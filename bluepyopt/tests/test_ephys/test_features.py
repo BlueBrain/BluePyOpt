@@ -109,10 +109,10 @@ def test_eFELFeature_force_max_score():
     nt.assert_true(score_normal > 250)
 
     efeature_force = efeatures.eFELFeature(name='test_eFELFeature',
-                                           efel_feature_name='AP_amplitude',
+                                           efel_feature_name='voltage_base',
                                            recording_names=recording_names,
-                                           stim_start=600,
-                                           stim_end=700,
+                                           stim_start=700,
+                                           stim_end=2700,
                                            exp_mean=1,
                                            exp_std=.001,
                                            force_max_score=True)
