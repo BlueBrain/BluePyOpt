@@ -198,7 +198,7 @@ class eFELFeature(EFeature, DictMixin):
                 error_dist=self.max_score
             )
             if self.force_max_score:
-                score = max(score, self.max_score)
+                score = min(score, self.max_score)
 
             efel.reset()
 
