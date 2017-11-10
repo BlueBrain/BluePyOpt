@@ -106,6 +106,8 @@ class NrnFileMorphology(Morphology, DictMixin):
         # probably should be more intelligent here, and filter out the
         # lines we don't want
 
+        imorphology.quiet = 1
+
         if platform.system() == 'Windows':
             sim.neuron.h.hoc_stdout('NUL')
         else:
