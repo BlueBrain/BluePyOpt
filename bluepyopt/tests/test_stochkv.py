@@ -55,6 +55,8 @@ def test_run():
         with open(expected_hoc_filename) as expected_hoc_file:
             expected_hoc_string = expected_hoc_file.read()
 
+        # with open('stoch%s.hoc' % deterministic, 'w') as stoch_file:
+        #    stoch_file.write(hoc_string)
         nt.assert_equal(
             hoc_string,
             expected_hoc_string)

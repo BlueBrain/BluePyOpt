@@ -104,7 +104,7 @@ def test_nrnmod_reinitrng_block():
                     '                setdata_Stoch(x)\n'
                     '                sf.tail(secname(), "\\\\.", name)\n'
                     '                sprint(full_str, "%s.%.19g", name, x)\n'
-                    '                setRNG_Stoch(0, hash_str(full_str))\n'
+                    '                setRNG_Stoch(gid, hash_str(full_str))\n'
                     '            }\n         }\n')
 
 

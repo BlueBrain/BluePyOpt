@@ -248,7 +248,7 @@ proc re_init_rng() {localobj sf
                 setdata_%(suffix)s(x)
                 sf.tail(secname(), "\\\\.", name)
                 sprint(full_str, "%%s.%%.19g", name, x)
-                setRNG_%(suffix)s(0, hash_str(full_str))
+                setRNG_%(suffix)s(gid, hash_str(full_str))
             }
         """
 
