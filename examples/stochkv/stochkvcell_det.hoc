@@ -17,7 +17,7 @@ proc check_simulator() {
 }
 
 begintemplate stochkv_cell
-  public init, morphology, geom_nseg_fixed, geom_nsec
+  public init, morphology, geom_nseg_fixed, geom_nsec, gid
   public soma, dend, apic, axon, myelin
   create soma[1], dend[1], apic[1], axon[1], myelin[1]
 
@@ -33,6 +33,9 @@ proc init(/* args: morphology_dir, morphology_name */) {
   basal = new SectionList()
   somatic = new SectionList()
   myelinated = new SectionList()
+
+  //gid in this case is only used for rng seeding
+  gid = 0
 
   //For compatibility with BBP CCells
   CellRef = this
