@@ -18,6 +18,7 @@ proc check_simulator() {
 
 begintemplate stochkv_cell
   public init, morphology, geom_nseg_fixed, geom_nsec, gid
+  public channel_seed, channel_seed_set
   public soma, dend, apic, axon, myelin
   create soma[1], dend[1], apic[1], axon[1], myelin[1]
 
@@ -51,6 +52,10 @@ proc init(/* args: morphology_dir, morphology_name */) {
   geom_nseg()
   insertChannel()
   biophys()
+
+  // Initialize channel_seed_set to avoid accidents
+  channel_seed_set = 0
+  // Initialize random number generators
   re_init_rng()
 }
 
@@ -215,18 +220,30 @@ func hash_str() {localobj sf strdef right
 }
 
 proc re_init_rng() {localobj sf
-  strdef full_str, name
+    strdef full_str, name
 
-  sf = new StringFunctions()
+    sf = new StringFunctions()
 
-  forsec somatic { 
-            for (x, 0) {
-                setdata_StochKv(x)
-                sf.tail(secname(), "\\.", name)
-                sprint(full_str, "%s.%.19g", name, x)
+    if(numarg() == 1) {
+        // We received a third seed
+        channel_seed = $1
+        channel_seed_set = 1
+    } else {
+        channel_seed_set = 0
+    }
+
+    forsec somatic {
+        for (x, 0) {
+            setdata_StochKv(x)
+            sf.tail(secname(), "\\.", name)
+            sprint(full_str, "%s.%.19g", name, x)
+            if (channel_seed_set) {
+                setRNG_StochKv(gid, hash_str(full_str), channel_seed)
+            } else {
                 setRNG_StochKv(gid, hash_str(full_str))
             }
-         }
+        }
+    }
 
 }
 

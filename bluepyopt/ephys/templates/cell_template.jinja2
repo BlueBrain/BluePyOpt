@@ -33,6 +33,7 @@ proc check_simulator() {
 
 begintemplate {{template_name}}
   public init, morphology, geom_nseg_fixed, geom_nsec, gid
+  public channel_seed, channel_seed_set
   public soma, dend, apic, axon, myelin
   create soma[1], dend[1], apic[1], axon[1], myelin[1]
 
@@ -73,6 +74,10 @@ proc init(/* args: morphology_dir, morphology_name */) {
   {%- endif %}
   insertChannel()
   biophys()
+
+  // Initialize channel_seed_set to avoid accidents
+  channel_seed_set = 0
+  // Initialize random number generators
   re_init_rng()
 }
 

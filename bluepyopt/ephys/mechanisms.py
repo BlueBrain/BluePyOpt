@@ -186,13 +186,13 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
             for location in self.locations:
                 if self.deterministic:
                     reinitrng_hoc_block += \
-                        'forsec %(seclist_name)s { ' \
+                        '    forsec %(seclist_name)s { ' \
                         'deterministic_%(suffix)s = 1 }\n' % {
                             'seclist_name': location.seclist_name,
                             'suffix': self.suffix}
                 else:
                     reinitrng_hoc_block += \
-                        'forsec %(seclist_name)s { %(mech_reinitrng)s }\n' % {
+                        '    forsec %(seclist_name)s {%(mech_reinitrng)s    }\n' % {
                             'seclist_name': location.seclist_name,
                             'mech_reinitrng':
                             self.mech_reinitrng_block_template % {
@@ -235,22 +235,34 @@ func hash_str() {localobj sf strdef right
 
     reinitrng_hoc_string = """
 proc re_init_rng() {localobj sf
-  strdef full_str, name
+    strdef full_str, name
 
-  sf = new StringFunctions()
+    sf = new StringFunctions()
 
-  %(reinitrng_hoc_blocks)s
+    if(numarg() == 1) {
+        // We received a third seed
+        channel_seed = $1
+        channel_seed_set = 1
+    } else {
+        channel_seed_set = 0
+    }
+
+%(reinitrng_hoc_blocks)s
 }
 """
 
     mech_reinitrng_block_template = """
-            for (x, 0) {
-                setdata_%(suffix)s(x)
-                sf.tail(secname(), "\\\\.", name)
-                sprint(full_str, "%%s.%%.19g", name, x)
+        for (x, 0) {
+            setdata_%(suffix)s(x)
+            sf.tail(secname(), "\\\\.", name)
+            sprint(full_str, "%%s.%%.19g", name, x)
+            if (channel_seed_set) {
+                setRNG_%(suffix)s(gid, hash_str(full_str), channel_seed)
+            } else {
                 setRNG_%(suffix)s(gid, hash_str(full_str))
             }
-        """
+        }
+"""
 
 
 class NrnMODPointProcessMechanism(Mechanism):

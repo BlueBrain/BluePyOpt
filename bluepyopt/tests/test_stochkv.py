@@ -2,6 +2,8 @@
 
 import os
 import sys
+import difflib
+
 import nose.tools as nt
 
 STOCHKV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
@@ -17,6 +19,18 @@ neuron_sim.neuron.h.nrn_load_dll(
     os.path.join(
         STOCHKV_PATH,
         'x86_64/.libs/libnrnmech.so'))
+
+
+def compare_strings(s1, s2):
+    """Compare two strings"""
+
+    diff = list(difflib.unified_diff(s1.splitlines(1), s2.splitlines(1)))
+
+    if len(diff) > 0:
+        print ''.join(diff)
+        return False
+    else:
+        return True
 
 
 def test_import():
@@ -52,11 +66,10 @@ def test_run():
             STOCHKV_PATH,
             stochkvcell.stochkv_hoc_filename(deterministic=deterministic))
 
+        # with open(expected_hoc_filename, 'w') as expected_hoc_file:
+        #     expected_hoc_file.write(hoc_string)
+
         with open(expected_hoc_filename) as expected_hoc_file:
             expected_hoc_string = expected_hoc_file.read()
 
-        # with open('stoch%s.hoc' % deterministic, 'w') as stoch_file:
-        #    stoch_file.write(hoc_string)
-        nt.assert_equal(
-            hoc_string,
-            expected_hoc_string)
+        nt.assert_true(compare_strings(expected_hoc_string, hoc_string))
