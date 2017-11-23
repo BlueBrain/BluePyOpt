@@ -27,7 +27,7 @@ def compare_strings(s1, s2):
     diff = list(difflib.unified_diff(s1.splitlines(1), s2.splitlines(1)))
 
     if len(diff) > 0:
-        print ''.join(diff)
+        print(''.join(diff))
         return False
     else:
         return True
