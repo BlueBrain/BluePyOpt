@@ -31,7 +31,7 @@ setuptools.setup(
         'numpy>=1.6',
         'pandas>=0.18',
         'deap',
-        'efel>=2.12.5',
+        'efel>=2.13',
         'scoop>=0.7',
         'ipyparallel',
         'pickleshare>=0.7.3',
