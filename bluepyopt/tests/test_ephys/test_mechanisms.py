@@ -3,6 +3,7 @@
 import string
 import random
 import json
+import difflib
 
 import nose.tools as nt
 from nose.plugins.attrib import attr
@@ -79,6 +80,18 @@ def test_nrnmod_instantiate():
     simple_cell.destroy(sim=sim)
 
 
+def compare_strings(s1, s2):
+    """Compare two strings"""
+
+    diff = list(difflib.unified_diff(s1.splitlines(1), s2.splitlines(1)))
+
+    if len(diff) > 0:
+        print(''.join(diff))
+        return False
+    else:
+        return True
+
+
 @attr('unit')
 def test_nrnmod_reinitrng_block():
     """ephys.mechanisms: Testing reinitrng_block"""
@@ -89,8 +102,9 @@ def test_nrnmod_reinitrng_block():
         locations=[simplecell.somatic_loc])
 
     block = test_mech.generate_reinitrng_hoc_block()
+    expected_block = '    forsec somatic { deterministic_Stoch = 1 }\n'
 
-    nt.assert_equal(block, 'forsec somatic { deterministic_Stoch = 1 }\n')
+    nt.assert_true(compare_strings(block, expected_block))
 
     test_mech = ephys.mechanisms.NrnMODMechanism(
         'stoch',
@@ -100,12 +114,22 @@ def test_nrnmod_reinitrng_block():
 
     block = test_mech.generate_reinitrng_hoc_block()
 
-    nt.assert_equal(block, 'forsec somatic { \n            for (x, 0) {\n'
-                    '                setdata_Stoch(x)\n'
-                    '                sf.tail(secname(), "\\\\.", name)\n'
-                    '                sprint(full_str, "%s.%.19g", name, x)\n'
-                    '                setRNG_Stoch(gid, hash_str(full_str))\n'
-                    '            }\n         }\n')
+    expected_block = \
+        """    forsec somatic {
+        for (x, 0) {
+            setdata_Stoch(x)
+            sf.tail(secname(), "\\\\.", name)
+            sprint(full_str, "%s.%.19g", name, x)
+            if (channel_seed_set) {
+                setRNG_Stoch(gid, hash_str(full_str), channel_seed)
+            } else {
+                setRNG_Stoch(gid, hash_str(full_str))
+            }
+        }
+    }
+"""
+
+    nt.assert_true(compare_strings(block, expected_block))
 
 
 @attr('unit')
@@ -139,7 +163,9 @@ def test_pprocess_instantiate():
         suffix='ExpSyn',
         locations=[simplecell.somacenter_loc])
 
-    nt.assert_equal(str(test_pprocess), "expsyn: ExpSyn at ['somatic[0](0.5)']")
+    nt.assert_equal(
+        str(test_pprocess),
+        "expsyn: ExpSyn at ['somatic[0](0.5)']")
 
     simple_cell.instantiate(sim=sim)
 

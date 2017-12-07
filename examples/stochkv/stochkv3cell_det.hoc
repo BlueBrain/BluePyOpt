@@ -1,12 +1,7 @@
-/* 
-{%- if banner %}
-{{banner}} 
-{%- endif %}
+/*
 */
 {load_file("stdrun.hoc")}
 {load_file("import3d.hoc")}
-
-{%- if global_params %}
 /*
  * Check that global parameters are the same as with the optimization
  */
@@ -18,20 +13,10 @@ proc check_parameter(/* name, expected_value, value */){
   }
 }
 proc check_simulator() {
-  {%- for param, value in global_params.items() %}
-  check_parameter("{{param}}", {{value}}, {{param}})
-  {%- endfor %}
+  check_parameter("celsius", 34.0, celsius)
 }
-{%- endif %}
-{%- if ignored_global_params %}
-/* The following global parameters were set in BluePyOpt
-{%- for param, value in ignored_global_params.items() %}
- * {{param}} = {{value}}
-{%- endfor %}
- */
-{%- endif %}
 
-begintemplate {{template_name}}
+begintemplate stochkv3_cell
   public init, morphology, geom_nseg_fixed, geom_nsec, gid
   public channel_seed, channel_seed_set
   public soma, dend, apic, axon, myelin
@@ -61,17 +46,10 @@ proc init(/* args: morphology_dir, morphology_name */) {
   if(numarg() >= 2) {
     load_morphology($s1, $s2)
   } else {
-  {%- if morphology %}
-    load_morphology($s1, "{{morphology}}")
-  {%- else %}
-    execerror("Template {{template_name}} requires morphology name to instantiate")
-  {%- endif %}
+    load_morphology($s1, "simple.swc")
   }
 
   geom_nseg()
-  {%- if replace_axon %}
-    replace_axon()
-  {%- endif %}
   insertChannel()
   biophys()
 
@@ -134,26 +112,44 @@ proc geom_nseg() {
 }
 
 proc insertChannel() {
-  {%- for location, names in channels.items() %}
-  forsec this.{{location}} {
-  {%- for channel in names %}
-    insert {{channel}}
-  {%- endfor %}
+  forsec this.all {
   }
-  {%- endfor %}
+  forsec this.apical {
+  }
+  forsec this.axonal {
+  }
+  forsec this.basal {
+  }
+  forsec this.somatic {
+    insert pas
+    insert StochKv3
+  }
+  forsec this.myelinated {
+  }
 }
 
 proc biophys() {
-  {% for loc, parameters in section_params %}
-  forsec CellRef.{{ loc }} {
-  {%- for param in parameters %}
-    {{ param.name }} = {{ param.value }}
-  {%- endfor %}
+  
+  forsec CellRef.all {
   }
-  {% endfor %}
-  {%- for location, param_name, value in range_params %}
-  distribute_distance(CellRef.{{location}}, "{{param_name}}", "{{value}}")
-  {%- endfor %}
+  
+  forsec CellRef.apical {
+  }
+  
+  forsec CellRef.axonal {
+  }
+  
+  forsec CellRef.basal {
+  }
+  
+  forsec CellRef.somatic {
+    e_pas = -90
+    gkbar_StochKv3 = 0.5
+  }
+  
+  forsec CellRef.myelinated {
+  }
+  
 }
 
 func sec_count(/* SectionList */) { local nSec
@@ -202,11 +198,43 @@ proc geom_nsec() { local nSec
 /*
  * Replace the axon built from the original morphology file with a stub axon
  */
-{%- if replace_axon %}
-    {{replace_axon}}
-{%- endif %}
 
 
-{{re_init_rng}}
 
-endtemplate {{template_name}}
+func hash_str() {localobj sf strdef right
+  sf = new StringFunctions()
+
+  right = $s1
+
+  n_of_c = sf.len(right)
+
+  hash = 0
+  char_int = 0
+  for i = 0, n_of_c - 1 {
+     sscanf(right, "%c", & char_int)
+     hash = (hash * 31 + char_int) % (2 ^ 31 - 1)
+     sf.right(right, 1)
+  }
+
+  return hash
+}
+
+proc re_init_rng() {localobj sf
+    strdef full_str, name
+
+    sf = new StringFunctions()
+
+    if(numarg() == 1) {
+        // We received a third seed
+        channel_seed = $1
+        channel_seed_set = 1
+    } else {
+        channel_seed_set = 0
+    }
+
+    forsec somatic { deterministic_StochKv3 = 1 }
+
+}
+
+
+endtemplate stochkv3_cell
