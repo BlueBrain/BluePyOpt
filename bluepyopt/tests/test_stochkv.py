@@ -5,7 +5,7 @@ import sys
 import difflib
 
 import nose.tools as nt
-from nose.plugins.attrib import attr
+# from nose.plugins.attrib import attr
 
 STOCHKV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                             '../../examples/stochkv'))
@@ -75,7 +75,7 @@ def test_run():
 
         nt.assert_true(compare_strings(expected_hoc_string, hoc_string))
 
-@attr('debugtest')
+
 def test_run_stochkv3():
     """StochKv3 example: test run"""
 
