@@ -43,7 +43,7 @@ unit: install install_test_requirements
 	cd bluepyopt/tests; nosetests -a 'unit' -s -v -x --with-coverage --cover-xml \
 		--cover-package bluepyopt;
 functional: install install_test_requirements stochkv_prepare l5pc_prepare sc_prepare
-	cd bluepyopt/tests; nosetests -a '!unit' -s -v -x --with-coverage --cover-xml \
+	cd bluepyopt/tests; nosetests -a 'debugtest' -s -v -x --with-coverage --cover-xml \
 		--cover-package bluepyopt;
 pypi: test
 	pip install twine --upgrade
