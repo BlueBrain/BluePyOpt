@@ -231,6 +231,52 @@ def test_sequenceprotocol_run():
 
 
 @attr('unit')
+def test_sequenceprotocol_overwrite():
+    """ephys.protocols: Test SequenceProtocol overwriting keys"""
+
+    nrn_sim = ephys.simulators.NrnSimulator()
+    dummy_cell = testmodels.dummycells.DummyCellModel1()
+
+    sweep_protocols = []
+    for x in [.2, .5]:
+        soma_loc = ephys.locations.NrnSeclistCompLocation(
+            name='soma_loc',
+            seclist_name='somatic',
+            sec_index=0,
+            comp_x=x)
+
+        rec_soma = ephys.recordings.CompRecording(
+            name='soma.v',
+            location=soma_loc,
+            variable='v')
+
+        stim = ephys.stimuli.NrnSquarePulse(
+            step_amplitude=0.0,
+            step_delay=0.0,
+            step_duration=50,
+            total_duration=50,
+            location=soma_loc)
+
+        sweep_protocols.append(ephys.protocols.SweepProtocol(
+            name='sweep_prot',
+            stimuli=[stim],
+            recordings=[rec_soma]))
+
+    seq_protocol = ephys.protocols.SequenceProtocol(
+        name='seq_prot',
+        protocols=sweep_protocols)
+
+    nt.assert_raises(Exception, seq_protocol.run,
+                     cell_model=dummy_cell,
+                     param_values={},
+                     sim=nrn_sim)
+
+    for sweep_protocol in sweep_protocols:
+        sweep_protocol.destroy(sim=nrn_sim)
+    dummy_cell.destroy(sim=nrn_sim)
+
+
+@attr('unit')
 def test_stepprotocol_init():
     """ephys.protocols: Test StepProtocol init"""
 
