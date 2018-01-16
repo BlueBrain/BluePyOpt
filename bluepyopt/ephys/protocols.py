@@ -85,6 +85,17 @@ class SequenceProtocol(Protocol):
 
         return subprotocols
 
+    def __str__(self):
+        """String representation"""
+
+        content = 'Sequence protocol %s:\n' % self.name
+
+        content += '%d subprotocols:\n' % len(self.protocols)
+        for protocol in self.protocols:
+            content += '%s\n' % str(protocol)
+
+        return content
+
 
 class SweepProtocol(Protocol):
 
@@ -206,8 +217,9 @@ class SweepProtocol(Protocol):
                 recording.instantiate(sim=sim, icell=icell)
             except locations.EPhysLocInstantiateException:
                 logger.debug(
-                    'SweepProtocol: Instantiating recording generated location '
-                    'exception, will return empty response for this recording')
+                    'SweepProtocol: Instantiating recording generated '
+                    'location exception, will return empty response for '
+                    'this recording')
 
     def destroy(self, sim=None):
         """Destroy protocol"""

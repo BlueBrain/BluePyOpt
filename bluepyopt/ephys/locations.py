@@ -104,6 +104,50 @@ class NrnSeclistCompLocation(Location, DictMixin):
         return '%s[%s](%s)' % (self.seclist_name, self.sec_index, self.comp_x)
 
 
+class NrnSectionCompLocation(Location, DictMixin):
+
+    """Compartment in a section"""
+
+    SERIALIZED_FIELDS = (
+        'name',
+        'comment',
+        'seclist_name',
+        'sec_index',
+        'comp_x',
+    )
+
+    def __init__(
+            self,
+            name,
+            sec_name=None,
+            comp_x=None,
+            comment=''):
+        """Constructor
+
+        Args:
+            name (str): name of the object
+            sec_name (str): name of Neuron section (ex: 'soma[0]')
+            comp_x (float): segx (0..1) of segment inside section
+        """
+
+        super(NrnSectionCompLocation, self).__init__(name, comment)
+        self.sec_name = sec_name
+        self.comp_x = comp_x
+
+    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
+        """Find the instantiate compartment"""
+
+        # Dont see any other way but to use eval, apart from parsing the
+        # sec_name string which can be complicated
+        isection = eval('icell.%s' % self.sec_name)  # pylint: disable=W0123
+
+        icomp = isection(self.comp_x)
+        return icomp
+
+    def __str__(self):
+        return '%s(%s)' % (self.sec_name, self.comp_x)
+
+
 class NrnPointProcessLocation(Location):
 
     """Point process location"""
@@ -211,7 +255,12 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
 
     SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'seclist_name', )
 
-    def __init__(self, name, soma_distance=None, seclist_name=None, comment=''):
+    def __init__(
+            self,
+            name,
+            soma_distance=None,
+            seclist_name=None,
+            comment=''):
         """Constructor
 
         Args:
