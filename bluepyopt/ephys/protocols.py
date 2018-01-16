@@ -66,6 +66,20 @@ class SequenceProtocol(Protocol):
         responses = collections.OrderedDict({})
 
         for protocol in self.protocols:
+            response = protocol.run(
+                cell_model=cell_model,
+                param_values=param_values,
+                sim=sim,
+                isolate=isolate)
+
+            key_intersect = set(
+                response.keys()).intersection(set(responses.keys()))
+            if len(key_intersect) != 0:
+                raise Exception(
+                    'SequenceProtocol: one of the protocols (%s) is trying to '
+                    'add already existing keys to the response: %s' %
+                    (protocol.name, key_intersect))
+
             responses.update(
                 protocol.run(
                     cell_model=cell_model,
