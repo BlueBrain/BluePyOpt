@@ -15,9 +15,9 @@ MAX_NGEN=100
 export IPYTHONDIR=${PWD}/.ipython
 export IPYTHON_PROFILE=benchmark.${SLURM_JOBID}
 
-ipcontroller --init --ip='*' --sqlitedb --profile=${IPYTHON_PROFILE} &
+ipcontroller --init --ip='*' --sqlitedb --ping=30000 --profile=${IPYTHON_PROFILE} &
 sleep 10
-srun --output="${LOGS}/engine_%j_%2t.out" ipengine --profile=${IPYTHON_PROFILE} &
+srun --output="${LOGS}/engine_%j_%2t.out" ipengine --timeout=300 --profile=${IPYTHON_PROFILE} &
 sleep 10
 
 CHECKPOINTS_DIR="checkpoints/run.${SLURM_JOBID}"
