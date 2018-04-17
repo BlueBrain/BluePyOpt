@@ -10,10 +10,9 @@ notifications:
     on_failure: change
     on_start: false
 cache:
+    pip: true
     directories:
-      - $HOME/.cache/pip
-      - $HOME/local
-      - $HOME/src
+      - "$TRAVIS_BUILD_DIR/.tox"
 git:
   depth: 2147483647
 deploy:
