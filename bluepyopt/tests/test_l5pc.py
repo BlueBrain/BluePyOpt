@@ -15,6 +15,7 @@ from nose.plugins.attrib import attr
 
 L5PC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '../../examples/l5pc'))
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 sys.path.insert(0, L5PC_PATH)
 
@@ -130,7 +131,8 @@ class TestL5PCEvaluator(object):
         result = self.l5pc_evaluator.evaluate_with_dicts(
             param_dict=release_parameters)
 
-        expected_results = load_from_json('expected_results.json')
+        expected_results = load_from_json(
+            os.path.join(SCRIPT_DIR, 'expected_results.json'))
 
         # Use two lines below to update expected result
         # expected_results['TestL5PCEvaluator.test_eval'] = result

@@ -55,7 +55,7 @@ def _generate_reinitrng(mechs):
 
 
 def _generate_parameters(parameters):
-    """Create a list of parameters that need to be added to the hoc template."""
+    """Create list of parameters that need to be added to the hoc template."""
     param_locations = defaultdict(list)
     global_params = {}
     for param in parameters:

@@ -105,8 +105,9 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
                 from soma. string can contain `distance` and/or `value` as
                 placeholders for the distance to the soma and parameter value
                 respectivily
-            dist_params (list): list of names of parameters that parametrise the
-                distribution. These names will become attributes of this object.
+            dist_params (list): list of names of parameters that parametrise
+                the distribution. These names will become attributes of this
+                object.
                 The distribution string should contain these names, and they
                 will be replaced by values of the corresponding attributes
         """

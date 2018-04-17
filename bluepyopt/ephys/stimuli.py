@@ -43,7 +43,7 @@ class NrnCurrentPlayStimulus(Stimulus):
 
         Args:
             time_points(): time series (ms)
-            current_points(): current series of injected current amplitudes (nA)
+            current_points(): current series of injected current amplitudes(nA)
             location(Location): location of stimulus
         """
 

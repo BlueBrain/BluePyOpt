@@ -1,15 +1,16 @@
 """EPhys test utils"""
 
 from bluepyopt import ephys
-from bluepyopt.ephys.parameters import (NrnGlobalParameter, NrnSectionParameter,
-                                        NrnRangeParameter, )
+from bluepyopt.ephys.parameters import (
+    NrnGlobalParameter, NrnSectionParameter, NrnRangeParameter,)
 from bluepyopt.ephys.locations import NrnSeclistLocation
 
 
 def make_mech():
     """Create mechanism"""
     basal = ephys.locations.NrnSeclistLocation('basal', seclist_name='basal')
-    apical = ephys.locations.NrnSeclistLocation('apical', seclist_name='apical')
+    apical = ephys.locations.NrnSeclistLocation(
+        'apical', seclist_name='apical')
     return ephys.mechanisms.NrnMODMechanism(
         'Ih',
         suffix='Ih',

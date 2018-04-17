@@ -72,8 +72,8 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
             suffix (str): suffix of this mechanism in the MOD file
             locations (list of Locations): a list of Location objects pointing
                 to where this mechanism should be added to.
-            preloaded (bool): should this mechanism be side-loaded by BluePyOpt,
-                or was it already loaded and compiled by the user ?
+            preloaded (bool): should this mechanism be side-loaded by
+                BluePyOpt, or was it already loaded and compiled by the user ?
                 (not used for the moment)
             prefix (str): Deprecated. Use suffix instead.
         """
@@ -192,7 +192,8 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
                             'suffix': self.suffix}
                 else:
                     reinitrng_hoc_block += \
-                        '    forsec %(seclist_name)s {%(mech_reinitrng)s    }\n' % {
+                        '    forsec %(seclist_name)s {%(mech_reinitrng)s' \
+                        '    }\n' % {
                             'seclist_name': location.seclist_name,
                             'mech_reinitrng':
                             self.mech_reinitrng_block_template % {
@@ -285,8 +286,8 @@ class NrnMODPointProcessMechanism(Mechanism):
             suffix (str): suffix of this mechanism in the MOD file
             locations (list of Locations): a list of Location objects pointing
                 to compartments where this mechanism should be added to.
-            preloaded (bool): should this mechanism be side-loaded by BluePyOpt,
-                or was it already loaded and compiled by the user ?
+            preloaded (bool): should this mechanism be side-loaded by
+                BluePyOpt, or was it already loaded and compiled by the user ?
                 (not used for the moment)
         """
 

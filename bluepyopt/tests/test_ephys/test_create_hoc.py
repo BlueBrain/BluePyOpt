@@ -70,4 +70,3 @@ def test_create_hoc_filename():
     nt.ok_('begintemplate' in hoc)
     nt.ok_('endtemplate' in hoc)
     nt.ok_('Test template' in hoc)
-

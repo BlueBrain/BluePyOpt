@@ -193,8 +193,9 @@ class NrnSectionParameter(NrnParameter, DictMixin):
         """Instantiate"""
         if self.value is None:
             raise Exception(
-                'NrnSectionParameter: impossible to instantiate parameter "%s" '
-                'without value' % self.name)
+                'NrnSectionParameter: impossible to instantiate parameter "%s"'
+                ' without value' %
+                self.name)
 
         for location in self.locations:
             iseclist = location.instantiate(sim=sim, icell=icell)
@@ -257,8 +258,9 @@ class NrnPointProcessParameter(NrnParameter, DictMixin):
         """Instantiate"""
         if self.value is None:
             raise Exception(
-                'NrnSectionParameter: impossible to instantiate parameter "%s" '
-                'without value' % self.name)
+                'NrnSectionParameter: impossible to instantiate parameter "%s"'
+                ' without value' %
+                self.name)
 
         for location in self.locations:
             for pprocess in location.instantiate(sim=sim, icell=icell):

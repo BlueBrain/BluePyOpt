@@ -177,7 +177,7 @@ class SweepProtocol(Protocol):
             cell_model.unfreeze(param_values.keys())
 
             return responses
-        except:
+        except Exception:
             import sys
             import traceback
             raise Exception(

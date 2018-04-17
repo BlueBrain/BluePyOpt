@@ -57,7 +57,9 @@ def test_nested_serializer():
     """ephys.serializer: test a nested serialization of test class"""
 
     tc = TestClass('some string', False, 1.0, [1, 2, 3], {'0': 0})
-    ntc = NestedTestClass(test=tc, tuples=(tc, ), lists=[tc] * 3, dicts={0: tc})
+    ntc = NestedTestClass(
+        test=tc, tuples=(tc,),
+        lists=[tc] * 3, dicts={0: tc})
     serialized = ntc.to_dict()
     json.dumps(serialized, indent=2)
 
