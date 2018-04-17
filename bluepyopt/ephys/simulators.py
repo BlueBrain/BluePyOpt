@@ -7,6 +7,7 @@ import logging
 import imp
 import ctypes
 import platform
+import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -69,13 +70,12 @@ class NrnSimulator(object):
             glob.glob(os.path.join(nrnpy_path, 'hoc*.so'))
 
         if len(hoc_so_list) != 1:
-            raise Exception(
-                'hoc shared library not found in %s' %
-                nrnpy_path)
-
-        hoc_so = hoc_so_list[0]
-        nrndll = ctypes.cdll[hoc_so]
-        ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
+            warnings.warn('Unable to find Neuron hoc shared library in %s, '
+                          'not disabling banner' % nrnpy_path)
+        else:
+            hoc_so = hoc_so_list[0]
+            nrndll = ctypes.cdll[hoc_so]
+            ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
 
     # pylint: disable=R0201
     # TODO function below should probably a class property or something in that

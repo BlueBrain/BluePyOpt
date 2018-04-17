@@ -111,7 +111,7 @@ def test_disable_banner_exception(mock_glob):
     """ephys.simulators: test if disable_banner raises exception"""
     mock_glob.return_value = []
 
-    nt.assert_raises(
-        Exception,
-        ephys.simulators.NrnSimulator.  # pylint: disable=W0212
-        _nrn_disable_banner)
+    import warnings
+    with warnings.catch_warnings(record=True) as warnings_record:
+        ephys.simulators.NrnSimulator._nrn_disable_banner()
+        nt.assert_equal(len(warnings_record), 1)
