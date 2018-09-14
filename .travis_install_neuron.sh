@@ -9,9 +9,9 @@ if [ ! -e ${INSTALL_DIR}/.install_finished ]
 then
     mkdir -p ${SRC_DIR}
     cd ${SRC_DIR}
-    wget http://www.neuron.yale.edu/ftp/neuron/versions/v7.4/nrn-7.4.tar.gz
-    tar xzvf nrn-7.4.tar.gz
-    cd nrn-7.4
+    wget https://neuron.yale.edu/ftp/neuron/versions/v7.6/7.6.2/nrn-7.6.2.tar.gz
+    tar xzvf nrn-7.6.2.tar.gz
+    cd nrn-7.6
     ./configure --prefix=${INSTALL_DIR} --without-x --with-nrnpython have_cython=no BUILD_RX3D=0
     make -j4 install
 
