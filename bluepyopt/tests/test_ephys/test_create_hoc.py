@@ -15,7 +15,15 @@ from nose.plugins.attrib import attr
 def test__generate_channels_by_location():
     """ephys.create_hoc: Test _generate_channels_by_location"""
     mech = utils.make_mech()
-    channels = create_hoc._generate_channels_by_location([mech, ])
+    DEFAULT_LOCATION_ORDER = [
+        'all',
+        'apical',
+        'axonal',
+        'basal',
+        'somatic',
+        'myelinated']
+    channels = create_hoc._generate_channels_by_location(
+        [mech, ], DEFAULT_LOCATION_ORDER)
 
     nt.assert_equal(len(channels['apical']), 1)
     nt.assert_equal(len(channels['basal']), 1)
@@ -70,4 +78,3 @@ def test_create_hoc_filename():
     nt.ok_('begintemplate' in hoc)
     nt.ok_('endtemplate' in hoc)
     nt.ok_('Test template' in hoc)
-
