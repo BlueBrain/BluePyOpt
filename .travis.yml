@@ -30,7 +30,7 @@ before_install:
 before_script:
       - SRC_DIR=$HOME/local/src
       - NRN_INSTALL_DIR=$HOME/local/nrn
-      - ./.travis_install_neuron.sh ${SRC_DIR} ${NRN_INSTALL_DIR}
+      - ./.travis_install_neuron.sh ${SRC_DIR} ${NRN_INSTALL_DIR} $(echo $TRAVIS_PYTHON_VERSION | tr -d .)
       - export PATH=$PATH:${NRN_INSTALL_DIR}/x86_64/bin
       - export PYTHONPATH=$PYTHONPATH:${NRN_INSTALL_DIR}/lib/python
 after_success:
