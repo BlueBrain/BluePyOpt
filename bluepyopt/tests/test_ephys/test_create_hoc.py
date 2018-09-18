@@ -10,12 +10,21 @@ from bluepyopt.ephys import create_hoc
 import nose.tools as nt
 from nose.plugins.attrib import attr
 
+DEFAULT_LOCATION_ORDER = [
+    'all',
+    'apical',
+    'axonal',
+    'basal',
+    'somatic',
+    'myelinated']
+
 
 @attr('unit')
 def test__generate_channels_by_location():
     """ephys.create_hoc: Test _generate_channels_by_location"""
     mech = utils.make_mech()
-    channels = create_hoc._generate_channels_by_location([mech, ])
+    channels = create_hoc._generate_channels_by_location(
+        [mech, ], DEFAULT_LOCATION_ORDER)
 
     nt.assert_equal(len(channels['apical']), 1)
     nt.assert_equal(len(channels['basal']), 1)
@@ -29,7 +38,7 @@ def test__generate_parameters():
     """ephys.create_hoc: Test _generate_parameters"""
     parameters = utils.make_parameters()
 
-    global_params, section_params, range_params = \
+    global_params, section_params, range_params, location_order = \
         create_hoc._generate_parameters(parameters)
 
     nt.assert_equal(global_params, {'NrnGlobalParameter': 65})
@@ -38,6 +47,7 @@ def test__generate_parameters():
     nt.assert_equal(section_params[4][0], 'somatic')
     nt.assert_equal(len(section_params[4][1]), 2)
     nt.assert_equal(range_params, [])
+    nt.assert_equal(location_order, DEFAULT_LOCATION_ORDER)
 
 
 @attr('unit')
@@ -70,4 +80,3 @@ def test_create_hoc_filename():
     nt.ok_('begintemplate' in hoc)
     nt.ok_('endtemplate' in hoc)
     nt.ok_('Test template' in hoc)
-
