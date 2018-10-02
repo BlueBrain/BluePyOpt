@@ -80,12 +80,7 @@ class SequenceProtocol(Protocol):
                     'add already existing keys to the response: %s' %
                     (protocol.name, key_intersect))
 
-            responses.update(
-                protocol.run(
-                    cell_model=cell_model,
-                    param_values=param_values,
-                    sim=sim,
-                    isolate=isolate))
+            responses.update(response)
 
         return responses
 
@@ -177,7 +172,7 @@ class SweepProtocol(Protocol):
             cell_model.unfreeze(param_values.keys())
 
             return responses
-        except:
+        except BaseException:
             import sys
             import traceback
             raise Exception(
