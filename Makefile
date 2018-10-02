@@ -15,8 +15,7 @@ l5pc_nbconvert: jupyter
 	cd examples/l5pc && \
 		jupyter nbconvert --to python L5PC.ipynb && \
 		sed '/get_ipython/d;/plt\./d;/^plot_responses/d;/import matplotlib/d;/neurom/d;' L5PC.py >L5PC.tmp && \
-		mv L5PC.tmp L5PC.py && \
-		cat L5PC.py
+		mv L5PC.tmp L5PC.py
 l5pc_nrnivmodl:
 	cd examples/l5pc && nrnivmodl mechanisms
 l5pc_zip:
