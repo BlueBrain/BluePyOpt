@@ -1,7 +1,11 @@
 language: python
-python:
-- '2.7'
-- '3.6'
+matrix:
+    include:
+        - python: 2.7
+        - python: 3.6
+        - python: 3.7
+          dist: xenial
+          sudo: true
 install: pip install pip --upgrade
 script: make test
 notifications:
