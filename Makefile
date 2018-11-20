@@ -23,8 +23,7 @@ l5pc_zip:
 		zip -qr l5_config.zip config/ morphology/ mechanisms/ l5pc_model.py l5pc_evaluator.py checkpoints/checkpoint.pkl	
 l5pc_prepare: l5pc_nbconvert l5pc_nrnivmodl
 stochkv_prepare: 
-	cd examples/stochkv && \
-	nrnivmodl mechanisms
+	cd examples/stochkv && ls mechanisms && nrnivmodl mechanisms
 sc_prepare: jupyter
 	cd examples/simplecell && \
 		jupyter nbconvert --to python simplecell.ipynb && \
