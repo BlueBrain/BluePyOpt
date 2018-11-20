@@ -3,6 +3,11 @@ python:
 - '2.7'
 - '3.6'
 - '3.7'
+matrix:
+    include:
+        - python: 3.7
+          dist: xenial
+          sudo: true
 install: pip install pip --upgrade
 script: make test
 notifications:
