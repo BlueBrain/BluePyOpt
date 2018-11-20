@@ -5,3 +5,4 @@ x86_64
 /build/
 /dist/
 .DS_Store
+/.tox

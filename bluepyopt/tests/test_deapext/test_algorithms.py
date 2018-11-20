@@ -75,7 +75,8 @@ def test_eaAlphaMuPlusLambdaCheckpoint_with_checkpoint():
     toolbox.register("select", lambda pop, mu: pop)
 
     with mock.patch('pickle.dump'):
-        with mock.patch('bluepyopt.deapext.algorithms.open', return_value=None):
+        with mock.patch('bluepyopt.deapext.algorithms.open',
+                        return_value=None):
             population, logbook, history = \
                 bluepyopt.deapext.algorithms.eaAlphaMuPlusLambdaCheckpoint(
                     population=population,
@@ -98,7 +99,8 @@ def test_eaAlphaMuPlusLambdaCheckpoint_with_checkpoint():
                                                  'halloffame': None,
                                                  'rndstate': random.getstate(),
                                                  'generation': 1}):
-        with mock.patch('bluepyopt.deapext.algorithms.open', return_value=None):
+        with mock.patch('bluepyopt.deapext.algorithms.open',
+                        return_value=None):
             new_population, logbook, history = \
                 bluepyopt.deapext.algorithms.eaAlphaMuPlusLambdaCheckpoint(
                     population=population,

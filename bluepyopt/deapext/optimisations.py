@@ -38,7 +38,7 @@ import bluepyopt.optimisations
 
 logger = logging.getLogger('__main__')
 
-# TODO decide which variables go in constructor, which ones go in 'run' function
+# TODO decide which variables go in constructor,which ones go in 'run' function
 # TODO abstract the algorithm by creating a class for every algorithm, that way
 # settings of the algorithm can be stored in objects of these classes
 
@@ -261,7 +261,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             cp_frequency=1):
         """Run optimisation"""
         # Allow run function to override offspring_size
-        # TODO probably in the future this should not be an object field anymore
+        # TODO probably in the future this should not be an object field
+        # anymore
         # keeping for backward compatibility
         if offspring_size is None:
             offspring_size = self.offspring_size

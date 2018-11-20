@@ -23,8 +23,7 @@ l5pc_zip:
 		zip -qr l5_config.zip config/ morphology/ mechanisms/ l5pc_model.py l5pc_evaluator.py checkpoints/checkpoint.pkl	
 l5pc_prepare: l5pc_nbconvert l5pc_nrnivmodl
 stochkv_prepare: 
-	cd examples/stochkv && \
-	nrnivmodl mechanisms
+	cd examples/stochkv && ls mechanisms && nrnivmodl mechanisms
 sc_prepare: jupyter
 	cd examples/simplecell && \
 		jupyter nbconvert --to python simplecell.ipynb && \
@@ -62,18 +61,19 @@ clean:
 	rm -rf bluepyopt/tests/coverage_html
 	rm -rf examples/l5pc/x86_64
 	rm -rf examples/stochkv/x86_64
+	rm -rf .coverage
 	find . -name "*.pyc" -exec rm -rf {} \;
 l5pc_start: install
 	cd examples/l5pc && \
-	nrnivmodl mechanisms && \
+	@nrnivmodl mechanisms && \
 	python ./opt_l5pc.py --start
 l5pc_cont: install
 	cd examples/l5pc && \
-	nrnivmodl mechanisms && \
+	@nrnivmodl mechanisms && \
 	python ./opt_l5pc.py --continue_cp
 l5pc_analyse: install
 	cd examples/l5pc && \
-	nrnivmodl mechanisms && \
+	@nrnivmodl mechanisms && \
 	python ./opt_l5pc.py --analyse
 push: clean test
 	git push

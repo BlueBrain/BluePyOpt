@@ -136,4 +136,5 @@ def _environmental_selection(population, selection_size):
     # Return the first 'selection_size' elements
     return population[:selection_size]
 
+
 __all__ = ['selIBEA']

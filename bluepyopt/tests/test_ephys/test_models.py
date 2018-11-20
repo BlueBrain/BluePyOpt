@@ -28,6 +28,7 @@ def yield_blank_hoc(template_name):
         fd.flush()
         yield temp_file.name
 
+
 test_morph = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
 
 
@@ -245,6 +246,7 @@ def test_metaparameter():
 
     cell_model.destroy(sim=sim)
 
-    hoc_model = ephys.models.HocCellModel('hoc_model', '.', hoc_string=hoc_code)
+    hoc_model = ephys.models.HocCellModel(
+        'hoc_model', '.', hoc_string=hoc_code)
     hoc_model.instantiate(sim=sim)
     hoc_model.destroy()
