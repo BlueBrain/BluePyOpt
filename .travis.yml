@@ -5,7 +5,7 @@ python:
 notifications:
   webhooks:
     urls:
-        - https://webhooks.gitter.im/e/6129e0ab91805bbac8c1
+    - https://webhooks.gitter.im/e/6129e0ab91805bbac8c1
     on_success: change
     on_failure: change
     on_start: false
@@ -19,16 +19,16 @@ deploy:
   provider: pypi
   user: wvangeit
   password:
-    secure: XMYSJZshb2hge9UsMxbHP3l3NbwfjaVDj0OqkDsUyAgzBB7OIb3mEpj4JTMT4AFiy7ZPmYHT4M0WTCDiFkETBAAh3/nTuC7kY3rc3T6FAGzTfCcEaDnPr1B6KLwIAq9AH1BKxBUzDQJ95QPRHdJyr31MJo7xbTaQc9s8QEnVjP3r7+Ah2Jp9/NoaQYCF0mb/sw/+OjptENoDOKE4qJnwpYDVP0PZxk7kC4tz5sXsLaGV8W6f78gLsOwtCe3mgZNu5jd5JdRi46B/wLmCnCqyyEE7Y8hrWHN3yNtKhsN0UOQJwBVLstwEtrmXzK3Wy32fcbAEO7TlZowBl6oRRXTYyhMzKUc6PjJjCyeYe41tmPDAcrTHbOtfg/yYspD7YubD3+P342CFc/6Ox9mmETX60T3/09pQdW7dvN5wZFB7h6Gm0iOQApxk+jnuuZdKP/mQO9cxFclUTc5rCZP+WYsaylhyLZpwvl98oK7mAQydtypGvbJpyO9B85+QBqDNcn2+WZhhs/a6lOQvuBlGQRg8Y2eRKHWeEamjEdXe7Q75GVJbAwExOzqr3kcyqDm6GhXLkqFL2i94ezL4L1KYVa8Pt1A7rJ2scNQCvoSnWXMdpgvsB6NX76ZxYerFBIsuEZwehQvCRLNbR2brkm77s+Lf22kpOJuSPLXG85hKCYqTQj8=
+    secure: B5wyxcjPTa8KDE6HZ/5f/yj7F/qzTDWa7GS0b7xqn/vvBxyWTdYwnjNOD7VDNmZ3U46zV8UGTSZDV0MDiIoKamnWZAaJEHg9tEyFl/74rGtWq2k7eYC/qt+I2r68DDeEBDf6kErgcpKJzQ4FyzUcNjVlvtqRNowCcdpU0ViwIRNWDTdOxMaeQz9pwlSK00oF2clNRrnDmMfsq03zOmn49PNMf80tFqZ8CpLBH/Dbbar8LIxpr5qCyDz/OUZKl2cmH2dg95cA9RIjVzA07m1+TXLwrRkeC4lShKUKv4FdCzVdiFTtaZlKOaJRHewaLdv8huPzUcFFkDMbe7bf1RNzeBAeHcQcp/Y8bhg0ZXtyo+aqCsOIDGN7mLCBzbojO+f20+t5jJ6bLe27CQL5UCWFXwElTMdgFczTgnN1UFj4qr86tHtu64E2SnavkCldtoi5XcAagtEIrxujBCjCoccmPk5oqUfT62dw92SCm2/NZTgn6qGVZCCucFXd7V2lnxPp26NMnTce46p2fZuNDiSIhijVnx6dW/WgwAWWgk7/mgeQaZG4d2+YznoGAaDbFO/anunSD/KOvNwgFJjjKddkCPqgcIrXS5NQHq60rTkdyajDDSCqYPNSntXp+qbLCHd9Ty7bs8L111ede9o3X4fFo44sT825obVSR4+lYHEdefs=
   on:
       condition: "$TRAVIS_EVENT_TYPE != cron && $TRAVIS_PYTHON_VERSION == 2.7"
 before_install: 
-    - pip install pip --upgrade
-    - pip install tox --upgrade
-    - pip install codecov
+  - pip install pip --upgrade
+  - pip install tox --upgrade
+  - pip install codecov
 script: tox -e "$(echo py$TRAVIS_PYTHON_VERSION | tr -d .)-unit-functional-style"
 after_success:
-      - codecov
+  - codecov
 addons:
-    code_climate:
-        repo_token: 94713078b6ae3fe8344e80649ea189e2e0d0cb78e707edf169b3ff9d3765da46
+  code_climate:
+    repo_token: 94713078b6ae3fe8344e80649ea189e2e0d0cb78e707edf169b3ff9d3765da46
