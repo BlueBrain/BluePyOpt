@@ -13,7 +13,7 @@ then
     cd ${SRC_DIR}
     echo "Downloading NEURON ..."
     rm -rf nrn
-	git clone --depth 1 https://github.com/nrnhines/nrn.git >download.log 2>&1
+	git clone --depth 1 https://github.com/neuronsimulator/nrn.git >download.log 2>&1
 	cd nrn
     echo "Preparing NEURON ..."
 	./build.sh >prepare.log 2>&1
