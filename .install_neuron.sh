@@ -18,7 +18,7 @@ then
     echo "Preparing NEURON ..."
 	./build.sh >prepare.log 2>&1
     echo "Configuring NEURON ..."
-    ./configure --prefix=${INSTALL_DIR} --without-x --with-nrnpython=${PYTHON_BIN} --disable-rx3d >configure.log 2>&1
+    PYTHON_BLD=${PYTHON_BIN} ./configure --prefix=${INSTALL_DIR} --without-x --with-nrnpython=${PYTHON_BIN} --disable-rx3d >configure.log 2>&1
     echo "Building NEURON ..."
     make -j4 >make.log 2>&1
     echo "Installing NEURON ..."
