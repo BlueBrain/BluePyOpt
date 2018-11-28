@@ -6,3 +6,4 @@ x86_64
 /dist/
 .DS_Store
 /.tox
+.ipynb_checkpoints

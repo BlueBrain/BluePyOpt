@@ -53,6 +53,19 @@ def test_parameters_fields():
 
 
 @attr('unit')
+def test_parameters_str():
+    """bluepyopt.parameters: test Parameter str conversion"""
+
+    param = bluepyopt.parameters.Parameter(name='test')
+
+    nt.assert_equal(str(param), 'test: value = None')
+
+    param.freeze(5.5)
+
+    nt.assert_equal(str(param), 'test: value = 5.5')
+
+
+@attr('unit')
 def test_MetaListEqualParameter_init():
     """bluepyopt.parameters: test MetaListEqualParameter init"""
 
@@ -104,3 +117,28 @@ def test_MetaListEqualParameter_freeze_unfreeze():
 
     sub_params[0].freeze(1)
     nt.assert_raises(Exception, param.freeze, 0)
+
+
+@attr('unit')
+def test_MetaListEqualParamete_str():
+    """bluepyopt.parameters: test MetaListEqualParamete str conversion"""
+
+    sub_params = [
+        bluepyopt.parameters.Parameter(
+            name='sub1', value=1), bluepyopt.parameters.Parameter(
+            name='sub2', value=2)]
+
+    param = bluepyopt.parameters.MetaListEqualParameter(
+        name='param', sub_parameters=sub_params)
+
+    nt.assert_equal(
+        str(param),
+        'param (sub_params: sub1: value = None,sub2: value = None): '
+        'value = None')
+
+    param.freeze(5.5)
+
+    nt.assert_equal(
+        str(param),
+        'param (sub_params: sub1: value = 5.5,sub2: value = 5.5): '
+        'value = 5.5')

@@ -85,6 +85,11 @@ class Parameter(object):
                     (self.name, self._value, str(self.lower_bound),
                      str(self.upper_bound)))
 
+    def __str__(self):
+        """String representation"""
+        return '%s: value = %s' % (
+            self.name, self.value if self.frozen else self.bounds)
+
 
 class MetaListEqualParameter(Parameter):
 
@@ -144,3 +149,14 @@ class MetaListEqualParameter(Parameter):
             sub_parameter.check_bounds()
 
         super(MetaListEqualParameter, self).check_bounds()
+
+    def __str__(self):
+        """String representation"""
+
+        return '%s (sub_params: %s): value = %s' % (self.name, ",".join(
+            str(sub_param)
+            for sub_param in
+            self.sub_parameters),
+            self.value
+            if self.frozen else
+            self.bounds)
