@@ -50,3 +50,57 @@ def test_parameters_fields():
 
     param = bluepyopt.parameters.Parameter(name='test', bounds=[2, 5])
     nt.assert_raises(ValueError, param.freeze, 1)
+
+
+@attr('unit')
+def test_MetaListEqualParameter_init():
+    """bluepyopt.parameters: test MetaListEqualParameter init"""
+
+    sub_params = [
+        bluepyopt.parameters.Parameter(
+            name='sub1', value=1), bluepyopt.parameters.Parameter(
+            name='sub2', value=2)]
+
+    nt.assert_equal(sub_params[0].value, 1)
+    nt.assert_equal(sub_params[1].value, 2)
+
+    param = bluepyopt.parameters.MetaListEqualParameter(
+        name='param', value=0, frozen=True, sub_parameters=sub_params)
+    nt.assert_is_instance(param, bluepyopt.parameters.Parameter)
+    nt.assert_is_instance(param, bluepyopt.parameters.MetaListEqualParameter)
+
+    nt.assert_equal(param.name, 'param')
+    nt.assert_equal(param.sub_parameters[0].name, 'sub1')
+    nt.assert_equal(param.sub_parameters[1].name, 'sub2')
+
+    nt.assert_equal(param.value, 0)
+    nt.assert_equal(sub_params[0].value, 0)
+    nt.assert_equal(sub_params[1].value, 0)
+
+
+@attr('unit')
+def test_MetaListEqualParameter_freeze_unfreeze():
+    """bluepyopt.parameters: test MetaListEqualParameter freeze and unfreeze"""
+
+    sub_params = [
+        bluepyopt.parameters.Parameter(
+            name='sub1', value=1), bluepyopt.parameters.Parameter(
+            name='sub2', value=2)]
+
+    param = bluepyopt.parameters.MetaListEqualParameter(
+        name='param', sub_parameters=sub_params)
+
+    nt.assert_equal(param.value, None)
+    nt.assert_equal(sub_params[0].value, 1)
+    nt.assert_equal(sub_params[1].value, 2)
+
+    param.freeze(0)
+
+    nt.assert_equal(param.value, 0)
+    nt.assert_equal(sub_params[0].value, 0)
+    nt.assert_equal(sub_params[1].value, 0)
+
+    param.unfreeze()
+
+    sub_params[0].freeze(1)
+    nt.assert_raises(Exception, param.freeze, 0)

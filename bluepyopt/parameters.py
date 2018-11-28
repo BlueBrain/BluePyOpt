@@ -84,3 +84,63 @@ class Parameter(object):
                     'Parameter %s has value %s outside of bounds [%s, %s]' %
                     (self.name, self._value, str(self.lower_bound),
                      str(self.upper_bound)))
+
+
+class MetaListEqualParameter(Parameter):
+
+    """Metaparameter that makes sure list of parameter values are all equal"""
+
+    def __init__(self, name, value=None, frozen=False,
+                 bounds=None, sub_parameters=None):
+        """Constructor"""
+
+        if sub_parameters is None:
+            raise ValueError(
+                'MetaListEqualParameter: impossible to have None as '
+                'sub_parameters attribute')
+        else:
+            self.sub_parameters = sub_parameters
+
+        super(
+            MetaListEqualParameter,
+            self).__init__(
+            name,
+            value=value,
+            frozen=frozen,
+            bounds=bounds)
+
+        if value is not None:
+            for sub_parameter in self.sub_parameters:
+                sub_parameter.value = value
+
+    @Parameter.value.setter
+    def value(self, value):
+        """Set parameter value"""
+
+        for sub_parameter in self.sub_parameters:
+            sub_parameter.value = value
+
+        Parameter.value.fset(self, value)
+
+    def freeze(self, value):
+        """Freeze parameter to certain value"""
+
+        super(MetaListEqualParameter, self).freeze(value)
+
+        for sub_parameter in self.sub_parameters:
+            sub_parameter.frozen = True
+
+    def unfreeze(self):
+        """Unfreeze parameter"""
+        for sub_parameter in self.sub_parameters:
+            sub_parameter.unfreeze()
+
+        super(MetaListEqualParameter, self).unfreeze()
+
+    def check_bounds(self):
+        """Check if parameter is within bounds"""
+
+        for sub_parameter in self.sub_parameters:
+            sub_parameter.check_bounds()
+
+        super(MetaListEqualParameter, self).check_bounds()
