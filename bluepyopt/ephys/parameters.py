@@ -98,6 +98,23 @@ class MetaParameter(NrnParameter):
                                    self.value)
 
 
+class NrnMetaListEqualParameter(bluepyopt.parameters.MetaListEqualParameter):
+    """Nrn version of MetaListEqualParameter, implements instantiate"""
+
+    def instantiate(self, sim=None, icell=None):
+        """Instantiate"""
+
+        for sub_parameter in self.sub_parameters:
+            sub_parameter.instantiate(sim=sim, icell=icell)
+
+        logger.debug('Set %s to %s', self.name, str(self.value))
+
+    def destroy(self, sim=None):
+        """Remove parameter from the simulator"""
+        for sub_parameter in self.sub_parameters:
+            sub_parameter.destroy(sim=sim)
+
+
 class NrnGlobalParameter(NrnParameter, DictMixin):
 
     """Parameter set in the global namespace of neuron"""

@@ -29,6 +29,11 @@ sc_prepare: jupyter
 		jupyter nbconvert --to python simplecell.ipynb && \
 		sed '/get_ipython/d;/plt\./d;/plot_responses/d;/import matplotlib/d' simplecell.py >simplecell.tmp && \
 		mv simplecell.tmp simplecell.py
+meta_prepare: jupyter
+	cd examples/metaparameters && \
+		jupyter nbconvert --to python metaparameters.ipynb && \
+		sed '/get_ipython/d;/plt\./d;/plot_responses/d;/import matplotlib/d' metaparameters.py >metaparameters.tmp && \
+		mv metaparameters.tmp metaparameters.py
 coverage_unit: unit
 	cd bluepyopt/tests; coverage html -d coverage_html; open coverage_html/index.html 
 coverage_test: test
