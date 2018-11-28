@@ -1,7 +1,7 @@
 {
   "name": "BluePyOpt",
   "description": "The Blue Brain Python Optimisation Library (BluePyOpt) is an extensible framework for data-driven model parameter optimisation that wraps and standardises several existing open-source tools.",
-  "version": "1.5.0",
+  "version": "1.7.0",
   "scripts": {
     "build_doc": "echo 'bluepyopt.readthedocs.io'"
   },
