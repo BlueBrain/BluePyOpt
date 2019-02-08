@@ -147,4 +147,4 @@ def eaAlphaMuPlusLambdaCheckpoint(
             pickle.dump(cp, open(cp_filename, "wb"))
             logger.debug('Wrote checkpoint to %s', cp_filename)
 
-    return population, logbook, history
+    return population, halloffame, logbook, history

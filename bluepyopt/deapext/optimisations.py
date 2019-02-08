@@ -277,7 +277,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         stats.register("min", numpy.min)
         stats.register("max", numpy.max)
 
-        pop, log, history = algorithms.eaAlphaMuPlusLambdaCheckpoint(
+        pop, hof, log, history = algorithms.eaAlphaMuPlusLambdaCheckpoint(
             pop,
             self.toolbox,
             offspring_size,
@@ -289,6 +289,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             cp_frequency=cp_frequency,
             continue_cp=continue_cp,
             cp_filename=cp_filename)
+
+        # Update hall of fame
+        self.hof = hof
 
         return pop, self.hof, log, history
 
