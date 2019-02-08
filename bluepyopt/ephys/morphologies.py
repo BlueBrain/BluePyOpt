@@ -191,12 +191,10 @@ proc replace_axon(){ local nSec, D1, D2
   if(nSec == 0) { //No axon section present
     D1 = D2 = 1
   } else if(nSec == 1) {
-    access axon[0]
-    D1 = D2 = diam
+    axon[0] D1 = D2 = diam
   } else {
-    access axon[0]
-    D1 = diam
-    access soma distance() //to calculate distance from soma
+    axon[0] D1 = diam
+    soma distance() //to calculate distance from soma
     forsec axonal{
       //if section is longer than 60um then store diam and exit from loop
       if(distance(0.5) > 60){
@@ -213,14 +211,14 @@ proc replace_axon(){ local nSec, D1, D2
 
   create axon[2]
 
-  access axon[0] {
+  axon[0] {
     L = 30
     diam = D1
     nseg = 1 + 2*int(L/40)
     all.append()
     axonal.append()
   }
-  access axon[1] {
+  axon[1] {
     L = 30
     diam = D2
     nseg = 1 + 2*int(L/40)
