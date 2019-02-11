@@ -1,4 +1,4 @@
-![logo](docs/source/logo/BluePyOptLogo.png)
+![logo](docs/source/logo/BluePyOptLogo.png){: width=200}
 
 <table>
 <tr>
