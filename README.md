@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="https://github.com/bluebrain/bluepyopt/blob/master/docs/source/logo/BluePyOptLogo.png"><br>
+</div>
+
 <table>
 <tr>
   <td>Latest Release</td>
