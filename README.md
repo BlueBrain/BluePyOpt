@@ -1,7 +1,55 @@
-[![Build Status](https://travis-ci.org/BlueBrain/BluePyOpt.svg?branch=master)](https://travis-ci.org/BlueBrain/BluePyOpt)
-[![codecov.io](https://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=master)](https://codecov.io/github/BlueBrain/BluePyOpt?branch=master)
-[![Join the chat at https://gitter.im/BlueBrain/BluePyOpt](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/BlueBrain/BluePyOpt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Documentation Status](https://readthedocs.org/projects/bluepyopt/badge/?version=latest)](http://bluepyopt.readthedocs.io/en/latest/?badge=latest)
+<img src="docs/source/logo/BluePyOptLogo.png" width="400" />
+
+<table>
+<tr>
+  <td>Latest Release</td>
+  <td>
+    <a href="https://pypi.org/project/bluepyopt/">
+    <img src="https://img.shields.io/pypi/v/bluepyopt.svg" alt="latest release" />
+    </a>
+  </td>
+</tr>
+<tr>
+  <td>Documentation</td>
+  <td>
+    <a href="https://bluepyopt.readthedocs.io/">
+    <img src="https://readthedocs.org/projects/bluepyopt/badge/?version=latest" alt="latest documentation" />
+    </a>
+  </td>
+</tr>
+<tr>
+  <td>License</td>
+  <td>
+    <a href="https://github.com/BlueBrain/bluepyopt/blob/master/LICENSE.txt">
+    <img src="https://img.shields.io/pypi/l/bluepyopt.svg" alt="license" />
+    </a>
+</td>
+</tr>
+<tr>
+  <td>Build Status</td>
+  <td>
+    <a href="https://travis-ci.org/BlueBrain/BluePyOpt">
+    <img src="https://travis-ci.org/BlueBrain/BluePyOpt.svg?branch=master" alt="travis build status" />
+    </a>
+  </td>
+</tr>
+<tr>
+  <td>Coverage</td>
+  <td>
+    <a href="https://codecov.io/gh/BlueBrain/bluepyopt">
+    <img src="https://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=master" alt="coverage" />
+    </a>
+  </td>
+</tr>
+<tr>
+	<td>Gitter</td>
+	<td>
+		<a href="https://gitter.im/bluebrain/bluepyopt">
+		<img src="https://badges.gitter.im/Join%20Chat.svg"
+	</a>
+	</td>
+</tr>
+</table>
 
 Introduction
 ============
