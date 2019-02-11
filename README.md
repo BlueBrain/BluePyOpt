@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/BlueBrain/BluePyOpt/blob/master/docs/source/logo/BluePyOptLogo.png"><br>
+  <img src="docs/source/logo/BluePyOptLogo.png"><br>
 </div>
 
 <table>
