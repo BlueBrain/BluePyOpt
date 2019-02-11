@@ -1,6 +1,4 @@
-<div align="center">
-  <img src="docs/source/logo/BluePyOptLogo.png"><br>
-</div>
+![](docs/source/logo/BluePyOptLogo.png | width=100)
 
 <table>
 <tr>
