@@ -1,4 +1,4 @@
-<img src="docs/source/logo/BluePyOptLogo.png" width="200" />
+<img src="docs/source/logo/BluePyOptLogo.png" width="400" />
 
 <table>
 <tr>
