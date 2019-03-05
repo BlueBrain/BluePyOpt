@@ -1,4 +1,4 @@
-: From Hay et al, 2011 model, ModelDB no. 139653 
+: From ModelDB no. 139653 
 
 NEURON {
 	SUFFIX TC_cad
@@ -17,9 +17,9 @@ UNITS {
 
 PARAMETER {
 	depth	= .1	 (um)		: depth of shell
-	gamma   = 0.05 	 (1)		: EI: percent of free calcium (not buffered), see CaDynamics_E2.mod ctx
+	gamma   = 0.05 	 (1)		: EI: percent of free calcium (not buffered)
 	taur	= 5	 (ms)		: rate of calcium removal
-	cainf	= 5e-5 (mM)		: Value from Amarillo et al., 2014
+	cainf	= 5e-5 (mM)		: Value from Amarillo et al., J Neurophysiol, 2014
 }
 
 STATE {
@@ -42,7 +42,7 @@ BREAKPOINT {
 
 DERIVATIVE state { 
 
-	cai' = -(10000)*(ica*gamma/(2*FARADAY*depth)) - (cai - cainf)/taur : EI: from CaDynamics_E2.mod ctxay
+	cai' = -(10000)*(ica*gamma/(2*FARADAY*depth)) - (cai - cainf)/taur
 	cai_rec = cai
 
 }

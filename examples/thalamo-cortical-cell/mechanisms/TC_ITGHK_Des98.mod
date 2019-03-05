@@ -54,8 +54,8 @@ PARAMETER {
 	actshift = 0 	(mV)	: shift of activation curve (towards hyperpol)
 	cai	= 2.4e-4 (mM)	: adjusted for eca=120 mV
 	cao	= 2	(mM)
-	qm      = 2.5		: Amarillo et al., J Neurophysiol 112:393-410, 2014
-	qh      = 2.5           : Amarillo et al., J Neurophysiol 112:393-410, 2014
+	qm      = 2.5		: Amarillo et al., J Neurophysiol, 2014
+	qh      = 2.5           : Amarillo et al., J Neurophysiol, 2014
 }
 
 STATE {

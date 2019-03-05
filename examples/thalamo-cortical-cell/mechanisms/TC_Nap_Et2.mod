@@ -3,7 +3,7 @@
 :Reference : Modeled according to kinetics derived from Magistretti & Alonso 1999
 :Comment: corrected rates using q10 = 2.3, target temperature 34, orginal 21
 
-: From ModelDB, accession no. 139653. mInf and hInf for TC models, see eqs for references
+: From ModelDB, accession no. 139653. mInf and hInf for TC models, see equations for references
 									  
 NEURON	{
 	SUFFIX TC_Nap_Et2
@@ -64,7 +64,7 @@ PROCEDURE rates(){
   qt = 2.3^((34-21)/10)
 
 	UNITSOFF
-		mInf = 1.0/(1+exp(-(v+56.93)/9.09)) : Parri & Crunelli 98
+		mInf = 1.0/(1+exp(-(v+56.93)/9.09)) : Parri and Crunelli, J. Neurosci. 1998
     if(v == -38){
     	v = v+0.0001
     }
@@ -78,7 +78,7 @@ PROCEDURE rates(){
     if(v == -64.4){
       v = v+0.0001
     }
-                hInf = 1.0/(1+exp((v+58.7)/14.2)) : Amarillo et al., J Neurophysiol 112:393-410, 2014 
+                hInf = 1.0/(1+exp((v+58.7)/14.2)) : Amarillo et al., J Neurophysiol, 2014 
     hAlpha = -2.88e-6 * (v + 17) / (1 - exp((v + 17)/4.63))
     hBeta = 6.94e-6 * (v + 64.4) / (1 - exp(-(v + 64.4)/2.63))
 		hTau = (1/(hAlpha + hBeta))/qt

@@ -1,6 +1,6 @@
 TITLE Fast Transient Potassium Current IA
 
-:   From the model by Huguenard & McCormick, J Neurophysiol, 1992
+:   From the model by Huguenard and McCormick, J Neurophysiol, 1992
 :   Written by Yimy Amarillo, 2014 (Amarillo et al., J Neurophysiol, 2014)
 
 UNITS {

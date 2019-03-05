@@ -1,7 +1,7 @@
 : SK-type calcium-activated potassium current
 : Reference : Kohler et al. 1996
 
-: ModelDB, accession no. 139653
+: From ModelDB, accession no. 139653
 
 NEURON {
        SUFFIX SK_E2

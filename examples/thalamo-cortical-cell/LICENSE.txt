@@ -1,14 +1,21 @@
-The CC-BY-NC-SA license applies, as indicated by headers in the
-respective source files.
+If not otherwise specified, the CC-BY-NC-SA license applies.
 
 https://creativecommons.org/licenses/by-nc-sa/4.0/
 
-The detailed text is available here
+The detailed text is available here:
 https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
 
-The Python code, experimental features and protocols are licensed with the above mentioned CC-BY-NC-SA license.
+The Python code are generated from examples available in this repository and are licensed under the GNU Lesser
+General Public License version 3.0 as published by the Free Software Foundation, as stated in the headers of
+the files.
 
-The experimental morphologies will be available on NeuroMorpho.org under the ODC Public Domain Dedication and Licence (PDDL), https://opendatacommons.org/licenses/pddl/1.0/
+Experimental features and protocols are extracted from experimental data from
+Jane Yi, Laboratory of Neural Microcircuitry (https://www.epfl.ch/labs/markram-lab/).
+They are part of the Supporting Information for the paper:
+https://www.biorxiv.org/content/10.1101/512269v3 
+
+The experimental morphologies will be available on NeuroMorpho.org under the
+ODC Public Domain Dedication and Licence (PDDL) https://opendatacommons.org/licenses/pddl/1.0/
 
 For models for which the original source is available on ModelDB, any
 specific licenses mentioned on ModelDB, or the generic License of ModelDB 
@@ -30,8 +37,8 @@ Accession: 139653
 Original URL: https://senselab.med.yale.edu/modeldb/ShowModel.cshtml?model=139653&file=/L5bPCmodelsEH/mod/CaDynamics_E2.mod#tabs-2
 
 4) TC_ITGHK_Des98, low-threshold calcium current
-Authors: Alain Destexhe
-Accession: 299
+Author: Alain Destexhe
+Accession: 279
 Original URL: https://senselab.med.yale.edu/ModelDB/ShowModel.cshtml?model=279&file=/dendtc/ITGHK.mod#tabs-2
 
 5) TC_HH, fast Na+ and K+ currents responsible for action potentials
@@ -46,9 +53,9 @@ Original url: https://senselab.med.yale.edu/modeldb/ShowModel.cshtml?model=3808&
 
 7) TC_iA, fast transient potassium current:
 Author: Yimi Amarillo
-Publications: Amarillo et al., J Neurophysiol, 2014, Huguenard & McCormick, J Neurophysiol, 1992
+Publications: Amarillo et al., J Neurophysiol, 2014, Huguenard and McCormick, J Neurophysiol, 1992
 
 8) TC_Ih_Bud97, Ih current
 Author: Elisabetta Iavarone
-Publications: Budde et al., 1997 and Huguenard et al., 1997
+Publications: Budde et al., J Physiol, 1997, Huguenard and McCormick, J Neurophysiol, 1992
 
