@@ -33,6 +33,7 @@ class NrnSimulator(object):
         self.neuron.h.load_file('stdrun.hoc')
 
         self.dt = dt if dt is not None else self.neuron.h.dt
+        self.neuron.h.dt = self.dt
 
         self.neuron.h.cvode_active(1 if cvode_active else 0)
         if cvode_minstep is not None:
