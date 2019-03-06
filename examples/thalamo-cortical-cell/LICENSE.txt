@@ -11,10 +11,12 @@ the files.
 
 Experimental features and protocols are extracted from experimental data from
 Jane Yi, Laboratory of Neural Microcircuitry (https://www.epfl.ch/labs/markram-lab/).
-They are part of the Supporting Information for the paper:
+They are part of this example and Supporting Information for the paper:
 https://www.biorxiv.org/content/10.1101/512269v3 
 
-The experimental morphologies will be available on NeuroMorpho.org under the
+
+The experimental morphologies were provided by Jane Yi, Ying Shi, Laboratory of Neural Microcircuitry (https://www.epfl.ch/labs/markram-lab/).
+They will be available on NeuroMorpho.org under the
 ODC Public Domain Dedication and Licence (PDDL) https://opendatacommons.org/licenses/pddl/1.0/
 
 For models for which the original source is available on ModelDB, any
