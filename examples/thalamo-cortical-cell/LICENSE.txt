@@ -1,0 +1,63 @@
+If not otherwise specified, the CC-BY-NC-SA license applies.
+
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+The detailed text is available here:
+https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+
+The Python code are generated from examples available in this repository and are licensed under the GNU Lesser
+General Public License version 3.0 as published by the Free Software Foundation, as stated in the headers of
+the files.
+
+Experimental features and protocols are extracted from experimental data from
+Jane Yi, Laboratory of Neural Microcircuitry (https://www.epfl.ch/labs/markram-lab/).
+They are part of this example and Supporting Information for the paper:
+https://www.biorxiv.org/content/10.1101/512269v3 
+
+
+The experimental morphologies were provided by Jane Yi, Ying Shi, Laboratory of Neural Microcircuitry (https://www.epfl.ch/labs/markram-lab/).
+They will be available on NeuroMorpho.org under the
+ODC Public Domain Dedication and Licence (PDDL) https://opendatacommons.org/licenses/pddl/1.0/
+
+For models for which the original source is available on ModelDB, any
+specific licenses mentioned on ModelDB, or the generic License of ModelDB 
+apply:
+
+1) TC_Nap_Et2, persistent sodium current
+Authors: Etay Hay, Shaul Druckmann, Srikanth Ramaswamy, James King, Werner Van Geit, Elisabetta Iavarone
+Accession: 139653
+Original URL: https://senselab.med.yale.edu/modeldb/ShowModel.cshtml?model=139653&file=/L5bPCmodelsEH/mod/Nap_Et2.mod#tabs-2
+
+2) SK_E2, calcium-activated potassium current
+Authors: Etay Hay, Shaul Druckmann, Srikanth Ramaswamy, James King, Werner Van Geit
+Accession: 139653
+Original URL: https://senselab.med.yale.edu/modeldb/ShowModel.cshtml?model=139653&file=/L5bPCmodelsEH/mod/SK_E2.mod#tabs-2
+
+3) Intracellular calcium dynamics
+Authors: Etay Hay, Shaul Druckmann, Srikanth Ramaswamy, James King, Werner Van Geit
+Accession: 139653
+Original URL: https://senselab.med.yale.edu/modeldb/ShowModel.cshtml?model=139653&file=/L5bPCmodelsEH/mod/CaDynamics_E2.mod#tabs-2
+
+4) TC_ITGHK_Des98, low-threshold calcium current
+Author: Alain Destexhe
+Accession: 279
+Original URL: https://senselab.med.yale.edu/ModelDB/ShowModel.cshtml?model=279&file=/dendtc/ITGHK.mod#tabs-2
+
+5) TC_HH, fast Na+ and K+ currents responsible for action potentials
+Authors: Alain Destexhe, Elisabetta Iavarone
+Accession: 279
+Original URL: https://senselab.med.yale.edu/ModelDB/ShowModel.cshtml?model=279&file=/dendtc/hh2.mod#tabs-2
+
+5) TC_iL, high-threshold calcium current
+Author: Arthur Houweling
+Accession: 3808
+Original url: https://senselab.med.yale.edu/modeldb/ShowModel.cshtml?model=3808&file=/MyFirstNEURON/il.mod#tabs-2
+
+7) TC_iA, fast transient potassium current:
+Author: Yimi Amarillo
+Publications: Amarillo et al., J Neurophysiol, 2014, Huguenard and McCormick, J Neurophysiol, 1992
+
+8) TC_Ih_Bud97, Ih current
+Author: Elisabetta Iavarone
+Publications: Budde et al., J Physiol, 1997, Huguenard and McCormick, J Neurophysiol, 1992
+

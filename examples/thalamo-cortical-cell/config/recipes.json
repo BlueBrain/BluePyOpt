@@ -1,0 +1,16 @@
+{
+    "cAD_ltb": {
+        "morph_path": "morphologies/",  			 
+        "morphology": "jy160728_A_idA.asc",
+        "params": "config/params/TC.json",
+        "protocol": "config/protocols/cAD_ltb.json",
+        "features": "config/features/cAD_ltb.json"
+    },
+    "cNAD_ltb": {
+        "morph_path": "morphologies/",  			 
+        "morphology": "jy170517_A_idA.asc",
+        "params": "config/params/TC.json",
+        "protocol": "config/protocols/cNAD_ltb.json",
+        "features": "config/features/cNAD_ltb.json"
+    }
+}

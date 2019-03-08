@@ -1,0 +1,67 @@
+{
+    "mechanisms": {
+        "all":
+            {"mech":["pas",
+                    "TC_cad"]},
+        "somatic":
+            {"mech":["TC_ih_Bud97", "TC_Nap_Et2", 
+		     "TC_iA","TC_iL", "SK_E2", "TC_HH"]},
+        "alldend":
+            {"mech":["TC_ih_Bud97", "TC_Nap_Et2",
+		     "TC_iA","TC_iL", "SK_E2", "TC_HH"]},
+	"axonal":
+            {"mech":["TC_HH"]},
+
+	"somadend":
+        {"mech":["TC_iT_Des98"]}
+
+    },
+    "distributions": {
+    },
+    "parameters": {
+        "__comment": "define constants as single values and params to optimize as tuples of bounds: [lower, upper]",
+        "global":   [
+            {"name":"v_init",   "val":-79},
+            {"name":"celsius",  "val":34}
+        ],
+        "all": [
+            {"name":"cm",                     "val":1},
+            {"name":"Ra",                     "val":100},
+            {"name":"ena",                    "val":50},
+            {"name":"ek",                     "val":-90},
+	    {"name":"e_pas",                  "val":-80},
+            {"name":"g_pas",                  "val":[1e-06, 1e-04]}
+        ],
+        "axonal": [
+            {"name":"gk_max_TC_HH",           "val":[0, 0.2]},
+            {"name":"gna_max_TC_HH",          "val":[0, 0.8]}
+        ],
+	"somadend": [
+            {"name":"pcabar_TC_iT_Des98",     "val":[0, 1e-4]}
+	    ],
+
+        "somatic": [
+            {"name":"gh_max_TC_ih_Bud97",     "val":[0, 1e-4]},
+	    {"name":"gNap_Et2bar_TC_Nap_Et2", "val":[0, 0.0001]},
+	    {"name":"gk_max_TC_iA",           "val":[0, 0.07]},
+            {"name":"gk_max_TC_HH",           "val":[0, 0.2]},
+	    {"name":"gna_max_TC_HH",          "val":[0, 0.2]},
+	    {"name":"pcabar_TC_iL",           "val":[0, 0.001]},
+	    {"name":"gSK_E2bar_SK_E2",        "val":[0, 0.005]},
+	    {"name":"taur_TC_cad",            "val":[1.0, 15.0]},
+	    {"name":"gamma_TC_cad",	      "val":[0.0005, 1]}
+        ],
+        "alldend": [
+	    {"name":"gh_max_TC_ih_Bud97",     "val":[0, 1e-4]},
+            {"name":"gNap_Et2bar_TC_Nap_Et2", "val":[0, 0.0001]},
+	    {"name":"gk_max_TC_iA",           "val":[0, 0.008]},
+            {"name":"gk_max_TC_HH",           "val":[0, 0.01]},
+	    {"name":"gna_max_TC_HH",          "val":[0, 0.006]},
+	    {"name":"pcabar_TC_iL",           "val":[0, 0.001]},
+	    {"name":"gSK_E2bar_SK_E2",        "val":[0, 0.005]},
+	    {"name":"taur_TC_cad",            "val":[1.0, 15.0]},
+	    {"name":"gamma_TC_cad",	      "val":[0.0005, 1]}
+
+        ]
+    }
+}
