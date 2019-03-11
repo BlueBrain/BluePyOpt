@@ -1,5 +1,9 @@
 <img src="docs/source/logo/BluePyOptBanner.png"/>
 
+-----------------
+
+# BluePyOpt: Blue Brain Python Optimisation Library
+
 <table>
 <tr>
   <td>Latest Release</td>
