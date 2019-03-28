@@ -28,7 +28,7 @@ deploy:
       condition: "$TRAVIS_EVENT_TYPE != cron && $TRAVIS_PYTHON_VERSION == 2.7"
 before_install: 
   - pip install pip --upgrade
-  - pip install tox --upgrade
+  - pip install tox==3.7
   - pip install codecov
 script: tox -e "$(echo py$TRAVIS_PYTHON_VERSION | tr -d .)-unit-functional-style"
 after_success:
