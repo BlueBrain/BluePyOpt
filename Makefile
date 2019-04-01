@@ -85,3 +85,5 @@ push: clean test
 	git push --tags
 check_codecov:
 	cat codecov.yml | curl --data-binary @- https://codecov.io/validate
+toxbinlinks:
+	cd ${TOX_ENVBINDIR}; find $(TOX_NRNBINDIR) -type f -exec ln -sf \{\} . \;

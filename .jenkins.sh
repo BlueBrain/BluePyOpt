@@ -28,7 +28,7 @@ fi
 
 . ${WORKSPACE}/env/bin/activate
 pip install pip --upgrade
-pip install tox==3.7
+pip install tox --upgrade
 
 #####
 # Tests
