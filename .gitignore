@@ -7,3 +7,5 @@ x86_64
 .DS_Store
 /.tox
 .ipynb_checkpoints
+/.python-version
+/cov_reports
