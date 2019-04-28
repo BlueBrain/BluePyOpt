@@ -20,12 +20,21 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 
 import bluepyopt
+import abc
 
 
-class EFeatureObjective(bluepyopt.objectives.Objective):
+ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
+
+
+class Objective(ABC):
+    @abc.abstractmethod
+    def calculate_feature_scores(self, responses):
+        pass
+
+
+class EFeatureObjective(bluepyopt.objectives.Objective, Objective):
 
     """EPhys feature objective"""
-
     def __init__(self, name, features=None):
         """Constructor
 
