@@ -96,6 +96,11 @@ class NrnSeclistCompLocation(Location, DictMixin):
                 (self.sec_index, iseclist_size))
         isection = _nth_isectionlist(iseclist, self.sec_index)
         icomp = isection(self.comp_x)
+
+        # The code above seems to add put a section on the stack
+        # TODO remove line below once we figure out where the section is pushed
+        sim.neuron.h.pop_section()
+
         return icomp
 
     def __str__(self):
