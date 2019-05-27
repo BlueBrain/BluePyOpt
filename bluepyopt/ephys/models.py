@@ -221,10 +221,13 @@ class CellModel(Model):
 
         self.morphology.instantiate(sim=sim, icell=self.icell)
 
-        for mechanism in self.mechanisms:
-            mechanism.instantiate(sim=sim, icell=self.icell)
-        for param in self.params.values():
-            param.instantiate(sim=sim, icell=self.icell)
+        if self.mechanisms is not None:
+            for mechanism in self.mechanisms:
+                mechanism.instantiate(sim=sim, icell=self.icell)
+
+        if self.params is not None:
+            for param in self.params.values():
+                param.instantiate(sim=sim, icell=self.icell)
 
     def destroy(self, sim=None):  # pylint: disable=W0613
         """Destroy instantiated model in simulator"""
