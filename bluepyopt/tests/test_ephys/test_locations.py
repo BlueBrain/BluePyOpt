@@ -85,6 +85,60 @@ class TestNrnSectionCompLocation(object):
 
 
 @attr('unit')
+class TestNrnSeclistCompLocation(object):
+
+    """Test class for NrnSectionCompLocation"""
+
+    def __init__(self):
+        """Constructor"""
+        self.loc = None
+        self.sim = None
+
+    def setup(self):
+        """Setup"""
+        self.loc = ephys.locations.NrnSeclistCompLocation(
+            name='test',
+            seclist_name='somatic',
+            sec_index=0,
+            comp_x=0.5)
+        self.loc_dend = ephys.locations.NrnSeclistCompLocation(
+            name='test',
+            seclist_name='basal',
+            sec_index=1,
+            comp_x=0.5)
+        nt.assert_equal(self.loc.name, 'test')
+        self.sim = ephys.simulators.NrnSimulator()
+
+    def test_instantiate(self):
+        """ephys.locations.NrnSomaDistanceCompLocation: test instantiate"""
+
+        # Create a little test class with a soma and two dendritic sections
+        class Cell(object):
+            """Cell class"""
+            pass
+
+        cell = Cell()
+        soma = self.sim.neuron.h.Section()
+        dend1 = self.sim.neuron.h.Section(name='dend1')
+        dend2 = self.sim.neuron.h.Section(name='dend2')
+
+        cell.somatic = self.sim.neuron.h.SectionList()
+        cell.somatic.append(soma)
+        cell.basal = self.sim.neuron.h.SectionList()
+        cell.basal.append(dend1)
+        cell.basal.append(dend2)
+
+        soma_comp = self.loc.instantiate(sim=self.sim, icell=cell)
+        nt.assert_equal(soma_comp, soma(0.5))
+
+        dend_comp = self.loc_dend.instantiate(sim=self.sim, icell=cell)
+        nt.assert_equal(dend_comp, dend2(0.5))
+
+        for _ in range(10000):
+            soma_comp = self.loc.instantiate(sim=self.sim, icell=cell)
+
+
+@attr('unit')
 class TestNrnSomaDistanceCompLocation(object):
 
     """Test class for NrnSomaDistanceCompLocation"""
