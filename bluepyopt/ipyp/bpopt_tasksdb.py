@@ -70,7 +70,7 @@ def plot_usage(tasks, engine_number_map):
     """Plot usage stats"""
 
     plt.figure(figsize=(8, 8))
-    for engine_uuid, task_list in tasks.iteritems():
+    for engine_uuid, task_list in tasks.items():
         engine_number = engine_number_map[engine_uuid]
         number_list = [engine_number] * len(task_list)
         start_list = [task['started'] for task in task_list]
