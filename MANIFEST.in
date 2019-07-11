@@ -5,4 +5,4 @@ include bluepyopt/ephys/templates/cell_template.jinja2
 include LICENSE.txt
 include AUTHORS.txt
 include LGPL.txt
-include bluepyopt/tests/*
+recursive-include bluepyopt/tests *
