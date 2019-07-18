@@ -161,12 +161,12 @@ https://github.com/BlueBrain/BluePyOpt/blob/master/examples/l5pc/L5PC.ipynb
 
 Thalamocortical Cells
 ---------------------
-Scripts for 3 thalamocortical cell types are in 
-[this directory](https://github.com/BlueBrain/BluePyOpt/tree/master/examples/thalamo-cortical-cell)
+Scripts for 2 thalamocortical cell types are in 
+[this directory](https://github.com/BlueBrain/BluePyOpt/tree/master/examples/thalamocortical-cell)
 
 With a notebook:
 
-https://github.com/BlueBrain/BluePyOpt/blob/master/examples/thalamo-cortical-cell/thalamo-cortical-cell_opt.ipynb
+https://github.com/BlueBrain/BluePyOpt/blob/master/examples/thalamocortical-cell/thalamocortical-cell_opt.ipynb
 
 API documentation
 ==================
