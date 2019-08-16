@@ -32,9 +32,9 @@ def create_feature_fields():
                                                                 feature_name,
                                                                 str(mean),
                                                                 str(std)])
-                if loc_field is not '':
+                if loc_field != '':
                     loc_field = ''
-                if stim_field is not '':
+                if stim_field != '':
                     stim_field = ''
     fields_content += '\t\t\\botrule\n'
 

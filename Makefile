@@ -14,7 +14,7 @@ docpdf: install
 l5pc_nbconvert: jupyter
 	cd examples/l5pc && \
 		jupyter nbconvert --to python L5PC.ipynb && \
-		sed '/get_ipython/d;/plt\./d;/^plot_responses/d;/import matplotlib/d;/neurom/d;' L5PC.py >L5PC.tmp && \
+		sed '/get_ipython/d;/plt\./d;/plot_responses/d;/import matplotlib/d;/neurom/d;/axes/d;/fig/d;/for index/d' L5PC.py >L5PC.tmp && \
 		mv L5PC.tmp L5PC.py
 l5pc_nrnivmodl:
 	cd examples/l5pc && nrnivmodl mechanisms
@@ -64,6 +64,7 @@ clean:
 	rm -rf bluepyopt/tests/.coverage
 	rm -rf bluepyopt/tests/coverage.xml
 	rm -rf bluepyopt/tests/coverage_html
+	rm -rf examples/l5pc/L5PC.py
 	rm -rf examples/l5pc/x86_64
 	rm -rf examples/stochkv/x86_64
 	rm -rf .coverage

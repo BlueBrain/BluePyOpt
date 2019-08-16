@@ -53,7 +53,7 @@ release_params = {
 
 
 def set_rcoptions(func):
-    '''decorator to apply custom matplotlib rc params to function, undo after'''
+    '''decorator to apply custom matplotlib rc params to function,undo after'''
     import matplotlib
 
     def wrap(*args, **kwargs):
@@ -234,7 +234,7 @@ def get_slice(start, end, data):
 
 
 def plot_multiple_responses(responses, fig):
-    '''creates 6 subplots for step{1,2,3} and dAP traces, and plots all the responses on them'''
+    '''creates 6 subplots for step{1,2,3} / dAP traces, plots the responses'''
     traces = ('Step1.soma.v', 'Step2.soma.v', 'Step3.soma.v',
               'bAP.dend1.v', 'bAP.dend2.v', 'bAP.soma.v', )
     plot_count = len(traces)
@@ -387,7 +387,7 @@ def plot_validation(opt, parameters):
         print(model_name)
         if model_name == 'release':
             color = 'red'
-            print color, peak_time
+            print(color, peak_time)
         elif model_name == 'model0':
             color = 'darkblue'
         else:
