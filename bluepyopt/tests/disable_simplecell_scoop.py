@@ -134,4 +134,4 @@ optimisation = nrp.Optimisation(
 
 if __name__ == '__main__':
     final_pop, hall_of_fame, logs, hist = optimisation.run(max_ngen=2)
-    print 'BEST:', hall_of_fame[0]
+    print('BEST:', hall_of_fame[0])

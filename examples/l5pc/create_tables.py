@@ -16,7 +16,7 @@ def create_feature_fields():
 
     fields_content = ''
 
-    print features
+    print(features)
 
     fields_content += \
         '\t\tStimulus & Location & eFeature & Mean & Std \\\\ \n'
@@ -159,12 +159,13 @@ def main():
     param_fields, n_of_cols = create_param_fields_string()
     param_content = create_table(param_fields, n_of_cols)
     open('tables/params.tex', 'w').write(param_content)
-    print param_content
+    print(param_content)
 
     feature_fields, n_of_cols = create_feature_fields()
     feature_content = create_table(feature_fields, n_of_cols)
     open('tables/features.tex', 'w').write(feature_content)
-    print feature_content
+    print(feature_content)
+
 
 if __name__ == '__main__':
     main()

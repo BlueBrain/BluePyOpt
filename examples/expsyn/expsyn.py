@@ -109,7 +109,7 @@ def main():
 
     default_param_values = {'expsyn_tau': 10.0}
 
-    print cell_evaluator.evaluate_with_dicts(default_param_values)
+    print(cell_evaluator.evaluate_with_dicts(default_param_values))
 
     optimisation = bpopt.optimisations.DEAPOptimisation(
         evaluator=cell_evaluator,
@@ -119,8 +119,8 @@ def main():
 
     best_ind = hall_of_fame[0]
 
-    print 'Best individual: ', best_ind
-    print 'Fitness values: ', best_ind.fitness.values
+    print('Best individual: ', best_ind)
+    print('Fitness values: ', best_ind.fitness.values)
 
     best_ind_dict = cell_evaluator.param_dict(best_ind)
     responses = protocol.run(
@@ -137,6 +137,7 @@ def main():
     plt.xlabel('Time (ms)')
     plt.ylabel('Voltage (ms)')
     plt.show()
+
 
 if __name__ == '__main__':
     main()

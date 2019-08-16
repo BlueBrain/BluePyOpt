@@ -76,7 +76,7 @@ def get_responses(cell_evaluator, individuals, filename):
         responses.append(
             cell_evaluator.run_protocols(
                 cell_evaluator.fitness_protocols.values(),
-                param_values=individual_dict)) 
+                param_values=individual_dict))
 
     if filename:
         with open(filename, 'w') as fd:
@@ -252,7 +252,7 @@ def plot_multiple_responses(responses, fig):
                 response[name]['time'][sl],
                 response[name]['voltage'][sl],
                 color=color,
-                linewidth=1) 
+                linewidth=1)
             ax[i].set_ylabel(name + '\nVoltage (mV)')
             ax[i].set_autoscaley_on(True)
             ax[i].set_autoscalex_on(True)
@@ -384,7 +384,7 @@ def plot_validation(opt, parameters):
     ax[0].set_ylabel('Current\n (nA)', rotation=0, labelpad=25)
 
     for index, (model_name, peak_time) in enumerate(sorted(peaktimes.items())):
-        print model_name
+        print(model_name)
         if model_name == 'release':
             color = 'red'
             print color, peak_time
@@ -514,7 +514,7 @@ def plot_individual_params(
         color,
         markersize=40,
         plot_bounds=False,
-        fitness_cut_off=FITNESS_CUT_OFF): 
+        fitness_cut_off=FITNESS_CUT_OFF):
     '''plot the individual parameter values'''
     observations_count = len(params)
     param_count = len(params[0])
@@ -569,7 +569,7 @@ def plot_diversity(opt, checkpoint_file, fig, param_names):
         checkpoint['history'].genealogy_history.values(),
         marker='.',
         color='grey',
-        plot_bounds=True) 
+        plot_bounds=True)
     plot_individual_params(opt, ax, checkpoint['halloffame'],
                            marker='o', color='black')
     plot_individual_params(opt,
@@ -577,7 +577,7 @@ def plot_diversity(opt, checkpoint_file, fig, param_names):
                            [checkpoint['halloffame'][0]],
                            markersize=150,
                            marker='x',
-                           color='blue') 
+                           color='blue')
     plot_individual_params(opt, ax, [release_individual], markersize=150,
                            marker='x', color='red')
 

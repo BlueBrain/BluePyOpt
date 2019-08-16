@@ -46,7 +46,7 @@ def get_head_public_ip(ec2):
 
 
 def get_work_private_ips(ec2, tag=WORKER_INSTANCE_NAME, include_head=True):
-    '''get the internal IPs of the worker instances, including the head by default'''
+    '''get the internal IPs of the workers, including the head by default'''
     instances = _get_instances_by_tag(ec2, tag)
     if include_head:
         head_instance = _get_instances_by_tag(ec2, HEAD_INSTANCE_NAME)
@@ -59,8 +59,9 @@ def get_parser():
     '''return the argument parser'''
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dry-run', action='store_true',
-                        help='Output the results of the templates without writing them')
+    parser.add_argument(
+        '--dry-run', action='store_true',
+        help='Output the results of the templates without writing them')
     return parser
 
 
@@ -70,7 +71,7 @@ def main():
 
     ec2 = boto3.resource('ec2')
 
-    print 'Instances:', list(i.id for i in ec2.instances.all())
+    print('Instances:', list(i.id for i in ec2.instances.all()))
 
     env = Environment()
     hosts = env.from_string(hosts_template)
@@ -86,15 +87,16 @@ def main():
                                             private_key=KEY_NAME)
 
     if args.dry_run:
-        print '{:*^30}'.format(' Hosts ')
-        print hosts_rendered
-        print '{:*^30}'.format(' ssh_config ')
-        print ssh_config_rendered
+        print('{:*^30}'.format(' Hosts '))
+        print(hosts_rendered)
+        print('{:*^30}'.format(' ssh_config '))
+        print(ssh_config_rendered)
     else:
         with open('hosts', 'w') as fd:
             fd.write(hosts_rendered)
         with open('amazon_ssh_config', 'w') as fd:
             fd.write(ssh_config_rendered)
+
 
 if __name__ == '__main__':
     main()

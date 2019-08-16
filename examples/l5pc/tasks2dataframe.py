@@ -6,7 +6,6 @@ The script is executable, as an example on how to extract the top 10
 longest running engines for the l5pc model.
 '''
 
-import os
 import sqlite3
 
 import pandas
@@ -16,7 +15,7 @@ from ipyparallel.controller import sqlitedb
 
 
 def _open_db(dbfile):
-    '''open the sqlite file, and set up the converters used to serialize data'''
+    '''open the sqlite file, and set up the converters to serialize data'''
     sqlite3.register_adapter(dict, sqlitedb._adapt_dict)
     sqlite3.register_converter('dict', sqlitedb._convert_dict)
     sqlite3.register_adapter(list, sqlitedb._adapt_bufs)
@@ -62,7 +61,9 @@ def _add_buffers(df, arg_names=None, result_names=None, delete_buffers=False):
     if delete_buffers:
         df.drop(['buffers', 'result_buffers'], axis=1, inplace=True)
 
-    return pandas.concat([df, args_df, results_df], axis=1, join_axes=[df.index])
+    return pandas.concat(
+        [df, args_df, results_df],
+        axis=1, join_axes=[df.index])
 
 
 def create_df(db, arg_names=None, result_names=None):
@@ -91,5 +92,7 @@ if __name__ == '__main__':
 
     pandas.set_option('display.expand_frame_repr', False)
     title = '10 Longest times'
-    print '%s\n%s' % (title, '*' * len(title))
-    print df.nlargest(10, 'run_time')[['run_time', ] + arg_names + result_names]
+    print('%s\n%s' % (title, '*' * len(title)))
+    print(
+        df.nlargest(10, 'run_time')
+        [['run_time', ] + arg_names + result_names])

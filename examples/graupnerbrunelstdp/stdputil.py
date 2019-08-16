@@ -16,6 +16,11 @@ import logging
 import numpy as np
 from scipy.special import erf  # NOQA
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
 logging.basicConfig(level=logging.WARN)
 
 # Note: having debug logging statements increases the run time by ~ 25%,
