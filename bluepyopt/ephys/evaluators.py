@@ -58,9 +58,9 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
                 isolate the simulations
                 (disabling this could lead to unexpected behavior, and might
                 hinder the reproducability of the simulations)
-            timeout (int): duration in second after which a Process will 
+            timeout (int): duration in second after which a Process will
                 be interrupted when using multiprocessing
-	        sim (ephys.simulators.NrnSimulator): simulator to use for the cell
+            sim (ephys.simulators.NrnSimulator): simulator to use for the cell
                 evaluation
             use_params_for_seed (bool): use a hashed version of the parameter
                 dictionary as a seed for the simulator

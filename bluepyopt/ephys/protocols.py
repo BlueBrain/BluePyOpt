@@ -60,7 +60,13 @@ class SequenceProtocol(Protocol):
         super(SequenceProtocol, self).__init__(name)
         self.protocols = protocols
 
-    def run(self, cell_model, param_values, sim=None, isolate=None, timeout=None):
+    def run(
+            self,
+            cell_model,
+            param_values,
+            sim=None,
+            isolate=None,
+            timeout=None):
         """Instantiate protocol"""
 
         responses = collections.OrderedDict({})
@@ -180,10 +186,16 @@ class SweepProtocol(Protocol):
                 "".join(
                     traceback.format_exception(*sys.exc_info())))
 
-    def run(self, cell_model, param_values, sim=None, isolate=None, timeout=None):
+    def run(
+            self,
+            cell_model,
+            param_values,
+            sim=None,
+            isolate=None,
+            timeout=None):
         """Instantiate protocol"""
 
-        if isolate is None: 
+        if isolate is None:
             isolate = True
 
         if isolate:
@@ -199,27 +211,26 @@ class SweepProtocol(Protocol):
 
             if timeout is not None:
                 timeout = max(timeout, 0)
-   
+
             with pebble.ProcessPool(max_tasks=1) as pool:
                 tasks = pool.schedule(self._run_func, kwargs={
-                                     'cell_model': cell_model,
-                                     'param_values': param_values,
-                                     'sim': sim},
-                                     timeout=timeout)
+                    'cell_model': cell_model,
+                    'param_values': param_values,
+                    'sim': sim},
+                    timeout=timeout)
                 try:
                     responses = tasks.result()
                 except TimeoutError:
-                    logger.debug('SweepProtocol: task took longer than timeout,'
-                                 'will return empty response for this recording')
+                    logger.debug('SweepProtocol: task took longer than '
+                                 'timeout, will return empty response '
+                                 'for this recording')
                     responses = {recording.name:
                                  None for recording in self.recordings}
         else:
             responses = self._run_func(cell_model=cell_model,
                                        param_values=param_values,
                                        sim=sim)
-
         return responses
-
 
     def instantiate(self, sim=None, icell=None):
         """Instantiate"""
