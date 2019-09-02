@@ -210,7 +210,8 @@ class SweepProtocol(Protocol):
             from concurrent.futures import TimeoutError
 
             if timeout is not None:
-                timeout = max(timeout, 0)
+                if timeout < 0:
+                    raise ValueError("timeout should be > 0")
 
             with pebble.ProcessPool(max_tasks=1) as pool:
                 tasks = pool.schedule(self._run_func, kwargs={
