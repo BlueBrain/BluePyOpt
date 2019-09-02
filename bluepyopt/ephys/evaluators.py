@@ -40,6 +40,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             fitness_protocols=None,
             fitness_calculator=None,
             isolate_protocols=None,
+            timeout=None,
             sim=None,
             use_params_for_seed=False):
         """Constructor
@@ -57,7 +58,9 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
                 isolate the simulations
                 (disabling this could lead to unexpected behavior, and might
                 hinder the reproducability of the simulations)
-            sim (ephys.simulators.NrnSimulator): simulator to use for the cell
+            timeout (int): duration in second after which a Process will 
+                be interrupted when using multiprocessing
+	        sim (ephys.simulators.NrnSimulator): simulator to use for the cell
                 evaluation
             use_params_for_seed (bool): use a hashed version of the parameter
                 dictionary as a seed for the simulator
@@ -81,6 +84,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         self.fitness_calculator = fitness_calculator
 
         self.isolate_protocols = isolate_protocols
+        self.timeout = timeout
         self.use_params_for_seed = use_params_for_seed
 
     def param_dict(self, param_array):
@@ -136,6 +140,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             protocol,
             param_values,
             isolate=None,
+            timeout=None,
             cell_model=None,
             sim=None):
         """Run protocol"""
@@ -149,7 +154,8 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             self.cell_model if cell_model is None else cell_model,
             param_values,
             sim=sim,
-            isolate=isolate)
+            isolate=isolate,
+            timeout=timeout)
 
     def run_protocols(self, protocols, param_values):
         """Run a set of protocols"""
@@ -160,7 +166,8 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             responses.update(self.run_protocol(
                 protocol,
                 param_values=param_values,
-                isolate=self.isolate_protocols))
+                isolate=self.isolate_protocols,
+                timeout=self.timeout))
 
         return responses
 
