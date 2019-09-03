@@ -60,7 +60,13 @@ class SequenceProtocol(Protocol):
         super(SequenceProtocol, self).__init__(name)
         self.protocols = protocols
 
-    def run(self, cell_model, param_values, sim=None, isolate=None):
+    def run(
+            self,
+            cell_model,
+            param_values,
+            sim=None,
+            isolate=None,
+            timeout=None):
         """Instantiate protocol"""
 
         responses = collections.OrderedDict({})
@@ -70,7 +76,8 @@ class SequenceProtocol(Protocol):
                 cell_model=cell_model,
                 param_values=param_values,
                 sim=sim,
-                isolate=isolate)
+                isolate=isolate,
+                timeout=timeout)
 
             key_intersect = set(
                 response.keys()).intersection(set(responses.keys()))
@@ -179,7 +186,13 @@ class SweepProtocol(Protocol):
                 "".join(
                     traceback.format_exception(*sys.exc_info())))
 
-    def run(self, cell_model, param_values, sim=None, isolate=None):
+    def run(
+            self,
+            cell_model,
+            param_values,
+            sim=None,
+            isolate=None,
+            timeout=None):
         """Instantiate protocol"""
 
         if isolate is None:
@@ -193,26 +206,31 @@ class SweepProtocol(Protocol):
             import copyreg
             import types
             copyreg.pickle(types.MethodType, _reduce_method)
+            import pebble
+            from concurrent.futures import TimeoutError
 
-            import multiprocessing
+            if timeout is not None:
+                if timeout < 0:
+                    raise ValueError("timeout should be > 0")
 
-            pool = multiprocessing.Pool(1, maxtasksperchild=1)
-            responses = pool.apply(
-                self._run_func,
-                kwds={
+            with pebble.ProcessPool(max_tasks=1) as pool:
+                tasks = pool.schedule(self._run_func, kwargs={
                     'cell_model': cell_model,
                     'param_values': param_values,
-                    'sim': sim})
-
-            pool.terminate()
-            pool.join()
-            del pool
+                    'sim': sim},
+                    timeout=timeout)
+                try:
+                    responses = tasks.result()
+                except TimeoutError:
+                    logger.debug('SweepProtocol: task took longer than '
+                                 'timeout, will return empty response '
+                                 'for this recording')
+                    responses = {recording.name:
+                                 None for recording in self.recordings}
         else:
-            responses = self._run_func(
-                cell_model=cell_model,
-                param_values=param_values,
-                sim=sim)
-
+            responses = self._run_func(cell_model=cell_model,
+                                       param_values=param_values,
+                                       sim=sim)
         return responses
 
     def instantiate(self, sim=None, icell=None):

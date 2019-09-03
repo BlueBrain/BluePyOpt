@@ -41,7 +41,8 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             fitness_calculator=None,
             isolate_protocols=None,
             sim=None,
-            use_params_for_seed=False):
+            use_params_for_seed=False,
+            timeout=None):
         """Constructor
 
         Args:
@@ -61,6 +62,8 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
                 evaluation
             use_params_for_seed (bool): use a hashed version of the parameter
                 dictionary as a seed for the simulator
+            timeout (int): duration in second after which a Process will
+                be interrupted when using multiprocessing
         """
 
         super(CellEvaluator, self).__init__(
@@ -81,6 +84,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         self.fitness_calculator = fitness_calculator
 
         self.isolate_protocols = isolate_protocols
+        self.timeout = timeout
         self.use_params_for_seed = use_params_for_seed
 
     def param_dict(self, param_array):
@@ -136,6 +140,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             protocol,
             param_values,
             isolate=None,
+            timeout=None,
             cell_model=None,
             sim=None):
         """Run protocol"""
@@ -149,7 +154,8 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             self.cell_model if cell_model is None else cell_model,
             param_values,
             sim=sim,
-            isolate=isolate)
+            isolate=isolate,
+            timeout=timeout)
 
     def run_protocols(self, protocols, param_values):
         """Run a set of protocols"""
@@ -160,7 +166,8 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             responses.update(self.run_protocol(
                 protocol,
                 param_values=param_values,
-                isolate=self.isolate_protocols))
+                isolate=self.isolate_protocols,
+                timeout=self.timeout))
 
         return responses
 
