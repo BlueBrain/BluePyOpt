@@ -25,6 +25,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import random
 import logging
 import functools
+import pickle
 
 import deap
 import deap.base
@@ -83,8 +84,8 @@ class WSListIndividual(list):
 
     def __init__(self, *args, **kwargs):
         """Constructor"""
-        self.fitness = WeightedSumFitness(obj_size=kwargs['obj_size'])
-        del kwargs['obj_size']
+        obj_size = kwargs.pop('obj_size')
+        self.fitness = WeightedSumFitness(obj_size=obj_size)
         super(WSListIndividual, self).__init__(*args, **kwargs)
 
 
@@ -258,7 +259,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             offspring_size=None,
             continue_cp=False,
             cp_filename=None,
-            cp_frequency=1):
+            cp_frequency=1,
+            pop=None,
+            **kwargs):
         """Run optimisation"""
         # Allow run function to override offspring_size
         # TODO probably in the future this should not be an object field
@@ -267,8 +270,22 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         if offspring_size is None:
             offspring_size = self.offspring_size
 
-        # Generate the population object
-        pop = self.toolbox.population(n=offspring_size)
+        # Generate/Prepare the population object
+        if pop or continue_cp:
+            IND_SIZE = len(self.evaluator.params)
+            OBJ_SIZE = len(self.evaluator.objectives)
+            if continue_cp: 
+                cp = pickle.load(open(cp_filename, "rb"))
+                cp_pop = cp["population"]
+            else:
+                cp_pop = None
+            pop = pop or cp_pop # passed population priotitized over cp population
+            # Check if the passed population is of appropriate dimensions
+            if len(pop) < offspring_size or any(len(pop_)!=IND_SIZE for pop_ in pop):
+                raise Exception('Population dimensions mismatch')
+            pop = [WSListIndividual(list(pop_),obj_size= OBJ_SIZE) for pop_ in pop]
+        else:
+            pop = self.toolbox.population(n=offspring_size)
 
         stats = deap.tools.Statistics(key=lambda ind: ind.fitness.sum)
         import numpy
@@ -288,7 +305,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             halloffame=self.hof,
             cp_frequency=cp_frequency,
             continue_cp=continue_cp,
-            cp_filename=cp_filename)
+            cp_filename=cp_filename,
+            **kwargs)
 
         # Update hall of fame
         self.hof = hof

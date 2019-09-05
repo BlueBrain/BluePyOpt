@@ -63,7 +63,7 @@ def _record_stats(stats, logbook, gen, population, invalid_count):
 
 
 def _get_offspring(parents, toolbox, cxpb, mutpb):
-    '''return the offsprint, use toolbox.variate if possible'''
+    '''return the offspring, use toolbox.variate if possible'''
     if hasattr(toolbox, 'variate'):
         return toolbox.variate(parents, toolbox, cxpb, mutpb)
     return deap.algorithms.varAnd(parents, toolbox, cxpb, mutpb)
@@ -80,7 +80,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         halloffame=None,
         cp_frequency=1,
         cp_filename=None,
-        continue_cp=False):
+        continue_cp=False,
+        **kwargs):
     r"""This is the :math:`(~\alpha,\mu~,~\lambda)` evolutionary algorithm
 
     Args:
@@ -99,9 +100,11 @@ def eaAlphaMuPlusLambdaCheckpoint(
 
     if continue_cp:
         # A file name has been given, then load the data from the file
-        cp = pickle.load(open(cp_filename, "r"))
-        population = cp["population"]
-        parents = cp["parents"]
+        cp = pickle.load(open(cp_filename, "rb"))
+        # Check if fitness function is modified midway (parents have to recalculated)
+        if not kwargs.get('reboot_fitness'):
+            population = cp["population"]
+            parents = cp["parents"]
         start_gen = cp["generation"]
         halloffame = cp["halloffame"]
         logbook = cp["logbook"]
@@ -110,13 +113,14 @@ def eaAlphaMuPlusLambdaCheckpoint(
     else:
         # Start a new evolution
         start_gen = 1
-        parents = population[:]
         logbook = deap.tools.Logbook()
         logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
         history = deap.tools.History()
 
-        # TODO this first loop should be not be repeated !
+    # TODO this first loop should be not be repeated !
+    if kwargs.get('reboot_fitness') or not continue_cp:
         invalid_count = _evaluate_invalid_fitness(toolbox, population)
+        parents = toolbox.select(population, mu)
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, start_gen, population, invalid_count)
 
