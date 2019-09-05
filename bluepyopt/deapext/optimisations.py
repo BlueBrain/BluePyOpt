@@ -271,7 +271,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             offspring_size = self.offspring_size
 
         # Generate/Prepare the population object
-        if pop or continue_cp:
+        if pop or (kwargs.get('reboot_fitness') and continue_cp):
             IND_SIZE = len(self.evaluator.params)
             OBJ_SIZE = len(self.evaluator.objectives)
             if continue_cp: 
