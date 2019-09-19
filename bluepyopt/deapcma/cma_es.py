@@ -35,10 +35,16 @@ logger = logging.getLogger('__main__')
 def _closest_feasible(individual, lbounds, ubounds):
     """From an individual outside of the bounds, returns the closest individual
        in the bounds ."""
-    feasible_ind = numpy.array(individual)
-    feasible_ind = numpy.maximum(lbounds-1e-8, feasible_ind)
-    feasible_ind = numpy.minimum(ubounds+1e-8, feasible_ind)
-    return feasible_ind
+    #feasible = numpy.array(individual)
+    # TO DO: Fix 1e-8 hack used to insure that we are inside of bounds
+    #feasible_ind = numpy.maximum(lbounds, feasible_ind)
+    #feasible_ind = numpy.minimum(ubounds, feasible_ind)
+    for i,(u,l,el) in enumerate(zip(ubounds, lbounds, individual)):
+        if el >= u:
+            individual[i] = u - 1e-8
+        elif el <= l:
+            individual[i] = l + 1e-8
+    return individual
 
 
 def _bound(population, lbounds, ubounds, WSListIndividual):
@@ -56,14 +62,28 @@ def _bound(population, lbounds, ubounds, WSListIndividual):
 
 class cma_es(cma.Strategy):
 
-    def __init__(self, centroid, weights, sigma, mu, max_ngen, lambda_,
+    def __init__(self, centroid, weights, sigma, mu, cmatrix, max_ngen, lambda_,
                  problem_size, IndCreator):
+        """
+
+        Args:
+            centroid:
+            weights:
+            sigma:
+            mu:
+            cmatrix:
+            max_ngen:
+            lambda_:
+            problem_size:
+            IndCreator:
+        """
 
         cma.Strategy.__init__(self,
                               centroid=centroid,
                               weights=weights,
                               sigma=sigma,
-                              mu=int(mu*lambda_),
+                              mu=int(mu * lambda_),
+                              cmatrix=cmatrix,
                               lambda_=lambda_)
         self.population = []
         self.IndCreator = IndCreator
@@ -74,10 +94,13 @@ class cma_es(cma.Strategy):
         self.toolbox.register("update", self.update)
 
         # Termination conditions related variables
-        self.active = True # True if the strategy did not meet any termination conditions
-        self.conditions = {"MaxIter": False, "TolHistFun": False, "EqualFunVals": False,
-                           "TolX": False, "TolUpSigma": False, "Stagnation": False,
-                           "ConditionCov": False, "NoEffectAxis": False, "NoEffectCoor": False}
+        self.active = True  # True if the strategy did not meet any termination conditions
+        self.conditions = {"MaxIter": False, "TolHistFun": False,
+                           "EqualFunVals": False,
+                           "TolX": False, "TolUpSigma": False,
+                           "Stagnation": False,
+                           "ConditionCov": False, "NoEffectAxis": False,
+                           "NoEffectCoor": False}
         self.equalfunvalues = list()
         self.bestvalues = list()
         self.medianvalues = list()
@@ -93,15 +116,17 @@ class cma_es(cma.Strategy):
         self.EQUALFUNVALS_K = int(numpy.ceil(0.1 + lambda_ / 4.))
         self.MAXITER = max_ngen
         if max_ngen is None:
-            self.MAXITER = 100 + 50 * (problem_size + 3) ** 2 / numpy.sqrt(lambda_)
+            self.MAXITER = 100 + 50 * (problem_size + 3) ** 2 / numpy.sqrt(
+                lambda_)
         self.NOEFFECTAXIS_INDEX = None
         self.STAGNATION_ITER = None
-    
+
     def get_population(self, to_space):
         if self.active:
             pop = []
             for ind in self.population:
-                pop.append(self.IndCreator([f(e) for f, e in zip(to_space, ind)]))
+                pop.append(
+                    self.IndCreator([f(e) for f, e in zip(to_space, ind)]))
             return pop
         else:
             return []
@@ -131,44 +156,56 @@ class cma_es(cma.Strategy):
 
         if self.active:
 
-            self.STAGNATION_ITER = int(numpy.ceil(0.2 * t + 120 + 30. * problem_size / lambda_))
+            self.STAGNATION_ITER = int(
+                numpy.ceil(0.2 * t + 120 + 30. * problem_size / lambda_))
             self.NOEFFECTAXIS_INDEX = t % problem_size
 
             # Count the number of times the k'th best solution is equal to the best solution
             # At this point the population is sorted (method update)
-            if self.population[-1].fitness == self.population[-self.EQUALFUNVALS_K].fitness:
+            if self.population[-1].fitness == self.population[
+                -self.EQUALFUNVALS_K].fitness:
                 self.equalfunvalues.append(1)
 
             # Log the best and median value of this population
             self.bestvalues.append(self.population[-1].fitness.values)
-            self.medianvalues.append(self.population[int(round(len(self.population) / 2.))].fitness.values)
+            self.medianvalues.append(self.population[int(
+                round(len(self.population) / 2.))].fitness.values)
 
             if t >= self.MAXITER:
                 # The maximum number of iteration per CMA-ES ran
                 self.conditions["MaxIter"] = True
 
-            self.mins.append(numpy.min([ind.fitness.values[0] for ind in self.population]))
-            if (len(self.mins) == self.mins.maxlen) and max(self.mins) - min(self.mins) < self.TOLHISTFUN:
+            self.mins.append(
+                numpy.min([ind.fitness.values[0] for ind in self.population]))
+            if (len(self.mins) == self.mins.maxlen) and max(self.mins) - min(
+                    self.mins) < self.TOLHISTFUN:
                 # The range of the best values is smaller than the threshold
                 self.conditions["TolHistFun"] = True
 
-            if t > problem_size and sum(self.equalfunvalues[-problem_size:]) / float(problem_size) > self.EQUALFUNVALS:
+            if t > problem_size and sum(
+                    self.equalfunvalues[-problem_size:]) / float(
+                    problem_size) > self.EQUALFUNVALS:
                 # In 1/3rd of the last problem_size iterations the best and k'th best solutions are equal
                 self.conditions["EqualFunVals"] = True
 
-            if all(self.pc < self.TOLX) and all(numpy.sqrt(numpy.diag(self.C)) < self.TOLX):
+            if all(self.pc < self.TOLX) and all(
+                    numpy.sqrt(numpy.diag(self.C)) < self.TOLX):
                 # All components of pc and sqrt(diag(C)) are smaller than the threshold
                 self.conditions["TolX"] = True
 
-            if self.sigma / self.SIGMA0 > float(self.diagD[-1] ** 2) * self.TOLUPSIGMA:
+            if self.sigma / self.SIGMA0 > float(
+                    self.diagD[-1] ** 2) * self.TOLUPSIGMA:
                 # The sigma ratio is bigger than a threshold
                 self.conditions["TolUpSigma"] = True
 
-            if len(self.bestvalues) > self.STAGNATION_ITER and len(self.medianvalues) > self.STAGNATION_ITER and \
-                        numpy.median(self.bestvalues[-20:]) >= numpy.median(
-                    self.bestvalues[-self.STAGNATION_ITER:-self.STAGNATION_ITER + 20]) and \
-                        numpy.median(self.medianvalues[-20:]) >= numpy.median(
-                    self.medianvalues[-self.STAGNATION_ITER:-self.STAGNATION_ITER + 20]):
+            if len(self.bestvalues) > self.STAGNATION_ITER and len(
+                    self.medianvalues) > self.STAGNATION_ITER and \
+                    numpy.median(self.bestvalues[-20:]) >= numpy.median(
+                self.bestvalues[
+                -self.STAGNATION_ITER:-self.STAGNATION_ITER + 20]) and \
+                    numpy.median(self.medianvalues[-20:]) >= numpy.median(
+                self.medianvalues[
+                -self.STAGNATION_ITER:-self.STAGNATION_ITER + 20]):
                 self.conditions["Stagnation"] = True
 
             if self.cond > self.CONDITIONCOV:
@@ -188,5 +225,7 @@ class cma_es(cma.Strategy):
 
             stop_causes = [k for k, v in self.conditions.items() if v]
             if len(stop_causes):
-                logger.info('CMA stopped because of termination criteria: ' + ' '.join(stop_causes))
+                logger.info(
+                    'CMA stopped because of termination criteria: ' + ' '.join(
+                        stop_causes))
                 self.active = False
