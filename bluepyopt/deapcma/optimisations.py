@@ -284,7 +284,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             active_cma = numpy.sum([c.active for c in swarm])
 
             if (cp_filename and cp_frequency and
-                    gen % cp_frequency == 0):
+                    t % cp_frequency == 0):
                 cp = dict(population=tot_pop,
                           generation=t,
                           halloffame=self.hof,
