@@ -127,6 +127,8 @@ class cma_es(cma.Strategy):
             for ind in self.population:
                 pop.append(
                     self.IndCreator([f(e) for f, e in zip(to_space, ind)]))
+                pop[-1].fitness = ind.fitness
+                pop[-1].all_values = ind.all_values
             return pop
         else:
             return []
@@ -151,6 +153,7 @@ class cma_es(cma.Strategy):
     def set_fitness(self, fitnesses):
         for f, ind in zip(fitnesses, self.population):
             ind.fitness.values = [numpy.sum(f)]
+            ind.all_values = f
 
     def check_termination(self, t, problem_size, lambda_):
 

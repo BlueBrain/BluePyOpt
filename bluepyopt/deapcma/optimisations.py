@@ -69,6 +69,7 @@ class WSListIndividual(list):
     def __init__(self, *args, **kwargs):
         """Constructor"""
         self.fitness = Fitness()
+        self.all_values = []
         super(WSListIndividual, self).__init__(*args, **kwargs)
 
 
@@ -152,6 +153,9 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 partial(lambda x, bm, br: (x - bm) / br, bm=m, br=r))
             self.to_space.append(
                 partial(lambda x, bm, br: (x * br) + bm, bm=m, br=r))
+        
+        if self.centroid is not None:
+            self.centroid = [f(x) for f,x in zip(self.to_norm, self.centroid)]
 
         self.setup_deap()
 
@@ -266,7 +270,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
 
             tot_pop = []
             for c in swarm:
-                tot_pop += c.population
+                tot_pop += c.get_population(self.to_space)
             mean_sigma = numpy.mean([c.sigma for c in swarm])
 
             _update_history_and_hof(self.hof, history, tot_pop)
