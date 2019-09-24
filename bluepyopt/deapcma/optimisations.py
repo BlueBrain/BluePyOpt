@@ -80,28 +80,21 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                  evaluator=None,
                  use_scoop=False,
                  swarm_size=1,
-                 cma_weights='superlinear',
-                 mu=0.5,
                  centroid=None,
-                 sigma=None,
-                 cmatrix=None,
+                 sigma=-1,
+                 lr_scale=1.,
                  seed=1,
                  map_function=None,
-                 hof=None):
+                 hof=None,
+                 **kargs):
         """Constructor
 
         Args:
             evaluator (Evaluator): Evaluator object
             swarm_size (int): Number of CMA-ES to run in parrallel
-            cma_weights (str): weights associated to the mu best offspring, can
-            be 'superlinear', 'linear' or 'equal'
-            mu (float): percentage of the population used to compute the next
-            step
             centroid (list): initial guess used as the starting point of the
             CMA-ES
             sigma (float): initial standard deviation of the distribution
-            cmatrix (2d-array): initial covariance matrix of the distribution
-            that will be sampled
             seed (float): Random number generator seed
             map_function (function): Function used to map (parallelise) the
                 evaluation function calls
@@ -116,19 +109,18 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.seed = seed
         self.map_function = map_function
         self.swarm_size = swarm_size
-        self.cma_weights = cma_weights
-        self.mu = mu
+        self.lr_scale = lr_scale
+        self.cma_params = kargs
 
         self.centroid = centroid
-
-        self.cmatrix = cmatrix
-        if self.cmatrix is None:
-            self.cmatrix = numpy.identity(self.problem_size)
-
         self.sigma = sigma
-        if self.sigma == None:
+        if self.sigma == -1.:
             self.sigma = 2. / 5.  # 1/5th of the domain width
+
         logger.info("Global sigma set to: {}".format(self.sigma))
+
+        if float(self.cma_params['mu']) == -1.:
+            self.cma_params.pop('mu', None)
 
         self.hof = hof
         if self.hof is None:
@@ -213,8 +205,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         logbook = tools.Logbook()
         logbook.header = "gen", "nevals", "std", "min", "avg", "max", "sigma"
 
-        if offspring_size is None:
-            offspring_size = 4 + int(3 * numpy.log(self.problem_size))
+        if offspring_size is not None:
+            self.cma_params['lambda_'] = offspring_size
 
         logger.info("Offspring size per CMA strategy set to: {}".format(
             offspring_size))
@@ -231,14 +223,11 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
 
             # Instantiate a CMA strategy centered on this centroid
             swarm.append(cma_es(centroid=starter,
-                                weights=self.cma_weights,
                                 sigma=self.sigma,
-                                mu=self.mu,
-                                cmatrix=self.cmatrix,
+                                lr_scale=self.lr_scale,
                                 max_ngen=max_ngen,
-                                lambda_=offspring_size,
-                                problem_size=self.problem_size,
-                                IndCreator=WSListIndividual))
+                                IndCreator=WSListIndividual,
+                                cma_params=self.cma_params))
 
         # Run until a termination criteria is met for every CMA strategy
         t = 0
@@ -254,7 +243,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             for c in swarm:
                 n_out += c.generate_new_pop(lbounds=-1., ubounds=1.)
             logger.info("Number of individuals outside of bounds: {} ({:.2f}%)"
-                        "".format(n_out, 100. * n_out / offspring_size /
+                        "".format(n_out, 100. * n_out / swarm[0].lambda_ /
                                   self.swarm_size))
 
             to_evaluate = []
@@ -284,7 +273,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             t += 1
 
             for c in swarm:
-                c.check_termination(t, self.problem_size, offspring_size)
+                c.check_termination(t)
             active_cma = numpy.sum([c.active for c in swarm])
 
             if (cp_filename and cp_frequency and

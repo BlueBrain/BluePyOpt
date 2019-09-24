@@ -62,31 +62,21 @@ def _bound(population, lbounds, ubounds, WSListIndividual):
 
 class cma_es(cma.Strategy):
 
-    def __init__(self, centroid, weights, sigma, mu, cmatrix, max_ngen, lambda_,
-                 problem_size, IndCreator):
-        """
+    def __init__(self, centroid, sigma, lr_scale, max_ngen, IndCreator,
+                 cma_params):
 
-        Args:
-            centroid:
-            weights:
-            sigma:
-            mu:
-            cmatrix:
-            max_ngen:
-            lambda_:
-            problem_size:
-            IndCreator:
-        """
+        cma.Strategy.__init__(self, centroid, sigma, **cma_params)
 
-        cma.Strategy.__init__(self,
-                              centroid=centroid,
-                              weights=weights,
-                              sigma=sigma,
-                              mu=int(mu * lambda_),
-                              cmatrix=cmatrix,
-                              lambda_=lambda_)
+        # Rescale the learning rates
+        self.cs *= lr_scale
+        self.cc *= lr_scale
+        self.ccov1 *= lr_scale
+        self.ccovmu *= lr_scale
+
         self.population = []
         self.IndCreator = IndCreator
+
+        self.problem_size = len(centroid)
 
         # Tools specific to this CMA
         self.toolbox = base.Toolbox()
@@ -94,7 +84,7 @@ class cma_es(cma.Strategy):
         self.toolbox.register("update", self.update)
 
         # Termination conditions related variables
-        self.active = True  # True if the strategy did not meet any termination conditions
+        self.active = True
         self.conditions = {"MaxIter": False, "TolHistFun": False,
                            "EqualFunVals": False,
                            "TolX": False, "TolUpSigma": False,
@@ -104,7 +94,7 @@ class cma_es(cma.Strategy):
         self.equalfunvalues = list()
         self.bestvalues = list()
         self.medianvalues = list()
-        TOLHISTFUN_ITER = 10 + int(numpy.ceil(30. * problem_size / lambda_))
+        TOLHISTFUN_ITER = 10 + int(numpy.ceil(30. * self.problem_size / self.lambda_))
         self.mins = deque(maxlen=TOLHISTFUN_ITER)
 
         self.SIGMA0 = sigma
@@ -113,11 +103,11 @@ class cma_es(cma.Strategy):
         self.TOLX = 10 ** -12
         self.TOLUPSIGMA = 10 ** 20
         self.CONDITIONCOV = 10 ** 14
-        self.EQUALFUNVALS_K = int(numpy.ceil(0.1 + lambda_ / 4.))
+        self.EQUALFUNVALS_K = int(numpy.ceil(0.1 + self.lambda_ / 4.))
         self.MAXITER = max_ngen
         if max_ngen is None:
-            self.MAXITER = 100 + 50 * (problem_size + 3) ** 2 / numpy.sqrt(
-                lambda_)
+            self.MAXITER = 100 + 50 * (self.problem_size + 3) ** 2 / numpy.sqrt(
+                self.lambda_)
         self.NOEFFECTAXIS_INDEX = None
         self.STAGNATION_ITER = None
 
@@ -155,13 +145,13 @@ class cma_es(cma.Strategy):
             ind.fitness.values = [numpy.sum(f)]
             ind.all_values = f
 
-    def check_termination(self, t, problem_size, lambda_):
+    def check_termination(self, t):
 
         if self.active:
 
             self.STAGNATION_ITER = int(
-                numpy.ceil(0.2 * t + 120 + 30. * problem_size / lambda_))
-            self.NOEFFECTAXIS_INDEX = t % problem_size
+                numpy.ceil(0.2 * t + 120 + 30. * self.problem_size / self.lambda_))
+            self.NOEFFECTAXIS_INDEX = t % self.problem_size
 
             # Count the number of times the k'th best solution is equal to the best solution
             # At this point the population is sorted (method update)
@@ -185,9 +175,9 @@ class cma_es(cma.Strategy):
                 # The range of the best values is smaller than the threshold
                 self.conditions["TolHistFun"] = True
 
-            if t > problem_size and sum(
-                    self.equalfunvalues[-problem_size:]) / float(
-                    problem_size) > self.EQUALFUNVALS:
+            if t > self.problem_size and sum(
+                    self.equalfunvalues[-self.problem_size:]) / float(
+                    self.problem_size) > self.EQUALFUNVALS:
                 # In 1/3rd of the last problem_size iterations the best and k'th best solutions are equal
                 self.conditions["EqualFunVals"] = True
 
