@@ -254,7 +254,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             self.toolbox.register("map", self.map_function)
 
     def run(self,
-            max_ngen=10,
+            max_ngen=None,
             offspring_size=None,
             continue_cp=False,
             cp_filename=None,

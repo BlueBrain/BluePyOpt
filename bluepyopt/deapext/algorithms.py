@@ -24,7 +24,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import random
 import logging
-
+import numpy
 import deap.algorithms
 import deap.tools
 import pickle
@@ -69,6 +69,12 @@ def _get_offspring(parents, toolbox, cxpb, mutpb):
     return deap.algorithms.varAnd(parents, toolbox, cxpb, mutpb)
 
 
+def _get_median30(population):
+    _ = [numpy.sum(ind.fitness.values) for ind in population]
+    _.sort()
+    return numpy.median(_[:int(len(_)/3.)])
+
+
 def eaAlphaMuPlusLambdaCheckpoint(
         population,
         toolbox,
@@ -89,7 +95,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         mu(int): Total parent population size of EA
         cxpb(float): Crossover probability
         mutpb(float): Mutation probability
-        ngen(int): Total number of generation to run
+        ngen(int): Total number of generation to run, if None, stagnation
+        criteria is used.
         stats(deap.tools.Statistics): generation of statistics
         halloffame(deap.tools.HallOfFame): hall of fame
         cp_frequency(int): generations between checkpoints
@@ -120,8 +127,14 @@ def eaAlphaMuPlusLambdaCheckpoint(
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, start_gen, population, invalid_count)
 
+    # Set the termination criteria (either stagnation or max_ngen)
+    nevals = 0
+    nevals_best = 0
+    median30_best = _get_median30(population)
+    gen = start_gen + 1
+
     # Begin the generational process
-    for gen in range(start_gen + 1, ngen + 1):
+    while True:
         offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
         population = parents + offspring
@@ -129,6 +142,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         invalid_count = _evaluate_invalid_fitness(toolbox, offspring)
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, gen, population, invalid_count)
+        nevals += invalid_count
 
         # Select the next generation parents
         parents = toolbox.select(population, mu)
@@ -146,5 +160,21 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       rndstate=random.getstate())
             pickle.dump(cp, open(cp_filename, "wb"))
             logger.debug('Wrote checkpoint to %s', cp_filename)
+
+        gen += 1
+
+        # Check if the median of the 30% best individuals improved
+        median30 = _get_median30(population)
+        if median30 > median30_best:
+            nevals_best = int(nevals)
+            median30_best = float(median30)
+
+        # Check for termination criteria
+        if ngen is None and nevals-nevals_best > 20000:
+            logger.info("Reached stagnation termination criteria")
+            break
+        elif gen >= ngen:
+            logger.info("Reached max_ngen termination criteria")
+            break
 
     return population, halloffame, logbook, history

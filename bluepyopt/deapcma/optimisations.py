@@ -119,7 +119,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
 
         logger.info("Global sigma set to: {}".format(self.sigma))
 
-        if float(self.cma_params['mu']) == -1.:
+        if self.cma_params['mu'] == -1:
             self.cma_params.pop('mu', None)
 
         self.hof = hof
