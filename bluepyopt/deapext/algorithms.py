@@ -99,7 +99,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
 
     if continue_cp:
         # A file name has been given, then load the data from the file
-        cp = pickle.load(open(cp_filename, "r"))
+        cp = pickle.load(open(cp_filename, "rb"))
         population = cp["population"]
         parents = cp["parents"]
         start_gen = cp["generation"]
