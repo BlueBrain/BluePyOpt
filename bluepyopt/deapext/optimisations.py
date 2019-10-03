@@ -254,11 +254,12 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             self.toolbox.register("map", self.map_function)
 
     def run(self,
-            max_ngen=None,
+            max_ngen=10,
             offspring_size=None,
             continue_cp=False,
             cp_filename=None,
-            cp_frequency=1):
+            cp_frequency=1,
+            stagnation=False):
         """Run optimisation"""
         # Allow run function to override offspring_size
         # TODO probably in the future this should not be an object field
@@ -284,6 +285,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             self.cxpb,
             self.mutpb,
             max_ngen,
+            stagnation=stagnation,
             stats=stats,
             halloffame=self.hof,
             cp_frequency=cp_frequency,

@@ -22,6 +22,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=R0912, R0914
 
 import bluepyopt.optimisations
+
 import copyreg
 import functools
 import logging
@@ -29,6 +30,7 @@ import numpy
 import pickle
 import random
 import types
+
 from deap import base
 from deap import tools
 from functools import partial
@@ -58,6 +60,7 @@ def _record_stats(stats, logbook, gen, population, evals, sigma):
 
 
 class Fitness(base.Fitness):
+    """Single objective fitness"""
     def __init__(self, values=()):
         self.weights = [-1.]
         super(Fitness, self).__init__(values)
@@ -69,6 +72,7 @@ class WSListIndividual(list):
     def __init__(self, *args, **kwargs):
         """Constructor"""
         self.fitness = Fitness()
+        # all_values contains the list of individual objective values
         self.all_values = []
         super(WSListIndividual, self).__init__(*args, **kwargs)
 
@@ -86,6 +90,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                  seed=1,
                  map_function=None,
                  hof=None,
+                 fitness_reduce=None,
                  **kargs):
         """Constructor
 
@@ -95,6 +100,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             centroid (list): initial guess used as the starting point of the
             CMA-ES
             sigma (float): initial standard deviation of the distribution
+            lr_scale (float): scaling parameter for the learning rate of the CMA
             seed (float): Random number generator seed
             map_function (function): Function used to map (parallelise) the
                 evaluation function calls
@@ -110,13 +116,14 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.map_function = map_function
         self.swarm_size = swarm_size
         self.lr_scale = lr_scale
+
         self.cma_params = kargs
 
         self.centroid = centroid
+
         self.sigma = sigma
         if self.sigma == -1.:
             self.sigma = 2. / 5.  # 1/5th of the domain width
-
         logger.info("Global sigma set to: {}".format(self.sigma))
 
         if self.cma_params['mu'] == -1:
@@ -180,13 +187,13 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         elif self.map_function:
             self.toolbox.register("map", self.map_function)
 
-    def run_cma(self,
-                offspring_size,
-                max_ngen,
-                stats,
-                cp_frequency=1,
-                continue_cp=False,
-                cp_filename=None):
+    def run(self,
+            offspring_size=None,
+            max_ngen=10,
+            cp_frequency=1,
+            continue_cp=False,
+            cp_filename=None,
+            stats=None):
         """ Implementation of a single objective population of CMA-ES
             (using the termination criteria presented in *Hansen, 2009,
             Benchmarking a BI-Population CMA-ES on the BBOB-2009
@@ -195,43 +202,68 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         Args:
             offspring_size(int): number of offspring in each CMA strategy
             max_ngen(int): Total number of generation to run
-            stats(deap.tools.Statistics): generation of statistics
             cp_frequency(int): generations between checkpoints
             cp_filename(string): path to checkpoint filename
             continue_cp(bool): whether to continue
+            stats(deap.tools.Statistics): generation of statistics
         """
 
-        history = tools.History()
-        logbook = tools.Logbook()
-        logbook.header = "gen", "nevals", "std", "min", "avg", "max", "sigma"
+        if stats is None:
+            stats = tools.Statistics(key=lambda ind: ind.fitness.values)
+            stats.register("avg", numpy.mean)
+            stats.register("std", numpy.std)
+            stats.register("min", numpy.min)
+            stats.register("max", numpy.max)
 
-        if offspring_size is not None:
-            self.cma_params['lambda_'] = offspring_size
+        if continue_cp:
+            # A file name has been given, then load the data from the file
+            cp = pickle.load(open(cp_filename, "br"))
+            t = cp["generation"]
+            self.hof = cp["halloffame"]
+            logbook = cp["logbook"]
+            history = cp["history"]
+            random.setstate(cp["rndstate"])
+            numpy.random.set_state(cp["np_rndstate"])
+            swarm = cp["swarm"]
+            for c in swarm:
+                c.active = True
+                for k in c.conditions:
+                    c.conditions[k] = False
+                c.MAXITER = max_ngen+1
+        
+        else:
+            history = tools.History()
+            logbook = tools.Logbook()
+            logbook.header = ["gen", "nevals"] + stats.fields + ["sigma"]
 
-        logger.info("Offspring size per CMA strategy set to: {}".format(
-            offspring_size))
+            if offspring_size is not None and offspring_size != 0:
+                self.cma_params['lambda_'] = offspring_size
 
-        swarm = []
-        for i in range(self.swarm_size):
+            logger.info("Offspring size per CMA strategy set to: {}".format(
+                offspring_size))
 
-            if self.centroid is None:
-                # Generate a random centroid in the parameter space
-                starter = WSListIndividual((numpy.random.rand(
-                    self.problem_size) * 2.) - 1.)
-            else:
-                starter = self.centroid
+            swarm = []
+            for i in range(self.swarm_size):
 
-            # Instantiate a CMA strategy centered on this centroid
-            swarm.append(cma_es(centroid=starter,
-                                sigma=self.sigma,
-                                lr_scale=self.lr_scale,
-                                max_ngen=max_ngen,
-                                IndCreator=WSListIndividual,
-                                cma_params=self.cma_params))
+                if self.centroid is None:
+                    # Generate a random centroid in the parameter space
+                    starter = WSListIndividual((numpy.random.rand(
+                        self.problem_size) * 2.) - 1.)
+                else:
+                    starter = self.centroid
+
+                # Instantiate a CMA strategy centered on this centroid
+                swarm.append(cma_es(centroid=starter,
+                                    sigma=self.sigma,
+                                    lr_scale=self.lr_scale,
+                                    max_ngen=max_ngen+1,
+                                    IndCreator=WSListIndividual,
+                                    cma_params=self.cma_params))
+            t = 1
 
         # Run until a termination criteria is met for every CMA strategy
-        t = 0
         active_cma = numpy.sum([c.active for c in swarm])
+        tot_pop = []
         while active_cma:
 
             logger.info("Generation {}".format(t))
@@ -246,6 +278,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                         "".format(n_out, 100. * n_out / swarm[0].lambda_ /
                                   self.swarm_size))
 
+            # Get all the individuals in the original space for evaluation
             to_evaluate = []
             for c in swarm:
                 to_evaluate += c.get_population(self.to_space)
@@ -257,21 +290,23 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                     c.set_fitness(fitnesses[:len(c.population)])
                     fitnesses = fitnesses[len(c.population):]
 
+            # Update the hall of fame, history and logbook
             tot_pop = []
             for c in swarm:
                 tot_pop += c.get_population(self.to_space)
             mean_sigma = numpy.mean([c.sigma for c in swarm])
-
             _update_history_and_hof(self.hof, history, tot_pop)
             _ = _record_stats(stats, logbook, t, tot_pop, nevals, mean_sigma)
-
             logger.info(logbook.stream)
 
+            # Update the CMA strategy using the new fitness
             for c in swarm:
                 c.update_strategy()
 
             t += 1
 
+            # Check for each CMA if a termination criteria is reached
+            
             for c in swarm:
                 c.check_termination(t)
             active_cma = numpy.sum([c.active for c in swarm])
@@ -283,32 +318,10 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                           halloffame=self.hof,
                           history=history,
                           logbook=logbook,
-                          rndstate=random.getstate())
+                          rndstate=random.getstate(),
+                          np_rndstate=numpy.random.get_state(),
+                          swarm=swarm)
                 pickle.dump(cp, open(cp_filename, "wb"))
                 logger.debug('Wrote checkpoint to %s', cp_filename)
 
-        return tot_pop, logbook, history
-
-    def run(self,
-            max_ngen=None,
-            offspring_size=None,
-            continue_cp=False,
-            cp_filename=None,
-            cp_frequency=1):
-        """Run optimisation"""
-
-        stats = tools.Statistics(key=lambda ind: ind.fitness.values)
-        stats.register("avg", numpy.mean)
-        stats.register("std", numpy.std)
-        stats.register("min", numpy.min)
-        stats.register("max", numpy.max)
-
-        pop, log, history = self.run_cma(
-            offspring_size,
-            max_ngen,
-            stats=stats,
-            cp_frequency=cp_frequency,
-            continue_cp=continue_cp,
-            cp_filename=cp_filename)
-
-        return pop, self.hof, log, history
+        return tot_pop, self.hof, logbook, history

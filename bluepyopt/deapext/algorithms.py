@@ -70,6 +70,7 @@ def _get_offspring(parents, toolbox, cxpb, mutpb):
 
 
 def _get_median30(population):
+    '''return the median of the 30% fittest individual'''
     _ = [numpy.sum(ind.fitness.values) for ind in population]
     _.sort()
     return numpy.median(_[:int(len(_)/3.)])
@@ -82,6 +83,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cxpb,
         mutpb,
         ngen,
+        stagnation=False,
         stats=None,
         halloffame=None,
         cp_frequency=1,
@@ -95,8 +97,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         mu(int): Total parent population size of EA
         cxpb(float): Crossover probability
         mutpb(float): Mutation probability
-        ngen(int): Total number of generation to run, if None, stagnation
-        criteria is used.
+        ngen(int): Total number of generation to run
+        stagnation(bool): should the run end if fitness stop improving
         stats(deap.tools.Statistics): generation of statistics
         halloffame(deap.tools.HallOfFame): hall of fame
         cp_frequency(int): generations between checkpoints
@@ -165,15 +167,15 @@ def eaAlphaMuPlusLambdaCheckpoint(
 
         # Check if the median of the 30% best individuals improved
         median30 = _get_median30(population)
-        if median30 > median30_best:
+        if median30 < median30_best:
             nevals_best = int(nevals)
             median30_best = float(median30)
 
         # Check for termination criteria
-        if ngen is None and nevals-nevals_best > 20000:
+        if stagnation and nevals-nevals_best > 20000:
             logger.info("Reached stagnation termination criteria")
             break
-        elif gen >= ngen:
+        if gen >= ngen:
             logger.info("Reached max_ngen termination criteria")
             break
 
