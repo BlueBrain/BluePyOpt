@@ -90,7 +90,6 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                  seed=1,
                  map_function=None,
                  hof=None,
-                 fitness_reduce=None,
                  **kargs):
         """Constructor
 
