@@ -85,7 +85,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                  use_scoop=False,
                  swarm_size=1,
                  centroid=None,
-                 sigma=-1,
+                 sigma=0.4,
                  lr_scale=1.,
                  seed=1,
                  map_function=None,
@@ -121,12 +121,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.centroid = centroid
 
         self.sigma = sigma
-        if self.sigma == -1.:
-            self.sigma = 2. / 5.  # 1/5th of the domain width
         logger.info("Global sigma set to: {}".format(self.sigma))
-
-        if self.cma_params['mu'] == -1:
-            self.cma_params.pop('mu', None)
 
         self.hof = hof
         if self.hof is None:
