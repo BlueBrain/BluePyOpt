@@ -101,7 +101,6 @@ def test_eaAlphaMuPlusLambdaCheckpoint_with_checkpoint():
                                                  'generation': 1}):
         with mock.patch('bluepyopt.deapext.algorithms.open',
                         return_value=None):
-            print(population)
             new_population, hof, logbook, history = \
                 bluepyopt.deapext.algorithms.eaAlphaMuPlusLambdaCheckpoint(
                     population=population,
@@ -115,6 +114,5 @@ def test_eaAlphaMuPlusLambdaCheckpoint_with_checkpoint():
                     cp_frequency=1,
                     cp_filename='cp_test',
                     continue_cp=True)
-            print(new_population)
 
     nt.assert_equal(new_population, population)

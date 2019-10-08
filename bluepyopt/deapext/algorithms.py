@@ -98,7 +98,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cxpb(float): Crossover probability
         mutpb(float): Mutation probability
         ngen(int): Total number of generation to run
-        stagnation(bool): should the run end if fitness stop improving
+        stagnation(int): number of evals after which the run stops if the 
+        fitness stop improving
         stats(deap.tools.Statistics): generation of statistics
         halloffame(deap.tools.HallOfFame): hall of fame
         cp_frequency(int): generations between checkpoints
@@ -168,7 +169,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
             median30_best = float(median30)
 
         # Check for termination criteria
-        if stagnation and nevals-nevals_best > 20000:
+        if stagnation and nevals-nevals_best > stagnation:
             logger.info("Reached stagnation termination criteria")
             break
 
