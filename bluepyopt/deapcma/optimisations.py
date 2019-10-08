@@ -242,9 +242,6 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             else:
                 starters = cycle(self.centroid)
             
-            print(self.centroid)
-            for i in range(5):
-                print(next(starters))
             swarm = []
             for i in range(self.swarm_size):
 

@@ -34,7 +34,7 @@ def test_DEAPOptimisationCMA_run():
         optimisation = bluepyopt.optimisations.DEAPOptimisationCMA(
             evaluator=evaluator,
             swarm_size=1,
-            centroid=x)
+            centroid=[x])
 
         pop, hof, log, hist = optimisation.run(max_ngen=1)
         raised = False

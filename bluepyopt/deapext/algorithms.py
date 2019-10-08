@@ -132,11 +132,9 @@ def eaAlphaMuPlusLambdaCheckpoint(
     # Set the termination criteria (either stagnation or max_ngen)
     nevals = 0
     nevals_best = 0
-    median30_best = _get_median30(population)
-    gen = start_gen + 1
-
+    
     # Begin the generational process
-    while True:
+    for gen in range(start_gen + 1, ngen + 1):
         offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
         population = parents + offspring
@@ -145,7 +143,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, gen, population, invalid_count)
         nevals += invalid_count
-
+        
         # Select the next generation parents
         parents = toolbox.select(population, mu)
 
@@ -163,20 +161,15 @@ def eaAlphaMuPlusLambdaCheckpoint(
             pickle.dump(cp, open(cp_filename, "wb"))
             logger.debug('Wrote checkpoint to %s', cp_filename)
 
-        gen += 1
-
         # Check if the median of the 30% best individuals improved
         median30 = _get_median30(population)
-        if median30 < median30_best:
+        if gen == start_gen+1 or median30 < median30_best:
             nevals_best = int(nevals)
             median30_best = float(median30)
 
         # Check for termination criteria
         if stagnation and nevals-nevals_best > 20000:
             logger.info("Reached stagnation termination criteria")
-            break
-        if gen >= ngen:
-            logger.info("Reached max_ngen termination criteria")
             break
 
     return population, halloffame, logbook, history
