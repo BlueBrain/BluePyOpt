@@ -140,9 +140,9 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             protocol,
             param_values,
             isolate=None,
-            timeout=None,
             cell_model=None,
-            sim=None):
+            sim=None,
+            timeout=None):
         """Run protocol"""
 
         sim = self.sim if sim is None else sim

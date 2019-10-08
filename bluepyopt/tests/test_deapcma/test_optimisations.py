@@ -9,78 +9,36 @@ from nose.plugins.attrib import attr
 
 import deap.tools
 
+@attr('unit')
+def test_DEAPOptimisationCMA_normspace():
+    "deapext.optimisation: Testing DEAPOptimisationCMA normspace"
+
+    evaluator = examples.simplecell.cell_evaluator
+    optimisation = bluepyopt.optimisations.DEAPOptimisationCMA(
+        evaluator=evaluator)
+
+    x = [n*0.1 for n in range(len(evaluator.params))]
+    y = [f2(f1(_)) for _,f1,f2 in zip(x, optimisation.to_norm,
+                                      optimisation.to_space)]
+    for a, b in zip(x, y):
+        nt.assert_almost_equal(a, b)
 
 @attr('unit')
-def test_DEAPOptimisation_constructor():
-    "deapext.optimisation: Testing constructor DEAPOptimisation"
+def test_DEAPOptimisationCMA_run():
+    "deapext.optimisation: Testing DEAPOptimisationCMA run from centroid"
 
-    optimisation = bluepyopt.deapext.optimisations.DEAPOptimisation(
-        examples.simplecell.cell_evaluator, map_function=map)
+    evaluator = examples.simplecell.cell_evaluator
+    x = [n * 0.1 for n in range(len(evaluator.params))]
 
-    nt.assert_is_instance(
-        optimisation,
-        bluepyopt.deapext.optimisations.DEAPOptimisation)
-    nt.assert_is_instance(
-        optimisation.evaluator,
-        bluepyopt.evaluators.Evaluator)
+    try:
+        optimisation = bluepyopt.optimisations.DEAPOptimisationCMA(
+            evaluator=evaluator,
+            swarm_size=1,
+            centroid=x)
 
-    nt.assert_raises(
-        ValueError,
-        bluepyopt.deapext.optimisations.DEAPOptimisation,
-        examples.simplecell.cell_evaluator,
-        selector_name='wrong')
+        pop, hof, log, hist = optimisation.run(max_ngen=1)
+        raised = False
+    except:
+        raised = True
 
-
-@attr('unit')
-def test_IBEADEAPOptimisation_constructor():
-    "deapext.optimisation: Testing constructor IBEADEAPOptimisation"
-
-    optimisation = bluepyopt.deapext.optimisations.IBEADEAPOptimisation(
-        examples.simplecell.cell_evaluator, map_function=map)
-
-    nt.assert_is_instance(
-        optimisation,
-        bluepyopt.deapext.optimisations.IBEADEAPOptimisation)
-
-
-@attr('unit')
-def test_DEAPOptimisation_run():
-    "deapext.optimisation: Testing DEAPOptimisation run"
-
-    optimisation = bluepyopt.optimisations.DEAPOptimisation(
-        examples.simplecell.cell_evaluator, offspring_size=1)
-
-    pop, hof, log, hist = optimisation.run(max_ngen=1)
-
-    ind = [0.06007731830843009, 0.06508319290092013]
-    nt.assert_equal(len(pop), 1)
-    nt.assert_almost_equal(pop[0], ind)
-    nt.assert_almost_equal(hof[0], ind)
-    nt.assert_equal(log[0]['nevals'], 1)
-    nt.assert_almost_equal(hist.genealogy_history[1], ind)
-
-
-@attr('unit')
-def test_selectorname():
-    "deapext.optimisation: Testing selector_name argument"
-
-    # Test default value
-    ibea_optimisation = bluepyopt.optimisations.DEAPOptimisation(
-        examples.simplecell.cell_evaluator)
-    nt.assert_equal(ibea_optimisation.selector_name, 'IBEA')
-
-    # Test NSGA2 selector
-    nsga2_optimisation = bluepyopt.optimisations.DEAPOptimisation(
-        examples.simplecell.cell_evaluator, selector_name='NSGA2')
-
-    nt.assert_equal(
-        nsga2_optimisation.toolbox.select.func,
-        deap.tools.emo.selNSGA2)
-
-    # Test IBEA selector
-    ibea_optimisation = bluepyopt.optimisations.DEAPOptimisation(
-        examples.simplecell.cell_evaluator, selector_name='IBEA')
-
-    nt.assert_equal(
-        ibea_optimisation.toolbox.select.func,
-        bluepyopt.deapext.tools.selIBEA)
+    nt.assert_equal(raised, False)

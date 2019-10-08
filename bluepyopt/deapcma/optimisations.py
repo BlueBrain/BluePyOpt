@@ -30,6 +30,7 @@ import numpy
 import pickle
 import random
 import types
+from itertools import cycle
 
 from deap import base
 from deap import tools
@@ -96,8 +97,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         Args:
             evaluator (Evaluator): Evaluator object
             swarm_size (int): Number of CMA-ES to run in parrallel
-            centroid (list): initial guess used as the starting point of the
-            CMA-ES
+            centroid (list): list of initial guesses used as the starting 
+            points of the CMA-ES
             sigma (float): initial standard deviation of the distribution
             lr_scale (float): scaling parameter for the learning rate of the CMA
             seed (float): Random number generator seed
@@ -117,8 +118,6 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.lr_scale = lr_scale
 
         self.cma_params = kargs
-
-        self.centroid = centroid
 
         self.sigma = sigma
         logger.info("Global sigma set to: {}".format(self.sigma))
@@ -147,8 +146,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             self.to_space.append(
                 partial(lambda x, bm, br: (x * br) + bm, bm=m, br=r))
         
-        if self.centroid is not None:
-            self.centroid = [f(x) for f,x in zip(self.to_norm, self.centroid)]
+        if centroid is not None:
+            self.centroid = [f(x) for f,x in zip(self.to_norm, centroid)]
 
         self.setup_deap()
 
@@ -236,18 +235,21 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             logger.info("Offspring size per CMA strategy set to: {}".format(
                 offspring_size))
 
+            if self.centroid is None:
+                # Generate a random centroid in the parameter space
+                starters = cycle([WSListIndividual((numpy.random.rand(
+                        self.problem_size) * 2.) - 1.) for c in self.swarm_size])
+            else:
+                starters = cycle(self.centroid)
+            
+            print(self.centroid)
+            for i in range(5):
+                print(next(starters))
             swarm = []
             for i in range(self.swarm_size):
 
-                if self.centroid is None:
-                    # Generate a random centroid in the parameter space
-                    starter = WSListIndividual((numpy.random.rand(
-                        self.problem_size) * 2.) - 1.)
-                else:
-                    starter = self.centroid
-
                 # Instantiate a CMA strategy centered on this centroid
-                swarm.append(cma_es(centroid=starter,
+                swarm.append(cma_es(centroid=next(starters),
                                     sigma=self.sigma,
                                     lr_scale=self.lr_scale,
                                     max_ngen=max_ngen+1,

@@ -31,6 +31,9 @@ from deap import cma
 
 logger = logging.getLogger('__main__')
 
+def _test_fitness_reduce(f):
+    x = float(f([-23., 0., 0.5, 0.75, 1., 100.]))
+    assert isinstance(x, float)
 
 def _closest_feasible(individual, lbounds, ubounds):
     """From an individual outside of the bounds, returns the closest individual
@@ -42,7 +45,6 @@ def _closest_feasible(individual, lbounds, ubounds):
         elif el <= l:
             individual[i] = l + 1e-9
     return individual
-
 
 def _bound(population, lbounds, ubounds, WSListIndividual):
     """Bound the population to the hypercube formed by the lower and
@@ -66,6 +68,7 @@ class cma_es(cma.Strategy):
         
         if "fitness_reduce" in cma_params:
             self.fitness_reduce = cma_params["fitness_reduce"]
+            _test_fitness_reduce(self.fitness_reduce)
         else:
             self.fitness_reduce = numpy.sum
 
