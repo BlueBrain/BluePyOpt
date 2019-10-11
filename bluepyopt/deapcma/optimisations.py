@@ -147,7 +147,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 partial(lambda x, bm, br: (x * br) + bm, bm=m, br=r))
         
         if centroid is not None:
-            self.centroid = [f(x) for f,x in zip(self.to_norm, centroid)]
+            self.centroid = [[f(x) for f,x in zip(self.to_norm, c)] for c in centroid]
 
         self.setup_deap()
 
