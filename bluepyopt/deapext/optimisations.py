@@ -161,10 +161,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         IND_SIZE = len(self.evaluator.params)
 
         # Bounds for the parameters
-
         LOWER = []
         UPPER = []
-
         for parameter in self.evaluator.params:
             LOWER.append(parameter.lower_bound)
             UPPER.append(parameter.upper_bound)
@@ -259,7 +257,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             continue_cp=False,
             cp_filename=None,
             cp_frequency=1,
-            stagnation=False):
+            stagnation=0,
+            stagnation_perc=0.3):
         """Run optimisation"""
         # Allow run function to override offspring_size
         # TODO probably in the future this should not be an object field
@@ -286,6 +285,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             self.mutpb,
             max_ngen,
             stagnation=stagnation,
+            stagnation_perc=stagnation_perc,
             stats=stats,
             halloffame=self.hof,
             cp_frequency=cp_frequency,

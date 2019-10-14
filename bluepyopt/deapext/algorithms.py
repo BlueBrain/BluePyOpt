@@ -69,11 +69,11 @@ def _get_offspring(parents, toolbox, cxpb, mutpb):
     return deap.algorithms.varAnd(parents, toolbox, cxpb, mutpb)
 
 
-def _get_median30(population):
-    '''return the median of the 30% fittest individual'''
-    _ = [numpy.sum(ind.fitness.values) for ind in population]
+def _get_median(population, percentage=0.3):
+    '''return the median of the X% fittest individuals'''
+    _ = [ind.fitness.sum for ind in population]
     _.sort()
-    return numpy.median(_[:int(len(_)/3.)])
+    return numpy.median(_[:int(percentage*len(_))])
 
 
 def eaAlphaMuPlusLambdaCheckpoint(
@@ -83,7 +83,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cxpb,
         mutpb,
         ngen,
-        stagnation=False,
+        stagnation=0,
+        stagnation_perc=0.3,
         stats=None,
         halloffame=None,
         cp_frequency=1,
@@ -98,8 +99,10 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cxpb(float): Crossover probability
         mutpb(float): Mutation probability
         ngen(int): Total number of generation to run
-        stagnation(int): number of evals after which the run stops if the 
-        fitness stop improving
+        stagnation(int): number of evals after which to stop if the fitness 
+        stops improving
+        stagnation_perc (float): percentage of the population to use for the
+        stagnation criteria
         stats(deap.tools.Statistics): generation of statistics
         halloffame(deap.tools.HallOfFame): hall of fame
         cp_frequency(int): generations between checkpoints
@@ -130,11 +133,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, start_gen, population, invalid_count)
 
-    # Set the termination criteria (either stagnation or max_ngen)
-    nevals = 0
-    nevals_best = 0
-    
     # Begin the generational process
+    tot_nevals = 0
     for gen in range(start_gen + 1, ngen + 1):
         offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
@@ -143,7 +143,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         invalid_count = _evaluate_invalid_fitness(toolbox, offspring)
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, gen, population, invalid_count)
-        nevals += invalid_count
+        tot_nevals += invalid_count
         
         # Select the next generation parents
         parents = toolbox.select(population, mu)
@@ -161,16 +161,15 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       rndstate=random.getstate())
             pickle.dump(cp, open(cp_filename, "wb"))
             logger.debug('Wrote checkpoint to %s', cp_filename)
-
-        # Check if the median of the 30% best individuals improved
-        median30 = _get_median30(population)
-        if gen == start_gen+1 or median30 < median30_best:
-            nevals_best = int(nevals)
-            median30_best = float(median30)
-
-        # Check for termination criteria
-        if stagnation and nevals-nevals_best > stagnation:
-            logger.info("Reached stagnation termination criteria")
-            break
+        
+        if stagnation:
+            # Check if the median of the best individuals improved
+            med = _get_median(population, stagnation_perc)
+            if gen == start_gen+1 or med < best_med:
+                best_nevals = tot_nevals
+                best_med = med
+            if tot_nevals-best_nevals > stagnation:
+                logger.info("Reached stagnation termination criteria")
+                break
 
     return population, halloffame, logbook, history
