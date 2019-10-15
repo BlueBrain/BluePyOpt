@@ -28,7 +28,6 @@ import numpy
 import deap.algorithms
 import deap.tools
 import pickle
-
 logger = logging.getLogger('__main__')
 
 
@@ -73,7 +72,7 @@ def _get_median(population, percentage=0.3):
     '''return the median of the X% fittest individuals'''
     _ = [ind.fitness.sum for ind in population]
     _.sort()
-    return numpy.median(_[:int(percentage*len(_))])
+    return numpy.median(_[:int(percentage * len(_))])
 
 
 def eaAlphaMuPlusLambdaCheckpoint(
@@ -99,10 +98,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cxpb(float): Crossover probability
         mutpb(float): Mutation probability
         ngen(int): Total number of generation to run
-        stagnation(int): number of evals after which to stop if the fitness 
-        stops improving
-        stagnation_perc (float): percentage of the population to use for the
-        stagnation criteria
+        stagnation(int): number of evals after which to stop if the fitness stops improving
+        stagnation_perc (float): percentage of the population to use for the stagnation criteria
         stats(deap.tools.Statistics): generation of statistics
         halloffame(deap.tools.HallOfFame): hall of fame
         cp_frequency(int): generations between checkpoints
@@ -144,7 +141,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, gen, population, invalid_count)
         tot_nevals += invalid_count
-        
+
         # Select the next generation parents
         parents = toolbox.select(population, mu)
 
@@ -161,7 +158,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       rndstate=random.getstate())
             pickle.dump(cp, open(cp_filename, "wb"))
             logger.debug('Wrote checkpoint to %s', cp_filename)
-        
+
         if stagnation:
             # Check if the median of the best individuals improved
             med = _get_median(population, stagnation_perc)

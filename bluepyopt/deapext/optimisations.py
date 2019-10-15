@@ -25,17 +25,13 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import random
 import logging
 import functools
-
 import deap
 import deap.base
 import deap.algorithms
 import deap.tools
-
 from . import algorithms
 from . import tools
-
 import bluepyopt.optimisations
-
 logger = logging.getLogger('__main__')
 
 # TODO decide which variables go in constructor,which ones go in 'run' function
