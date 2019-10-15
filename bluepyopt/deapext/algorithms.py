@@ -119,7 +119,6 @@ def eaAlphaMuPlusLambdaCheckpoint(
         logbook = cp["logbook"]
         history = cp["history"]
         random.setstate(cp["rndstate"])
-        
         if stagnation:
             best_med = cp["best_median"]
             best_nevals = cp["best_nevals"]
