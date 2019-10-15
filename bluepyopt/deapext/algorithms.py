@@ -118,10 +118,12 @@ def eaAlphaMuPlusLambdaCheckpoint(
         halloffame = cp["halloffame"]
         logbook = cp["logbook"]
         history = cp["history"]
-        best_med = cp["best_median"]
-        best_nevals = cp["best_nevals"]
         random.setstate(cp["rndstate"])
-        tot_nevals = numpy.sum(logbook.select("nevals"))
+        
+        if stagnation:
+            best_med = cp["best_median"]
+            best_nevals = cp["best_nevals"]
+            tot_nevals = numpy.sum(logbook.select("nevals"))
     else:
         # Start a new evolution
         start_gen = 1
@@ -135,9 +137,9 @@ def eaAlphaMuPlusLambdaCheckpoint(
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, start_gen, population, invalid_count)
 
-        # Stagnation related
-        tot_nevals = 0
-        best_med = 0
+        if stagnation:
+            tot_nevals = 0
+            best_med = 0
 
     # Begin the generational process
     for gen in range(start_gen + 1, ngen + 1):
@@ -163,9 +165,10 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       halloffame=halloffame,
                       history=history,
                       logbook=logbook,
-                      rndstate=random.getstate(),
-                      best_median=best_med,
-                      best_nevals=best_nevals)
+                      rndstate=random.getstate())
+            if stagnation:
+                cp["best_median"] = best_med
+                cp["best_nevals"] = best_nevals
             pickle.dump(cp, open(cp_filename, "wb"))
             logger.debug('Wrote checkpoint to %s', cp_filename)
 
