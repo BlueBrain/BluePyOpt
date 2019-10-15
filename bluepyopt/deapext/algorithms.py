@@ -134,7 +134,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         invalid_count = _evaluate_invalid_fitness(toolbox, population)
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, start_gen, population, invalid_count)
-        
+
         # Stagnation related
         tot_nevals = 0
         best_med = 0
