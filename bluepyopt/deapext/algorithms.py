@@ -122,7 +122,6 @@ def eaAlphaMuPlusLambdaCheckpoint(
         if stagnation:
             best_med = cp["best_median"]
             best_nevals = cp["best_nevals"]
-            tot_nevals = numpy.sum(logbook.select("nevals"))
     else:
         # Start a new evolution
         start_gen = 1
@@ -137,7 +136,6 @@ def eaAlphaMuPlusLambdaCheckpoint(
         _record_stats(stats, logbook, start_gen, population, invalid_count)
 
         if stagnation:
-            tot_nevals = 0
             best_med = 0
 
     # Begin the generational process
@@ -149,7 +147,6 @@ def eaAlphaMuPlusLambdaCheckpoint(
         invalid_count = _evaluate_invalid_fitness(toolbox, offspring)
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, gen, population, invalid_count)
-        tot_nevals += invalid_count
 
         # Select the next generation parents
         parents = toolbox.select(population, mu)
@@ -174,6 +171,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         if stagnation:
             # Check if the median of the best individuals improved
             med = _get_median(population, stagnation_perc)
+            tot_nevals = numpy.sum(logbook.select("nevals"))
             if gen == start_gen + 1 or med < best_med:
                 best_nevals = tot_nevals
                 best_med = med
