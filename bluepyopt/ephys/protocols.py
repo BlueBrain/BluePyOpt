@@ -72,12 +72,23 @@ class SequenceProtocol(Protocol):
         responses = collections.OrderedDict({})
 
         for protocol in self.protocols:
-            response = protocol.run(
-                cell_model=cell_model,
-                param_values=param_values,
-                sim=sim,
-                isolate=isolate,
-                timeout=timeout)
+            
+            try:
+                response = protocol.run(
+                    cell_model=cell_model,
+                    param_values=param_values,
+                    sim=sim,
+                    isolate=isolate,
+                    timeout=timeout)
+            except TypeError as e:
+                if "unexpected keyword" in str(e):
+                    response = protocol.run(
+                        cell_model=cell_model,
+                        param_values=param_values,
+                        sim=sim,
+                        isolate=isolate)
+                else:
+                    raise
 
             key_intersect = set(
                 response.keys()).intersection(set(responses.keys()))
