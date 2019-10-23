@@ -72,6 +72,8 @@ class SequenceProtocol(Protocol):
         responses = collections.OrderedDict({})
 
         for protocol in self.protocols:
+
+            # Try/except added for backward compatibility
             try:
                 response = protocol.run(
                     cell_model=cell_model,
