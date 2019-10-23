@@ -140,9 +140,9 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             protocol,
             param_values,
             isolate=None,
-            timeout=None,
             cell_model=None,
-            sim=None):
+            sim=None,
+            timeout=None):
         """Run protocol"""
 
         sim = self.sim if sim is None else sim
@@ -150,12 +150,23 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         if self.use_params_for_seed:
             sim.random123_globalindex = self.seed_from_param_dict(param_values)
 
-        return protocol.run(
-            self.cell_model if cell_model is None else cell_model,
-            param_values,
-            sim=sim,
-            isolate=isolate,
-            timeout=timeout)
+        # Try/except added for backward compatibility
+        try:
+            return protocol.run(
+                self.cell_model if cell_model is None else cell_model,
+                param_values,
+                sim=sim,
+                isolate=isolate,
+                timeout=timeout)
+        except TypeError as e:
+            if "unexpected keyword" in str(e):
+                return protocol.run(
+                    self.cell_model if cell_model is None else cell_model,
+                    param_values,
+                    sim=sim,
+                    isolate=isolate)
+            else:
+                raise
 
     def run_protocols(self, protocols, param_values):
         """Run a set of protocols"""
