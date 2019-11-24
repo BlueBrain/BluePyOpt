@@ -155,11 +155,11 @@ class NrnFileMorphology(Morphology, DictMixin):
         else:
             ais_diams = [icell.axon[0].diam, icell.axon[0].diam]
             # Define origin of distance function
-            sim.neuron.h.distance(sec=icell.soma[0])
+            sim.neuron.h.distance(0, 0.5, sec=icell.soma[0])
 
             for section in icell.axonal:
                 # If distance to soma is larger than 60, store diameter
-                if sim.neuron.h.distance(0.5, sec=section) > 60:
+                if sim.neuron.h.distance(1, 0.5, sec=section) > 60:
                     ais_diams[1] = section.diam
                     break
 
