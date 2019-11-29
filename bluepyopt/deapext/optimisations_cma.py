@@ -52,7 +52,6 @@ def _update_history_and_hof(halloffame, history, population):
 
     history.update(population)
 
-
 def _record_stats(stats, logbook, gen, population, evals, sigma):
     """Update the statistics with the new population"""
     record = stats.compile(population) if stats is not None else {}

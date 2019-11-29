@@ -21,7 +21,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint: disable=R0912, R0914
 
-
 import random
 import logging
 import functools

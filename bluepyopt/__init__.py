@@ -30,7 +30,7 @@ from . import tools  # NOQA
 from .api import *  # NOQA
 import bluepyopt.optimisations
 import bluepyopt.deapext.optimisations
-import bluepyopt.deapcma.optimisations
+import bluepyopt.deapext.optimisations_cma
 
 # Add some backward compatibility for the time when DEAPoptimisation not in
 # deapext yet
@@ -38,7 +38,7 @@ import bluepyopt.deapcma.optimisations
 bluepyopt.optimisations.DEAPOptimisation = \
     bluepyopt.deapext.optimisations.DEAPOptimisation
 bluepyopt.optimisations.DEAPOptimisationCMA = \
-    bluepyopt.deapcma.optimisations.DEAPOptimisationCMA
+    bluepyopt.deapext.optimisations_cma.DEAPOptimisationCMA
 
 import bluepyopt.evaluators
 import bluepyopt.objectives
