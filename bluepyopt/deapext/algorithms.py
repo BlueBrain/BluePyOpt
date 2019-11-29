@@ -133,6 +133,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, start_gen, population, invalid_count)
 
+    stopping_conditions = [MaxNGen(ngen)]
+
     # Begin the generational process
     tot_nevals = 0
     for gen in range(start_gen + 1, ngen + 1):
@@ -161,15 +163,14 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       rndstate=random.getstate())
             pickle.dump(cp, open(cp_filename, "wb"))
             logger.debug('Wrote checkpoint to %s', cp_filename)
-        
-        if stagnation:
-            # Check if the median of the best individuals improved
-            med = _get_median(population, stagnation_perc)
-            if gen == start_gen+1 or med < best_med:
-                best_nevals = tot_nevals
-                best_med = med
-            if tot_nevals-best_nevals > stagnation:
-                logger.info("Reached stagnation termination criteria")
+
+        stopping_params = {"ngen": gen}
+        [c.check(stopping_params) for c in stopping_conditions]
+        for c in stopping_conditions:
+            if c.criteria_met:
+                logger.info('IBEA stopped because of termination criteria: ' +
+                            ' '.join(type(c).__name__))
+                self.active = False
                 break
 
     return population, halloffame, logbook, history

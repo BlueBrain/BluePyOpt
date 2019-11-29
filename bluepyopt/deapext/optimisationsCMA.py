@@ -21,22 +21,17 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint: disable=R0912, R0914
 
-import bluepyopt.optimisations
-
-import copyreg
-import functools
 import logging
 import numpy
 import pickle
 import random
-import types
 from itertools import cycle
 
 from deap import base
 from deap import tools
-from functools import partial
 
-from .cma_es import cma_es
+from . import DEAPOptimisation
+from . import cma_es
 
 logger = logging.getLogger('__main__')
 
@@ -52,6 +47,7 @@ def _update_history_and_hof(halloffame, history, population):
 
     history.update(population)
 
+
 def _record_stats(stats, logbook, gen, population, evals, sigma):
     """Update the statistics with the new population"""
     record = stats.compile(population) if stats is not None else {}
@@ -59,39 +55,25 @@ def _record_stats(stats, logbook, gen, population, evals, sigma):
     return record
 
 
-class Fitness(base.Fitness):
-    """Single objective fitness"""
-    def __init__(self, values=()):
-        self.weights = [-1.]
-        super(Fitness, self).__init__(values)
+def _ind_convert_space(ind, convert_fcn):
+    return [f(x) for f, x in zip(convert_fcn, ind)]
 
 
-class ListIndividual(list):
-    """Individual consisting of a list with weighted fitness"""
+class CMADEAPOptimisation(DEAPOptimisation):
 
-    def __init__(self, *args, **kwargs):
-        """Constructor"""
-        self.fitness = Fitness()
-        # all_values contains the list of individual objective values
-        self.all_values = []
-        super(ListIndividual, self).__init__(*args, **kwargs)
-
-
-class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
-    """DEAP Optimisation class"""
+    """CMA DEAP class"""
 
     def __init__(self,
                  evaluator=None,
                  use_scoop=False,
+                 seed=1,
                  swarm_size=1,
                  centroids=None,
                  sigma=0.4,
                  lr_scale=1.,
-                 seed=1,
                  map_function=None,
                  hof=None,
-                 fitness_reduce=numpy.sum,
-                 **kargs):
+                 fitness_reduce=numpy.sum):
         """Constructor
 
         Args:
@@ -109,108 +91,57 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             to a single fitness value
         """
 
-        super(DEAPOptimisationCMA, self).__init__(evaluator=evaluator)
+        super(DEAPOptimisationCMA, self).__init__(evaluator=evaluator,
+                                                   use_scoop=use_scoop,
+                                                   seed=seed,
+                                                   map_function=map_function,
+                                                   hof=hof,
+                                                   fitness_reduce=fitness_reduce)
 
-        self.problem_size = len(self.evaluator.params)
-        self.use_scoop = use_scoop
-        self.seed = seed
-        self.map_function = map_function
         self.swarm_size = swarm_size
         self.lr_scale = lr_scale
-        self.fitness_reduce = fitness_reduce
-        self.cma_params = kargs
         self.sigma = sigma
-        logger.info("Global sigma set to: {}".format(self.sigma))
 
-        self.hof = hof
-        if self.hof is None:
-            self.hof = tools.HallOfFame(10)
-
-        # Create a DEAP toolbox
-        self.toolbox = base.Toolbox()
+        # In case initial guesses were provided, rescale them to the norm space
+        self.centroids = [_ind_convert_space(ind, self.to_norm) for ind
+                         in centroids]
 
         # Instantiate functions converting individuals from the original
         # parameter space to (and from) a normalized space bounded to [-1.;1]
-        lbounds = numpy.asarray([p.lower_bound for p in self.evaluator.params])
-        ubounds = numpy.asarray([p.upper_bound for p in self.evaluator.params])
+        bounds_radius = (self.ubounds - self.lbounds) / 2.
+        bounds_mean = (self.ubounds + self.lbounds) / 2.
         self.to_norm = []
         self.to_space = []
-        bounds_radius = (ubounds - lbounds) / 2.
-        bounds_mean = (ubounds + lbounds) / 2.
         for r, m in zip(bounds_radius, bounds_mean):
             self.to_norm.append(
                 partial(lambda param, bm, br: (param - bm) / br, bm=m, br=r))
             self.to_space.append(
                 partial(lambda param, bm, br: (param * br) + bm, bm=m, br=r))
 
-        # Define the new bounds as -1. and 1.
-        self.lbounds = [-1.] * self.problem_size
-        self.ubounds = [1.] * self.problem_size
+        # Overwrite the bounds with -1. and 1.
+        self.lbounds = numpy.full(self.problem_size, -1.)
+        self.ubounds = numpy.full(self.problem_size, 1.)
 
-        # In case initial guesses were provided, rescale them to the norm space
-        self.centroids = centroids
-        if centroids is not None:
-            self.centroids = [[f(x) for f, x in zip(self.to_norm, c)]
-                              for c in centroids]
-        
         self.setup_deap()
 
-    def setup_deap(self):
-        """Set up optimisation"""
-
-        # Set random seed
-        random.seed(self.seed)
-        numpy.random.seed(self.seed)
-
-        # Register the evaluation function for the individuals
-        self.toolbox.register("evaluate", self.evaluator.evaluate_with_lists)
-
-        def _reduce_method(meth):
-            """Overwrite reduce"""
-            return getattr, (meth.__self__, meth.__func__.__name__)
-
-        copyreg.pickle(types.MethodType, _reduce_method)
-
-        if self.use_scoop:
-            if self.map_function:
-                raise Exception(
-                    'Impossible to use scoop is providing self '
-                    'defined map function: %s' %
-                    self.map_function)
-
-            from scoop import futures
-            self.toolbox.register("map", futures.map)
-
-        elif self.map_function:
-            self.toolbox.register("map", self.map_function)
-
     def run(self,
-            offspring_size=None,
             max_ngen=10,
             cp_frequency=1,
             continue_cp=False,
-            cp_filename=None,
-            stats=None):
+            cp_filename=None):
         """ Implementation of a single objective population of CMA-ES
             (using the termination criteria presented in *Hansen, 2009,
             Benchmarking a BI-Population CMA-ES on the BBOB-2009
             Function Testbed*).
 
         Args:
-            offspring_size(int): number of offspring in each CMA strategy
             max_ngen(int): Total number of generation to run
             cp_frequency(int): generations between checkpoints
             cp_filename(string): path to checkpoint filename
             continue_cp(bool): whether to continue
-            stats(deap.tools.Statistics): generation of statistics
         """
 
-        if stats is None:
-            stats = tools.Statistics(key=lambda ind: ind.fitness.values)
-            stats.register("avg", numpy.mean)
-            stats.register("std", numpy.std)
-            stats.register("min", numpy.min)
-            stats.register("max", numpy.max)
+        stats = _get_stats()
 
         if continue_cp:
             # A file name has been given, then load the data from the file
@@ -228,28 +159,20 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             logbook = tools.Logbook()
             logbook.header = ["gen", "nevals", "sigma"] + stats.fields
 
-            if offspring_size is not None:
-                self.cma_params['lambda_'] = offspring_size
-            logger.info("Offspring size per CMA strategy set to: {}".format(
-                offspring_size))
-
-            if self.centroids is None:
-                # Generate random centroids in the normalized parameter space
-                starters = cycle([ListIndividual((numpy.random.rand(
-                    self.problem_size)*2.)-1.) for c in range(self.swarm_size)])
-            else:
-                starters = cycle(self.centroids)
-            
             swarm = []
             for i in range(self.swarm_size):
+
+                if self.centroids is None:
+                    starter = self.toolbox.Individual()
+                else:
+                    starter = self.centroids[i%len(self.centroids)]
+
                 # Instantiate the CMA strategies centered on the centroids
-                swarm.append(cma_es(centroid=next(starters),
+                swarm.append(cma_es(centroid=starter,
                                     sigma=self.sigma,
                                     lr_scale=self.lr_scale,
                                     max_ngen=max_ngen+1,
-                                    IndCreator=ListIndividual,
-                                    fitness_reduce=self.fitness_reduce,
-                                    cma_params=self.cma_params))
+                                    IndCreator=ListIndividual))
             gen = 1
 
         # Run until a termination criteria is met for every CMA strategy

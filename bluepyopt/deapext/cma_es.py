@@ -60,9 +60,7 @@ class cma_es(cma.Strategy):
                  sigma,
                  lr_scale,
                  max_ngen,
-                 IndCreator,
-                 fitness_reduce=numpy.sum,
-                 cma_params={}):
+                 IndCreator):
         """Constructor
 
         Args:
@@ -72,13 +70,9 @@ class cma_es(cma.Strategy):
             lr_scale (float): scaling for the learning rates
             max_ngen (int): total number of generation to run
             IndCreator (fcn): individual creating function
-            fitness_reduce (fcn): used to reduce the list of objective values
-            to a single fitness value
-            cma_params (dict): kwargs passed to the cma.Strategy constructor
-            (see https://deap.readthedocs.io/en/master/api/algo.html#deap.cma.Strategy)
         """
 
-        cma.Strategy.__init__(self, centroid, sigma, **cma_params)
+        cma.Strategy.__init__(self, centroid, sigma)
 
         self.fitness_reduce = fitness_reduce
 

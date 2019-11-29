@@ -80,7 +80,7 @@ class Stagnation(StoppingCriteria):
         """Check if the if the population stopped improving"""
         ngen = kwargs.get("ngen")
         population = kwargs.get("population")
-        fitness = sort([ind.fitness.sum for ind in population])
+        fitness = sort([ind.fitness.reduce for ind in population])
 
         self.best.append(fitness[0])
         self.median.append(fitness[int(round(len(fitness) / 2.))])
@@ -102,6 +102,7 @@ class TolHistFun(StoppingCriteria):
     def __init__(self, lambda_, problem_size):
         """Constructor"""
         super(TolHistFun, self).__init__()
+        self.reduce_fcn = reduce_fcn
         self.tolhistfun = 10 ** -12
         self.mins = deque(
             maxlen=10 + int(numpy.ceil(30. * problem_size / lambda_)))
@@ -110,7 +111,7 @@ class TolHistFun(StoppingCriteria):
         """Check if the range of the best values is smaller than
         the threshold"""
         population = kwargs.get("population")
-        self.mins.append(numpy.min([ind.fitness.sum for ind in population]))
+        self.mins.append(numpy.min([ind.fitness.reduce for ind in population]))
 
         if len(self.mins) == self.mins.maxlen and max(self.mins) - min(
                 self.mins) < self.tolhistfun:
@@ -134,7 +135,7 @@ class EqualFunVals(StoppingCriteria):
         ngen = kwargs.get("ngen")
         population = kwargs.get("population")
 
-        fitness = sort([ind.fitness.sum for ind in population])
+        fitness = sort([ind.fitness.reduce for ind in population])
         if isclose(fitness[0], fitness[-self.equalvals_k], ret_tol=1e-6):
             self.equalvalues.append(1)
         else:
