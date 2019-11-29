@@ -23,9 +23,12 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 import numpy
+import copy
 
 from deap import base
 from deap import cma
+
+from . import *
 
 logger = logging.getLogger('__main__')
 
@@ -41,14 +44,13 @@ def _closest_feasible(individual, lbounds, ubounds):
     return individual
 
 
-def _bound(population, lbounds, ubounds, IndCreator):
+def _bound(population, lbounds, ubounds):
     """return the population bounded by the lower and upper parameter bounds."""
     n_out = 0
     for i, ind in enumerate(population):
         if numpy.any(numpy.less(ind, lbounds)) or numpy.any(
                 numpy.greater(ind, ubounds)):
-            new_ind = _closest_feasible(ind, lbounds, ubounds)
-            population[i] = IndCreator(new_ind)
+            population[i] = _closest_feasible(ind, lbounds, ubounds)
             n_out += 1
     return n_out
 
@@ -69,12 +71,13 @@ class cma_es(cma.Strategy):
             sigma (float): initial standard deviation of the distribution
             lr_scale (float): scaling for the learning rates
             max_ngen (int): total number of generation to run
-            IndCreator (fcn): individual creating function
+            IndCreator (fcn): function returning an individual of the pop
         """
 
         cma.Strategy.__init__(self, centroid, sigma)
 
-        self.fitness_reduce = fitness_reduce
+        self.population = []
+        self.problem_size = len(centroid)
 
         # Rescale the learning rates
         self.cs *= lr_scale
@@ -82,14 +85,9 @@ class cma_es(cma.Strategy):
         self.ccov1 *= lr_scale
         self.ccovmu *= lr_scale
 
-        self.population = []
-        self.IndCreator = IndCreator
-
-        self.problem_size = len(centroid)
-
         # Toolbox specific to this CMA-ES
         self.toolbox = base.Toolbox()
-        self.toolbox.register("generate", self.generate, self.IndCreator)
+        self.toolbox.register("generate", self.generate, IndCreator)
         self.toolbox.register("update", self.update)
 
         # Set termination conditions
@@ -112,25 +110,23 @@ class cma_es(cma.Strategy):
 
     def get_population(self, to_space):
         # Returns the population in the original parameter space
-        pop = []
-        for ind in self.population:
-            pop.append(self.IndCreator([f(e) for f, e in zip(to_space, ind)]))
-            pop[-1].fitness = ind.fitness
-            pop[-1].all_values = ind.all_values
+        pop = copy.deepcopy(self.population)
+        for i, ind in enumerate(pop):
+            for j, v in enumerate(ind):
+                pop[i][j] = to_space[j](v)
         return pop
 
     def generate_new_pop(self, lbounds, ubounds):
         # Generate a new population bounded in the normalized space
         self.population = self.toolbox.generate()
-        return _bound(self.population, lbounds, ubounds, self.IndCreator)
+        return _bound(self.population, lbounds, ubounds)
 
     def update_strategy(self):
         self.toolbox.update(self.population)
 
     def set_fitness(self, fitnesses):
         for f, ind in zip(fitnesses, self.population):
-            ind.fitness.values = [self.fitness_reduce(f)]
-            ind.all_values = f
+            ind.fitness.values = f
 
     def check_termination(self, ngen):
         stopping_params = {

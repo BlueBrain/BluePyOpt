@@ -57,16 +57,6 @@ def _uniform(lower_list, upper_list, dimensions):
                 for _ in range(dimensions)]
 
 
-def _get_stats():
-    """Get the stats that will be saved during optimisation"""
-    stats = deap.tools.Statistics(key=lambda ind: ind.fitness.sum)
-    stats.register("avg", numpy.mean)
-    stats.register("std", numpy.std)
-    stats.register("min", numpy.min)
-    stats.register("max", numpy.max)
-    return stats
-
-
 class ReduceFitness(deap.base.Fitness):
 
     """Fitness that compares by weighted"""
@@ -173,10 +163,17 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
                               self.ind_size)
 
         # Register the individual format
-        # An indiviual is create by ListIndividual and parameters are
-        # initially picked by 'uniform'
         self.toolbox.register(
             "Individual",
+            functools.partial(ListIndividual,
+                              obj_size=self.ind_size,
+                              reduce_fcn=self.fitness_reduce)
+        )
+
+        # A Random Indiviual is create by ListIndividual and parameters are
+        # initially picked by 'uniform'
+        self.toolbox.register(
+            "RandomIndividual",
             deap.tools.initIterate,
             functools.partial(ListIndividual,
                               obj_size=self.ind_size,
@@ -188,7 +185,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             "population",
             deap.tools.initRepeat,
             list,
-            self.toolbox.Individual)
+            self.toolbox.RandomIndividual)
 
         # Register the evaluation function for the individuals
         self.toolbox.register("evaluate", self.evaluator.evaluate_with_lists)
@@ -206,6 +203,15 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
         elif self.map_function:
             self.toolbox.register("map", self.map_function)
+
+    def get_stats(self):
+        """Get the stats that will be saved during optimisation"""
+        stats = deap.tools.Statistics(key=lambda ind: ind.fitness.sum)
+        stats.register("avg", numpy.mean)
+        stats.register("std", numpy.std)
+        stats.register("min", numpy.min)
+        stats.register("max", numpy.max)
+        return stats
 
     def run(self):
         """Run optimisation"""

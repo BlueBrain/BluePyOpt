@@ -25,12 +25,12 @@ import logging
 import numpy
 import pickle
 import random
-from itertools import cycle
+from functools import partial
 
 from deap import base
 from deap import tools
 
-from . import DEAPOptimisation
+from . import DEAPOptimisation, ListIndividual
 from . import cma_es
 
 logger = logging.getLogger('__main__')
@@ -91,7 +91,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
             to a single fitness value
         """
 
-        super(DEAPOptimisationCMA, self).__init__(evaluator=evaluator,
+        super(CMADEAPOptimisation, self).__init__(evaluator=evaluator,
                                                    use_scoop=use_scoop,
                                                    seed=seed,
                                                    map_function=map_function,
@@ -100,11 +100,13 @@ class CMADEAPOptimisation(DEAPOptimisation):
 
         self.swarm_size = swarm_size
         self.lr_scale = lr_scale
+        self.centroids= centroids
         self.sigma = sigma
 
         # In case initial guesses were provided, rescale them to the norm space
-        self.centroids = [_ind_convert_space(ind, self.to_norm) for ind
-                         in centroids]
+        if self.centroids is not None:
+            self.centroids = [self.toolbox.Individual(_ind_convert_space(ind,
+                                self.to_norm)) for ind in centroids]
 
         # Instantiate functions converting individuals from the original
         # parameter space to (and from) a normalized space bounded to [-1.;1]
@@ -141,7 +143,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
             continue_cp(bool): whether to continue
         """
 
-        stats = _get_stats()
+        stats = self.get_stats()
 
         if continue_cp:
             # A file name has been given, then load the data from the file
@@ -163,7 +165,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
             for i in range(self.swarm_size):
 
                 if self.centroids is None:
-                    starter = self.toolbox.Individual()
+                    starter = self.toolbox.RandomIndividual()
                 else:
                     starter = self.centroids[i%len(self.centroids)]
 
@@ -172,7 +174,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
                                     sigma=self.sigma,
                                     lr_scale=self.lr_scale,
                                     max_ngen=max_ngen+1,
-                                    IndCreator=ListIndividual))
+                                    IndCreator=self.toolbox.Individual))
             gen = 1
 
         # Run until a termination criteria is met for every CMA strategy

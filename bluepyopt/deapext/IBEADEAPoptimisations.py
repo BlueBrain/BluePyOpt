@@ -23,6 +23,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import random
 import logging
+import numpy
 
 import deap
 import deap.base
@@ -137,7 +138,7 @@ class IBEADEAPOptimisation(DEAPOptimisation):
         # Generate the population object
         pop = self.toolbox.population(n=offspring_size)
 
-        stats = _get_stats()
+        stats = self.get_stats()
 
         pop, hof, log, history = algorithms.eaAlphaMuPlusLambdaCheckpoint(
             pop,

@@ -102,7 +102,6 @@ class TolHistFun(StoppingCriteria):
     def __init__(self, lambda_, problem_size):
         """Constructor"""
         super(TolHistFun, self).__init__()
-        self.reduce_fcn = reduce_fcn
         self.tolhistfun = 10 ** -12
         self.mins = deque(
             maxlen=10 + int(numpy.ceil(30. * problem_size / lambda_)))

@@ -29,16 +29,15 @@ from . import tools  # NOQA
 
 from .api import *  # NOQA
 import bluepyopt.optimisations
-import bluepyopt.deapext.optimisations
-import bluepyopt.deapext.optimisations_cma
+import bluepyopt.deapext.DEAPoptimisations
+import bluepyopt.deapext.CMADEAPoptimisations
+import bluepyopt.deapext.IBEADEAPoptimisations
 
 # Add some backward compatibility for the time when DEAPoptimisation not in
 # deapext yet
 # TODO deprecate this
 bluepyopt.optimisations.DEAPOptimisation = \
-    bluepyopt.deapext.optimisations.DEAPOptimisation
-bluepyopt.optimisations.DEAPOptimisationCMA = \
-    bluepyopt.deapext.optimisations_cma.DEAPOptimisationCMA
+    bluepyopt.deapext.IBEADEAPoptimisations.IBEADEAPOptimisation
 
 import bluepyopt.evaluators
 import bluepyopt.objectives
