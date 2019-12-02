@@ -29,6 +29,8 @@ import deap.algorithms
 import deap.tools
 import pickle
 
+from . import MaxNGen, Stagnation
+
 logger = logging.getLogger('__main__')
 
 

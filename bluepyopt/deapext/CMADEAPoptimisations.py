@@ -105,9 +105,9 @@ class CMADEAPOptimisation(DEAPOptimisation):
         self.sigma = sigma
 
         if multi_objective:
-            self.cma_creator = cma_es.cma_es
+            self.cma_creator = multi_cma_es
         else:
-            self.cma_creator = multi_cma_es.multi_cma_es
+            self.cma_creator = cma_es
 
         # In case initial guesses were provided, rescale them to the norm space
         if self.centroids is not None:

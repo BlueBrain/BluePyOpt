@@ -28,6 +28,8 @@ import copy
 from deap import base
 from deap import cma
 
+from . import MaxNGen, Stagnation, TolHistFun, EqualFunVals, NoEffectAxis, TolUpSigma, TolX, ConditionCov, NoEffectCoor
+
 logger = logging.getLogger('__main__')
 
 

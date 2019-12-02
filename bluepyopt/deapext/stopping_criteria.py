@@ -27,7 +27,7 @@ import numpy
 from math import isclose
 from collections import deque
 
-import bluepyopt.stopping_criteria
+from bluepyopt.stopping_criteria import StoppingCriteria
 
 logger = logging.getLogger('__main__')
 

@@ -28,6 +28,8 @@ import copy
 from deap import base
 from deap import cma
 
+from . import MaxNGen, Stagnation
+
 logger = logging.getLogger('__main__')
 
 
@@ -72,7 +74,7 @@ class multi_cma_es(cma.StrategyOnePlusLambda):
             IndCreator (fcn): function returning an individual of the pop
         """
 
-        cma.Strategy.__init__(self, centroid, sigma)
+        cma.StrategyOnePlusLambda.__init__(self, centroid, sigma)
 
         self.population = []
         self.problem_size = len(centroid)
@@ -92,54 +94,6 @@ class multi_cma_es(cma.StrategyOnePlusLambda):
             MaxNGen(max_ngen),
             Stagnation(self.lambda_, self.problem_size),
         ]
-
-    def update(self, population):
-        """Update the current covariance matrix strategy from the
-        population"""
-
-        population.sort(key=lambda ind: ind.fitness.reduce, reverse=True)
-
-        old_centroid = self.centroid
-        self.centroid = numpy.dot(self.weights, population[0:self.mu])
-
-        c_diff = self.centroid - old_centroid
-
-        # Cumulation : update evolution path
-        self.ps = (1 - self.cs) * self.ps \
-                  + sqrt(self.cs * (2 - self.cs) * self.mueff) / self.sigma \
-                  * numpy.dot(self.B, (1. / self.diagD) *
-                              numpy.dot(self.B.T, c_diff))
-
-        hsig = float((numpy.linalg.norm(self.ps) /
-                      sqrt(1. - (1. - self.cs) ** (
-                                  2. * (self.update_count + 1.))) / self.chiN <
-                      (1.4 + 2. / (self.dim + 1.))))
-
-        self.update_count += 1
-
-        self.pc = (1 - self.cc) * self.pc + hsig \
-                  * sqrt(self.cc * (2 - self.cc) * self.mueff) / self.sigma \
-                  * c_diff
-
-        # Update covariance matrix
-        artmp = population[0:self.mu] - old_centroid
-        self.C = (1 - self.ccov1 - self.ccovmu + (1 - hsig) *
-                  self.ccov1 * self.cc * (2 - self.cc)) * self.C \
-                 + self.ccov1 * numpy.outer(self.pc, self.pc) \
-                 + self.ccovmu * numpy.dot((self.weights * artmp.T), artmp) \
-                 / self.sigma ** 2
-
-        self.sigma *= numpy.exp((numpy.linalg.norm(self.ps) / self.chiN - 1.) *
-                                self.cs / self.damps)
-
-        self.diagD, self.B = numpy.linalg.eigh(self.C)
-        indx = numpy.argsort(self.diagD)
-
-        self.cond = self.diagD[indx[-1]] / self.diagD[indx[0]]
-
-        self.diagD = self.diagD[indx] ** 0.5
-        self.B = self.B[:, indx]
-        self.BD = self.B * self.diagD
 
     def get_population(self, to_space):
         """Returns the population in the original parameter space"""
