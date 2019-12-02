@@ -28,7 +28,7 @@ class StoppingCriteria(object):
         self.criteria_met = False
         pass
 
-    def check(self, **kwargs):
+    def check(self, kwargs):
         """Check if the stopping criteria is met"""
         pass
 

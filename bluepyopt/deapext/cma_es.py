@@ -23,6 +23,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 import numpy
+from math import sqrt, log, exp
 import copy
 
 from deap import base

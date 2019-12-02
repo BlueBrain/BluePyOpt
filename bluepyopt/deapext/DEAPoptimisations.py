@@ -208,7 +208,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
     def get_stats(self):
         """Get the stats that will be saved during optimisation"""
-        stats = deap.tools.Statistics(key=lambda ind: ind.fitness.sum)
+        stats = deap.tools.Statistics(key=lambda ind: ind.fitness.reduce)
         stats.register("avg", numpy.mean)
         stats.register("std", numpy.std)
         stats.register("min", numpy.min)
