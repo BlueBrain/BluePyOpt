@@ -69,7 +69,9 @@ class IBEADEAPOptimisation(DEAPOptimisation):
             hof (hof): Hall of Fame object
             selector_name (str): The selector used in the evolutionary
                 algorithm, possible values are 'IBEA' or 'NSGA2'
-        """
+            fitness_reduce (fcn): function used to reduce the objective values
+                to a single fitness score
+         """
 
         super(IBEADEAPOptimisation, self).__init__(evaluator=evaluator,
                                                    use_scoop=use_scoop,

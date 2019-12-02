@@ -33,10 +33,10 @@ logger = logging.getLogger('__main__')
 
 
 def _evaluate_invalid_fitness(toolbox, population):
-    '''Evaluate the individuals with an invalid fitness
+    """Evaluate the individuals with an invalid fitness
 
     Returns the count of individuals with invalid fitness
-    '''
+    """
     invalid_ind = [ind for ind in population if not ind.fitness.valid]
     fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
     for ind, fit in zip(invalid_ind, fitnesses):
@@ -46,10 +46,10 @@ def _evaluate_invalid_fitness(toolbox, population):
 
 
 def _update_history_and_hof(halloffame, history, population):
-    '''Update the hall of fame with the generated individuals
+    """Update the hall of fame with the generated individuals
 
     Note: History and Hall-of-Fame behave like dictionaries
-    '''
+    """
     if halloffame is not None:
         halloffame.update(population)
 
@@ -57,23 +57,16 @@ def _update_history_and_hof(halloffame, history, population):
 
 
 def _record_stats(stats, logbook, gen, population, invalid_count):
-    '''Update the statistics with the new population'''
+    """Update the statistics with the new population"""
     record = stats.compile(population) if stats is not None else {}
     logbook.record(gen=gen, nevals=invalid_count, **record)
 
 
 def _get_offspring(parents, toolbox, cxpb, mutpb):
-    '''return the offsprint, use toolbox.variate if possible'''
+    """return the offsprint, use toolbox.variate if possible"""
     if hasattr(toolbox, 'variate'):
         return toolbox.variate(parents, toolbox, cxpb, mutpb)
     return deap.algorithms.varAnd(parents, toolbox, cxpb, mutpb)
-
-
-def _get_median(population, percentage=0.3):
-    '''return the median of the X% fittest individuals'''
-    _ = [ind.fitness.sum for ind in population]
-    _.sort()
-    return numpy.median(_[:int(percentage*len(_))])
 
 
 def eaAlphaMuPlusLambdaCheckpoint(
@@ -83,8 +76,6 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cxpb,
         mutpb,
         ngen,
-        stagnation=0,
-        stagnation_perc=0.3,
         stats=None,
         halloffame=None,
         cp_frequency=1,
@@ -99,10 +90,6 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cxpb(float): Crossover probability
         mutpb(float): Mutation probability
         ngen(int): Total number of generation to run
-        stagnation(int): number of evals after which to stop if the fitness 
-        stops improving
-        stagnation_perc (float): percentage of the population to use for the
-        stagnation criteria
         stats(deap.tools.Statistics): generation of statistics
         halloffame(deap.tools.HallOfFame): hall of fame
         cp_frequency(int): generations between checkpoints

@@ -36,6 +36,7 @@ import bluepyopt.optimisations
 
 logger = logging.getLogger('__main__')
 
+
 # TODO decide which variables go in constructor,which ones go in 'run' function
 # TODO abstract the algorithm by creating a class for every algorithm, that way
 # settings of the algorithm can be stored in objects of these classes
@@ -58,12 +59,11 @@ def _uniform(lower_list, upper_list, dimensions):
 
 
 class ReduceFitness(deap.base.Fitness):
-
     """Fitness that compares by weighted"""
 
     def __init__(self, values=(), obj_size=None, reduce_fcn=numpy.sum):
         self.weights = [-1.0] * obj_size if obj_size is not None else [-1]
-        self.reduce_fcn= reduce_fcn
+        self.reduce_fcn = reduce_fcn
         super(ReduceFitness, self).__init__(values)
 
     @property
@@ -71,15 +71,15 @@ class ReduceFitness(deap.base.Fitness):
         return self.reduce_fcn(self.values)
 
     @property
-    def reduce_sum(self):
+    def reduce_weight(self):
         """Weighted reduce of wvalues"""
         return self.reduce_fcn(self.wvalues)
 
     def __le__(self, other):
-        return self.weighted_sum <= other.weighted_sum
+        return self.reduce_weight <= other.reduce_weight
 
     def __lt__(self, other):
-        return self.weighted_sum < other.weighted_sum
+        return self.reduce_weight < other.reduce_weight
 
     def __deepcopy__(self, _):
         """Override deepcopy"""
@@ -91,7 +91,6 @@ class ReduceFitness(deap.base.Fitness):
 
 
 class ListIndividual(list):
-
     """Individual consisting of list with weighted fitness field"""
 
     def __init__(self, *args, **kwargs):
@@ -104,7 +103,6 @@ class ListIndividual(list):
 
 
 class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
-
     """DEAP Optimisation class"""
 
     def __init__(self,
@@ -122,6 +120,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             map_function (function): Function used to map (parallelise) the
                 evaluation function calls
             hof (hof): Hall of Fame object
+            fitness_reduce (fcn): function used to reduce the objective values
+                to a single fitness score
         """
 
         super(DEAPOptimisation, self).__init__(evaluator=evaluator)
@@ -145,8 +145,10 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         self.toolbox = deap.base.Toolbox()
 
         # Bounds for the parameters
-        self.lbounds = numpy.asarray([p.lower_bound for p in self.evaluator.params])
-        self.ubounds = numpy.asarray([p.upper_bound for p in self.evaluator.params])
+        self.lbounds = numpy.asarray(
+            [p.lower_bound for p in self.evaluator.params])
+        self.ubounds = numpy.asarray(
+            [p.upper_bound for p in self.evaluator.params])
 
         self.setup_deap()
 

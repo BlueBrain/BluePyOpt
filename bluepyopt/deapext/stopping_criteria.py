@@ -27,23 +27,9 @@ import numpy
 from math import isclose
 from collections import deque
 
+import bluepyopt.stopping_criteria
+
 logger = logging.getLogger('__main__')
-
-
-class StoppingCriteria(object):
-    """Stopping Criteria class"""
-
-    def __init__(self):
-        """Constructor"""
-        self.criteria_met = False
-        pass
-
-    def check(self, **kwargs):
-        """Check if the stopping criteria is met"""
-        pass
-
-    def reset(self):
-        self.criteria_met = False
 
 
 class MaxNGen(StoppingCriteria):
@@ -58,7 +44,7 @@ class MaxNGen(StoppingCriteria):
         """Check if the maximum number of iteration is reached"""
         ngen = kwargs.get("ngen")
 
-        if ngen > self.max_ngen:
+        if ngen >= self.max_ngen:
             self.criteria_met = True
 
 
@@ -77,7 +63,7 @@ class Stagnation(StoppingCriteria):
         self.median = []
 
     def check(self, **kwargs):
-        """Check if the if the population stopped improving"""
+        """Check if the population stopped improving"""
         ngen = kwargs.get("ngen")
         population = kwargs.get("population")
         fitness = sort([ind.fitness.reduce for ind in population])

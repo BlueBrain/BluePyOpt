@@ -53,7 +53,7 @@ def _bound(population, lbounds, ubounds):
     return n_out
 
 
-class cma_es(cma.Strategy):
+class multi_cma_es(cma.StrategyOnePlusLambda):
 
     def __init__(self,
                  centroid,
@@ -77,12 +77,6 @@ class cma_es(cma.Strategy):
         self.population = []
         self.problem_size = len(centroid)
 
-        # Rescale the learning rates
-        self.cs *= lr_scale
-        self.cc *= lr_scale
-        self.ccov1 *= lr_scale
-        self.ccovmu *= lr_scale
-
         # Toolbox specific to this CMA-ES
         self.toolbox = base.Toolbox()
         self.toolbox.register("generate", self.generate, IndCreator)
@@ -97,13 +91,6 @@ class cma_es(cma.Strategy):
         self.stopping_conditions = [
             MaxNGen(max_ngen),
             Stagnation(self.lambda_, self.problem_size),
-            TolHistFun(self.lambda_, self.problem_size),
-            EqualFunVals(self.lambda_, self.problem_size),
-            NoEffectAxis(self.problem_size),
-            TolUpSigma(float(self.sigma)),
-            TolX(),
-            ConditionCov(),
-            NoEffectCoor()
         ]
 
     def update(self, population):
@@ -178,13 +165,6 @@ class cma_es(cma.Strategy):
         stopping_params = {
             "ngen": ngen,
             "population": self.population,
-            "centroid": self.centroid,
-            "pc": self.pc,
-            "C": self.C,
-            "B": self.B,
-            "sigma": self.sigma,
-            "diagD": self.diagD,
-            "cond": self.cond,
         }
 
         [c.check(stopping_params) for c in self.stopping_conditions]

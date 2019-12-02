@@ -20,14 +20,17 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 
 
-class StoppingCriteria(bool):
-
+class StoppingCriteria(object):
     """Stopping Criteria class"""
 
     def __init__(self):
         """Constructor"""
+        self.criteria_met = False
         pass
 
     def check(self, **kwargs):
         """Check if the stopping criteria is met"""
         pass
+
+    def reset(self):
+        self.criteria_met = False

@@ -32,6 +32,7 @@ from deap import tools
 
 from . import DEAPOptimisation, ListIndividual
 from . import cma_es
+from . import multi_cma_es
 
 logger = logging.getLogger('__main__')
 
@@ -60,7 +61,6 @@ def _ind_convert_space(ind, convert_fcn):
 
 
 class CMADEAPOptimisation(DEAPOptimisation):
-
     """CMA DEAP class"""
 
     def __init__(self,
@@ -73,40 +73,47 @@ class CMADEAPOptimisation(DEAPOptimisation):
                  lr_scale=1.,
                  map_function=None,
                  hof=None,
-                 fitness_reduce=numpy.sum):
+                 fitness_reduce=numpy.sum,
+                 multi_objective=False):
         """Constructor
 
         Args:
             evaluator (Evaluator): Evaluator object
             swarm_size (int): Number of CMA-ES to run in parrallel
             centroids (list): list of initial guesses used as the starting 
-            points of the CMA-ES
+                points of the CMA-ES
             sigma (float): initial standard deviation of the distribution
             lr_scale (float): scaling parameter for the learning rate of the CMA
             seed (float): Random number generator seed
             map_function (function): Function used to map (parallelise) the
                 evaluation function calls
             hof (hof): Hall of Fame object
-            fitness_reduce (fcn): used to reduce the list of objective values
-            to a single fitness value
+            fitness_reduce (fcn): function used to reduce the objective values
+                to a single fitness score
         """
 
         super(CMADEAPOptimisation, self).__init__(evaluator=evaluator,
-                                                   use_scoop=use_scoop,
-                                                   seed=seed,
-                                                   map_function=map_function,
-                                                   hof=hof,
-                                                   fitness_reduce=fitness_reduce)
+                                                  use_scoop=use_scoop,
+                                                  seed=seed,
+                                                  map_function=map_function,
+                                                  hof=hof,
+                                                  fitness_reduce=fitness_reduce)
 
         self.swarm_size = swarm_size
         self.lr_scale = lr_scale
-        self.centroids= centroids
+        self.centroids = centroids
         self.sigma = sigma
+
+        if multi_objective:
+            self.cma_creator = cma_es.cma_es
+        else:
+            self.cma_creator = multi_cma_es.multi_cma_es
 
         # In case initial guesses were provided, rescale them to the norm space
         if self.centroids is not None:
             self.centroids = [self.toolbox.Individual(_ind_convert_space(ind,
-                                self.to_norm)) for ind in centroids]
+                                                                         self.to_norm))
+                              for ind in centroids]
 
         # Instantiate functions converting individuals from the original
         # parameter space to (and from) a normalized space bounded to [-1.;1]
@@ -127,7 +134,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
         self.setup_deap()
 
     def run(self,
-            max_ngen=10,
+            max_ngen=0,
             cp_frequency=1,
             continue_cp=False,
             cp_filename=None):
@@ -167,14 +174,14 @@ class CMADEAPOptimisation(DEAPOptimisation):
                 if self.centroids is None:
                     starter = self.toolbox.RandomIndividual()
                 else:
-                    starter = self.centroids[i%len(self.centroids)]
+                    starter = self.centroids[i % len(self.centroids)]
 
                 # Instantiate the CMA strategies centered on the centroids
-                swarm.append(cma_es(centroid=starter,
-                                    sigma=self.sigma,
-                                    lr_scale=self.lr_scale,
-                                    max_ngen=max_ngen+1,
-                                    IndCreator=self.toolbox.Individual))
+                swarm.append(self.cma_creator(centroid=starter,
+                                              sigma=self.sigma,
+                                              lr_scale=self.lr_scale,
+                                              max_ngen=max_ngen + 1,
+                                              IndCreator=self.toolbox.Individual))
             gen = 1
 
         # Run until a termination criteria is met for every CMA strategy
@@ -216,7 +223,8 @@ class CMADEAPOptimisation(DEAPOptimisation):
                 tot_pop += c.get_population(self.to_space)
             mean_sigma = numpy.mean([c.sigma for c in swarm])
             _update_history_and_hof(self.hof, history, tot_pop)
-            _ = _record_stats(stats, logbook, gen, tot_pop, nevals, mean_sigma)
+            record = _record_stats(stats, logbook, gen, tot_pop, nevals,
+                                   mean_sigma)
             logger.info(logbook.stream)
 
             # Update the CMA strategy using the new fitness and check if
