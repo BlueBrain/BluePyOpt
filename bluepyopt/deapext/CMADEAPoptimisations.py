@@ -115,12 +115,6 @@ class CMADEAPOptimisation(DEAPOptimisation):
         elif self.selector_name == 'multiple_objective':
             self.cma_creator = CMA_MO
 
-        # In case initial guesses were provided, rescale them to the norm space
-        if self.centroids is not None:
-            self.centroids = [self.toolbox.Individual(_ind_convert_space(ind,
-                                                                         self.to_norm))
-                              for ind in centroids]
-
         # Instantiate functions converting individuals from the original
         # parameter space to (and from) a normalized space bounded to [-1.;1]
         self.ubounds = numpy.asarray(self.ubounds)
@@ -134,10 +128,14 @@ class CMADEAPOptimisation(DEAPOptimisation):
                 partial(lambda param, bm, br: (param - bm) / br, bm=m, br=r))
             self.to_space.append(
                 partial(lambda param, bm, br: (param * br) + bm, bm=m, br=r))
-
+        
         # Overwrite the bounds with -1. and 1.
         self.lbounds = numpy.full(self.problem_size, -1.)
         self.ubounds = numpy.full(self.problem_size, 1.)
+
+        # In case initial guesses were provided, rescale them to the norm space
+        if self.centroids is not None:
+            self.centroids = [self.toolbox.Individual(_ind_convert_space(ind, self.to_norm)) for ind in centroids]
 
         self.setup_deap()
 
