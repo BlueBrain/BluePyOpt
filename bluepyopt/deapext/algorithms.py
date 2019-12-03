@@ -127,7 +127,9 @@ def eaAlphaMuPlusLambdaCheckpoint(
     # Begin the generational process
     tot_nevals = 0
     active = True
+    gen = start_gen + 1
     while active:
+
         offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
         population = parents + offspring
@@ -153,8 +155,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       rndstate=random.getstate())
             pickle.dump(cp, open(cp_filename, "wb"))
             logger.debug('Wrote checkpoint to %s', cp_filename)
-
-        stopping_params = {"ngen": gen}
+        
+        stopping_params = {"ngen": gen-1}
         [c.check(stopping_params) for c in stopping_conditions]
         for c in stopping_conditions:
             if c.criteria_met:
@@ -162,5 +164,6 @@ def eaAlphaMuPlusLambdaCheckpoint(
                             ' '.join(type(c).__name__))
                 active = False
                 break
+        gen += 1
 
     return population, halloffame, logbook, history
