@@ -88,7 +88,7 @@ class IBEADEAPOptimisation(DEAPOptimisation):
         self.selector_name = selector_name
         if self.selector_name is None:
             self.selector_name = 'IBEA'
-
+        
         self.setup_deap()
         self.setup_deapIBEA()
 
@@ -141,7 +141,7 @@ class IBEADEAPOptimisation(DEAPOptimisation):
         pop = self.toolbox.population(n=offspring_size)
 
         stats = self.get_stats()
-
+        
         pop, hof, log, history = algorithms.eaAlphaMuPlusLambdaCheckpoint(
             pop,
             self.toolbox,

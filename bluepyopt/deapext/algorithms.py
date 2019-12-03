@@ -121,12 +121,13 @@ def eaAlphaMuPlusLambdaCheckpoint(
         invalid_count = _evaluate_invalid_fitness(toolbox, population)
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, start_gen, population, invalid_count)
-
+        
     stopping_conditions = [MaxNGen(ngen)]
 
     # Begin the generational process
     tot_nevals = 0
-    for gen in range(start_gen + 1, ngen + 1):
+    active = True
+    while active:
         offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
         population = parents + offspring
@@ -138,7 +139,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         
         # Select the next generation parents
         parents = toolbox.select(population, mu)
-
+        
         logger.info(logbook.stream)
 
         if(cp_filename and cp_frequency and
@@ -159,7 +160,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
             if c.criteria_met:
                 logger.info('IBEA stopped because of termination criteria: ' +
                             ' '.join(type(c).__name__))
-                self.active = False
+                active = False
                 break
 
     return population, halloffame, logbook, history
