@@ -145,10 +145,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         self.toolbox = deap.base.Toolbox()
 
         # Bounds for the parameters
-        self.lbounds = numpy.asarray(
-            [p.lower_bound for p in self.evaluator.params])
-        self.ubounds = numpy.asarray(
-            [p.upper_bound for p in self.evaluator.params])
+        self.lbounds = [p.lower_bound for p in self.evaluator.params]
+        self.ubounds = [p.upper_bound for p in self.evaluator.params]
 
         self.setup_deap()
 

@@ -31,8 +31,7 @@ from deap import base
 from deap import tools
 
 from . import DEAPOptimisation, ListIndividual
-from . import cma_es
-from . import multi_cma_es
+from . import CMA_SO, CMA_ELITIST, CMA_MO
 
 logger = logging.getLogger('__main__')
 
@@ -73,8 +72,8 @@ class CMADEAPOptimisation(DEAPOptimisation):
                  lr_scale=1.,
                  map_function=None,
                  hof=None,
-                 fitness_reduce=numpy.sum,
-                 multi_objective=False):
+                 selector_name="single_objective",
+                 fitness_reduce=numpy.sum):
         """Constructor
 
         Args:
@@ -85,11 +84,15 @@ class CMADEAPOptimisation(DEAPOptimisation):
             sigma (float): initial standard deviation of the distribution
             lr_scale (float): scaling parameter for the learning rate of the CMA
             seed (float): Random number generator seed
-            map_function (function): Function used to map (parallelise) the
+            map_function (function): Function used to map (parallelize) the
                 evaluation function calls
             hof (hof): Hall of Fame object
+            selector_name (str): The selector used in the evolutionary
+                algorithm, possible values are 'single_objective', 'elitist' or
+                'multiple_objective'
             fitness_reduce (fcn): function used to reduce the objective values
                 to a single fitness score
+            cma_type (str): algorithms
         """
 
         super(CMADEAPOptimisation, self).__init__(evaluator=evaluator,
@@ -104,10 +107,13 @@ class CMADEAPOptimisation(DEAPOptimisation):
         self.centroids = centroids
         self.sigma = sigma
 
-        if multi_objective:
-            self.cma_creator = multi_cma_es
-        else:
-            self.cma_creator = cma_es
+        self.selector_name = selector_name
+        if self.selector_name == 'single_objective':
+            self.cma_creator = CMA_SO
+        elif self.selector_name == 'elitist':
+            self.cma_creator = CMA_ELITIST
+        elif self.selector_name == 'multiple_objective':
+            self.cma_creator = CMA_MO
 
         # In case initial guesses were provided, rescale them to the norm space
         if self.centroids is not None:
@@ -117,6 +123,8 @@ class CMADEAPOptimisation(DEAPOptimisation):
 
         # Instantiate functions converting individuals from the original
         # parameter space to (and from) a normalized space bounded to [-1.;1]
+        self.ubounds = numpy.asarray(self.ubounds)
+        self.lbounds = numpy.asarray(self.lbounds)
         bounds_radius = (self.ubounds - self.lbounds) / 2.
         bounds_mean = (self.ubounds + self.lbounds) / 2.
         self.to_norm = []
@@ -172,7 +180,10 @@ class CMADEAPOptimisation(DEAPOptimisation):
             for i in range(self.swarm_size):
 
                 if self.centroids is None:
-                    starter = self.toolbox.RandomIndividual()
+                    if self.selector_name == 'multiple_objective':
+                        starter = [self.toolbox.RandomIndividual() for j in range(10)]
+                    else:
+                        starter = self.toolbox.RandomIndividual()
                 else:
                     starter = self.centroids[i % len(self.centroids)]
 

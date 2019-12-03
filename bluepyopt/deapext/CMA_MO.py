@@ -55,7 +55,9 @@ def _bound(population, lbounds, ubounds):
     return n_out
 
 
-class multi_cma_es(cma.StrategyOnePlusLambda):
+class CMA_MO(cma.StrategyMultiObjective):
+
+    """Multiple objective covariance matrix adaption"""
 
     def __init__(self,
                  centroid,
@@ -73,10 +75,8 @@ class multi_cma_es(cma.StrategyOnePlusLambda):
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
         """
-        
-        lambda_ = int(4 + 3 * log(len(centroid)))
 
-        cma.StrategyOnePlusLambda.__init__(self, centroid, sigma, lambda_)
+        cma.StrategyMultiObjective.__init__(self, centroid, sigma)
 
         self.population = []
         self.problem_size = len(centroid)

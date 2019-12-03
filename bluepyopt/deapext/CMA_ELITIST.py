@@ -23,13 +23,12 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import logging
 import numpy
-from math import sqrt, log, exp
 import copy
 
 from deap import base
 from deap import cma
 
-from . import MaxNGen, Stagnation, TolHistFun, EqualFunVals, NoEffectAxis, TolUpSigma, TolX, ConditionCov, NoEffectCoor
+from . import MaxNGen, Stagnation
 
 logger = logging.getLogger('__main__')
 
@@ -56,7 +55,9 @@ def _bound(population, lbounds, ubounds):
     return n_out
 
 
-class cma_es(cma.Strategy):
+class CMA_ELITIST(cma.StrategyOnePlusLambda):
+
+    """Elitist single objective covariance matrix adaption"""
 
     def __init__(self,
                  centroid,
@@ -74,17 +75,13 @@ class cma_es(cma.Strategy):
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
         """
+        
+        lambda_ = int(4 + 3 * log(len(centroid)))
 
-        cma.Strategy.__init__(self, centroid, sigma)
+        cma.StrategyOnePlusLambda.__init__(self, centroid, sigma, lambda_)
 
         self.population = []
         self.problem_size = len(centroid)
-
-        # Rescale the learning rates
-        self.cs *= lr_scale
-        self.cc *= lr_scale
-        self.ccov1 *= lr_scale
-        self.ccovmu *= lr_scale
 
         # Toolbox specific to this CMA-ES
         self.toolbox = base.Toolbox()
@@ -100,62 +97,7 @@ class cma_es(cma.Strategy):
         self.stopping_conditions = [
             MaxNGen(max_ngen),
             Stagnation(self.lambda_, self.problem_size),
-            TolHistFun(self.lambda_, self.problem_size),
-            EqualFunVals(self.lambda_, self.problem_size),
-            NoEffectAxis(self.problem_size),
-            TolUpSigma(float(self.sigma)),
-            TolX(),
-            ConditionCov(),
-            NoEffectCoor()
         ]
-
-    def update(self, population):
-        """Update the current covariance matrix strategy from the
-        population"""
-
-        population.sort(key=lambda ind: ind.fitness.reduce, reverse=True)
-
-        old_centroid = self.centroid
-        self.centroid = numpy.dot(self.weights, population[0:self.mu])
-
-        c_diff = self.centroid - old_centroid
-
-        # Cumulation : update evolution path
-        self.ps = (1 - self.cs) * self.ps \
-                  + sqrt(self.cs * (2 - self.cs) * self.mueff) / self.sigma \
-                  * numpy.dot(self.B, (1. / self.diagD) *
-                              numpy.dot(self.B.T, c_diff))
-
-        hsig = float((numpy.linalg.norm(self.ps) /
-                      sqrt(1. - (1. - self.cs) ** (
-                                  2. * (self.update_count + 1.))) / self.chiN <
-                      (1.4 + 2. / (self.dim + 1.))))
-
-        self.update_count += 1
-
-        self.pc = (1 - self.cc) * self.pc + hsig \
-                  * sqrt(self.cc * (2 - self.cc) * self.mueff) / self.sigma \
-                  * c_diff
-
-        # Update covariance matrix
-        artmp = population[0:self.mu] - old_centroid
-        self.C = (1 - self.ccov1 - self.ccovmu + (1 - hsig) *
-                  self.ccov1 * self.cc * (2 - self.cc)) * self.C \
-                 + self.ccov1 * numpy.outer(self.pc, self.pc) \
-                 + self.ccovmu * numpy.dot((self.weights * artmp.T), artmp) \
-                 / self.sigma ** 2
-
-        self.sigma *= numpy.exp((numpy.linalg.norm(self.ps) / self.chiN - 1.) *
-                                self.cs / self.damps)
-
-        self.diagD, self.B = numpy.linalg.eigh(self.C)
-        indx = numpy.argsort(self.diagD)
-
-        self.cond = self.diagD[indx[-1]] / self.diagD[indx[0]]
-
-        self.diagD = self.diagD[indx] ** 0.5
-        self.B = self.B[:, indx]
-        self.BD = self.B * self.diagD
 
     def get_population(self, to_space):
         """Returns the population in the original parameter space"""
@@ -181,13 +123,6 @@ class cma_es(cma.Strategy):
         stopping_params = {
             "ngen": ngen,
             "population": self.population,
-            "centroid": self.centroid,
-            "pc": self.pc,
-            "C": self.C,
-            "B": self.B,
-            "sigma": self.sigma,
-            "diagD": self.diagD,
-            "cond": self.cond,
         }
 
         [c.check(stopping_params) for c in self.stopping_conditions]
