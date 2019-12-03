@@ -73,8 +73,10 @@ class multi_cma_es(cma.StrategyOnePlusLambda):
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
         """
+        
+        lambda_ = int(4 + 3 * log(len(centroid)))
 
-        cma.StrategyOnePlusLambda.__init__(self, centroid, sigma)
+        cma.StrategyOnePlusLambda.__init__(self, centroid, sigma, lambda_)
 
         self.population = []
         self.problem_size = len(centroid)

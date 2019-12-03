@@ -180,7 +180,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
                 swarm.append(self.cma_creator(centroid=starter,
                                               sigma=self.sigma,
                                               lr_scale=self.lr_scale,
-                                              max_ngen=max_ngen + 1,
+                                              max_ngen=max_ngen,
                                               IndCreator=self.toolbox.Individual))
             gen = 1
 
