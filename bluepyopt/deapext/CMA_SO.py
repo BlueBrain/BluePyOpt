@@ -114,8 +114,8 @@ class CMA_SO(cma.Strategy):
     def update(self, population):
         """Update the current covariance matrix strategy from the
         population"""
-
-        population.sort(key=lambda ind: ind.fitness.reduce, reverse=True)
+        
+        population.sort(key=lambda ind: ind.fitness.reduce_weight, reverse=True)
 
         old_centroid = self.centroid
         self.centroid = numpy.dot(self.weights, population[0:self.mu])

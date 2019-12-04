@@ -89,10 +89,9 @@ class CMADEAPOptimisation(DEAPOptimisation):
             hof (hof): Hall of Fame object
             selector_name (str): The selector used in the evolutionary
                 algorithm, possible values are 'single_objective', 'elitist' or
-                'multiple_objective'
+                'multi_objective'
             fitness_reduce (fcn): function used to reduce the objective values
                 to a single fitness score
-            cma_type (str): algorithms
         """
 
         super(CMADEAPOptimisation, self).__init__(evaluator=evaluator,
@@ -112,8 +111,10 @@ class CMADEAPOptimisation(DEAPOptimisation):
             self.cma_creator = CMA_SO
         elif self.selector_name == 'elitist':
             self.cma_creator = CMA_ELITIST
-        elif self.selector_name == 'multiple_objective':
+        elif self.selector_name == 'multi_objective':
             self.cma_creator = CMA_MO
+        else:
+            raise Exception("The selector_name has to be 'single_objective', 'multi_objective' or 'elitist'. Not {}".format(self.selector_name))
 
         # Instantiate functions converting individuals from the original
         # parameter space to (and from) a normalized space bounded to [-1.;1]
