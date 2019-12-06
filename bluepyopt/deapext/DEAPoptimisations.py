@@ -100,7 +100,9 @@ class ListIndividual(list):
         del kwargs['obj_size']
         del kwargs['reduce_fcn']
         super(ListIndividual, self).__init__(*args, **kwargs)
-
+        
+        #Used by CMA multi objective
+        self._ps = "p", 0
 
 class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
     """DEAP Optimisation class"""

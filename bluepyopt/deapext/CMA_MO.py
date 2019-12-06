@@ -24,6 +24,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import logging
 import numpy
 import copy
+from math import log
 
 from deap import base
 from deap import cma
@@ -75,9 +76,10 @@ class CMA_MO(cma.StrategyMultiObjective):
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
         """
-
-        cma.StrategyMultiObjective.__init__(self, centroid, sigma)
-
+        
+        lambda_ = int(4 + 3 * log(len(centroid)))
+        cma.StrategyMultiObjective.__init__(self, centroid, sigma, lambda_=lambda_)
+        
         self.population = []
         self.problem_size = len(centroid)
 
@@ -104,6 +106,14 @@ class CMA_MO(cma.StrategyMultiObjective):
             for j, v in enumerate(ind):
                 pop[i][j] = to_space[j](v)
         return pop
+    
+    def get_parents(self, to_space):
+        """Returns the population in the original parameter space"""
+        pop = copy.deepcopy(self.parents)
+        for i, ind in enumerate(pop):
+            for j, v in enumerate(ind):
+                pop[i][j] = to_space[j](v)
+        return pop
 
     def generate_new_pop(self, lbounds, ubounds):
         """Generate a new population bounded in the normalized space"""
@@ -115,6 +125,10 @@ class CMA_MO(cma.StrategyMultiObjective):
 
     def set_fitness(self, fitnesses):
         for f, ind in zip(fitnesses, self.population):
+            ind.fitness.values = f
+
+    def set_fitness_parents(self, fitnesses):
+        for f, ind in zip(fitnesses, self.parents):
             ind.fitness.values = f
 
     def check_termination(self, ngen):

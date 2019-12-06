@@ -25,6 +25,7 @@ import logging
 import numpy
 import pickle
 import random
+import copy
 from functools import partial
 
 from deap import base
@@ -179,20 +180,29 @@ class CMADEAPOptimisation(DEAPOptimisation):
             for i in range(self.swarm_size):
 
                 if self.centroids is None:
-                    if self.selector_name == 'multiple_objective':
-                        starter = [self.toolbox.RandomIndividual() for j in range(10)]
+                    if self.selector_name == 'multi_objective':
+                        starter = [self.toolbox.RandomIndividual() for j in range(2)]
+                        pop = copy.deepcopy(starter)
+                        for i, ind in enumerate(pop):
+                            for j, v in enumerate(ind):
+                                pop[i][j] = self.to_space[j](v)
+                        fitnesses = self.toolbox.map(self.toolbox.evaluate, pop)
+                        fitnesses = list(map(list, fitnesses))
+                        for f, ind in zip(fitnesses, pop):
+                            ind.fitness.values = f    
                     else:
                         starter = self.toolbox.RandomIndividual()
                 else:
                     starter = self.centroids[i % len(self.centroids)]
-
+                
                 # Instantiate the CMA strategies centered on the centroids
                 swarm.append(self.cma_creator(centroid=starter,
                                               sigma=self.sigma,
                                               lr_scale=self.lr_scale,
                                               max_ngen=max_ngen,
                                               IndCreator=self.toolbox.Individual))
-            gen = 1
+                
+        gen = 1
 
         # Run until a termination criteria is met for every CMA strategy
         active_cma = numpy.sum([c.active for c in swarm])
@@ -226,12 +236,33 @@ class CMADEAPOptimisation(DEAPOptimisation):
                 if c.active:
                     c.set_fitness(fitnesses[:len(c.population)])
                     fitnesses = fitnesses[len(c.population):]
+            
+            if self.selector_name == 'multi_objective':
 
+                # Get all the individuals in the original space for evaluation
+                to_evaluate = []
+                for c in swarm:
+                    if c.active:
+                        to_evaluate += c.get_parents(self.to_space)
+
+                # Compute the fitnesses and dispatch them to all the CMA-ES
+                fitnesses = self.toolbox.map(self.toolbox.evaluate, to_evaluate)
+                fitnesses = list(map(list, fitnesses))
+                nevals += len(to_evaluate)
+                for c in swarm:
+                    if c.active:
+                        c.set_fitness_parents(fitnesses[:len(c.population)])
+                        fitnesses = fitnesses[len(c.population):]
+                
             # Update the hall of fame, history and logbook
             tot_pop = []
             for c in swarm:
                 tot_pop += c.get_population(self.to_space)
-            mean_sigma = numpy.mean([c.sigma for c in swarm])
+            
+            if self.selector_name != "multi_objective":
+                mean_sigma = numpy.mean([c.sigma for c in swarm])
+            else:
+                mean_sigma = 0
             _update_history_and_hof(self.hof, history, tot_pop)
             record = _record_stats(stats, logbook, gen, tot_pop, nevals,
                                    mean_sigma)

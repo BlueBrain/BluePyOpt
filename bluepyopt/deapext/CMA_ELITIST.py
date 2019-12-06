@@ -24,6 +24,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import logging
 import numpy
 import copy
+from math import sqrt, log, exp
 
 from deap import base
 from deap import cma
@@ -57,7 +58,7 @@ def _bound(population, lbounds, ubounds):
 
 class CMA_ELITIST(cma.StrategyOnePlusLambda):
 
-    """Elitist single objective covariance matrix adaption"""
+    """Elitist single objective covariance matrix adaptation"""
 
     def __init__(self,
                  centroid,
@@ -78,7 +79,7 @@ class CMA_ELITIST(cma.StrategyOnePlusLambda):
         
         lambda_ = int(4 + 3 * log(len(centroid)))
 
-        cma.StrategyOnePlusLambda.__init__(self, centroid, sigma, lambda_)
+        cma.StrategyOnePlusLambda.__init__(self, centroid, sigma, lambda_ = lambda_)
 
         self.population = []
         self.problem_size = len(centroid)
@@ -98,6 +99,26 @@ class CMA_ELITIST(cma.StrategyOnePlusLambda):
             MaxNGen(max_ngen),
             Stagnation(self.lambda_, self.problem_size),
         ]
+
+    def update(self, population):
+        """Update the current covariance matrix strategy from the population"""
+        population.sort(key=lambda ind: ind.fitness.reduce_weight, reverse=True)
+        lambda_succ = sum(self.parent.fitness <= ind.fitness for ind in population)
+        p_succ = float(lambda_succ) / self.lambda_
+        self.psucc = (1 - self.cp) * self.psucc + self.cp * p_succ
+
+        if self.parent.fitness <= population[0].fitness:
+            x_step = (population[0] - numpy.array(self.parent)) / self.sigma
+            self.parent = copy.deepcopy(population[0])
+            if self.psucc < self.pthresh:
+                self.pc = (1 - self.cc) * self.pc + sqrt(self.cc * (2 - self.cc)) * x_step
+                self.C = (1 - self.ccov) * self.C + self.ccov * numpy.outer(self.pc, self.pc)
+            else:
+                self.pc = (1 - self.cc) * self.pc
+                self.C = (1 - self.ccov) * self.C + self.ccov * (numpy.outer(self.pc, self.pc) + self.cc * (2 - self.cc) * self.C)
+
+        self.sigma = self.sigma * exp(1.0 / self.d * (self.psucc - self.ptarg) / (1.0 - self.ptarg))
+        self.A = numpy.linalg.cholesky(self.C)
 
     def get_population(self, to_space):
         """Returns the population in the original parameter space"""
