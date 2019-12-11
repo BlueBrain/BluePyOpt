@@ -121,7 +121,8 @@ def create_hoc(
         template_name='CCell',
         template_filename='cell_template.jinja2',
         disable_banner=None,
-        template_dir=None):
+        template_dir=None,
+        custom_jinja_params=None,):
     '''return a string containing the hoc template
 
     Args:
@@ -136,6 +137,8 @@ def create_hoc(
         Must include 'proc replace_axon(){ ... }
         template (str): file name of the jinja2 template
         template_dir (str): dir name of the jinja2 template
+        custom_jinja_params (dict): dict of additional jinja2 params in case
+        of a custom template
     '''
 
     if template_dir is None:
@@ -168,6 +171,9 @@ def create_hoc(
 
     re_init_rng = _generate_reinitrng(mechs)
 
+    if custom_jinja_params is None:
+        custom_jinja_params = {}
+
     return template.render(template_name=template_name,
                            banner=banner,
                            channels=channels,
@@ -177,4 +183,5 @@ def create_hoc(
                            global_params=global_params,
                            re_init_rng=re_init_rng,
                            replace_axon=replace_axon,
-                           ignored_global_params=ignored_global_params)
+                           ignored_global_params=ignored_global_params,
+                           **custom_jinja_params)
