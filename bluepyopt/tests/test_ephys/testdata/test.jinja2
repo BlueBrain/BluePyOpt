@@ -200,6 +200,10 @@ proc geom_nsec() { local nSec
     {{replace_axon}}
 {%- endif %}
 
+{%- if custom_param %}
+    {{custom_param}}
+{%- endif %}
+
 
 {{re_init_rng}}
 
