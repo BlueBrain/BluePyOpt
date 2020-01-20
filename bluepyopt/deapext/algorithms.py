@@ -30,6 +30,7 @@ import deap.tools
 import pickle
 
 from . import MaxNGen, Stagnation
+from .utils import *
 
 logger = logging.getLogger('__main__')
 
@@ -45,23 +46,6 @@ def _evaluate_invalid_fitness(toolbox, population):
         ind.fitness.values = fit
 
     return len(invalid_ind)
-
-
-def _update_history_and_hof(halloffame, history, population):
-    """Update the hall of fame with the generated individuals
-
-    Note: History and Hall-of-Fame behave like dictionaries
-    """
-    if halloffame is not None:
-        halloffame.update(population)
-
-    history.update(population)
-
-
-def _record_stats(stats, logbook, gen, population, invalid_count):
-    """Update the statistics with the new population"""
-    record = stats.compile(population) if stats is not None else {}
-    logbook.record(gen=gen, nevals=invalid_count, **record)
 
 
 def _get_offspring(parents, toolbox, cxpb, mutpb):

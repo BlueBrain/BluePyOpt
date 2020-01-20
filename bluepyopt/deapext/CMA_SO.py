@@ -29,31 +29,11 @@ import copy
 from deap import base
 from deap import cma
 
-from . import MaxNGen, Stagnation, TolHistFun, EqualFunVals, NoEffectAxis, TolUpSigma, TolX, ConditionCov, NoEffectCoor
+from . import MaxNGen, Stagnation, TolHistFun, EqualFunVals, NoEffectAxis, \
+    TolUpSigma, TolX, ConditionCov, NoEffectCoor
+from .utils import _closest_feasible, _bound
 
 logger = logging.getLogger('__main__')
-
-
-def _closest_feasible(individual, lbounds, ubounds):
-    """returns the closest individual in the parameter bounds"""
-    # TO DO: Fix 1e-9 hack
-    for i, (u, l, el) in enumerate(zip(ubounds, lbounds, individual)):
-        if el >= u:
-            individual[i] = u - 1e-9
-        elif el <= l:
-            individual[i] = l + 1e-9
-    return individual
-
-
-def _bound(population, lbounds, ubounds):
-    """return the population bounded by the lower and upper parameter bounds."""
-    n_out = 0
-    for i, ind in enumerate(population):
-        if numpy.any(numpy.less(ind, lbounds)) or numpy.any(
-                numpy.greater(ind, ubounds)):
-            population[i] = _closest_feasible(ind, lbounds, ubounds)
-            n_out += 1
-    return n_out
 
 
 class CMA_SO(cma.Strategy):
@@ -61,32 +41,36 @@ class CMA_SO(cma.Strategy):
     """Single objective covariance matrix adaption"""
 
     def __init__(self,
-                 centroid,
+                 centroids,
+                 offspring_size,
                  sigma,
-                 lr_scale,
                  max_ngen,
-                 IndCreator):
+                 IndCreator,
+                 RandIndCreator):
         """Constructor
 
         Args:
             centroid (list): initial guess used as the starting point of
             the CMA-ES
             sigma (float): initial standard deviation of the distribution
-            lr_scale (float): scaling for the learning rates
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
         """
 
-        cma.Strategy.__init__(self, centroid, sigma)
+        if offspring_size is None:
+            lambda_ = int(4 + 3 * log(len(RandIndCreator())))
+        else:
+            lambda_ = offspring_size
+
+        if centroids is None:
+            starter = RandIndCreator()
+        else:
+            starter = centroids[0]
+
+        cma.Strategy.__init__(self, starter, sigma, lambda_=lambda_)
 
         self.population = []
-        self.problem_size = len(centroid)
-
-        # Rescale the learning rates
-        self.cs *= lr_scale
-        self.cc *= lr_scale
-        self.ccov1 *= lr_scale
-        self.ccovmu *= lr_scale
+        self.problem_size = len(starter)
 
         # Toolbox specific to this CMA-ES
         self.toolbox = base.Toolbox()

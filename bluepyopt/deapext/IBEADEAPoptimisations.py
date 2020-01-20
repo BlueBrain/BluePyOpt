@@ -32,8 +32,9 @@ import deap.tools
 
 from . import algorithms
 from . import tools
-from . import DEAPOptimisation
-
+from . import DEAPOptimisation, ListIndividual 
+from .utils import _update_history_and_hof, _record_stats 
+ 
 logger = logging.getLogger('__main__')
 
 

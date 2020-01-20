@@ -24,36 +24,17 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import logging
 import numpy
 import copy
-from math import log
+from math import sqrt, log, exp
 
+import deap
 from deap import base
 from deap import cma
 
 from . import MaxNGen, Stagnation
+from .utils import _closest_feasible, _bound
+from . import tools
 
 logger = logging.getLogger('__main__')
-
-
-def _closest_feasible(individual, lbounds, ubounds):
-    """returns the closest individual in the parameter bounds"""
-    # TO DO: Fix 1e-9 hack
-    for i, (u, l, el) in enumerate(zip(ubounds, lbounds, individual)):
-        if el >= u:
-            individual[i] = u - 1e-9
-        elif el <= l:
-            individual[i] = l + 1e-9
-    return individual
-
-
-def _bound(population, lbounds, ubounds):
-    """return the population bounded by the lower and upper parameter bounds."""
-    n_out = 0
-    for i, ind in enumerate(population):
-        if numpy.any(numpy.less(ind, lbounds)) or numpy.any(
-                numpy.greater(ind, ubounds)):
-            population[i] = _closest_feasible(ind, lbounds, ubounds)
-            n_out += 1
-    return n_out
 
 
 class CMA_MO(cma.StrategyMultiObjective):
@@ -61,27 +42,42 @@ class CMA_MO(cma.StrategyMultiObjective):
     """Multiple objective covariance matrix adaption"""
 
     def __init__(self,
-                 centroid,
+                 centroids,
+                 offspring_size,
                  sigma,
-                 lr_scale,
                  max_ngen,
-                 IndCreator):
+                 IndCreator,
+                 RandIndCreator):
         """Constructor
 
         Args:
             centroid (list): initial guess used as the starting point of
             the CMA-ES
             sigma (float): initial standard deviation of the distribution
-            lr_scale (float): scaling for the learning rates
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
         """
+
+        if offspring_size is None:
+            lambda_ = int(4 + 3 * log(len(RandIndCreator())))
+        else:
+            lambda_ = offspring_size
         
-        lambda_ = int(4 + 3 * log(len(centroid)))
-        cma.StrategyMultiObjective.__init__(self, centroid, sigma, lambda_=lambda_)
+        if centroids is None:
+            starters = [RandIndCreator() for i in range(lambda_)]
+        else:
+            if len(centroids) != lambda_:
+                from itertools import cycle
+                generator = cycle(centroids)
+                starters = [next(generator) for i in range(lambda_)]
+            else:
+                starters = centroids
+
+        cma.StrategyMultiObjective.__init__(self, starters, sigma, mu=int(lambda_/2.), 
+                                            lambda_=lambda_, indicator=deap.tools.additive_epsilon)
         
         self.population = []
-        self.problem_size = len(centroid)
+        self.problem_size = len(starters[0])
 
         # Toolbox specific to this CMA-ES
         self.toolbox = base.Toolbox()
@@ -98,6 +94,45 @@ class CMA_MO(cma.StrategyMultiObjective):
             MaxNGen(max_ngen),
             Stagnation(self.lambda_, self.problem_size),
         ]
+
+    def _select(self, candidates):
+        if len(candidates) <= self.mu:
+            return candidates, []
+
+        pareto_fronts = deap.tools.sortLogNondominated(candidates, len(candidates))
+
+        chosen = list()
+        mid_front = None
+        not_chosen = list()
+
+        # Fill the next population (chosen) with the fronts until there is not enouch space
+        # When an entire front does not fit in the space left we rely on the hypervolume
+        # for this front
+        # The remaining fronts are explicitely not chosen
+        full = False
+        for front in pareto_fronts:
+            if len(chosen) + len(front) <= self.mu and not full:
+                chosen += front
+            elif mid_front is None and len(chosen) < self.mu:
+                mid_front = front
+                # With this front, we selected enough individuals
+                full = True
+            else:
+                not_chosen += front
+
+        # Separate the mid front to accept only k individuals
+        k = self.mu - len(chosen)
+        if k > 0:
+            fit = [numpy.mean(ind.fitness.values) for ind in mid_front]
+            for g in range(k):
+                chosen.append(mid_front.pop(numpy.argmin(fit)))
+            not_chosen += mid_front
+            
+            #_ = tools.selIBEA(mid_front, k)
+            #chosen += [mid_front[g] for g in _]
+            #not_chosen += [ind for g,ind in enumerate(mid_front) if g not in _]
+            
+        return chosen, not_chosen
 
     def get_population(self, to_space):
         """Returns the population in the original parameter space"""

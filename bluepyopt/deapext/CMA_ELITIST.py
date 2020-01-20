@@ -30,30 +30,9 @@ from deap import base
 from deap import cma
 
 from . import MaxNGen, Stagnation
+from .utils import _closest_feasible, _bound
 
 logger = logging.getLogger('__main__')
-
-
-def _closest_feasible(individual, lbounds, ubounds):
-    """returns the closest individual in the parameter bounds"""
-    # TO DO: Fix 1e-9 hack
-    for i, (u, l, el) in enumerate(zip(ubounds, lbounds, individual)):
-        if el >= u:
-            individual[i] = u - 1e-9
-        elif el <= l:
-            individual[i] = l + 1e-9
-    return individual
-
-
-def _bound(population, lbounds, ubounds):
-    """return the population bounded by the lower and upper parameter bounds."""
-    n_out = 0
-    for i, ind in enumerate(population):
-        if numpy.any(numpy.less(ind, lbounds)) or numpy.any(
-                numpy.greater(ind, ubounds)):
-            population[i] = _closest_feasible(ind, lbounds, ubounds)
-            n_out += 1
-    return n_out
 
 
 class CMA_ELITIST(cma.StrategyOnePlusLambda):
@@ -61,28 +40,36 @@ class CMA_ELITIST(cma.StrategyOnePlusLambda):
     """Elitist single objective covariance matrix adaptation"""
 
     def __init__(self,
-                 centroid,
+                 centroids,
+                 offspring_size,
                  sigma,
-                 lr_scale,
                  max_ngen,
-                 IndCreator):
+                 IndCreator,
+                 RandIndCreator):
         """Constructor
 
         Args:
             centroid (list): initial guess used as the starting point of
             the CMA-ES
             sigma (float): initial standard deviation of the distribution
-            lr_scale (float): scaling for the learning rates
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
         """
-        
-        lambda_ = int(4 + 3 * log(len(centroid)))
 
-        cma.StrategyOnePlusLambda.__init__(self, centroid, sigma, lambda_ = lambda_)
+        if offspring_size is None:
+            lambda_ = int(4 + 3 * log(len(RandIndCreator())))
+        else:
+            lambda_ = offspring_size
+
+        if centroids is None:
+            starter = RandIndCreator()
+        else:
+            starter = centroids[0]
+
+        cma.StrategyOnePlusLambda.__init__(self, starter, sigma, lambda_ = lambda_)
 
         self.population = []
-        self.problem_size = len(centroid)
+        self.problem_size = len(starter)
 
         # Toolbox specific to this CMA-ES
         self.toolbox = base.Toolbox()
@@ -99,15 +86,19 @@ class CMA_ELITIST(cma.StrategyOnePlusLambda):
             MaxNGen(max_ngen),
             Stagnation(self.lambda_, self.problem_size),
         ]
+    
+    @property
+    def parents(self):
+        return [self.parent]
 
     def update(self, population):
         """Update the current covariance matrix strategy from the population"""
         population.sort(key=lambda ind: ind.fitness.reduce_weight, reverse=True)
-        lambda_succ = sum(self.parent.fitness <= ind.fitness for ind in population)
+        lambda_succ = sum(self.parent.fitness.reduce_weight <= ind.fitness.reduce_weight for ind in population)
         p_succ = float(lambda_succ) / self.lambda_
         self.psucc = (1 - self.cp) * self.psucc + self.cp * p_succ
-
-        if self.parent.fitness <= population[0].fitness:
+        
+        if self.parent.fitness.reduce_weight <= population[0].fitness.reduce_weight:
             x_step = (population[0] - numpy.array(self.parent)) / self.sigma
             self.parent = copy.deepcopy(population[0])
             if self.psucc < self.pthresh:
@@ -119,6 +110,14 @@ class CMA_ELITIST(cma.StrategyOnePlusLambda):
 
         self.sigma = self.sigma * exp(1.0 / self.d * (self.psucc - self.ptarg) / (1.0 - self.ptarg))
         self.A = numpy.linalg.cholesky(self.C)
+
+    def get_parents(self, to_space):
+        """Returns the population in the original parameter space"""
+        pop = copy.deepcopy(self.parents)
+        for i, ind in enumerate(pop):
+            for j, v in enumerate(ind):
+                pop[i][j] = to_space[j](v)
+        return pop
 
     def get_population(self, to_space):
         """Returns the population in the original parameter space"""
@@ -135,6 +134,9 @@ class CMA_ELITIST(cma.StrategyOnePlusLambda):
 
     def update_strategy(self):
         self.toolbox.update(self.population)
+    
+    def set_fitness_parents(self, fitnesses):
+        self.parent.fitness.values = fitnesses[0]
 
     def set_fitness(self, fitnesses):
         for f, ind in zip(fitnesses, self.population):

@@ -33,27 +33,9 @@ from deap import tools
 
 from . import DEAPOptimisation, ListIndividual
 from . import CMA_SO, CMA_ELITIST, CMA_MO
+from .utils import _update_history_and_hof, _record_stats
 
 logger = logging.getLogger('__main__')
-
-
-def _update_history_and_hof(halloffame, history, population):
-    """
-    Update the hall of fame with the generated individuals
-
-    Note: History and Hall-of-Fame behave like dictionaries
-    """
-    if halloffame is not None:
-        halloffame.update(population)
-
-    history.update(population)
-
-
-def _record_stats(stats, logbook, gen, population, evals, sigma):
-    """Update the statistics with the new population"""
-    record = stats.compile(population) if stats is not None else {}
-    logbook.record(gen=gen, nevals=evals, sigma=sigma, **record)
-    return record
 
 
 def _ind_convert_space(ind, convert_fcn):
@@ -66,11 +48,10 @@ class CMADEAPOptimisation(DEAPOptimisation):
     def __init__(self,
                  evaluator=None,
                  use_scoop=False,
-                 seed=1,
-                 swarm_size=1,
+                 seed=1, 
+                 offspring_size=None,
                  centroids=None,
                  sigma=0.4,
-                 lr_scale=1.,
                  map_function=None,
                  hof=None,
                  selector_name="single_objective",
@@ -79,11 +60,9 @@ class CMADEAPOptimisation(DEAPOptimisation):
 
         Args:
             evaluator (Evaluator): Evaluator object
-            swarm_size (int): Number of CMA-ES to run in parrallel
-            centroids (list): list of initial guesses used as the starting 
+            centroids (list): list of initial guesses used as the starting
                 points of the CMA-ES
             sigma (float): initial standard deviation of the distribution
-            lr_scale (float): scaling parameter for the learning rate of the CMA
             seed (float): Random number generator seed
             map_function (function): Function used to map (parallelize) the
                 evaluation function calls
@@ -101,9 +80,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
                                                   map_function=map_function,
                                                   hof=hof,
                                                   fitness_reduce=fitness_reduce)
-
-        self.swarm_size = swarm_size
-        self.lr_scale = lr_scale
+        self.offspring_size = offspring_size
         self.centroids = centroids
         self.sigma = sigma
 
@@ -115,7 +92,9 @@ class CMADEAPOptimisation(DEAPOptimisation):
         elif self.selector_name == 'multi_objective':
             self.cma_creator = CMA_MO
         else:
-            raise Exception("The selector_name has to be 'single_objective', 'multi_objective' or 'elitist'. Not {}".format(self.selector_name))
+            raise Exception("The selector_name has to be 'single_objective', "
+                            "'multi_objective' or 'elitist'. Not "
+                            "{}".format(self.selector_name))
 
         # Instantiate functions converting individuals from the original
         # parameter space to (and from) a normalized space bounded to [-1.;1]
@@ -137,7 +116,8 @@ class CMADEAPOptimisation(DEAPOptimisation):
 
         # In case initial guesses were provided, rescale them to the norm space
         if self.centroids is not None:
-            self.centroids = [self.toolbox.Individual(_ind_convert_space(ind, self.to_norm)) for ind in centroids]
+            self.centroids = [self.toolbox.Individual(_ind_convert_space(ind,
+                                        self.to_norm)) for ind in centroids]
 
         self.setup_deap()
 
@@ -146,10 +126,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
             cp_frequency=1,
             continue_cp=False,
             cp_filename=None):
-        """ Implementation of a single objective population of CMA-ES
-            (using the termination criteria presented in *Hansen, 2009,
-            Benchmarking a BI-Population CMA-ES on the BBOB-2009
-            Function Testbed*).
+        """ Run the optimizer until a stopping criteria is met.
 
         Args:
             max_ngen(int): Total number of generation to run
@@ -169,125 +146,71 @@ class CMADEAPOptimisation(DEAPOptimisation):
             history = cp["history"]
             random.setstate(cp["rndstate"])
             numpy.random.set_state(cp["np_rndstate"])
-            swarm = cp["swarm"]
+            CMA_es = cp["CMA_es"]
 
         else:
             history = tools.History()
             logbook = tools.Logbook()
-            logbook.header = ["gen", "nevals", "sigma"] + stats.fields
+            logbook.header = ["gen", "nevals"] + stats.fields
 
-            swarm = []
-            for i in range(self.swarm_size):
+            # Instantiate the CMA strategies centered on the centroids
+            CMA_es = self.cma_creator(centroids=self.centroids,
+                                      offspring_size=self.offspring_size,
+                                      sigma=self.sigma,
+                                      max_ngen=max_ngen,
+                                      IndCreator=self.toolbox.Individual,
+                                      RandIndCreator=self.toolbox.RandomIndividual)
+            
+            if self.selector_name in ['multi_objective', 'elitist']:
+                to_evaluate = CMA_es.get_parents(self.to_space)
+                fitness = self.toolbox.map(self.toolbox.evaluate, to_evaluate)
+                fitness = list(map(list, fitness))
+                CMA_es.set_fitness_parents(fitness)
+            
+            gen = 1
 
-                if self.centroids is None:
-                    if self.selector_name == 'multi_objective':
-                        starter = [self.toolbox.RandomIndividual() for j in range(2)]
-                        pop = copy.deepcopy(starter)
-                        for i, ind in enumerate(pop):
-                            for j, v in enumerate(ind):
-                                pop[i][j] = self.to_space[j](v)
-                        fitnesses = self.toolbox.map(self.toolbox.evaluate, pop)
-                        fitnesses = list(map(list, fitnesses))
-                        for f, ind in zip(fitnesses, pop):
-                            ind.fitness.values = f    
-                    else:
-                        starter = self.toolbox.RandomIndividual()
-                else:
-                    starter = self.centroids[i % len(self.centroids)]
-                
-                # Instantiate the CMA strategies centered on the centroids
-                swarm.append(self.cma_creator(centroid=starter,
-                                              sigma=self.sigma,
-                                              lr_scale=self.lr_scale,
-                                              max_ngen=max_ngen,
-                                              IndCreator=self.toolbox.Individual))
-                
-        gen = 1
-
-        # Run until a termination criteria is met for every CMA strategy
-        active_cma = numpy.sum([c.active for c in swarm])
-        tot_pop = []
-        while active_cma:
+        # Run until a termination criteria is met
+        while CMA_es.active:
             logger.info("Generation {}".format(gen))
-            logger.info("Number of active CMA strategy: {} / {}".format(
-                active_cma, len(swarm)))
 
             # Generate the new populations
-            n_out = 0
-            for c in swarm:
-                if c.active:
-                    n_out += c.generate_new_pop(lbounds=self.lbounds,
-                                                ubounds=self.ubounds)
+            n_out = CMA_es.generate_new_pop(lbounds=self.lbounds,
+                                       ubounds=self.ubounds)
             logger.info("Number of individuals outside of bounds: {} ({:.2f}%)"
-                        "".format(n_out, 100. * n_out / swarm[0].lambda_ /
-                                  self.swarm_size))
+                        "".format(n_out, 100. * n_out / len(CMA_es.population)))
 
             # Get all the individuals in the original space for evaluation
-            to_evaluate = []
-            for c in swarm:
-                if c.active:
-                    to_evaluate += c.get_population(self.to_space)
+            to_evaluate = CMA_es.get_population(self.to_space)
 
-            # Compute the fitnesses and dispatch them to all the CMA-ES
-            fitnesses = self.toolbox.map(self.toolbox.evaluate, to_evaluate)
-            fitnesses = list(map(list, fitnesses))
+            # Compute the fitness
+            fitness = self.toolbox.map(self.toolbox.evaluate, to_evaluate)
+            fitness = list(map(list, fitness))
             nevals = len(to_evaluate)
-            for c in swarm:
-                if c.active:
-                    c.set_fitness(fitnesses[:len(c.population)])
-                    fitnesses = fitnesses[len(c.population):]
-            
-            if self.selector_name == 'multi_objective':
-
-                # Get all the individuals in the original space for evaluation
-                to_evaluate = []
-                for c in swarm:
-                    if c.active:
-                        to_evaluate += c.get_parents(self.to_space)
-
-                # Compute the fitnesses and dispatch them to all the CMA-ES
-                fitnesses = self.toolbox.map(self.toolbox.evaluate, to_evaluate)
-                fitnesses = list(map(list, fitnesses))
-                nevals += len(to_evaluate)
-                for c in swarm:
-                    if c.active:
-                        c.set_fitness_parents(fitnesses[:len(c.population)])
-                        fitnesses = fitnesses[len(c.population):]
+            CMA_es.set_fitness(fitness)
                 
             # Update the hall of fame, history and logbook
-            tot_pop = []
-            for c in swarm:
-                tot_pop += c.get_population(self.to_space)
-            
-            if self.selector_name != "multi_objective":
-                mean_sigma = numpy.mean([c.sigma for c in swarm])
-            else:
-                mean_sigma = 0
-            _update_history_and_hof(self.hof, history, tot_pop)
-            record = _record_stats(stats, logbook, gen, tot_pop, nevals,
-                                   mean_sigma)
+            pop = CMA_es.get_population(self.to_space)
+            _update_history_and_hof(self.hof, history, pop)
+            record = _record_stats(stats, logbook, gen, pop, nevals)
             logger.info(logbook.stream)
 
             # Update the CMA strategy using the new fitness and check if
             # termination conditions were reached
-            for c in swarm:
-                if c.active:
-                    c.update_strategy()
-                    c.check_termination(gen)
-            active_cma = numpy.sum([c.active for c in swarm])
+            CMA_es.update_strategy()
+            CMA_es.check_termination(gen)
 
             if cp_filename and cp_frequency and gen % cp_frequency == 0:
-                cp = dict(population=tot_pop,
+                cp = dict(population=pop,
                           generation=gen,
                           halloffame=self.hof,
                           history=history,
                           logbook=logbook,
                           rndstate=random.getstate(),
                           np_rndstate=numpy.random.get_state(),
-                          swarm=swarm)
+                          CMA_es=CMA_es)
                 pickle.dump(cp, open(cp_filename, "wb"))
                 logger.debug('Wrote checkpoint to %s', cp_filename)
 
             gen += 1
 
-        return tot_pop, self.hof, logbook, history
+        return pop, self.hof, logbook, history
