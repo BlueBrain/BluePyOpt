@@ -30,7 +30,7 @@ import deap.tools
 import pickle
 
 from . import MaxNGen, Stagnation
-from .utils import *
+from .utils import _update_history_and_hof, _record_stats
 
 logger = logging.getLogger('__main__')
 

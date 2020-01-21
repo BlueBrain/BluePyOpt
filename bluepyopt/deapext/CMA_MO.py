@@ -124,13 +124,9 @@ class CMA_MO(cma.StrategyMultiObjective):
         k = self.mu - len(chosen)
         if k > 0:
             fit = [numpy.mean(ind.fitness.values) for ind in mid_front]
-            for g in range(k):
-                chosen.append(mid_front.pop(numpy.argmin(fit)))
-            not_chosen += mid_front
-            
-            #_ = tools.selIBEA(mid_front, k)
-            #chosen += [mid_front[g] for g in _]
-            #not_chosen += [ind for g,ind in enumerate(mid_front) if g not in _]
+            _ = [mid_front[k] for k in numpy.argsort(fit)]
+            chosen += _[:k]
+            not_chosen += _[k:]
             
         return chosen, not_chosen
 

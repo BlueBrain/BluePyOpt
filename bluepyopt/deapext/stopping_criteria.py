@@ -24,12 +24,14 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import logging
 import numpy
 
-from math import isclose
 from collections import deque
 
 from bluepyopt.stopping_criteria import StoppingCriteria
 
 logger = logging.getLogger('__main__')
+
+def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 class MaxNGen(StoppingCriteria):
