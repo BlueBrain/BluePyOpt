@@ -58,19 +58,19 @@
 Introduction
 ============
 
-The Blue Brain Python Optimisation Library (BluePyOpt) is an extensible 
-framework for data-driven model parameter optimisation that wraps and 
-standardises several existing open-source tools. 
+The Blue Brain Python Optimisation Library (BluePyOpt) is an extensible
+framework for data-driven model parameter optimisation that wraps and
+standardises several existing open-source tools.
 
-It simplifies the task of creating and sharing these optimisations, 
-and the associated techniques and knowledge. 
-This is achieved by abstracting the optimisation and evaluation tasks 
-into various reusable and flexible discrete elements according to established 
-best-practices. 
+It simplifies the task of creating and sharing these optimisations,
+and the associated techniques and knowledge.
+This is achieved by abstracting the optimisation and evaluation tasks
+into various reusable and flexible discrete elements according to established
+best-practices.
 
-Further, BluePyOpt provides methods for setting up both small- and large-scale 
-optimisations on a variety of platforms, 
-ranging from laptops to Linux clusters and cloud-based compute infrastructures. 
+Further, BluePyOpt provides methods for setting up both small- and large-scale
+optimisations on a variety of platforms,
+ranging from laptops to Linux clusters and cloud-based compute infrastructures.
 
 Citation
 ========
@@ -133,7 +133,7 @@ Cloud infrastructure
 ====================
 
 We provide instructions on how to set up an optimisation environment on cloud
-infrastructure or cluster computers 
+infrastructure or cluster computers
 [here](https://github.com/BlueBrain/BluePyOpt/tree/master/cloud-config)
 
 Quick Start
@@ -142,7 +142,7 @@ Quick Start
 Single compartmental model
 --------------------------
 
-An iPython notebook with an introductory optimisation of a one compartmental 
+An iPython notebook with an introductory optimisation of a one compartmental
 model with 2 HH channels can be found at
 
 https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/simplecell.ipynb
@@ -152,7 +152,7 @@ https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/simplecel
 
 Neocortical Layer 5 Pyramidal Cell
 ----------------------------------
-Scripts for a more complex neocortical L5PC are in 
+Scripts for a more complex neocortical L5PC are in
 [this directory](https://github.com/BlueBrain/BluePyOpt/tree/master/examples/l5pc)
 
 With a notebook:
@@ -161,12 +161,23 @@ https://github.com/BlueBrain/BluePyOpt/blob/master/examples/l5pc/L5PC.ipynb
 
 Thalamocortical Cells
 ---------------------
-Scripts for 2 thalamocortical cell types are in 
+Scripts for 2 thalamocortical cell types are in
 [this directory](https://github.com/BlueBrain/BluePyOpt/tree/master/examples/thalamocortical-cell)
 
 With a notebook:
 
 https://github.com/BlueBrain/BluePyOpt/blob/master/examples/thalamocortical-cell/thalamocortical-cell_opt.ipynb
+
+
+Tsodyks-Markram Model of Short-Term Plasticity
+---------------------
+Scripts for 2 version of fitting the Tsodyks-Markram model to synaptic traces are in
+[this directory](https://github.com/BlueBrain/BluePyOpt/tree/master/examples/tsodyksmarkramstp)
+
+With 2 notebooks:
+
+https://github.com/BlueBrain/BluePyOpt/blob/master/examples/tsodyksmarkramstp/tsodyksmarkramstp.ipynb
+https://github.com/BlueBrain/BluePyOpt/blob/master/examples/tsodyksmarkramstp/tsodyksmarkramstp_multiplefreqs.ipynb
 
 API documentation
 ==================
