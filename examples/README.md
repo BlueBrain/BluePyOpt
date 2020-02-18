@@ -13,7 +13,7 @@ They can be used to learn the concepts behind the package, and also as a startin
 
 * stochkv: simple cell optimization with stochastic channels
 
-* tsodyksmarkramstp: optimizing parameters for a Layer 5 tufted pyramidal cell using Tsodyks-Markram model of short-term synaptic plasticity
+* tsodyksmarkramstp: optimizing parameters of the Tsodyks-Markram model of short-term synaptic plasticity
 
 # Documentation
 
