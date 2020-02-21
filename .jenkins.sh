@@ -3,12 +3,12 @@
 set -e
 set -x
 
-tox_args='--recreate -e py27-unit-functional-style'
+tox_args='--recreate -e py3-unit-functional-style'
 
 if [ "${os}" = "cscsviz" ]
 then
 	. /opt/rh/python27/enable
-elif [ "${os}" = "Ubuntu-16.04" ]
+elif [ "${os}" = "Ubuntu-18.04" ]
 then
 	tox_args="${tox_args}"
 fi
