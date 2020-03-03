@@ -29,6 +29,8 @@ import deap.algorithms
 import deap.tools
 import pickle
 
+from .stoppingCriteria import MaxNGen
+
 logger = logging.getLogger('__main__')
 
 
@@ -120,8 +122,12 @@ def eaAlphaMuPlusLambdaCheckpoint(
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, start_gen, population, invalid_count)
 
+    stopping_conditions = [MaxNGen(ngen)]
+
     # Begin the generational process
-    for gen in range(start_gen + 1, ngen + 1):
+    active = True
+    gen = start_gen + 1
+    while active:
         offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
         population = parents + offspring
@@ -146,5 +152,16 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       rndstate=random.getstate())
             pickle.dump(cp, open(cp_filename, "wb"))
             logger.debug('Wrote checkpoint to %s', cp_filename)
+
+        stopping_params = {"ngen": gen-1}
+        for c in stopping_conditions:
+            c.check(stopping_params)
+            if c.criteria_met:
+                logger.info('IBEA stopped because of termination criteria: ' +
+                            ' '.join(type(c).__name__))
+                active = False
+                break
+
+        gen += 1
 
     return population, halloffame, logbook, history
