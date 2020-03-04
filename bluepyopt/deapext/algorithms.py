@@ -153,7 +153,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
             pickle.dump(cp, open(cp_filename, "wb"))
             logger.debug('Wrote checkpoint to %s', cp_filename)
 
-        stopping_params = {"ngen": gen-1}
+        stopping_params = {"ngen": gen - 1}
         for c in stopping_conditions:
             c.check(stopping_params)
             if c.criteria_met:

@@ -30,3 +30,4 @@ class StoppingCriteria(object):
 
     def reset(self):
         self.criteria_met = False
+
