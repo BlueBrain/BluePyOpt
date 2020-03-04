@@ -20,12 +20,12 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import logging
 import numpy
 
-from bluepyopt.stopping_criteria import StoppingCriteria
+import bluepyopt.stoppingCriteria
 
 logger = logging.getLogger('__main__')
 
 
-class MaxNGen(StoppingCriteria):
+class MaxNGen(bluepyopt.stoppingCriteria.StoppingCriteria):
     """Max ngen stopping criteria class"""
 
     def __init__(self, max_ngen):
