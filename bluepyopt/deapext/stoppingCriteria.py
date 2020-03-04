@@ -27,6 +27,7 @@ logger = logging.getLogger('__main__')
 
 class MaxNGen(bluepyopt.stoppingCriteria.StoppingCriteria):
     """Max ngen stopping criteria class"""
+    name = "Max ngen"
 
     def __init__(self, max_ngen):
         """Constructor"""
