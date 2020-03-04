@@ -36,7 +36,7 @@ class MaxNGen(bluepyopt.stoppingCriteria.StoppingCriteria):
 
     def check(self, kwargs):
         """Check if the maximum number of iteration is reached"""
-        ngen = kwargs.get("ngen")
+        gen = kwargs.get("gen")
 
-        if ngen >= self.max_ngen:
+        if gen >= self.max_ngen:
             self.criteria_met = True

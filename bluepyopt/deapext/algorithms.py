@@ -71,6 +71,17 @@ def _get_offspring(parents, toolbox, cxpb, mutpb):
     return deap.algorithms.varAnd(parents, toolbox, cxpb, mutpb)
 
 
+def _check_stopping_criteria(criteria, params):
+    for c in criteria:
+        c.check(params)
+        if c.criteria_met:
+            logger.info('Run stopped because of stopping criteria: ' +
+                        c.name)
+            return True
+    else:
+        return False
+
+
 def eaAlphaMuPlusLambdaCheckpoint(
         population,
         toolbox,
@@ -103,7 +114,9 @@ def eaAlphaMuPlusLambdaCheckpoint(
         # A file name has been given, then load the data from the file
         cp = pickle.load(open(cp_filename, "rb"))
         population = cp["population"]
+        print("Population: ", population)
         parents = cp["parents"]
+        print("Parents: ", parents)
         start_gen = cp["generation"]
         halloffame = cp["halloffame"]
         logbook = cp["logbook"]
@@ -122,12 +135,12 @@ def eaAlphaMuPlusLambdaCheckpoint(
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, start_gen, population, invalid_count)
 
-    stopping_conditions = [MaxNGen(ngen)]
+    stopping_criteria = [MaxNGen(ngen)]
 
     # Begin the generational process
-    active = True
     gen = start_gen + 1
-    while active:
+    stopping_params = {"gen": gen}
+    while _check_stopping_criteria(stopping_criteria, stopping_params):
         offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
         population = parents + offspring
@@ -153,14 +166,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
             pickle.dump(cp, open(cp_filename, "wb"))
             logger.debug('Wrote checkpoint to %s', cp_filename)
 
-        stopping_params = {"ngen": gen}
-        for c in stopping_conditions:
-            c.check(stopping_params)
-            if c.criteria_met:
-                logger.info('Run stopped because of termination criteria: ' +
-                            c.name)
-                active = False
-
         gen += 1
+        stopping_params["gen"] = gen
 
     return population, halloffame, logbook, history
