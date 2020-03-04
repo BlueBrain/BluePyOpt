@@ -114,9 +114,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         # A file name has been given, then load the data from the file
         cp = pickle.load(open(cp_filename, "rb"))
         population = cp["population"]
-        print("Population: ", population)
         parents = cp["parents"]
-        print("Parents: ", parents)
         start_gen = cp["generation"]
         halloffame = cp["halloffame"]
         logbook = cp["logbook"]
@@ -140,7 +138,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
     # Begin the generational process
     gen = start_gen + 1
     stopping_params = {"gen": gen}
-    while _check_stopping_criteria(stopping_criteria, stopping_params):
+    while not(_check_stopping_criteria(stopping_criteria, stopping_params)):
         offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
         population = parents + offspring
