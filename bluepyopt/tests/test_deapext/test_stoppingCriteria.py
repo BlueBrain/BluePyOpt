@@ -17,7 +17,7 @@ def test_MaxNGen():
     criteria = bluepyopt.stoppingCriteria.MaxNGen(max_gen)
 
     nt.assert_equal(criteria.met, False)
-    criteria.check({gen: max_gen+1})
+    criteria.check({gen: max_gen + 1})
     nt.assert_equal(criteria.met, True)
     criteria.reset()
     criteria.check({gen: max_gen})
