@@ -89,9 +89,9 @@ class NrnSimulator(object):
             NrnSimulator._nrn_disable_banner()
             self.banner_disabled = True
 
-        # certain mpi libraries (hpe-mpt) use PMI_RANK env variable to initialize
-        # MPI before calling MPI_Init (which is undesirable). Unset this variable
-        # if exist to avoid issue with loading neuron and mechanism library.
+        # certain mpi libraries use PMI_RANK env variable to initialize
+        # MPI before calling MPI_Init (which is undesirable). Unset this
+        # variable to avoid issue with loading neuron and mechanism library.
         if 'PMI_RANK' in os.environ:
             os.environ.pop("PMI_RANK")
 
