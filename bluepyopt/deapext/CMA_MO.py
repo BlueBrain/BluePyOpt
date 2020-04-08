@@ -36,6 +36,31 @@ from . import tools
 
 logger = logging.getLogger('__main__')
 
+from deap.tools._hypervolume import hv as hv_c
+
+
+def hyper_volume(front):
+    
+    wobj = numpy.array([ind.fitness.values for ind in front])
+    obj_ranges = (numpy.max(wobj, axis=0) - numpy.min(wobj, axis=0))
+    ref = numpy.max(wobj, axis=0) + 1
+    
+    # Above 15 dim, hypervolume is too slow, so I settle for an approximation
+    if len(ref) > 15:
+        idxs = list(range(len(ref)))
+        idxs = [idxs[k] for k in numpy.argsort(obj_ranges)]
+        idxs = idxs[::-1]
+        idxs = idxs[:15]   
+        wobj = wobj[:, idxs]
+        ref = ref[idxs]
+
+    contrib_values = []
+    for i in range(len(front)):
+        _ = hv_c.hypervolume(numpy.concatenate((wobj[:i], wobj[i+1:])), ref)
+        contrib_values.append(_)
+
+    return contrib_values
+
 
 class CMA_MO(cma.StrategyMultiObjective):
 
@@ -72,9 +97,9 @@ class CMA_MO(cma.StrategyMultiObjective):
                 starters = [next(generator) for i in range(lambda_)]
             else:
                 starters = centroids
-
-        cma.StrategyMultiObjective.__init__(self, starters, sigma, mu=int(lambda_/2.), 
-                                            lambda_=lambda_, indicator=deap.tools.additive_epsilon)
+        
+        cma.StrategyMultiObjective.__init__(self, starters, sigma, mu=int(lambda_*0.5), 
+                                            lambda_=lambda_)
         
         self.population = []
         self.problem_size = len(starters[0])
@@ -104,7 +129,7 @@ class CMA_MO(cma.StrategyMultiObjective):
         chosen = list()
         mid_front = None
         not_chosen = list()
-
+    
         # Fill the next population (chosen) with the fronts until there is not enouch space
         # When an entire front does not fit in the space left we rely on the hypervolume
         # for this front
@@ -115,19 +140,18 @@ class CMA_MO(cma.StrategyMultiObjective):
                 chosen += front
             elif mid_front is None and len(chosen) < self.mu:
                 mid_front = front
-                # With this front, we selected enough individuals
+               # With this front, we selected enough individuals
                 full = True
             else:
                 not_chosen += front
-
-        # Separate the mid front to accept only k individuals
+        
         k = self.mu - len(chosen)
         if k > 0:
-            fit = [numpy.mean(ind.fitness.values) for ind in mid_front]
-            _ = [mid_front[k] for k in numpy.argsort(fit)]
+            hyperv = hyper_volume(mid_front)
+            _ = [mid_front[k] for k in numpy.argsort(hyperv)]
             chosen += _[:k]
             not_chosen += _[k:]
-            
+
         return chosen, not_chosen
 
     def get_population(self, to_space):
