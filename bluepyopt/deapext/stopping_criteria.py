@@ -19,7 +19,11 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-# pylint: disable=R0912, R0914
+"""
+ The stopping criteria proposed in the current file are copied from the DEAP 
+ python library and are implementation of the criteria proposed by N. Hansen 
+ in "Benchmarking a BI-population CMA-ES on the BBOB-2009 Function Testbed".
+"""
 
 import logging
 import numpy

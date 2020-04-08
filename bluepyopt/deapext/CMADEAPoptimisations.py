@@ -19,19 +19,15 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-# pylint: disable=R0912, R0914
-
 import logging
 import numpy
 import pickle
 import random
-import copy
 from functools import partial
 
-from deap import base
 from deap import tools
 
-from . import DEAPOptimisation, ListIndividual
+from . import DEAPOptimisation
 from . import CMA_SO, CMA_ELITIST, CMA_MO
 from .utils import _update_history_and_hof, _record_stats
 
@@ -159,7 +155,8 @@ class CMADEAPOptimisation(DEAPOptimisation):
                                       sigma=self.sigma,
                                       max_ngen=max_ngen,
                                       IndCreator=self.toolbox.Individual,
-                                      RandIndCreator=self.toolbox.RandomIndividual)
+                                      RandIndCreator=self.toolbox.RandomIndividual,
+                                      map_function=self.map_function)
             
             if self.selector_name in ['multi_objective', 'elitist']:
                 to_evaluate = CMA_es.get_parents(self.to_space)

@@ -45,7 +45,8 @@ class CMA_ELITIST(cma.StrategyOnePlusLambda):
                  sigma,
                  max_ngen,
                  IndCreator,
-                 RandIndCreator):
+                 RandIndCreator,
+                 map_function=None):
         """Constructor
 
         Args:

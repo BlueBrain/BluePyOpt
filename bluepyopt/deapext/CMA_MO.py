@@ -39,29 +39,6 @@ logger = logging.getLogger('__main__')
 from deap.tools._hypervolume import hv as hv_c
 
 
-def hyper_volume(front):
-    
-    wobj = numpy.array([ind.fitness.values for ind in front])
-    obj_ranges = (numpy.max(wobj, axis=0) - numpy.min(wobj, axis=0))
-    ref = numpy.max(wobj, axis=0) + 1
-    
-    # Above 15 dim, hypervolume is too slow, so I settle for an approximation
-    if len(ref) > 15:
-        idxs = list(range(len(ref)))
-        idxs = [idxs[k] for k in numpy.argsort(obj_ranges)]
-        idxs = idxs[::-1]
-        idxs = idxs[:15]   
-        wobj = wobj[:, idxs]
-        ref = ref[idxs]
-
-    contrib_values = []
-    for i in range(len(front)):
-        _ = hv_c.hypervolume(numpy.concatenate((wobj[:i], wobj[i+1:])), ref)
-        contrib_values.append(_)
-
-    return contrib_values
-
-
 class CMA_MO(cma.StrategyMultiObjective):
 
     """Multiple objective covariance matrix adaption"""
@@ -72,7 +49,8 @@ class CMA_MO(cma.StrategyMultiObjective):
                  sigma,
                  max_ngen,
                  IndCreator,
-                 RandIndCreator):
+                 RandIndCreator,
+                 map_function=None):
         """Constructor
 
         Args:
@@ -104,10 +82,22 @@ class CMA_MO(cma.StrategyMultiObjective):
         self.population = []
         self.problem_size = len(starters[0])
 
+        self.map_function = map_function
+
         # Toolbox specific to this CMA-ES
         self.toolbox = base.Toolbox()
         self.toolbox.register("generate", self.generate, IndCreator)
         self.toolbox.register("update", self.update)
+
+        if self.use_scoop:
+            if self.map_function:
+                raise Exception(
+                    'Impossible to use scoop is providing self defined map '
+                    'function: %s' % self.map_function)
+            from scoop import futures
+            self.toolbox.register("map", futures.map)
+        elif self.map_function:
+            self.toolbox.register("map", self.map_function)
 
         # Set termination conditions
         self.active = True
@@ -119,6 +109,47 @@ class CMA_MO(cma.StrategyMultiObjective):
             MaxNGen(max_ngen),
             Stagnation(self.lambda_, self.problem_size),
         ]
+
+    def hyper_volume(self, front):
+
+        wobj = numpy.array([ind.fitness.values for ind in front])
+        obj_ranges = (numpy.max(wobj, axis=0) - numpy.min(wobj, axis=0))
+        ref = numpy.max(wobj, axis=0) + 1
+
+        # Above 15 dim, hypervolume is too slow, so I settle for an approximation
+        if len(ref) > 15:
+            idxs = list(range(len(ref)))
+            idxs = [idxs[k] for k in numpy.argsort(obj_ranges)]
+            idxs = idxs[::-1]
+            idxs = idxs[:15]
+            wobj = wobj[:, idxs]
+            ref = ref[idxs]
+
+        def contribution(i):
+
+            def get_hv(i):
+                return hv_c.hypervolume(numpy.concatenate((wobj[:i],
+                                                           wobj[i + 1:])),
+                                                            ref)
+
+            def _reduce_method(meth):
+                """Overwrite reduce"""
+                return (getattr, (meth.__self__, meth.__func__.__name__))
+
+            import copyreg
+            import types
+            copyreg.pickle(types.MethodType, _reduce_method)
+            import pebble
+
+            with pebble.ProcessPool(max_tasks=1) as pool:
+                tasks = pool.schedule(get_hv, args=(i))
+                response = tasks.result()
+
+            return response
+
+        contrib_values = self.toolbox.map(contribution, range(len(front)))
+
+        return list(contrib_values)
 
     def _select(self, candidates):
         if len(candidates) <= self.mu:
@@ -133,7 +164,7 @@ class CMA_MO(cma.StrategyMultiObjective):
         # Fill the next population (chosen) with the fronts until there is not enouch space
         # When an entire front does not fit in the space left we rely on the hypervolume
         # for this front
-        # The remaining fronts are explicitely not chosen
+        # The remaining fronts are explicitly not chosen
         full = False
         for front in pareto_fronts:
             if len(chosen) + len(front) <= self.mu and not full:
@@ -147,7 +178,7 @@ class CMA_MO(cma.StrategyMultiObjective):
         
         k = self.mu - len(chosen)
         if k > 0:
-            hyperv = hyper_volume(mid_front)
+            hyperv = self.hyper_volume(mid_front)
             _ = [mid_front[k] for k in numpy.argsort(hyperv)]
             chosen += _[:k]
             not_chosen += _[k:]

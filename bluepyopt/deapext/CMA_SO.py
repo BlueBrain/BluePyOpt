@@ -19,11 +19,9 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-# pylint: disable=R0912, R0914
-
 import logging
 import numpy
-from math import sqrt, log, exp
+from math import sqrt, log
 import copy
 
 from deap import base
@@ -31,7 +29,7 @@ from deap import cma
 
 from . import MaxNGen, Stagnation, TolHistFun, EqualFunVals, NoEffectAxis, \
     TolUpSigma, TolX, ConditionCov, NoEffectCoor
-from .utils import _closest_feasible, _bound
+from .utils import _bound
 
 logger = logging.getLogger('__main__')
 
@@ -46,7 +44,8 @@ class CMA_SO(cma.Strategy):
                  sigma,
                  max_ngen,
                  IndCreator,
-                 RandIndCreator):
+                 RandIndCreator,
+                 map_function=None):
         """Constructor
 
         Args:

@@ -19,9 +19,6 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-# pylint: disable=R0912, R0914
-
-import random
 import logging
 import numpy
 
@@ -32,8 +29,7 @@ import deap.tools
 
 from . import algorithms
 from . import tools
-from . import DEAPOptimisation, ListIndividual 
-from .utils import _update_history_and_hof, _record_stats 
+from . import DEAPOptimisation
  
 logger = logging.getLogger('__main__')
 
