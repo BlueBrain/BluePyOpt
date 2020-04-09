@@ -38,6 +38,31 @@ logger = logging.getLogger('__main__')
 
 from deap.tools._hypervolume import hv as hv_c
 
+ 
+def get_hv(to_evaluate):
+    i = to_evaluate[0]
+    wobj = to_evaluate[1]
+    ref = to_evaluate[2]
+    return hv_c.hypervolume(numpy.concatenate((wobj[:i], wobj[i + 1:])),ref)
+
+
+def contribution(to_evaluate):
+
+    def _reduce_method(meth):
+        """Overwrite reduce"""
+        return (getattr, (meth.__self__, meth.__func__.__name__))
+
+    import copyreg
+    import types
+    copyreg.pickle(types.MethodType, _reduce_method)
+    import pebble
+
+    with pebble.ProcessPool(max_tasks=1) as pool:
+        tasks = pool.schedule(get_hv, kwargs={'to_evaluate': to_evaluate})
+        response = tasks.result()
+
+    return response
+
 
 class CMA_MO(cma.StrategyMultiObjective):
 
@@ -50,7 +75,8 @@ class CMA_MO(cma.StrategyMultiObjective):
                  max_ngen,
                  IndCreator,
                  RandIndCreator,
-                 map_function=None):
+                 map_function=None,
+                 use_scoop=False):
         """Constructor
 
         Args:
@@ -83,6 +109,7 @@ class CMA_MO(cma.StrategyMultiObjective):
         self.problem_size = len(starters[0])
 
         self.map_function = map_function
+        self.use_scoop = use_scoop
 
         # Toolbox specific to this CMA-ES
         self.toolbox = base.Toolbox()
@@ -109,45 +136,28 @@ class CMA_MO(cma.StrategyMultiObjective):
             MaxNGen(max_ngen),
             Stagnation(self.lambda_, self.problem_size),
         ]
-
+                     
     def hyper_volume(self, front):
 
         wobj = numpy.array([ind.fitness.values for ind in front])
         obj_ranges = (numpy.max(wobj, axis=0) - numpy.min(wobj, axis=0))
         ref = numpy.max(wobj, axis=0) + 1
 
-        # Above 15 dim, hypervolume is too slow, so I settle for an approximation
-        if len(ref) > 15:
+        # Above 23 dim, hypervolume is too slow, so I settle for an approximation
+        max_ndim = 23
+        if len(ref) > max_ndim:
             idxs = list(range(len(ref)))
             idxs = [idxs[k] for k in numpy.argsort(obj_ranges)]
             idxs = idxs[::-1]
-            idxs = idxs[:15]
+            idxs = idxs[:max_ndim]
             wobj = wobj[:, idxs]
             ref = ref[idxs]
 
-        def contribution(i):
+        to_evaluate = []
+        for i in range(len(front)):
+            to_evaluate.append([i, numpy.copy(wobj), numpy.copy(ref)])
 
-            def get_hv(i):
-                return hv_c.hypervolume(numpy.concatenate((wobj[:i],
-                                                           wobj[i + 1:])),
-                                                            ref)
-
-            def _reduce_method(meth):
-                """Overwrite reduce"""
-                return (getattr, (meth.__self__, meth.__func__.__name__))
-
-            import copyreg
-            import types
-            copyreg.pickle(types.MethodType, _reduce_method)
-            import pebble
-
-            with pebble.ProcessPool(max_tasks=1) as pool:
-                tasks = pool.schedule(get_hv, args=(i))
-                response = tasks.result()
-
-            return response
-
-        contrib_values = self.toolbox.map(contribution, range(len(front)))
+        contrib_values = self.toolbox.map(contribution, to_evaluate)
 
         return list(contrib_values)
 

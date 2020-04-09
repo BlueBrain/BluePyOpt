@@ -197,9 +197,10 @@ class eFELFeature(EFeature, DictMixin):
                 trace_check=trace_check,
                 error_dist=self.max_score
             )
+            
             if self.force_max_score:
                 score = min(score, self.max_score)
-
+            
             efel.reset()
 
         logger.debug('Calculated score for %s: %f', self.name, score)

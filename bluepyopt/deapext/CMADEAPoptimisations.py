@@ -156,7 +156,8 @@ class CMADEAPOptimisation(DEAPOptimisation):
                                       max_ngen=max_ngen,
                                       IndCreator=self.toolbox.Individual,
                                       RandIndCreator=self.toolbox.RandomIndividual,
-                                      map_function=self.map_function)
+                                      map_function=self.map_function,
+                                      use_scoop=self.use_scoop)
             
             if self.selector_name in ['multi_objective', 'elitist']:
                 to_evaluate = CMA_es.get_parents(self.to_space)
@@ -203,8 +204,8 @@ class CMADEAPOptimisation(DEAPOptimisation):
                           history=history,
                           logbook=logbook,
                           rndstate=random.getstate(),
-                          np_rndstate=numpy.random.get_state(),
-                          CMA_es=CMA_es)
+                          np_rndstate=numpy.random.get_state())
+                          #CMA_es=CMA_es)
                 pickle.dump(cp, open(cp_filename, "wb"))
                 logger.debug('Wrote checkpoint to %s', cp_filename)
 
