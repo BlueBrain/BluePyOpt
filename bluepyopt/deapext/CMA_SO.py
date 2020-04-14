@@ -45,7 +45,8 @@ class CMA_SO(cma.Strategy):
                  max_ngen,
                  IndCreator,
                  RandIndCreator,
-                 map_function=None):
+                 map_function=None,
+                 use_scoop=False):
         """Constructor
 
         Args:
