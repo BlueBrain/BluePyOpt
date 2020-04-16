@@ -72,6 +72,9 @@ class CMA_SO(cma.Strategy):
         self.population = []
         self.problem_size = len(starter)
 
+        self.map_function = map_function
+        self.use_scoop = use_scoop
+
         # Toolbox specific to this CMA-ES
         self.toolbox = base.Toolbox()
         self.toolbox.register("generate", self.generate, IndCreator)

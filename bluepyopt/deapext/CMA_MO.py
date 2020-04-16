@@ -133,8 +133,6 @@ class CMA_MO(cma.StrategyMultiObjective):
                 self.lambda_)
 
         self.stopping_conditions = [MaxNGen(max_ngen)]
-            #Stagnation(self.lambda_, self.problem_size)
-            #]
                      
     def hyper_volume(self, front):
 

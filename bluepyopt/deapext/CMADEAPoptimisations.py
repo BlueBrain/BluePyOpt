@@ -143,6 +143,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
             random.setstate(cp["rndstate"])
             numpy.random.set_state(cp["np_rndstate"])
             CMA_es = cp["CMA_es"]
+            CMA_es.map_function = self.map_function
 
         else:
             history = tools.History()
@@ -173,7 +174,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
 
             # Generate the new populations
             n_out = CMA_es.generate_new_pop(lbounds=self.lbounds,
-                                       ubounds=self.ubounds)
+                                            ubounds=self.ubounds)
             logger.info("Number of individuals outside of bounds: {} ({:.2f}%)"
                         "".format(n_out, 100. * n_out / len(CMA_es.population)))
 
@@ -198,14 +199,17 @@ class CMADEAPOptimisation(DEAPOptimisation):
             CMA_es.check_termination(gen)
 
             if cp_filename and cp_frequency and gen % cp_frequency == 0:
+                temp_mf = CMA_es.map_function
+                CMA_es.map_function = None
                 cp = dict(population=pop,
                           generation=gen,
                           halloffame=self.hof,
                           history=history,
                           logbook=logbook,
                           rndstate=random.getstate(),
-                          np_rndstate=numpy.random.get_state())
-                          #CMA_es=CMA_es)
+                          np_rndstate=numpy.random.get_state(),
+                          CMA_es=CMA_es)
+                CMA_es.map_function = temp_mf
                 pickle.dump(cp, open(cp_filename, "wb"))
                 logger.debug('Wrote checkpoint to %s', cp_filename)
 
