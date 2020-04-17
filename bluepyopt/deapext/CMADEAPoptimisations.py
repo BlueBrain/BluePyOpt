@@ -28,7 +28,7 @@ from functools import partial
 from deap import tools
 
 from . import DEAPOptimisation
-from . import CMA_SO, CMA_ELITIST, CMA_MO
+from . import CMA_SO, CMA_MO
 from .utils import _update_history_and_hof, _record_stats
 
 logger = logging.getLogger('__main__')
@@ -64,7 +64,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
                 evaluation function calls
             hof (hof): Hall of Fame object
             selector_name (str): The selector used in the evolutionary
-                algorithm, possible values are 'single_objective', 'elitist' or
+                algorithm, possible values are 'single_objective' or
                 'multi_objective'
             fitness_reduce (fcn): function used to reduce the objective values
                 to a single fitness score
@@ -83,13 +83,11 @@ class CMADEAPOptimisation(DEAPOptimisation):
         self.selector_name = selector_name
         if self.selector_name == 'single_objective':
             self.cma_creator = CMA_SO
-        elif self.selector_name == 'elitist':
-            self.cma_creator = CMA_ELITIST
         elif self.selector_name == 'multi_objective':
             self.cma_creator = CMA_MO
         else:
-            raise Exception("The selector_name has to be 'single_objective', "
-                            "'multi_objective' or 'elitist'. Not "
+            raise Exception("The selector_name has to be 'single_objective' or "
+                            "'multi_objective'. Not "
                             "{}".format(self.selector_name))
 
         # Instantiate functions converting individuals from the original
@@ -160,7 +158,7 @@ class CMADEAPOptimisation(DEAPOptimisation):
                                       map_function=self.map_function,
                                       use_scoop=self.use_scoop)
             
-            if self.selector_name in ['multi_objective', 'elitist']:
+            if self.selector_name == 'multi_objective':
                 to_evaluate = CMA_es.get_parents(self.to_space)
                 fitness = self.toolbox.map(self.toolbox.evaluate, to_evaluate)
                 fitness = list(map(list, fitness))
