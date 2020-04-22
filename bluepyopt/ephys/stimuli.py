@@ -20,6 +20,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 
 # pylint: disable=W0511
+import LFPy
 
 import logging
 logger = logging.getLogger(__name__)
@@ -327,3 +328,64 @@ class NrnRampPulse(Stimulus):
                 self.ramp_duration,
                 self.total_duration,
                 self.location)
+
+class LFPySquarePulse(Stimulus):
+
+    """Square pulse current clamp injection"""
+
+    def __init__(self,
+                 step_amplitude=None,
+                 step_delay=None,
+                 step_duration=None,
+                 total_duration=None,
+                 location=None):
+        """Constructor
+
+        Args:
+            step_amplitude (float): amplitude (nA)
+            step_delay (float): delay (ms)
+            step_duration (float): duration (ms)
+            total_duration (float): total duration (ms)
+            location (Location): stimulus Location
+        """
+
+        super(LFPySquarePulse, self).__init__()
+        self.step_amplitude = step_amplitude
+        self.step_delay = step_delay
+        self.step_duration = step_duration
+        self.location = location
+        self.total_duration = total_duration
+        self.iclamp = None
+
+    def instantiate(self, sim=None, icell=None):
+        """Run stimulus"""
+
+        self.iclamp = LFPy.StimIntElectrode(cell=icell,
+                                            idx=self.location.sec_index,
+                                            pptype='IClamp',
+                                            record_current=True,
+                                            amp=self.step_amplitude,
+                                            delay=self.step_delay,
+                                            dur=self.step_duration)
+        logger.debug(
+            'Adding square step stimulus to %s with delay %f, '
+            'duration %f, and amplitude %f',
+            str(self.location),
+            self.step_delay,
+            self.step_duration,
+            self.step_amplitude)
+
+    def destroy(self, sim=None):
+        """Destroy stimulus"""
+
+        self.iclamp = None
+
+    def __str__(self):
+        """String representation"""
+
+        return "Square pulse amp %f delay %f duration %f totdur %f at %s" % (
+            self.step_amplitude,
+            self.step_delay,
+            self.step_duration,
+            self.total_duration,
+            self.location)
