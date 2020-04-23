@@ -458,7 +458,7 @@ class LFPyCellModel(Model):
             morph=None,
             mechs=None,
             params=None,
-            dt=1e-5,
+            dt=0.05,
             gid=0):
         """Constructor
 
@@ -615,11 +615,10 @@ class LFPyCellModel(Model):
 
         self.morphology.instantiate(sim=sim, icell=self.icell)
         
-        for sc in sim.neuron.h.allsec():
-            print(sc, vars(sc))
-
         # TODO Find a way to handle tstop, overload set_point_process ?
-        self.LFPycell = LFPy.Cell(morphology=sim.neuron.h.allsec(), dt=self.dt)
+        self.LFPycell = LFPy.Cell(morphology=sim.neuron.h.allsec(), 
+                                  dt=self.dt,
+                                  delete_sections=False)
 
         if self.mechanisms is not None:
             for mechanism in self.mechanisms:
