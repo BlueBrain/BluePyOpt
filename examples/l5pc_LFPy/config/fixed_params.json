@@ -1,0 +1,82 @@
+{
+    "global": [
+        [
+            "v_init",
+            -65
+        ],
+        [
+            "celsius",
+            34
+        ]
+    ],
+    "all": [
+        [
+            "g_pas",
+            3e-05,
+            "uniform"
+        ],
+        [
+            "e_pas",
+            -75,
+            "uniform"
+        ],
+        [
+            "cm",
+            1,
+            "uniform"
+        ],
+        [
+            "Ra",
+            100,
+            "uniform"
+        ]
+    ],
+    "apical": [
+        [
+            "ena",
+            50,
+            "uniform"
+        ],
+        [
+            "ek",
+            -85,
+            "uniform"
+        ],
+        [
+            "cm",
+            2,
+            "uniform"
+        ]
+    ],
+    "somatic": [
+        [
+            "ena",
+            50,
+            "uniform"
+        ],
+        [
+            "ek",
+            -85,
+            "uniform"
+        ]
+    ],
+    "basal": [
+        [
+            "cm",
+            2,
+            "uniform"
+        ]
+    ],
+    "axonal": [
+        [
+            "ena",
+            50,
+            "uniform"
+        ],
+        [
+            "ek",
+            -85,
+            "uniform"
+        ]
+    ]
+}

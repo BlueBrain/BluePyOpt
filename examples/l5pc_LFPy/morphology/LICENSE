@@ -1,0 +1,37 @@
+The CC-BY-NC-SA license applies, as indicated by headers in the
+respective source files.
+
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+The detailed text is available here
+https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+
+or in this tarball in the seperate file LICENSE_CC-BY-CA-SA-4.0
+
+
+The HOC code, Python code, synapse MOD code and cell morphology are licensed with the above mentioned CC-BY-NC-SA license.
+
+
+For models for which the original source is available on ModelDB, any
+specific licenses on mentioned on ModelDB, or the generic License of ModelDB 
+apply:
+
+1) Ih model
+Author: Stefan Hallermann
+Original URL: http://senselab.med.yale.edu/ModelDB/ShowModel.cshtml?model=144526&file=\HallermannEtAl2012\h.mod
+
+2) StochKv model
+Authors: Zach Mainen Adaptations: Kamran Diba, Mickey London, Peter N. Steinmetz, Werner Van Geit
+Original URL: http://senselab.med.yale.edu/ModelDB/ShowModel.cshtml?model=125385&file=\Sbpap_code\mod\skm.mod
+
+3) D-type K current model
+Authors: Yuguo Yu
+Original URL: https://senselab.med.yale.edu/ModelDB/ShowModel.cshtml?model=135898&file=\YuEtAlPNAS2007\kd.mod
+
+4) Internal calcium concentration model
+Author: Alain Destexhe
+Original URL: http://senselab.med.yale.edu/ModelDB/ShowModel.cshtml?model=3670&file=\NTW_NEW\capump.mod
+
+5) Ca_LVAst, Im, K_Tst, NaTa_t, SK_E2, Ca_HVA, Ih, K_Pst, Nap_Et2, NaTs2_t, SKv3_1            
+Author: Etay Hay, Shaul Druckmann, Srikanth Ramaswamy, James King, Werner Van Geit
+Original URL: https://senselab.med.yale.edu/ModelDB/ShowModel.cshtml?model=139653&file=\L5bPCmodelsEH\mod\

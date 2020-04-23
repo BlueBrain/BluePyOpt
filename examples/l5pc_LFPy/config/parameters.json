@@ -1,0 +1,364 @@
+[
+    {
+        "param_name": "g_pas",
+        "sectionlist": "all",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 3e-05
+    },
+    {
+        "param_name": "e_pas",
+        "sectionlist": "all",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": -75
+    },
+    {
+        "param_name": "cm",
+        "sectionlist": "all",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 1
+    },
+    {
+        "param_name": "Ra",
+        "sectionlist": "all",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 100
+    },
+    {
+        "param_name": "v_init",
+        "type": "global",
+        "value": -65
+    },
+    {
+        "param_name": "celsius",
+        "type": "global",
+        "value": 34
+    },
+    {
+        "param_name": "ena",
+        "sectionlist": "apical",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 50
+    },
+    {
+        "param_name": "ek",
+        "sectionlist": "apical",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": -85
+    },
+    {
+        "param_name": "cm",
+        "sectionlist": "apical",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 2
+    },
+    {
+        "param_name": "ena",
+        "sectionlist": "somatic",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 50
+    },
+    {
+        "param_name": "ek",
+        "sectionlist": "somatic",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": -85
+    },
+    {
+        "param_name": "cm",
+        "sectionlist": "basal",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 2
+    },
+    {
+        "param_name": "ena",
+        "sectionlist": "axonal",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 50
+    },
+    {
+        "param_name": "ek",
+        "sectionlist": "axonal",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": -85
+    },
+    {
+        "param_name": "gIhbar_Ih",
+        "mech": "Ih",
+        "dist_type": "uniform",
+        "mech_param": "gIhbar",
+        "value": 8e-05,
+        "type": "range",
+        "sectionlist": "basal"
+    },
+    {
+        "param_name": "gNaTs2_tbar_NaTs2_t",
+        "mech": "NaTs2_t",
+        "bounds": [
+            0,
+            0.04
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gNaTs2_tbar",
+        "type": "range",
+        "sectionlist": "apical"
+    },
+    {
+        "param_name": "gSKv3_1bar_SKv3_1",
+        "mech": "SKv3_1",
+        "bounds": [
+            0,
+            0.04
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gSKv3_1bar",
+        "type": "range",
+        "sectionlist": "apical"
+    },
+    {
+        "param_name": "gImbar_Im",
+        "mech": "Im",
+        "bounds": [
+            0,
+            0.001
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gImbar",
+        "type": "range",
+        "sectionlist": "apical"
+    },
+    {
+        "param_name": "gIhbar_Ih",
+        "mech": "Ih",
+        "dist": "(-0.8696 + 2.087*math.exp(({distance})*0.0031))*{value}",
+        "dist_type": "exp",
+        "mech_param": "gIhbar",
+        "value": 8e-05,
+        "type": "range",
+        "sectionlist": "apical"
+    },
+    {
+        "param_name": "gNaTa_tbar_NaTa_t",
+        "mech": "NaTa_t",
+        "bounds": [
+            0,
+            4
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gNaTa_tbar",
+        "type": "range",
+        "sectionlist": "axonal"
+    },
+    {
+        "param_name": "gNap_Et2bar_Nap_Et2",
+        "mech": "Nap_Et2",
+        "bounds": [
+            0,
+            4
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gNap_Et2bar",
+        "type": "range",
+        "sectionlist": "axonal"
+    },
+    {
+        "param_name": "gK_Pstbar_K_Pst",
+        "mech": "K_Pst",
+        "bounds": [
+            0,
+            1
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gK_Pstbar",
+        "type": "range",
+        "sectionlist": "axonal"
+    },
+    {
+        "param_name": "gK_Tstbar_K_Tst",
+        "mech": "K_Tst",
+        "bounds": [
+            0,
+            0.1
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gK_Tstbar",
+        "type": "range",
+        "sectionlist": "axonal"
+    },
+    {
+        "param_name": "gSK_E2bar_SK_E2",
+        "mech": "SK_E2",
+        "bounds": [
+            0,
+            0.1
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gSK_E2bar",
+        "type": "range",
+        "sectionlist": "axonal"
+    },
+    {
+        "param_name": "gSKv3_1bar_SKv3_1",
+        "mech": "SKv3_1",
+        "bounds": [
+            0,
+            2
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gSKv3_1bar",
+        "type": "range",
+        "sectionlist": "axonal"
+    },
+    {
+        "param_name": "gCa_HVAbar_Ca_HVA",
+        "mech": "Ca_HVA",
+        "bounds": [
+            0,
+            0.001
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gCa_HVAbar",
+        "type": "range",
+        "sectionlist": "axonal"
+    },
+    {
+        "param_name": "gCa_LVAstbar_Ca_LVAst",
+        "mech": "Ca_LVAst",
+        "bounds": [
+            0,
+            0.01
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gCa_LVAstbar",
+        "type": "range",
+        "sectionlist": "axonal"
+    },
+    {
+        "param_name": "gamma_CaDynamics_E2",
+        "mech": "CaDynamics_E2",
+        "bounds": [
+            0.0005,
+            0.05
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gamma",
+        "type": "range",
+        "sectionlist": "axonal"
+    },
+    {
+        "param_name": "decay_CaDynamics_E2",
+        "mech": "CaDynamics_E2",
+        "bounds": [
+            20,
+            1000
+        ],
+        "dist_type": "uniform",
+        "mech_param": "decay",
+        "type": "range",
+        "sectionlist": "axonal"
+    },
+    {
+        "param_name": "gNaTs2_tbar_NaTs2_t",
+        "mech": "NaTs2_t",
+        "bounds": [
+            0,
+            1
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gNaTs2_tbar",
+        "type": "range",
+        "sectionlist": "somatic"
+    },
+    {
+        "param_name": "gSKv3_1bar_SKv3_1",
+        "mech": "SKv3_1",
+        "bounds": [
+            0,
+            1
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gSKv3_1bar",
+        "type": "range",
+        "sectionlist": "somatic"
+    },
+    {
+        "param_name": "gSK_E2bar_SK_E2",
+        "mech": "SK_E2",
+        "bounds": [
+            0,
+            0.1
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gSK_E2bar",
+        "type": "range",
+        "sectionlist": "somatic"
+    },
+    {
+        "param_name": "gCa_HVAbar_Ca_HVA",
+        "mech": "Ca_HVA",
+        "bounds": [
+            0,
+            0.001
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gCa_HVAbar",
+        "type": "range",
+        "sectionlist": "somatic"
+    },
+    {
+        "param_name": "gCa_LVAstbar_Ca_LVAst",
+        "mech": "Ca_LVAst",
+        "bounds": [
+            0,
+            0.01
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gCa_LVAstbar",
+        "type": "range",
+        "sectionlist": "somatic"
+    },
+    {
+        "param_name": "gamma_CaDynamics_E2",
+        "mech": "CaDynamics_E2",
+        "bounds": [
+            0.0005,
+            0.05
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gamma",
+        "type": "range",
+        "sectionlist": "somatic"
+    },
+    {
+        "param_name": "decay_CaDynamics_E2",
+        "mech": "CaDynamics_E2",
+        "bounds": [
+            20,
+            1000
+        ],
+        "dist_type": "uniform",
+        "mech_param": "decay",
+        "type": "range",
+        "sectionlist": "somatic"
+    },
+    {
+        "param_name": "gIhbar_Ih",
+        "mech": "Ih",
+        "dist_type": "uniform",
+        "mech_param": "gIhbar",
+        "value": 8e-05,
+        "type": "range",
+        "sectionlist": "somatic"
+    }
+]

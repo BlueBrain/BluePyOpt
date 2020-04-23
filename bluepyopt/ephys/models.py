@@ -456,7 +456,7 @@ class LFPyCellModel(Model):
             morph=None,
             mechs=None,
             params=None,
-            MEA=None,
+            dt=1e-5,
             gid=0):
         """Constructor
 
@@ -479,11 +479,12 @@ class LFPyCellModel(Model):
         if params is not None:
             for param in params:
                 self.params[param.name] = param
-        self.MEA = MEA
 
         # Cell instantiation in simulator
         self.icell = None
         self.LFPycell = None
+
+        self.dt = dt
 
         self.param_values = None
         self.gid = gid
@@ -612,8 +613,8 @@ class LFPyCellModel(Model):
 
         self.morphology.instantiate(sim=sim, icell=self.icell)
 
-        # TODO Find a way to handle tstart, tend, overload set_point_process ?
-        self.LFPycell = LFPy.Cell(morphology=neuron.h.allsec())
+        # TODO Find a way to handle tstop, overload set_point_process ?
+        self.LFPycell = LFPy.Cell(morphology=neuron.h.allsec(), dt=self.dt)
 
         if self.mechanisms is not None:
             for mechanism in self.mechanisms:
