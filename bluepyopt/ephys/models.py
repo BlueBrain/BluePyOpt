@@ -31,6 +31,8 @@ import os
 import collections
 import string
 
+import LFPy
+
 from . import create_hoc
 from . import morphologies
 
@@ -471,7 +473,7 @@ class LFPyCellModel(Model):
             params (list of Parameters):
                 Parameters of the cell model
         """
-        super(CellModel, self).__init__(name)
+        super(LFPyCellModel, self).__init__(name)
         self.check_name()
         self.morphology = morph
         self.mechanisms = mechs
@@ -612,9 +614,12 @@ class LFPyCellModel(Model):
         self.icell.gid = self.gid
 
         self.morphology.instantiate(sim=sim, icell=self.icell)
+        
+        for sc in sim.neuron.h.allsec():
+            print(sc, vars(sc))
 
         # TODO Find a way to handle tstop, overload set_point_process ?
-        self.LFPycell = LFPy.Cell(morphology=neuron.h.allsec(), dt=self.dt)
+        self.LFPycell = LFPy.Cell(morphology=sim.neuron.h.allsec(), dt=self.dt)
 
         if self.mechanisms is not None:
             for mechanism in self.mechanisms:

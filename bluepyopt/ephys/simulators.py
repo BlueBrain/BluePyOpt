@@ -200,6 +200,18 @@ class LFPySimulator(object):
             hoc_so = hoc_so_list[0]
             nrndll = ctypes.cdll[hoc_so]
             ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
+    
+    @property
+    def neuron(self):
+        """Return neuron module"""
+
+        if self.disable_banner and not self.banner_disabled:
+            NrnSimulator._nrn_disable_banner()
+            self.banner_disabled = True
+
+        import neuron  # NOQA
+
+        return neuron
 
     def run(
             self,
