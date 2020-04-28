@@ -169,10 +169,10 @@ class SweepProtocol(Protocol):
             cell_model.instantiate(sim=sim)
             
             if "LFPyCellModel" in str(type(cell_model)):
-                LFPycell = cell_model.LFPycell
+                LFPyCell = cell_model.LFPyCell
             else:
-                LFPycell = None
-            self.instantiate(sim=sim, icell=cell_model.icell, LFPycell=LFPycell)
+                LFPyCell = None
+            self.instantiate(sim=sim, icell=cell_model.icell, LFPyCell=LFPyCell)
 
             try:
                 sim.run(self.total_duration, cvode_active=self.cvode_active)
@@ -187,6 +187,10 @@ class SweepProtocol(Protocol):
                 responses = {
                     recording.name: recording.response
                     for recording in self.recordings}
+                
+                #if sim.electrode is not None:
+                #    for recording in self.recordings:
+                #        responses[recording.name]
 
             self.destroy(sim=sim)
 
@@ -249,12 +253,12 @@ class SweepProtocol(Protocol):
                                        sim=sim)
         return responses
 
-    def instantiate(self, sim=None, icell=None, LFPycell=None):
+    def instantiate(self, sim=None, icell=None, LFPyCell=None):
         """Instantiate"""
 
         for stimulus in self.stimuli:
-            if LFPycell is not None:
-                stimulus.instantiate(sim=sim, icell=icell, LFPycell=LFPycell)
+            if LFPyCell is not None:
+                stimulus.instantiate(sim=sim, icell=icell, LFPyCell=LFPyCell)
             else:
                 stimulus.instantiate(sim=sim, icell=icell)
 

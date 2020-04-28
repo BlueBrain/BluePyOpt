@@ -125,7 +125,7 @@ class NrnFileMorphology(Morphology, DictMixin):
         # (in case e.g. Ra was changed)
         if self.do_set_nseg:
             self.set_nseg(icell)
-
+        
         # TODO replace these two functions with general function users can
         # specify
         if self.do_replace_axon:
@@ -145,7 +145,6 @@ class NrnFileMorphology(Morphology, DictMixin):
     @staticmethod
     def replace_axon(sim=None, icell=None):
         """Replace axon"""
-
         nsec = len([sec for sec in icell.axonal])
 
         if nsec == 0:

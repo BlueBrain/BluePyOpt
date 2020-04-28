@@ -80,7 +80,10 @@ def define_protocols():
                     raise Exception(
                         'Recording type %s not supported' %
                         recording_definition['type'])
-
+        
+        #Add LFP recording
+        recordings.append(ephys.recordings.LFPRecording('%s.MEA' % protocol_name))
+        
         stimuli = []
         for stimulus_definition in protocol_definition['stimuli']:
             stimuli.append(ephys.stimuli.LFPySquarePulse(

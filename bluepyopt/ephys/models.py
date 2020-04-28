@@ -218,7 +218,7 @@ class CellModel(Model):
                 secarray_names=self.secarray_names)
         else:
             self.icell = getattr(sim.neuron.h, self.name)()
-
+        
         self.icell.gid = self.gid
 
         self.morphology.instantiate(sim=sim, icell=self.icell)
@@ -230,7 +230,7 @@ class CellModel(Model):
         if self.params is not None:
             for param in self.params.values():
                 param.instantiate(sim=sim, icell=self.icell)
-
+    
     def destroy(self, sim=None):  # pylint: disable=W0613
         """Destroy instantiated model in simulator"""
 
@@ -458,7 +458,8 @@ class LFPyCellModel(Model):
             morph=None,
             mechs=None,
             params=None,
-            dt=0.05,
+            dt=0.025,
+            v_init=-65.,
             gid=0):
         """Constructor
 
@@ -484,9 +485,10 @@ class LFPyCellModel(Model):
 
         # Cell instantiation in simulator
         self.icell = None
-        self.LFPycell = None
+        self.LFPyCell = None
 
         self.dt = dt
+        self.v_init = v_init
 
         self.param_values = None
         self.gid = gid
@@ -612,14 +614,17 @@ class LFPyCellModel(Model):
             self.icell = getattr(sim.neuron.h, self.name)()
 
         self.icell.gid = self.gid
-
+        
         self.morphology.instantiate(sim=sim, icell=self.icell)
         
         # TODO Find a way to handle tstop, overload set_point_process ?
-        self.LFPycell = LFPy.Cell(morphology=sim.neuron.h.allsec(), 
+        self.LFPyCell = LFPy.Cell(morphology=sim.neuron.h.allsec(), 
                                   dt=self.dt,
-                                  delete_sections=False)
-
+                                  v_init=self.v_init,
+                                  delete_sections=False,
+                                  tstop=3000,
+                                  nsegs_method=None)
+        
         if self.mechanisms is not None:
             for mechanism in self.mechanisms:
                 mechanism.instantiate(sim=sim, icell=self.icell)

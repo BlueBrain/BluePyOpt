@@ -357,10 +357,10 @@ class LFPySquarePulse(Stimulus):
         self.total_duration = total_duration
         self.iclamp = None
 
-    def instantiate(self, sim=None, icell=None, LFPycell=None):
+    def instantiate(self, sim=None, icell=None, LFPyCell=None):
         """Run stimulus"""
-
-        self.iclamp = LFPy.StimIntElectrode(cell=LFPycell,
+        
+        self.iclamp = LFPy.StimIntElectrode(cell=LFPyCell,
                                             idx=self.location.sec_index,
                                             pptype='IClamp',
                                             record_current=True,

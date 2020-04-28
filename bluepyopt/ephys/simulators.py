@@ -120,9 +120,9 @@ class NrnSimulator(object):
                     'current dt: %.6g\n'
                     'init dt: %.6g' % (self.neuron.h.dt, self.dt))
             dt = self.dt
-
+        
         self.neuron.h.cvode_active(1 if cvode_active else 0)
-
+        
         if cvode_active:
             logger.debug('Running Neuron simulator %.6g ms, with cvode', tstop)
         else:
@@ -139,7 +139,7 @@ class NrnSimulator(object):
         if random123_globalindex is not None:
             rng = self.neuron.h.Random()
             rng.Random123_globalindex(random123_globalindex)
-
+        
         try:
             self.neuron.h.run()
         except Exception as e:
@@ -163,11 +163,11 @@ class LFPySimulator(object):
 
     """Neuron simulator"""
 
-    def __init__(self, lfpyCellModel, electrode=None, cvode_active=True,
+    def __init__(self, LFPyCellModel, electrode=None, cvode_active=True,
                  random123_globalindex=None):
         """Constructor"""
 
-        self.lfpyCellModel = lfpyCellModel
+        self.LFPyCellModel = LFPyCellModel
         self.electrode = electrode
 
         if platform.system() == 'Windows':
@@ -221,7 +221,8 @@ class LFPySimulator(object):
             random123_globalindex=None):
         """Run protocol"""
 
-        self.neuron.h.tstop = tstop
+        self.LFPyCellModel.LFPyCell.tstart = 0.
+        self.LFPyCellModel.LFPyCell.tstop = tstop
 
         if random123_globalindex is None:
             random123_globalindex = self.random123_globalindex
@@ -244,11 +245,12 @@ class LFPySimulator(object):
                       "file_name": None,
                       "dotprodcoeffs": None
                       }
+        
         try:
-            self.lfpyCellModel.LFPycell.simulate(**sim_params)
+            self.LFPyCellModel.LFPyCell.simulate(**sim_params)
         except Exception as e:
             raise LFPySimulatorException('LFPy simulator error', e)
-
+        
         logger.debug('LFPy simulation finished')
 
 
