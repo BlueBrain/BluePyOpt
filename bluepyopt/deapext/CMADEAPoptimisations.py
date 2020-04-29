@@ -207,9 +207,9 @@ class CMADEAPOptimisation(DEAPOptimisation):
                           rndstate=random.getstate(),
                           np_rndstate=numpy.random.get_state(),
                           CMA_es=CMA_es)
-                CMA_es.map_function = temp_mf
                 pickle.dump(cp, open(cp_filename, "wb"))
                 logger.debug('Wrote checkpoint to %s', cp_filename)
+                CMA_es.map_function = temp_mf
 
             gen += 1
 
