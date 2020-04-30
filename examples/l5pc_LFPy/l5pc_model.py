@@ -139,9 +139,9 @@ def define_morphology():
 
 def create():
     """Create cell model"""
-
     cell = ephys.models.LFPyCellModel(
         'l5pc',
+        v_init=-65.,
         morph=define_morphology(),
         mechs=define_mechanisms(),
         params=define_parameters())

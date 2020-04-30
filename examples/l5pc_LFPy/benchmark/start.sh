@@ -25,7 +25,7 @@ mkdir -p ${CHECKPOINTS_DIR}
 
 pids=""
 for seed in {1..4}; do
-    python opt_l5pc.py                     \
+    ~/myenv/bin/python opt_l5pc.py                     \
         -vv                                \
         --offspring_size=${OFFSPRING_SIZE} \
         --max_ngen=${MAX_NGEN}             \

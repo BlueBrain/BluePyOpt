@@ -103,7 +103,7 @@ class TimeLFPResponse(Response):
 
         self.response = {}
         self.response['time'] = time
-        self.response['LFP'] = LFP
+        self.response['voltage'] = LFP
 
     def read_csv(self, filename):
         """Load response from csv file"""

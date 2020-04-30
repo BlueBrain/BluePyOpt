@@ -27,6 +27,8 @@ import l5pc_model  # NOQA
 
 import bluepyopt.ephys as ephys
 
+import LFPy
+
 script_dir = os.path.dirname(__file__)
 config_dir = os.path.join(script_dir, 'config')
 
@@ -35,7 +37,7 @@ config_dir = os.path.join(script_dir, 'config')
 # TODO add functionality to read settings of every object from config format
 
 
-def define_protocols():
+def define_protocols(electrode=None):
     """Define protocols"""
 
     protocol_definitions = json.load(
@@ -81,9 +83,12 @@ def define_protocols():
                         'Recording type %s not supported' %
                         recording_definition['type'])
         
-        #Add LFP recording
-        recordings.append(ephys.recordings.LFPRecording('%s.MEA' % protocol_name))
-        
+        # Add LFP recording
+        if electrode is not None:
+            recordings.append(
+                ephys.recordings.LFPRecording('%s.MEA.LFP' % protocol_name)
+            )
+
         stimuli = []
         for stimulus_definition in protocol_definition['stimuli']:
             stimuli.append(ephys.stimuli.LFPySquarePulse(
@@ -96,7 +101,8 @@ def define_protocols():
         protocols[protocol_name] = ephys.protocols.SweepProtocol(
             protocol_name,
             stimuli,
-            recordings)
+            recordings,
+            cvode_active=True)
 
     return protocols
 
@@ -152,20 +158,35 @@ def define_fitness_calculator(protocols):
     return fitcalc
 
 
+def define_electrode():
+    """Define electrode"""
+    import MEAutility as mu
+
+    sq_mea = mu.return_mea('SqMEA-10-15')
+    sq_mea.rotate([0, 1, 0], 90)
+    sq_mea.move([0, 0, -50])
+
+    electrode = LFPy.RecExtElectrode(probe=sq_mea)
+
+    return electrode
+
+
 def create():
     """Setup"""
 
     l5pc_cell = l5pc_model.create()
 
-    fitness_protocols = define_protocols()
+    electrode = define_electrode()
+    sim = ephys.simulators.LFPySimulator(LFPyCellModel=l5pc_cell,
+                                         electrode=electrode)
+    
+    fitness_protocols = define_protocols(electrode=electrode)
     fitness_calculator = define_fitness_calculator(fitness_protocols)
-
+    
     param_names = [param.name
                    for param in l5pc_cell.params.values()
                    if not param.frozen]
-
-    sim = ephys.simulators.LFPySimulator(l5pc_cell)
-
+    
     return ephys.evaluators.CellEvaluator(
         cell_model=l5pc_cell,
         param_names=param_names,

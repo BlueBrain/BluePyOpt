@@ -113,8 +113,9 @@ class CompRecording(Recording):
 class LFPRecording(Recording):
 
     """Electrode sesponse to stimulus"""
-
-    variable = "LFP"
+    
+    location = "extracellular"
+    variable = 'v'
 
     def __init__(
             self,
@@ -127,9 +128,9 @@ class LFPRecording(Recording):
 
         super(LFPRecording, self).__init__(
             name=name)
-
-        self.electrode = None
         
+        self.electrode = None
+
         self.tvector = None
         self.time = None
 
@@ -149,7 +150,7 @@ class LFPRecording(Recording):
     def instantiate(self, sim=None, icell=None):
         """Instantiate recording"""
 
-        logger.debug('Adding recording of %s', self.variable)
+        logger.debug('Adding recording of %s at %s', self.variable, self.location)
 
         self.tvector = sim.neuron.h.Vector()
         self.tvector.record(sim.neuron.h._ref_t)  # pylint: disable=W0212
@@ -170,4 +171,4 @@ class LFPRecording(Recording):
     def __str__(self):
         """String representation"""
 
-        return '%s: %s' % (self.name, self.variable)
+        return '%s: %s at %s' % (self.name, self.variable, self.location)

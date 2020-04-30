@@ -27,6 +27,7 @@ import collections
 import logging
 logger = logging.getLogger(__name__)
 
+from . import models
 from . import locations
 from . import simulators
 
@@ -168,7 +169,7 @@ class SweepProtocol(Protocol):
             cell_model.freeze(param_values)
             cell_model.instantiate(sim=sim)
             
-            if "LFPyCellModel" in str(type(cell_model)):
+            if isinstance(cell_model, models.LFPyCellModel):
                 LFPyCell = cell_model.LFPyCell
             else:
                 LFPyCell = None
@@ -188,10 +189,6 @@ class SweepProtocol(Protocol):
                     recording.name: recording.response
                     for recording in self.recordings}
                 
-                #if sim.electrode is not None:
-                #    for recording in self.recordings:
-                #        responses[recording.name]
-
             self.destroy(sim=sim)
 
             cell_model.destroy(sim=sim)

@@ -8,6 +8,7 @@ import imp
 import ctypes
 import platform
 import warnings
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -245,13 +246,13 @@ class LFPySimulator(object):
                       "file_name": None,
                       "dotprodcoeffs": None
                       }
-        
+
         try:
             self.LFPyCellModel.LFPyCell.simulate(**sim_params)
         except Exception as e:
             raise LFPySimulatorException('LFPy simulator error', e)
-        
-        logger.debug('LFPy simulation finished')
+
+        logger.debug("LFPy simulation finished")
 
 
 class LFPySimulatorException(Exception):

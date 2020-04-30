@@ -617,12 +617,10 @@ class LFPyCellModel(Model):
         
         self.morphology.instantiate(sim=sim, icell=self.icell)
         
-        # TODO Find a way to handle tstop, overload set_point_process ?
         self.LFPyCell = LFPy.Cell(morphology=sim.neuron.h.allsec(), 
                                   dt=self.dt,
                                   v_init=self.v_init,
                                   delete_sections=False,
-                                  tstop=3000,
                                   nsegs_method=None)
         
         if self.mechanisms is not None:
