@@ -21,11 +21,11 @@ def create_feature_fields():
     fields_content += \
         '\t\tStimulus & Location & eFeature & Mean & Std \\\\ \n'
     fields_content += '\t\t\\midrule\n'
-    for stimulus, loc_list in sorted(features.iteritems()):
+    for stimulus, loc_list in sorted(features.items()):
         stim_field = stimulus
-        for location, features in sorted(loc_list.iteritems()):
+        for location, features in sorted(loc_list.items()):
             loc_field = location
-            for feature_name, (mean, std) in sorted(features.iteritems()):
+            for feature_name, (mean, std) in sorted(features.items()):
                 feature_name = feature_name.replace('_', '{\\_}')
                 fields_content += '\t\t%s \\\\\n' % ' & '.join([stim_field,
                                                                 loc_field,
