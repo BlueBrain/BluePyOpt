@@ -189,7 +189,7 @@ def analyse():
     best_ind_dict = evaluator.get_param_dict(best_ind)
 
     print('Best Individual')
-    for attribute, value in best_ind_dict.iteritems():
+    for attribute, value in best_ind_dict.items():
         print('\t{} : {}'.format(attribute, value))
 
     good_solutions = [
