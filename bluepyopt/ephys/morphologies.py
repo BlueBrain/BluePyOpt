@@ -74,14 +74,7 @@ class NrnFileMorphology(Morphology, DictMixin):
         self.morphology_path = morphology_path
         self.do_replace_axon = do_replace_axon
         self.do_set_nseg = do_set_nseg
-
-        if morph_modifiers is None:
-            self.morph_modifiers = []
-        else:
-            self.morph_modifiers = morph_modifiers
-
-        if self.do_replace_axon:
-            self.morph_modifiers += [self.replace_axon]
+        self.morph_modifiers = morph_modifiers
 
         if replace_axon_hoc is None:
             self.replace_axon_hoc = self.default_replace_axon_hoc
@@ -139,8 +132,12 @@ class NrnFileMorphology(Morphology, DictMixin):
         if self.do_set_nseg:
             self.set_nseg(icell)
 
-        for morph_modifier in self.morph_modifiers:
-            morph_modifier(sim=sim, icell=icell)
+        if self.do_replace_axon:
+            self.replace_axon(sim=sim, icell=icell)
+
+        if self.morph_modifiers is not None:
+            for morph_modifier in self.morph_modifiers:
+                morph_modifier(sim=sim, icell=icell)
 
     def destroy(self, sim=None):
         """Destroy morphology instantiation"""
@@ -148,7 +145,6 @@ class NrnFileMorphology(Morphology, DictMixin):
 
     def set_nseg(self, icell):
         """Set the nseg of every section"""
-
         if self.do_set_nseg:
             if self.do_set_nseg is True:
                 div = 40
