@@ -51,7 +51,8 @@ class NrnFileMorphology(Morphology, DictMixin):
             do_set_nseg=True,
             comment='',
             replace_axon_hoc=None,
-            morph_modifiers=None):
+            morph_modifiers=None,
+            morph_modifiers_hoc=None):
         """Constructor
 
         Args:
@@ -66,6 +67,8 @@ class NrnFileMorphology(Morphology, DictMixin):
                 value of 40, otherwise use the specified value
             morph_modifiers (list): list of functions to modify the icell
                 with (sim, icell) as arguments
+            morph_modifiers_hoc (list): list of hoc strings corresponding
+                to morph_modifiers
         """
         name = os.path.basename(morphology_path)
         super(NrnFileMorphology, self).__init__(name=name, comment=comment)
@@ -75,6 +78,7 @@ class NrnFileMorphology(Morphology, DictMixin):
         self.do_replace_axon = do_replace_axon
         self.do_set_nseg = do_set_nseg
         self.morph_modifiers = morph_modifiers
+        self.morph_modifiers_hoc = morph_modifiers_hoc
 
         if replace_axon_hoc is None:
             self.replace_axon_hoc = self.default_replace_axon_hoc
