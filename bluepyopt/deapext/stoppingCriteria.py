@@ -20,6 +20,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import logging
 import numpy
 
+from collections import deque
+
 import bluepyopt.stoppingCriteria
 
 logger = logging.getLogger('__main__')
@@ -42,7 +44,7 @@ class MaxNGen(bluepyopt.stoppingCriteria.StoppingCriteria):
             self.criteria_met = True
 
 
-class Stagnation(StoppingCriteria):
+class Stagnation(bluepyopt.stoppingCriteria.StoppingCriteria):
     """Stagnation stopping criteria class"""
     name = "Stagnation"
 
@@ -78,7 +80,7 @@ class Stagnation(StoppingCriteria):
             self.criteria_met = True
 
 
-class TolHistFun(StoppingCriteria):
+class TolHistFun(bluepyopt.stoppingCriteria.StoppingCriteria):
     """TolHistFun stopping criteria class"""
     name = "TolHistFun"
 
@@ -100,7 +102,7 @@ class TolHistFun(StoppingCriteria):
             self.criteria_met = True
 
 
-class EqualFunVals(StoppingCriteria):
+class EqualFunVals(bluepyopt.stoppingCriteria.StoppingCriteria):
     """EqualFunVals stopping criteria class"""
     name = "EqualFunVals"
 
@@ -131,7 +133,7 @@ class EqualFunVals(StoppingCriteria):
             self.criteria_met = True
 
 
-class TolX(StoppingCriteria):
+class TolX(bluepyopt.stoppingCriteria.StoppingCriteria):
     """TolX stopping criteria class"""
     name = "TolX"
 
@@ -150,7 +152,7 @@ class TolX(StoppingCriteria):
             self.criteria_met = True
 
 
-class TolUpSigma(StoppingCriteria):
+class TolUpSigma(bluepyopt.stoppingCriteria.StoppingCriteria):
     """TolUpSigma stopping criteria class"""
     name = "TolUpSigma"
 
@@ -169,7 +171,7 @@ class TolUpSigma(StoppingCriteria):
             self.criteria_met = True
 
 
-class ConditionCov(StoppingCriteria):
+class ConditionCov(bluepyopt.stoppingCriteria.StoppingCriteria):
     """ConditionCov stopping criteria class"""
     name = "ConditionCov"
 
@@ -187,7 +189,7 @@ class ConditionCov(StoppingCriteria):
             self.criteria_met = True
 
 
-class NoEffectAxis(StoppingCriteria):
+class NoEffectAxis(bluepyopt.stoppingCriteria.StoppingCriteria):
     """NoEffectAxis stopping criteria class"""
     name = "NoEffectAxis"
 
@@ -212,7 +214,7 @@ class NoEffectAxis(StoppingCriteria):
             self.criteria_met = True
 
 
-class NoEffectCoor(StoppingCriteria):
+class NoEffectCoor(bluepyopt.stoppingCriteria.StoppingCriteria):
     """NoEffectCoor stopping criteria class"""
     name = "NoEffectCoor"
 

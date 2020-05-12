@@ -30,7 +30,7 @@ import deap.tools
 import pickle
 
 from .stoppingCriteria import MaxNGen
-from .utils import _update_history_and_hof, _record_stats
+from . import utils
 
 logger = logging.getLogger('__main__')
 
@@ -114,8 +114,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
 
         # TODO this first loop should be not be repeated !
         invalid_count = _evaluate_invalid_fitness(toolbox, population)
-        _update_history_and_hof(halloffame, history, population)
-        _record_stats(stats, logbook, start_gen, population, invalid_count)
+        utils.update_history_and_hof(halloffame, history, population)
+        utils.record_stats(stats, logbook, start_gen, population, invalid_count)
 
     stopping_criteria = [MaxNGen(ngen)]
 
@@ -128,8 +128,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         population = parents + offspring
 
         invalid_count = _evaluate_invalid_fitness(toolbox, offspring)
-        _update_history_and_hof(halloffame, history, population)
-        _record_stats(stats, logbook, gen, population, invalid_count)
+        utils.history_and_hof(halloffame, history, population)
+        utils.record_stats(stats, logbook, gen, population, invalid_count)
 
         # Select the next generation parents
         parents = toolbox.select(population, mu)

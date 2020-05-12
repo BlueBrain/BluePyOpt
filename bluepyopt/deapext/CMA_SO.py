@@ -30,7 +30,7 @@ from deap import cma
 from .stoppingCriteria import MaxNGen, Stagnation, TolHistFun, EqualFunVals, \
     NoEffectAxis, TolUpSigma, TolX, ConditionCov, NoEffectCoor
 
-from .utils import _bound
+from . import utils
 
 logger = logging.getLogger('__main__')
 
@@ -157,7 +157,7 @@ class CMA_SO(cma.Strategy):
     def generate_new_pop(self, lbounds, ubounds):
         """Generate a new population bounded in the normalized space"""
         self.population = self.toolbox.generate()
-        return _bound(self.population, lbounds, ubounds)
+        return utils.bound(self.population, lbounds, ubounds)
 
     def update_strategy(self):
         self.toolbox.update(self.population)
