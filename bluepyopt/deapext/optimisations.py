@@ -33,6 +33,7 @@ import deap.tools
 
 from . import algorithms
 from . import tools
+from .utils import _reduce_method, _uniform
 
 import bluepyopt.optimisations
 
@@ -169,19 +170,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             LOWER.append(parameter.lower_bound)
             UPPER.append(parameter.upper_bound)
 
-        # Define a function that will uniformly pick an individual
-        def uniform(lower_list, upper_list, dimensions):
-            """Fill array """
-
-            if hasattr(lower_list, '__iter__'):
-                return [random.uniform(lower, upper) for lower, upper in
-                        zip(lower_list, upper_list)]
-            else:
-                return [random.uniform(lower_list, upper_list)
-                        for _ in range(dimensions)]
-
         # Register the 'uniform' function
-        self.toolbox.register("uniformparams", uniform, LOWER, UPPER, IND_SIZE)
+        self.toolbox.register("uniformparams", _uniform, LOWER, UPPER, IND_SIZE)
 
         # Register the individual format
         # An indiviual is create by WSListIndividual and parameters
@@ -233,9 +223,6 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             raise ValueError('DEAPOptimisation: Constructor selector_name '
                              'argument only accepts "IBEA" or "NSGA2"')
 
-        def _reduce_method(meth):
-            """Overwrite reduce"""
-            return (getattr, (meth.__self__, meth.__func__.__name__))
         import copyreg
         import types
         copyreg.pickle(types.MethodType, _reduce_method)
