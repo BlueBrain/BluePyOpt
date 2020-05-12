@@ -223,9 +223,9 @@ class CMA_MO(cma.StrategyMultiObjective):
         for f, ind in zip(fitnesses, self.parents):
             ind.fitness.values = f
 
-    def check_termination(self, ngen):
+    def check_termination(self, gen):
         stopping_params = {
-            "ngen": ngen,
+            "gen": gen,
             "population": self.population,
         }
 

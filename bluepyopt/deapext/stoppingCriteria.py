@@ -26,6 +26,9 @@ import bluepyopt.stoppingCriteria
 
 logger = logging.getLogger('__main__')
 
+def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+        return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
 
 class MaxNGen(bluepyopt.stoppingCriteria.StoppingCriteria):
     """Max ngen stopping criteria class"""
@@ -39,7 +42,6 @@ class MaxNGen(bluepyopt.stoppingCriteria.StoppingCriteria):
     def check(self, kwargs):
         """Check if the maximum number of iteration is reached"""
         gen = kwargs.get("gen")
-
         if gen > self.max_ngen:
             self.criteria_met = True
 
@@ -61,7 +63,7 @@ class Stagnation(bluepyopt.stoppingCriteria.StoppingCriteria):
 
     def check(self, kwargs):
         """Check if the population stopped improving"""
-        ngen = kwargs.get("ngen")
+        ngen = kwargs.get("gen")
         population = kwargs.get("population")
         fitness = [ind.fitness.reduce for ind in population]
         fitness.sort()
@@ -117,7 +119,7 @@ class EqualFunVals(bluepyopt.stoppingCriteria.StoppingCriteria):
     def check(self, kwargs):
         """Check if in 1/3rd of the last problem_size iterations the best and
         k'th best solutions are equal"""
-        ngen = kwargs.get("ngen")
+        ngen = kwargs.get("gen")
         population = kwargs.get("population")
 
         fitness = [ind.fitness.reduce for ind in population]
@@ -201,7 +203,7 @@ class NoEffectAxis(bluepyopt.stoppingCriteria.StoppingCriteria):
 
     def check(self, kwargs):
         """Check if the coordinate axis std is too low"""
-        ngen = kwargs.get("ngen")
+        ngen = kwargs.get("gen")
         centroid = kwargs.get("centroid")
         sigma = kwargs.get("sigma")
         diagD = kwargs.get("diagD")

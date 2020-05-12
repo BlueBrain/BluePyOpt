@@ -166,9 +166,9 @@ class CMA_SO(cma.Strategy):
         for f, ind in zip(fitnesses, self.population):
             ind.fitness.values = f
 
-    def check_termination(self, ngen):
+    def check_termination(self, gen):
         stopping_params = {
-            "ngen": ngen,
+            "gen": gen,
             "population": self.population,
             "centroid": self.centroid,
             "pc": self.pc,

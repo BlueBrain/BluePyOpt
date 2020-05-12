@@ -2,7 +2,7 @@
 
 import nose.tools as nt
 
-import bluepyopt.optimisations
+import bluepyopt
 import bluepyopt.ephys.examples as examples
 
 from nose.plugins.attrib import attr
@@ -33,8 +33,7 @@ def test_optimisationsCMA_run():
         optimisation = bluepyopt.deapext.optimisationsCMA.DEAPOptimisationCMA(
                                                             evaluator=evaluator,
                                                             centroids=[x])
-
-        pop, hof, log, hist = optimisation.run(max_ngen=1)
+        pop, hof, log, hist = optimisation.run(max_ngen=2)
         raised = False
     except:
         raised = True
