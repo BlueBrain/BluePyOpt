@@ -19,6 +19,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# pylint: disable=R0912, R0914
+
 import logging
 import numpy
 from math import sqrt, log
@@ -110,21 +112,18 @@ class CMA_SO(cma.Strategy):
         c_diff = self.centroid - old_centroid
 
         # Cumulation : update evolution path
-        self.ps = (1 - self.cs) * self.ps \
-                  + sqrt(self.cs * (2 - self.cs) * self.mueff) / self.sigma \
-                  * numpy.dot(self.B, (1. / self.diagD) *
-                              numpy.dot(self.B.T, c_diff))
+        self.ps = (1 - self.cs) * self.ps + sqrt(self.cs * (2 - self.cs) *
+                   self.mueff) / self.sigma * numpy.dot(self.B, (1. /
+                   self.diagD) * numpy.dot(self.B.T, c_diff))  # noqa
 
-        hsig = float((numpy.linalg.norm(self.ps) /
-                      sqrt(1. - (1. - self.cs) ** (
-                              2. * (self.update_count + 1.))) / self.chiN <
-                      (1.4 + 2. / (self.dim + 1.))))
+        hsig = float((numpy.linalg.norm(self.ps) / sqrt(1. - (1. - self.cs)
+                     ** (2. * (self.update_count + 1.))) / self.chiN <
+                      (1.4 + 2. / (self.dim + 1.))))  # noqa
 
         self.update_count += 1
 
-        self.pc = (1 - self.cc) * self.pc + hsig \
-                  * sqrt(self.cc * (2 - self.cc) * self.mueff) / self.sigma \
-                  * c_diff
+        self.pc = (1 - self.cc) * self.pc + hsig * sqrt(self.cc * (2 - self.cc)
+                  * self.mueff) / self.sigma * c_diff  # noqa
 
         # Update covariance matrix
         artmp = population[0:self.mu] - old_centroid
@@ -132,10 +131,10 @@ class CMA_SO(cma.Strategy):
                   self.ccov1 * self.cc * (2 - self.cc)) * self.C \
                  + self.ccov1 * numpy.outer(self.pc, self.pc) \
                  + self.ccovmu * numpy.dot((self.weights * artmp.T), artmp) \
-                 / self.sigma ** 2
+                 / self.sigma ** 2  # noqa
 
         self.sigma *= numpy.exp((numpy.linalg.norm(self.ps) / self.chiN - 1.) *
-                                self.cs / self.damps)
+                                self.cs / self.damps)  # noqa
 
         self.diagD, self.B = numpy.linalg.eigh(self.C)
         indx = numpy.argsort(self.diagD)

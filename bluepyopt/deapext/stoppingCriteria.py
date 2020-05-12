@@ -26,8 +26,9 @@ import bluepyopt.stoppingCriteria
 
 logger = logging.getLogger('__main__')
 
+
 def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
-        return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+    return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 class MaxNGen(bluepyopt.stoppingCriteria.StoppingCriteria):
@@ -73,12 +74,13 @@ class Stagnation(bluepyopt.stoppingCriteria.StoppingCriteria):
         self.stagnation_iter = int(numpy.ceil(
             0.2 * ngen + 120 + 30. * self.problem_size / self.lambda_))
 
-        if len(self.best) > self.stagnation_iter and \
-                len(self.median) > self.stagnation_iter and \
-                numpy.median(self.best[-20:]) >= numpy.median(
-            self.best[-self.stagnation_iter:-self.stagnation_iter + 20]) and \
-                numpy.median(self.median[-20:]) >= numpy.median(
-            self.median[-self.stagnation_iter:-self.stagnation_iter + 20]):
+        cbest = len(self.best) > self.stagnation_iter
+        cmed = len(self.median) > self.stagnation_iter
+        cbest2 = numpy.median(self.best[-20:]) >= numpy.median(
+            self.best[-self.stagnation_iter:-self.stagnation_iter + 20])
+        cmed2 = numpy.median(self.median[-20:]) >= numpy.median(
+            self.median[-self.stagnation_iter:-self.stagnation_iter + 20])
+        if cbest and cmed and cbest2 and cmed2:
             self.criteria_met = True
 
 

@@ -88,7 +88,6 @@ def _ind_convert_space(ind, convert_fcn):
 
 
 class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
-
     """CMA based optimisation class"""
 
     def __init__(self,
@@ -140,8 +139,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         elif self.selector_name == 'multi_objective':
             self.cma_creator = CMA_MO
         else:
-            raise Exception("The selector_name has to be 'single_objective' or "
-                            "'multi_objective'. Not "
+            raise Exception("The selector_name has to be 'single_objective' "
+                            "or 'multi_objective'. Not "
                             "{}".format(self.selector_name))
 
         # Number of objective values
@@ -167,21 +166,22 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.to_space = []
         for r, m in zip(bounds_radius, bounds_mean):
             self.to_norm.append(
-                functools.partial(lambda param, bm, br: (param - bm) / br, bm=m, br=r))
+                functools.partial(lambda param, bm, br: (param - bm) / br,
+                                  bm=m, br=r))
             self.to_space.append(
-                functools.partial(lambda param, bm, br: (param * br) + bm, bm=m, br=r))
+                functools.partial(lambda param, bm, br: (param * br) + bm,
+                                  bm=m, br=r))
 
         # Overwrite the bounds with -1. and 1.
         self.lbounds = numpy.full(self.problem_size, -1.)
         self.ubounds = numpy.full(self.problem_size, 1.)
-        
+
         self.setup_deap()
 
         # In case initial guesses were provided, rescale them to the norm space
         if self.centroids is not None:
-            self.centroids = [self.toolbox.Individual(_ind_convert_space(ind,
-                                                                         self.to_norm))
-                              for ind in centroids]
+            self.centroids = [self.toolbox.Individual(
+                _ind_convert_space(ind, self.to_norm)) for ind in centroids]
 
     def setup_deap(self):
         """Set up optimisation"""
@@ -191,8 +191,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         numpy.random.seed(self.seed)
 
         # Register the 'uniform' function
-        self.toolbox.register("uniformparams", 
-                              utils.uniform, 
+        self.toolbox.register("uniformparams",
+                              utils.uniform,
                               self.lbounds,
                               self.ubounds,
                               self.ind_size)
@@ -224,7 +224,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
 
         # Register the evaluation function for the individuals
         self.toolbox.register("evaluate", self.evaluator.evaluate_with_lists)
-        
+
         import copyreg
         import types
         copyreg.pickle(types.MethodType, utils.reduce_method)
@@ -268,7 +268,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             numpy.random.set_state(cp["np_rndstate"])
             CMA_es = cp["CMA_es"]
             CMA_es.map_function = self.map_function
-            
+
         else:
             history = deap.tools.History()
             logbook = deap.tools.Logbook()
@@ -291,7 +291,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 CMA_es.set_fitness_parents(fitness)
 
             gen = 1
-        
+
         # Run until a termination criteria is met
         while CMA_es.active:
             logger.info("Generation {}".format(gen))
@@ -338,9 +338,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 CMA_es.map_function = temp_mf
 
             gen += 1
-            
-        return pop, self.hof, logbook, history
 
+        return pop, self.hof, logbook, history
 
     def get_stats(self):
         """Get the stats that will be saved during optimisation"""

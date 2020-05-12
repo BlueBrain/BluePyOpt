@@ -16,11 +16,12 @@ def test_optimisationsCMA_normspace():
     optimisation = bluepyopt.deapext.optimisationsCMA.DEAPOptimisationCMA(
         evaluator=evaluator)
 
-    x = [n*0.1 for n in range(len(evaluator.params))]
-    y = [f2(f1(_)) for _,f1,f2 in zip(x, optimisation.to_norm,
-                                      optimisation.to_space)]
+    x = [n * 0.1 for n in range(len(evaluator.params))]
+    y = [f2(f1(_)) for _, f1, f2 in zip(x, optimisation.to_norm,
+                                        optimisation.to_space)]
     for a, b in zip(x, y):
         nt.assert_almost_equal(a, b)
+
 
 @attr('unit')
 def test_optimisationsCMA_run():
@@ -29,13 +30,8 @@ def test_optimisationsCMA_run():
     evaluator = examples.simplecell.cell_evaluator
     x = [n * 0.1 for n in range(len(evaluator.params))]
 
-    try:
-        optimisation = bluepyopt.deapext.optimisationsCMA.DEAPOptimisationCMA(
-                                                            evaluator=evaluator,
-                                                            centroids=[x])
-        pop, hof, log, hist = optimisation.run(max_ngen=2)
-        raised = False
-    except:
-        raised = True
-
+    optimiser = bluepyopt.deapext.optimisationsCMA.DEAPOptimisationCMA
+    optimisation = optimiser(evaluator=evaluator, centroids=[x])
+    pop, hof, log, hist = optimisation.run(max_ngen=2)
+    raised = False
     nt.assert_equal(raised, False)
