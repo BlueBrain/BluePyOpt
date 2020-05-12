@@ -117,7 +117,7 @@ def define_protocols(protocols_filename, stochkv_det=None,
 
     protocols_dict = {}
 
-    for protocol_name, protocol_definition in protocol_definitions.iteritems():
+    for protocol_name, protocol_definition in protocol_definitions.items():
             # By default include somatic recording
             somav_recording = ephys.recordings.CompRecording(
                 name='%s.%s.soma.v' % (prefix, protocol_name),
@@ -325,8 +325,8 @@ def define_fitness_calculator(main_protocol, features_filename, prefix=""):
     efeatures = {}
     features = []
 
-    for protocol_name, locations in feature_definitions.iteritems():
-        for recording_name, feature_configs in locations.iteritems():
+    for protocol_name, locations in feature_definitions.items():
+        for recording_name, feature_configs in locations.items():
             for feature_config in feature_configs:
                 efel_feature_name = feature_config["feature"]
                 meanstd = feature_config["val"]

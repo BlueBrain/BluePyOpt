@@ -50,7 +50,7 @@ def get_engine_data():
 def plot_usage(tasks, engine_number_map):
     fig, ax = plt.subplots(1, 1, facecolor='white')
 
-    for engine_uuid, task_list in tasks.iteritems():
+    for engine_uuid, task_list in tasks.items():
         engine_number = engine_number_map[engine_uuid]
         number_list = [engine_number for _ in task_list]
         start_list = [task['started'] for task in task_list]
@@ -83,7 +83,7 @@ def plot_duration_histogram(tasks):
 
 def filter_start_time(start_time, tasks):
     ret = collections.defaultdict(list)
-    for engine_uuid, task_list in tasks.iteritems():
+    for engine_uuid, task_list in tasks.items():
         for task in task_list:
             if task['started'] > start_time:
                 ret[engine_uuid].append(task)

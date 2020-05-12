@@ -188,7 +188,7 @@ def plot_objectives(objectives, fig=None, box=None):
     """Plot objectives of the cell model"""
 
     import collections
-    objectives = collections.OrderedDict(sorted(objectives.iteritems()))
+    objectives = collections.OrderedDict(sorted(objectives.items()))
     left_margin = box['width'] * 0.4
     right_margin = box['width'] * 0.05
     top_margin = box['height'] * 0.05
