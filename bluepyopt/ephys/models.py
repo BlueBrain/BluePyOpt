@@ -280,6 +280,22 @@ class CellModel(Model):
         else:
             replace_axon = None
 
+        if (
+            self.morphology.morph_modifiers is not None
+            and self.morphology.morph_modifiers_hoc is None
+        ):
+            logger.warning('You have provided custom morphology modifiers, \
+                            but no corresponding hoc files.')
+        elif (
+            self.morphology.morph_modifiers is not None
+            and self.morphology.morph_modifiers_hoc is not None
+        ):
+            if replace_axon is None:
+                replace_axon = ''
+            for morph_modifier_hoc in self.morphology.morph_modifiers_hoc:
+                replace_axon += '\n'
+                replace_axon += morph_modifier_hoc
+
         ret = create_hoc.create_hoc(mechs=self.mechanisms,
                                     parameters=self.params.values(),
                                     morphology=morphology,
