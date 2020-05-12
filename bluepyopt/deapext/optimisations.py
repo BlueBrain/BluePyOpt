@@ -171,7 +171,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             UPPER.append(parameter.upper_bound)
 
         # Register the 'uniform' function
-        self.toolbox.register("uniformparams", utils.uniform, LOWER, UPPER, IND_SIZE)
+        self.toolbox.register("uniformparams", utils.uniform, LOWER, UPPER,
+                              IND_SIZE)
 
         # Register the individual format
         # An indiviual is create by WSListIndividual and parameters
