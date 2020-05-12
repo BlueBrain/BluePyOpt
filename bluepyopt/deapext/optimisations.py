@@ -33,7 +33,7 @@ import deap.tools
 
 from . import algorithms
 from . import tools
-from .utils import _reduce_method, _uniform
+from . import utils
 
 import bluepyopt.optimisations
 
@@ -171,7 +171,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             UPPER.append(parameter.upper_bound)
 
         # Register the 'uniform' function
-        self.toolbox.register("uniformparams", _uniform, LOWER, UPPER, IND_SIZE)
+        self.toolbox.register("uniformparams", utils.uniform, LOWER, UPPER, IND_SIZE)
 
         # Register the individual format
         # An indiviual is create by WSListIndividual and parameters
@@ -225,7 +225,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
         import copyreg
         import types
-        copyreg.pickle(types.MethodType, _reduce_method)
+        copyreg.pickle(types.MethodType, utils.reduce_method)
 
         if self.use_scoop:
             if self.map_function:

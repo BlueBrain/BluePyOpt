@@ -16,12 +16,12 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 
 import numpy
-
+import random
 
 # pylint: disable=R0914, R0912
 
 
-def _update_history_and_hof(halloffame, history, population):
+def update_history_and_hof(halloffame, history, population):
     """Update the hall of fame with the generated individuals
     Note: History and Hall-of-Fame behave like dictionaries
     """
@@ -31,13 +31,13 @@ def _update_history_and_hof(halloffame, history, population):
     history.update(population)
 
 
-def _record_stats(stats, logbook, gen, population, invalid_count):
+def record_stats(stats, logbook, gen, population, invalid_count):
     """Update the statistics with the new population"""
     record = stats.compile(population) if stats is not None else {}
     logbook.record(gen=gen, nevals=invalid_count, **record)
 
 
-def _closest_feasible(individual, lbounds, ubounds):
+def closest_feasible(individual, lbounds, ubounds):
     """Returns the closest individual in the parameter bounds"""
     # TO DO: Fix 1e-9 hack
     for i, (u, l, el) in enumerate(zip(ubounds, lbounds, individual)):
@@ -48,18 +48,18 @@ def _closest_feasible(individual, lbounds, ubounds):
     return individual
 
 
-def _bound(population, lbounds, ubounds):
+def bound(population, lbounds, ubounds):
     """Bounds the population based on lower and upper parameter bounds."""
     n_out = 0
     for i, ind in enumerate(population):
         if numpy.any(numpy.less(ind, lbounds)) or numpy.any(
                 numpy.greater(ind, ubounds)):
-            population[i] = _closest_feasible(ind, lbounds, ubounds)
+            population[i] = closest_feasible(ind, lbounds, ubounds)
             n_out += 1
     return n_out
 
 
-def _uniform(lower_list, upper_list, dimensions):
+def uniform(lower_list, upper_list, dimensions):
     """Uniformly pick an individual"""
 
     if hasattr(lower_list, '__iter__'):
@@ -68,3 +68,9 @@ def _uniform(lower_list, upper_list, dimensions):
     else:
         return [random.uniform(lower_list, upper_list)
                 for _ in range(dimensions)]
+
+
+def reduce_method(meth):
+    """Overwrite reduce"""
+    return (getattr, (meth.__self__, meth.__func__.__name__))
+

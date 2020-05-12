@@ -23,14 +23,15 @@ import logging
 import numpy
 import pickle
 import random
-from functools import partial
+import functools
 
-from deap import tools
+import deap.tools
 
 from .CMA_SO import CMA_SO
 from .CMA_MO import CMA_MO
-from .utils import _update_history_and_hof, _record_stats, _reduce_method, \
-    _uniform
+from . import utils
+
+import bluepyopt.optimisations
 
 logger = logging.getLogger('__main__')
 
@@ -166,9 +167,9 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.to_space = []
         for r, m in zip(bounds_radius, bounds_mean):
             self.to_norm.append(
-                partial(lambda param, bm, br: (param - bm) / br, bm=m, br=r))
+                functools.partial(lambda param, bm, br: (param - bm) / br, bm=m, br=r))
             self.to_space.append(
-                partial(lambda param, bm, br: (param * br) + bm, bm=m, br=r))
+                functools.partial(lambda param, bm, br: (param * br) + bm, bm=m, br=r))
 
         # Overwrite the bounds with -1. and 1.
         self.lbounds = numpy.full(self.problem_size, -1.)
@@ -191,7 +192,9 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         numpy.random.seed(self.seed)
 
         # Register the 'uniform' function
-        self.toolbox.register("uniformparams", _uniform, self.lbounds,
+        self.toolbox.register("uniformparams", 
+                              utils.uniform, 
+                              self.lbounds,
                               self.ubounds,
                               self.ind_size)
 
@@ -222,8 +225,10 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
 
         # Register the evaluation function for the individuals
         self.toolbox.register("evaluate", self.evaluator.evaluate_with_lists)
-
-        copyreg.pickle(types.MethodType, _reduce_method)
+        
+        import copyreg
+        import types
+        copyreg.pickle(types.MethodType, utils.reduce_method)
 
         if self.use_scoop:
             if self.map_function:
@@ -266,8 +271,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             CMA_es.map_function = self.map_function
 
         else:
-            history = tools.History()
-            logbook = tools.Logbook()
+            history = deap.tools.History()
+            logbook = deap.tools.Logbook()
             logbook.header = ["gen", "nevals"] + stats.fields
 
             # Instantiate the CMA strategies centered on the centroids
@@ -309,8 +314,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
 
             # Update the hall of fame, history and logbook
             pop = CMA_es.get_population(self.to_space)
-            _update_history_and_hof(self.hof, history, pop)
-            record = _record_stats(stats, logbook, gen, pop, nevals)
+            utils.update_history_and_hof(self.hof, history, pop)
+            record = utils.record_stats(stats, logbook, gen, pop, nevals)
             logger.info(logbook.stream)
 
             # Update the CMA strategy using the new fitness and check if
