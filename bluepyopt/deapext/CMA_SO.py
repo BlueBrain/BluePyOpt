@@ -183,5 +183,5 @@ class CMA_SO(cma.Strategy):
         for c in self.stopping_conditions:
             if c.criteria_met:
                 logger.info('CMA stopped because of termination criteria: ' +
-                            ' '.join(type(c).__name__))
+                            ' '.join(c.name))
                 self.active = False

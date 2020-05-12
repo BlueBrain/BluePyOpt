@@ -44,6 +44,7 @@ class MaxNGen(bluepyopt.stoppingCriteria.StoppingCriteria):
 
 class Stagnation(StoppingCriteria):
     """Stagnation stopping criteria class"""
+    name = "Stagnation"
 
     def __init__(self, lambda_, problem_size):
         """Constructor"""
@@ -79,6 +80,7 @@ class Stagnation(StoppingCriteria):
 
 class TolHistFun(StoppingCriteria):
     """TolHistFun stopping criteria class"""
+    name = "TolHistFun"
 
     def __init__(self, lambda_, problem_size):
         """Constructor"""
@@ -100,6 +102,7 @@ class TolHistFun(StoppingCriteria):
 
 class EqualFunVals(StoppingCriteria):
     """EqualFunVals stopping criteria class"""
+    name = "EqualFunVals"
 
     def __init__(self, lambda_, problem_size):
         """Constructor"""
@@ -130,6 +133,7 @@ class EqualFunVals(StoppingCriteria):
 
 class TolX(StoppingCriteria):
     """TolX stopping criteria class"""
+    name = "TolX"
 
     def __init__(self):
         """Constructor"""
@@ -148,6 +152,7 @@ class TolX(StoppingCriteria):
 
 class TolUpSigma(StoppingCriteria):
     """TolUpSigma stopping criteria class"""
+    name = "TolUpSigma"
 
     def __init__(self, sigma0):
         """Constructor"""
@@ -166,6 +171,7 @@ class TolUpSigma(StoppingCriteria):
 
 class ConditionCov(StoppingCriteria):
     """ConditionCov stopping criteria class"""
+    name = "ConditionCov"
 
     def __init__(self):
         """Constructor"""
@@ -183,6 +189,7 @@ class ConditionCov(StoppingCriteria):
 
 class NoEffectAxis(StoppingCriteria):
     """NoEffectAxis stopping criteria class"""
+    name = "NoEffectAxis"
 
     def __init__(self, problem_size):
         """Constructor"""
@@ -207,6 +214,7 @@ class NoEffectAxis(StoppingCriteria):
 
 class NoEffectCoor(StoppingCriteria):
     """NoEffectCoor stopping criteria class"""
+    name = "NoEffectCoor"
 
     def __init__(self):
         """Constructor"""
