@@ -154,7 +154,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         population = parents + offspring
 
         invalid_count = _evaluate_invalid_fitness(toolbox, offspring)
-        utils.history_and_hof(halloffame, history, population)
+        utils.update_history_and_hof(halloffame, history, population)
         utils.record_stats(stats, logbook, gen, population, invalid_count)
 
         # Select the next generation parents

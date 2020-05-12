@@ -174,15 +174,14 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         # Overwrite the bounds with -1. and 1.
         self.lbounds = numpy.full(self.problem_size, -1.)
         self.ubounds = numpy.full(self.problem_size, 1.)
+        
+        self.setup_deap()
 
         # In case initial guesses were provided, rescale them to the norm space
         if self.centroids is not None:
             self.centroids = [self.toolbox.Individual(_ind_convert_space(ind,
                                                                          self.to_norm))
                               for ind in centroids]
-
-        self.setup_deap()
-
 
     def setup_deap(self):
         """Set up optimisation"""
@@ -269,7 +268,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             numpy.random.set_state(cp["np_rndstate"])
             CMA_es = cp["CMA_es"]
             CMA_es.map_function = self.map_function
-
+            
         else:
             history = deap.tools.History()
             logbook = deap.tools.Logbook()
@@ -292,7 +291,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 CMA_es.set_fitness_parents(fitness)
 
             gen = 1
-
+        
         # Run until a termination criteria is met
         while CMA_es.active:
             logger.info("Generation {}".format(gen))
@@ -339,7 +338,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 CMA_es.map_function = temp_mf
 
             gen += 1
-
+            
         return pop, self.hof, logbook, history
 
 
