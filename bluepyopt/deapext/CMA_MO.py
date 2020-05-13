@@ -120,9 +120,7 @@ class CMA_MO(cma.StrategyMultiObjective):
                     'Impossible to use scoop is providing self defined map '
                     'function: %s' % self.map_function)
             from scoop import futures
-            self.toolbox.register("map", futures.map)
-        elif self.map_function:
-            self.toolbox.register("map", self.map_function)
+            self.map_function = futures.map
 
         # Set termination conditions
         self.active = True
@@ -150,9 +148,10 @@ class CMA_MO(cma.StrategyMultiObjective):
             ref = ref[idxs]
 
         # Prepare the data and send it to multiprocess
+        to_evaluate = []
         for i in range(len(front)):
             to_evaluate.append([i, numpy.copy(wobj), numpy.copy(ref)])
-        contrib_values = self.toolbox.map(contribution, to_evaluate)
+        contrib_values = self.map_function(contribution, to_evaluate)
 
         return list(contrib_values)
 

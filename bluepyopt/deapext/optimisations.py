@@ -238,7 +238,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         else:
             pop = self.toolbox.population(n=offspring_size)
 
-        stats = deap.tools.Statistics(key=lambda ind: ind.fitness.sum)
+        stats = deap.tools.Statistics(key=lambda ind: ind.fitness.reduce)
         import numpy
         stats.register("avg", numpy.mean)
         stats.register("std", numpy.std)

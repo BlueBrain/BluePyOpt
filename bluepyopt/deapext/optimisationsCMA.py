@@ -168,7 +168,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.toolbox.register(
             "RandomInd",
             deap.tools.initIterate,
-            functools.partial(WSListIndividual,
+            functools.partial(utils.WSListIndividual,
                               obj_size=self.ind_size,
                               reduce_fcn=self.fitness_reduce),
             self.toolbox.uniformparams)

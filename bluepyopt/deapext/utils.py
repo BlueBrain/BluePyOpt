@@ -44,10 +44,10 @@ class WeightedReducedFitness(deap.base.Fitness):
         return self.reduce_fcn(self.wvalues)
 
     def __le__(self, other):
-        return self.weighted_sum <= other.weighted_sum
+        return self.weighted_reduce <= other.weighted_reduce
 
     def __lt__(self, other):
-        return self.weighted_sum < other.weighted_sum
+        return self.weighted_reduce < other.weighted_reduce
 
     def __deepcopy__(self, _):
         """Override deepcopy"""
@@ -73,7 +73,8 @@ class WSListIndividual(list):
         self._ps = "p", 0
 
         del kwargs['obj_size']
-        del kwargs['reduce_fcn']
+        if 'reduce_fcn' in kwargs:
+            del kwargs['reduce_fcn']
         super(WSListIndividual, self).__init__(*args, **kwargs)
 
 
