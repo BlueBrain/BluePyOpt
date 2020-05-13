@@ -44,51 +44,6 @@ logger = logging.getLogger('__main__')
 # settings of the algorithm can be stored in objects of these classes
 
 
-class WeightedSumFitness(deap.base.Fitness):
-
-    """Fitness that compares by weighted sum"""
-
-    def __init__(self, values=(), obj_size=None):
-        self.weights = [-1.0] * obj_size if obj_size is not None else [-1]
-
-        super(WeightedSumFitness, self).__init__(values)
-
-    @property
-    def weighted_sum(self):
-        """Weighted sum of wvalues"""
-        return sum(self.wvalues)
-
-    @property
-    def sum(self):
-        """Weighted sum of values"""
-        return sum(self.values)
-
-    def __le__(self, other):
-        return self.weighted_sum <= other.weighted_sum
-
-    def __lt__(self, other):
-        return self.weighted_sum < other.weighted_sum
-
-    def __deepcopy__(self, _):
-        """Override deepcopy"""
-
-        cls = self.__class__
-        result = cls.__new__(cls)
-        result.__dict__.update(self.__dict__)
-        return result
-
-
-class WSListIndividual(list):
-
-    """Individual consisting of list with weighted sum field"""
-
-    def __init__(self, *args, **kwargs):
-        """Constructor"""
-        self.fitness = WeightedSumFitness(obj_size=kwargs['obj_size'])
-        del kwargs['obj_size']
-        super(WSListIndividual, self).__init__(*args, **kwargs)
-
-
 class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
     """DEAP Optimisation class"""
@@ -162,7 +117,6 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         IND_SIZE = len(self.evaluator.params)
 
         # Bounds for the parameters
-
         LOWER = []
         UPPER = []
 
@@ -181,7 +135,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         self.toolbox.register(
             "Individual",
             deap.tools.initIterate,
-            functools.partial(WSListIndividual, obj_size=OBJ_SIZE),
+            functools.partial(utils.WSListIndividual, obj_size=OBJ_SIZE),
             self.toolbox.uniformparams)
 
         # Register the population format. It is a list of individuals

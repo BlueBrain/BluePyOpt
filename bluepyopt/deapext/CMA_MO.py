@@ -133,12 +133,13 @@ class CMA_MO(cma.StrategyMultiObjective):
         self.stopping_conditions = [MaxNGen(max_ngen)]
 
     def hyper_volume(self, front):
-
+        """Compute the hypervolume contribution of each individual"""
         wobj = numpy.array([ind.fitness.values for ind in front])
         obj_ranges = (numpy.max(wobj, axis=0) - numpy.min(wobj, axis=0))
         ref = numpy.max(wobj, axis=0) + 1
 
-        # Above 23 dim, hypervolume is too slow, so I settle for an approximation
+        # Above 23 dimension, the hypervolume computation is too slow,
+        # we settle for the 23 dimension showing the largest range of values
         max_ndim = 23
         if len(ref) > max_ndim:
             idxs = list(range(len(ref)))
@@ -148,15 +149,21 @@ class CMA_MO(cma.StrategyMultiObjective):
             wobj = wobj[:, idxs]
             ref = ref[idxs]
 
-        to_evaluate = []
+        # Prepare the data and send it to multiprocess
         for i in range(len(front)):
             to_evaluate.append([i, numpy.copy(wobj), numpy.copy(ref)])
-
         contrib_values = self.toolbox.map(contribution, to_evaluate)
 
         return list(contrib_values)
 
     def _select(self, candidates):
+        """Select the best candidates of the population
+
+        Fill the next population (chosen) with the Pareto fronts until there is
+        not enouch space. When an entire front does not fit in the space left
+        we rely on the hypervolume for this front. The remaining fronts are
+        explicitly not chosen"""
+
         if len(candidates) <= self.mu:
             return candidates, []
 
@@ -167,10 +174,6 @@ class CMA_MO(cma.StrategyMultiObjective):
         mid_front = None
         not_chosen = list()
 
-        # Fill the next population (chosen) with the fronts until there is not enouch space
-        # When an entire front does not fit in the space left we rely on the hypervolume
-        # for this front
-        # The remaining fronts are explicitly not chosen
         full = False
         for front in pareto_fronts:
             if len(chosen) + len(front) <= self.mu and not full:
@@ -182,6 +185,8 @@ class CMA_MO(cma.StrategyMultiObjective):
             else:
                 not_chosen += front
 
+        # Hypervolume contribution to get the best candidates on the remaining
+        # front
         k = self.mu - len(chosen)
         if k > 0:
             hyperv = self.hyper_volume(mid_front)

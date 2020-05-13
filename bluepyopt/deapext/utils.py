@@ -18,7 +18,63 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import numpy
 import random
 
+import deap.base
+
 # pylint: disable=R0914, R0912
+
+
+class WeightedReducedFitness(deap.base.Fitness):
+
+    """Fitness that compares by weighted objective values"""
+
+    def __init__(self, values=(), obj_size=None, reduce_fcn=numpy.sum):
+        self.weights = [-1.0] * obj_size if obj_size is not None else [-1]
+        self.reduce_fcn = reduce_fcn
+
+        super(WeightedReducedFitness, self).__init__(values)
+
+    @property
+    def reduce(self):
+        """Reduce of values"""
+        return self.reduce_fcn(self.values)
+
+    @property
+    def weighted_reduce(self):
+        """Reduce of weighted values"""
+        return self.reduce_fcn(self.wvalues)
+
+    def __le__(self, other):
+        return self.weighted_sum <= other.weighted_sum
+
+    def __lt__(self, other):
+        return self.weighted_sum < other.weighted_sum
+
+    def __deepcopy__(self, _):
+        """Override deepcopy"""
+
+        cls = self.__class__
+        result = cls.__new__(cls)
+        result.__dict__.update(self.__dict__)
+        return result
+
+
+class WSListIndividual(list):
+
+    """Individual consisting of a list with weighted fitness"""
+
+    def __init__(self, *args, **kwargs):
+        """Constructor"""
+
+        reduce_fcn = kwargs.get("reduce_fcn", numpy.sum)
+        self.fitness = WeightedReducedFitness(obj_size=kwargs['obj_size'],
+                                              reduce_fcn=reduce_fcn)
+
+        # Index of the parent, used by MO-CMA
+        self._ps = "p", 0
+
+        del kwargs['obj_size']
+        del kwargs['reduce_fcn']
+        super(WSListIndividual, self).__init__(*args, **kwargs)
 
 
 def update_history_and_hof(halloffame, history, population):
@@ -39,7 +95,7 @@ def record_stats(stats, logbook, gen, population, invalid_count):
 
 def closest_feasible(individual, lbounds, ubounds):
     """Returns the closest individual in the parameter bounds"""
-    # TO DO: Fix 1e-9 hack
+    # TODO: Fix 1e-9 hack
     for i, (u, l, el) in enumerate(zip(ubounds, lbounds, individual)):
         if el >= u:
             individual[i] = u - 1e-9
@@ -61,7 +117,6 @@ def bound(population, lbounds, ubounds):
 
 def uniform(lower_list, upper_list, dimensions):
     """Uniformly pick an individual"""
-
     if hasattr(lower_list, '__iter__'):
         return [random.uniform(lower, upper) for lower, upper in
                 zip(lower_list, upper_list)]
@@ -73,4 +128,3 @@ def uniform(lower_list, upper_list, dimensions):
 def reduce_method(meth):
     """Overwrite reduce"""
     return (getattr, (meth.__self__, meth.__func__.__name__))
-

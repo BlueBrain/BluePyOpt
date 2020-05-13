@@ -36,59 +36,13 @@ import bluepyopt.optimisations
 logger = logging.getLogger('__main__')
 
 
-class ReduceFitness(deap.base.Fitness):
-    """Fitness that compares by weighted"""
-
-    def __init__(self, values=(), obj_size=None, reduce_fcn=numpy.sum):
-        self.weights = [-1.0] * obj_size if obj_size is not None else [-1]
-        self.reduce_fcn = reduce_fcn
-        super(ReduceFitness, self).__init__(values)
-
-    @property
-    def reduce(self):
-        return self.reduce_fcn(self.values)
-
-    @property
-    def reduce_weight(self):
-        """Weighted reduce of wvalues"""
-        return self.reduce_fcn(self.wvalues)
-
-    def __le__(self, other):
-        return self.reduce_weight <= other.reduce_weight
-
-    def __lt__(self, other):
-        return self.reduce_weight < other.reduce_weight
-
-    def __deepcopy__(self, _):
-        """Override deepcopy"""
-
-        cls = self.__class__
-        result = cls.__new__(cls)
-        result.__dict__.update(self.__dict__)
-        return result
-
-
-class ListIndividual(list):
-    """Individual consisting of list with weighted fitness field"""
-
-    def __init__(self, *args, **kwargs):
-        """Constructor"""
-        self.fitness = ReduceFitness(obj_size=kwargs['obj_size'],
-                                     reduce_fcn=kwargs['reduce_fcn'])
-        del kwargs['obj_size']
-        del kwargs['reduce_fcn']
-        super(ListIndividual, self).__init__(*args, **kwargs)
-
-        # Used by CMA multi objective
-        self._ps = "p", 0
-
-
 def _ind_convert_space(ind, convert_fcn):
     return [f(x) for f, x in zip(convert_fcn, ind)]
 
 
 class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
-    """CMA based optimisation class"""
+
+    """Optimisation class for CMA-based evolution strategies"""
 
     def __init__(self,
                  evaluator=None,
@@ -105,10 +59,12 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
 
         Args:
             evaluator (Evaluator): Evaluator object
+            seed (float): Random number generator seed
+            offspring_size (int): Number of offspring individuals in each
+                generation
             centroids (list): list of initial guesses used as the starting
                 points of the CMA-ES
             sigma (float): initial standard deviation of the distribution
-            seed (float): Random number generator seed
             map_function (function): Function used to map (parallelize) the
                 evaluation function calls
             hof (hof): Hall of Fame object
@@ -124,11 +80,12 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.use_scoop = use_scoop
         self.seed = seed
         self.map_function = map_function
+
         self.hof = hof
         if self.hof is None:
             self.hof = deap.tools.HallOfFame(10)
-        self.fitness_reduce = fitness_reduce
 
+        self.fitness_reduce = fitness_reduce
         self.offspring_size = offspring_size
         self.centroids = centroids
         self.sigma = sigma
@@ -162,6 +119,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.lbounds = numpy.asarray(self.lbounds)
         bounds_radius = (self.ubounds - self.lbounds) / 2.
         bounds_mean = (self.ubounds + self.lbounds) / 2.
+
         self.to_norm = []
         self.to_space = []
         for r, m in zip(bounds_radius, bounds_mean):
@@ -200,7 +158,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         # Register the individual format
         self.toolbox.register(
             "Individual",
-            functools.partial(ListIndividual,
+            functools.partial(utils.WSListIndividual,
                               obj_size=self.ind_size,
                               reduce_fcn=self.fitness_reduce)
         )
@@ -208,9 +166,9 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         # A Random Indiviual is create by ListIndividual and parameters are
         # initially picked by 'uniform'
         self.toolbox.register(
-            "RandomIndividual",
+            "RandomInd",
             deap.tools.initIterate,
-            functools.partial(ListIndividual,
+            functools.partial(WSListIndividual,
                               obj_size=self.ind_size,
                               reduce_fcn=self.fitness_reduce),
             self.toolbox.uniformparams)
@@ -220,7 +178,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             "population",
             deap.tools.initRepeat,
             list,
-            self.toolbox.RandomIndividual)
+            self.toolbox.RandomInd)
 
         # Register the evaluation function for the individuals
         self.toolbox.register("evaluate", self.evaluator.evaluate_with_lists)
@@ -251,13 +209,14 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         Args:
             max_ngen(int): Total number of generation to run
             cp_frequency(int): generations between checkpoints
-            cp_filename(string): path to checkpoint filename
             continue_cp(bool): whether to continue
+            cp_filename(string): path to checkpoint filename
         """
 
         stats = self.get_stats()
 
         if continue_cp:
+
             # A file name has been given, then load the data from the file
             cp = pickle.load(open(cp_filename, "br"))
             gen = cp["generation"]
@@ -270,17 +229,18 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             CMA_es.map_function = self.map_function
 
         else:
+
             history = deap.tools.History()
             logbook = deap.tools.Logbook()
             logbook.header = ["gen", "nevals"] + stats.fields
 
-            # Instantiate the CMA strategies centered on the centroids
+            # Instantiate the CMA strategy centered on the centroids
             CMA_es = self.cma_creator(centroids=self.centroids,
                                       offspring_size=self.offspring_size,
                                       sigma=self.sigma,
                                       max_ngen=max_ngen,
                                       IndCreator=self.toolbox.Individual,
-                                      RandIndCreator=self.toolbox.RandomIndividual,
+                                      RandIndCreator=self.toolbox.RandomInd,
                                       map_function=self.map_function,
                                       use_scoop=self.use_scoop)
 
@@ -299,8 +259,9 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             # Generate the new populations
             n_out = CMA_es.generate_new_pop(lbounds=self.lbounds,
                                             ubounds=self.ubounds)
-            logger.info("Number of individuals outside of bounds: {} ({:.2f}%)"
-                        "".format(n_out, 100. * n_out / len(CMA_es.population)))
+            logger.debug("Number of individuals outside of bounds: {} "
+                         "({:.2f}%)".format(n_out, 100. *
+                                            n_out / len(CMA_es.population)))
 
             # Get all the individuals in the original space for evaluation
             to_evaluate = CMA_es.get_population(self.to_space)
@@ -323,8 +284,11 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             CMA_es.check_termination(gen)
 
             if cp_filename and cp_frequency and gen % cp_frequency == 0:
+
+                # Map function shouldn't be pickled
                 temp_mf = CMA_es.map_function
                 CMA_es.map_function = None
+
                 cp = dict(population=pop,
                           generation=gen,
                           halloffame=self.hof,
@@ -335,6 +299,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                           CMA_es=CMA_es)
                 pickle.dump(cp, open(cp_filename, "wb"))
                 logger.debug('Wrote checkpoint to %s', cp_filename)
+
                 CMA_es.map_function = temp_mf
 
             gen += 1
