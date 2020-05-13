@@ -213,8 +213,8 @@ class NoEffectAxis(bluepyopt.stoppingCriteria.StoppingCriteria):
 
         noeffectaxis_index = ngen % self.problem_size
 
-        if all(centroid == centroid + 0.1 * sigma * diagD[-noeffectaxis_index] *
-               B[-noeffectaxis_index]):
+        if all(centroid == centroid + 0.1 * sigma * 
+               diagD[-noeffectaxis_index] * B[-noeffectaxis_index]):
             self.criteria_met = True
 
 
