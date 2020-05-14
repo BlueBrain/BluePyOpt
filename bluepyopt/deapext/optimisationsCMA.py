@@ -249,8 +249,9 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 fitness = self.toolbox.map(self.toolbox.evaluate, to_evaluate)
                 fitness = list(map(list, fitness))
                 CMA_es.set_fitness_parents(fitness)
-
             gen = 1
+
+        pop = CMA_es.get_population(self.to_space)
 
         # Run until a termination criteria is met
         while CMA_es.active:
