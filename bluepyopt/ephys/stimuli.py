@@ -363,7 +363,6 @@ class LFPySquarePulse(Stimulus):
         self.iclamp = LFPy.StimIntElectrode(cell=LFPyCell,
                                             idx=self.location.sec_index,
                                             pptype='IClamp',
-                                            record_current=True,
                                             amp=self.step_amplitude,
                                             delay=self.step_delay,
                                             dur=self.step_duration)

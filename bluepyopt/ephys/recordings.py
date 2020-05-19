@@ -23,6 +23,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import logging
 
 from . import responses
+from .models import LFPyCellModel
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +111,7 @@ class CompRecording(Recording):
         return '%s: %s at %s' % (self.name, self.variable, self.location)
 
 
+# TODO add compensation for stimuli
 class LFPRecording(Recording):
 
     """Electrode sesponse to stimulus"""
@@ -126,11 +128,10 @@ class LFPRecording(Recording):
             name (str): name of this object
         """
 
-        super(LFPRecording, self).__init__(
-            name=name)
+        super(LFPRecording, self).__init__(name=name)
         
         self.electrode = None
-
+        self.cell = None
         self.tvector = None
         self.time = None
 
@@ -142,18 +143,21 @@ class LFPRecording(Recording):
 
         if not self.instantiated:
             return None
-        
+        self.tvector = self.cell.tvec
         return responses.TimeLFPResponse(self.name, 
-                                         self.tvector.to_python(),
+                                         self.tvector,
                                          self.electrode.LFP)
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None, LFPyCell=None):
+        import LFPy
         """Instantiate recording"""
 
         logger.debug('Adding recording of %s at %s', self.variable, self.location)
 
-        self.tvector = sim.neuron.h.Vector()
-        self.tvector.record(sim.neuron.h._ref_t)  # pylint: disable=W0212
+        assert isinstance(LFPyCell, LFPy.Cell), "LFPRecording is only available for LFPCellModel"
+        self.cell = LFPyCell
+        self.tvector = None
+        # self.tvector.record(sim.neuron.h._ref_t)  # pylint: disable=W0212
         
         self.electrode = sim.electrode
 

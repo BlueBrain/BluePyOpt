@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 from . import models
 from . import locations
 from . import simulators
+from . import recordings
 
 
 class Protocol(object):
@@ -261,7 +262,10 @@ class SweepProtocol(Protocol):
 
         for recording in self.recordings:
             try:
-                recording.instantiate(sim=sim, icell=icell)
+                if isinstance(recording, recordings.LFPRecording):
+                    recording.instantiate(sim=sim, icell=icell, LFPyCell=LFPyCell)
+                else:
+                    recording.instantiate(sim=sim, icell=icell)
             except locations.EPhysLocInstantiateException:
                 logger.debug(
                     'SweepProtocol: Instantiating recording generated '
