@@ -155,10 +155,10 @@ def define_fitness_calculator(protocols, feature_set='bap', probe=None):
                         kwargs['channel_id'] = int(efel_feature_name.split('_')[-1])
                     kwargs['channel_locations'] = probe.positions
                     kwargs['fs'] = 20
-                    kwargs['extrafel_feature_name'] = ['_'.join(efel_feature_name.split('_')[:-1])]
+                    kwargs['extrafel_feature_name'] = '_'.join(efel_feature_name.split('_')[:-1])
                 else:
                     feature_class = ephys.efeatures.eFELFeature
-                    kwargs['efel_feature_name'] = [efel_feature_name]
+                    kwargs['efel_feature_name'] = efel_feature_name
                     kwargs['recording_names'] = {'': '%s.%s.v' % (protocol_name, location)}
 
                 feature = feature_class(

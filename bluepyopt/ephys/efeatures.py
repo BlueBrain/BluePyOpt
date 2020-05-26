@@ -395,7 +395,7 @@ class extraFELFeature(EFeature, DictMixin):
         ewf = _get_waveforms(response_filter, peak_times, [2, 20])
         mean_wf = np.mean(ewf, axis=0)
 
-        values = calculate_features(mean_wf, self.fs * 1000, feature_names=self.extrafel_feature_name,
+        values = calculate_features(mean_wf, self.fs * 1000, feature_names=[self.extrafel_feature_name],
                                     channel_locations=self.channel_locations)
 
         feature_value = values[self.extrafel_feature_name[0]]
