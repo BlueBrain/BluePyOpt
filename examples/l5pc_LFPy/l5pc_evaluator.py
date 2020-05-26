@@ -153,9 +153,11 @@ def define_fitness_calculator(protocols, feature_set='bap', probe=None):
                     kwargs['somatic_recording_name'] = f'{protocol_name}.soma.v'
                     if efel_feature_name != 'velocity':
                         kwargs['channel_id'] = int(efel_feature_name.split('_')[-1])
+                        kwargs['extrafel_feature_name'] = '_'.join(efel_feature_name.split('_')[:-1])
+                    else:
+                        kwargs['extrafel_feature_name'] = efel_feature_name
                     kwargs['channel_locations'] = probe.positions
                     kwargs['fs'] = 20
-                    kwargs['extrafel_feature_name'] = '_'.join(efel_feature_name.split('_')[:-1])
                 else:
                     feature_class = ephys.efeatures.eFELFeature
                     kwargs['efel_feature_name'] = efel_feature_name

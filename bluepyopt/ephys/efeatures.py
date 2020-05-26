@@ -380,16 +380,16 @@ class extraFELFeature(EFeature, DictMixin):
 
         if np.std(np.diff(response['time'])) > 0.001 * np.mean(np.diff(response['time'])):
             assert self.fs is not None
-            print('interpolate')
+            # print('interpolate')
             response_interp = _interpolate_response(response, fs=self.fs)
         else:
             response_interp = response
 
         if self.fcut is not None:
-            print('filter enabled')
+            # print('filter enabled')
             response_filter = _filter_response(response_interp, fcut=self.fcut)
         else:
-            print('filter disabled')
+            # print('filter disabled')
             response_filter = response_interp
 
         ewf = _get_waveforms(response_filter, peak_times, [2, 20])
@@ -417,7 +417,7 @@ class extraFELFeature(EFeature, DictMixin):
         feature_value = self.calculate_feature(responses)
 
         if not np.isnan(feature_value):
-            score = (feature_value - self.exp_mean) / self.exp_std
+            score = np.abs((feature_value - self.exp_mean)) / self.exp_std
         else:
             score = self.max_score
 
