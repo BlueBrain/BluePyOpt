@@ -112,6 +112,7 @@ def define_fitness_calculator(protocols):
 
     for protocol_name, locations in feature_definitions.items():
         for location, features in locations.items():
+            # differentiate eFEL and extraFEL
             for efel_feature_name, meanstd in features.items():
                 feature_name = '%s.%s.%s' % (
                     protocol_name, location, efel_feature_name)

@@ -107,16 +107,20 @@ def define_protocols(electrode=None):
     return protocols
 
 
-def define_fitness_calculator(protocols):
+def define_fitness_calculator(protocols, feature_set='bap', probe=None):
     """Define fitness calculator"""
+
+    assert feature_set in ['bap', 'soma', 'extra']
 
     feature_definitions = json.load(
         open(
             os.path.join(
                 config_dir,
-                'features.json')))
+                'features.json')))[feature_set]
 
-    # TODO: add bAP stimulus
+    if feature_set == 'extra':
+        assert probe is not None, "Provide a MEAutility probe to use the 'extra' set"
+
     objectives = []
 
     for protocol_name, locations in feature_definitions.items():
@@ -124,30 +128,44 @@ def define_fitness_calculator(protocols):
             for efel_feature_name, meanstd in features.items():
                 feature_name = '%s.%s.%s' % (
                     protocol_name, location, efel_feature_name)
-                recording_names = {'': '%s.%s.v' % (protocol_name, location)}
-                stimulus = protocols[protocol_name].stimuli[0]
+                kwargs = {}
 
-                stim_start = stimulus.step_delay
+                stimulus = protocols[protocol_name].stimuli[0]
+                kwargs['stim_start'] = stimulus.step_delay
 
                 if location == 'soma':
-                    threshold = -20
+                    kwargs['threshold'] = -20
                 elif 'dend' in location:
-                    threshold = -55
+                    kwargs['threshold'] = -55
+                else:
+                    kwargs['threshold'] = -20
 
                 if protocol_name == 'bAP':
-                    stim_end = stimulus.total_duration
+                    kwargs['stim_end'] = stimulus.total_duration
                 else:
-                    stim_end = stimulus.step_delay + stimulus.step_duration
+                    kwargs['stim_end'] = stimulus.step_delay + stimulus.step_duration
 
-                feature = ephys.efeatures.eFELFeature(
+                if location == 'MEA':
+                    feature_class = ephys.efeatures.extraFELFeature
+                    kwargs['recording_names'] = {'': '%s.%s.LFP' % (protocol_name, location)}
+                    kwargs['fs'] = 20
+                    kwargs['fcut'] = 1
+                    kwargs['somatic_recording_name'] = f'{protocol_name}.soma.v'
+                    if efel_feature_name != 'velocity':
+                        kwargs['channel_id'] = int(efel_feature_name.split('_')[-1])
+                    kwargs['channel_locations'] = probe.positions
+                    kwargs['fs'] = 20
+                    kwargs['extrafel_feature_name'] = ['_'.join(efel_feature_name.split('_')[:-1])]
+                else:
+                    feature_class = ephys.efeatures.eFELFeature
+                    kwargs['efel_feature_name'] = [efel_feature_name]
+                    kwargs['recording_names'] = {'': '%s.%s.v' % (protocol_name, location)}
+
+                feature = feature_class(
                     feature_name,
-                    efel_feature_name=efel_feature_name,
-                    recording_names=recording_names,
-                    stim_start=stim_start,
-                    stim_end=stim_end,
                     exp_mean=meanstd[0],
                     exp_std=meanstd[1],
-                    threshold=threshold)
+                    **kwargs)
                 objective = ephys.objectives.SingletonObjective(
                     feature_name,
                     feature)
