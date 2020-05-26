@@ -398,7 +398,7 @@ class extraFELFeature(EFeature, DictMixin):
         values = calculate_features(mean_wf, self.fs * 1000, feature_names=[self.extrafel_feature_name],
                                     channel_locations=self.channel_locations)
 
-        feature_value = values[self.extrafel_feature_name[0]]
+        feature_value = values[self.extrafel_feature_name]
         if self.channel_id is not None:
             feature_value = feature_value[self.channel_id]
 
