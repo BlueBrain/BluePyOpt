@@ -38,10 +38,10 @@ def test_eFELFeature():
     responses = {'square_pulse_step1.soma.v': response, }
 
     ret = efeature.calculate_feature(responses, raise_warnings=True)
-    nt.assert_almost_equal(ret, -72.0575843859)
+    nt.assert_almost_equal(ret, -72.05761247316858)
 
     score = efeature.calculate_score(responses)
-    nt.assert_almost_equal(score, 73.05758438592171)
+    nt.assert_almost_equal(score, 73.05761247316858)
 
     nt.eq_(efeature.name, 'test_eFELFeature')
     nt.ok_('voltage_base' in str(efeature))
