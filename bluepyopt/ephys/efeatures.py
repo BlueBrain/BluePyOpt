@@ -58,6 +58,7 @@ class eFELFeature(EFeature, DictMixin):
             interp_step=None,
             double_settings=None,
             int_settings=None,
+            string_settings=None,
             force_max_score=False,
             max_score=250
     ):
@@ -80,6 +81,8 @@ class eFELFeature(EFeature, DictMixin):
                 should be set before extracting the features
             int_settings(dict): dictionary with efel int settings that
                 should be set before extracting the features
+            string_settings(dict): dictionary with efel string settings that
+                should be set before extracting the features
         """
 
         super(eFELFeature, self).__init__(name, comment)
@@ -95,6 +98,7 @@ class eFELFeature(EFeature, DictMixin):
         self.stimulus_current = stimulus_current
         self.double_settings = double_settings
         self.int_settings = int_settings
+        self.string_settings = string_settings
         self.force_max_score = force_max_score
         self.max_score = max_score
 
@@ -151,6 +155,10 @@ class eFELFeature(EFeature, DictMixin):
         if self.int_settings is not None:
             for setting_name, setting_value in self.int_settings.items():
                 efel.setIntSetting(setting_name, setting_value)
+
+        if self.string_settings is not None:
+            for setting_name, setting_value in self.string_settings.items():
+                efel.setStrSetting(setting_name, setting_value)
 
     def calculate_feature(self, responses, raise_warnings=False):
         """Calculate feature value"""
