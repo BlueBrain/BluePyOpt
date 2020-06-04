@@ -196,6 +196,40 @@ def test_eFELFeature_int_settings():
 
 
 @attr('unit')
+def test_eFELFeature_string_settings():
+    """ephys.efeatures: Testing eFELFeature string_settings"""
+    recording_names = {'': 'square_pulse_step1.soma.v'}
+    efeature = efeatures.eFELFeature(name='test_eFELFeature_vb_default',
+                                     efel_feature_name='voltage_base',
+                                     recording_names=recording_names,
+                                     stim_start=700,
+                                     stim_end=2700)
+    efeature_median = efeatures.eFELFeature(
+        name='test_eFELFeature_vb_median',
+        efel_feature_name='voltage_base',
+        recording_names=recording_names,
+        stim_start=700,
+        stim_end=2700,
+        string_settings={
+            'voltage_base_mode': "median"})
+
+    response = TimeVoltageResponse('mock_response')
+    testdata_dir = joinp(
+        os.path.dirname(
+            os.path.abspath(__file__)),
+        'testdata')
+    response.read_csv(joinp(testdata_dir, 'TimeVoltageResponse.csv'))
+    responses = {'square_pulse_step1.soma.v': response, }
+
+    vb_median = efeature_median.calculate_feature(
+        responses,
+        raise_warnings=True)
+    vb_default = efeature.calculate_feature(responses, raise_warnings=True)
+
+    nt.assert_true(vb_median != vb_default)
+
+
+@attr('unit')
 def test_eFELFeature_serialize():
     """ephys.efeatures: Testing eFELFeature serialization"""
     recording_names = {'': 'square_pulse_step1.soma.v'}
