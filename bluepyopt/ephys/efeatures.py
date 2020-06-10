@@ -238,6 +238,8 @@ class extraFELFeature(EFeature, DictMixin):
             somatic_recording_name=None,
             fcut=None,
             fs=None,
+            ms_cut=None,
+            upsample=None,
             skip_first_spike=True,
             skip_last_spike=True,
             channel_id=None,
@@ -287,6 +289,8 @@ class extraFELFeature(EFeature, DictMixin):
         self.extrafel_feature_name = extrafel_feature_name
         self.fcut = fcut
         self.fs = fs
+        self.ms_cut = ms_cut
+        self.upsample = upsample
         self.skip_first_spike = skip_first_spike
         self.skip_last_spike = skip_last_spike
         self.channel_id = channel_id
@@ -362,7 +366,7 @@ class extraFELFeature(EFeature, DictMixin):
 
         return peak_times
 
-    def calculate_feature(self, responses, raise_warnings=False, return_waveforms=False):
+    def calculate_feature(self, responses, raise_warnings=False, return_waveforms=False, verbose=False):
         """Calculate feature value"""
         # import spikefeatures as sf
         peak_times = self._get_peak_times(responses, raise_warnings=raise_warnings)
@@ -380,22 +384,35 @@ class extraFELFeature(EFeature, DictMixin):
 
         if np.std(np.diff(response['time'])) > 0.001 * np.mean(np.diff(response['time'])):
             assert self.fs is not None
-            print('interpolate')
+            if verbose:
+                print('interpolate')
             response_interp = _interpolate_response(response, fs=self.fs)
         else:
             response_interp = response
 
         if self.fcut is not None:
-            print('filter enabled')
+            if verbose:
+                print('filter enabled')
             response_filter = _filter_response(response_interp, fcut=self.fcut)
         else:
-            print('filter disabled')
+            if verbose:
+                print('filter disabled')
             response_filter = response_interp
 
-        ewf = _get_waveforms(response_filter, peak_times, [2, 20])
+        ewf = _get_waveforms(response_filter, peak_times, self.ms_cut)
         mean_wf = np.mean(ewf, axis=0)
+        if self.upsample is not None:
+            if verbose:
+                print('upsample')
+            assert self.upsample > 0
+            self.upsample = int(self.upsample)
+            mean_wf_up = _upsample_wf(mean_wf, self.upsample)
+            fs_up = self.upsample * self.fs
+        else:
+            mean_wf_up = mean_wf
+            fs_up = self.fs
 
-        values = calculate_features(mean_wf, self.fs * 1000, feature_names=[self.extrafel_feature_name],
+        values = calculate_features(mean_wf_up, fs_up * 1000, feature_names=[self.extrafel_feature_name],
                                     channel_locations=self.channel_locations)
 
         feature_value = values[self.extrafel_feature_name]
@@ -408,7 +425,7 @@ class extraFELFeature(EFeature, DictMixin):
             str(feature_value))
 
         if return_waveforms:
-            return feature_value, mean_wf
+            return feature_value, mean_wf_up
         else:
             return feature_value
 
@@ -491,6 +508,14 @@ def _filter_response(response, fcut=[0.5, 6000], order=2, filt_type='lfilter'):
     response_new['voltage'] = filtered
 
     return response_new
+
+
+def _upsample_wf(waveforms, upsample):
+    from scipy.signal import resample_poly
+    ndim = len(waveforms.shape)
+    waveforms_up = resample_poly(waveforms, up=upsample, down=1, axis=ndim-1)
+
+    return waveforms_up
 
 
 def _get_waveforms(response, peak_times, snippet_len_ms):

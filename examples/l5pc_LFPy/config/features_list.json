@@ -1,0 +1,156 @@
+{
+    "bap": {
+        "bAP": {
+            "soma": [
+                "AP_width",
+                "AP_height",
+                "Spikecount"],
+            "dend1": [
+                "AP_amplitude_from_voltagebase"
+            ],
+            "dend2": [
+                "AP_amplitude_from_voltagebase"
+            ]
+        },
+        "Step3": {
+            "soma": [
+                "AP_height",
+                "AHP_slow_time",
+                "ISI_CV",
+                "doublet_ISI",
+                "adaptation_index2",
+                "mean_frequency",
+                "AHP_depth_abs_slow",
+                "AP_width",
+                "time_to_first_spike",
+                "AHP_depth_abs"
+            ]
+        },
+        "Step2": {
+            "soma": [
+                "AP_height",
+                "AHP_slow_time",
+                "ISI_CV",
+                "doublet_ISI",
+                "adaptation_index2",
+                "mean_frequency",
+                "AHP_depth_abs_slow",
+                "AP_width",
+                "time_to_first_spike",
+                "AHP_depth_abs"
+            ]
+        },
+        "Step1": {
+            "soma": [
+                "AP_height",
+                "AHP_slow_time",
+                "ISI_CV",
+                "doublet_ISI",
+                "adaptation_index2",
+                "mean_frequency",
+                "AHP_depth_abs_slow",
+                "AP_width",
+                "time_to_first_spike",
+                "AHP_depth_abs"
+            ]
+        }
+    },
+    "extra": {
+        "Step3": {
+            "soma": [
+                "AP_height",
+                "AHP_slow_time",
+                "ISI_CV",
+                "doublet_ISI",
+                "adaptation_index2",
+                "mean_frequency",
+                "AHP_depth_abs_slow",
+                "AP_width",
+                "time_to_first_spike",
+                "AHP_depth_abs"
+            ]
+        },
+        "Step2": {
+            "soma": [
+                "AP_height",
+                "AHP_slow_time",
+                "ISI_CV",
+                "doublet_ISI",
+                "adaptation_index2",
+                "mean_frequency",
+                "AHP_depth_abs_slow",
+                "AP_width",
+                "time_to_first_spike",
+                "AHP_depth_abs"
+            ]
+        },
+        "Step1": {
+            "soma": [
+                "AP_height",
+                "AHP_slow_time",
+                "ISI_CV",
+                "doublet_ISI",
+                "adaptation_index2",
+                "mean_frequency",
+                "AHP_depth_abs_slow",
+                "AP_width",
+                "time_to_first_spike",
+                "AHP_depth_abs"
+            ],
+
+            "MEA": [
+                "peak_to_valley",
+                "peak_trough_ratio",
+                "halfwidth",
+                "neg_peak_relative",
+                "pos_peak_relative",
+                "neg_peak_diff",
+                "pos_peak_diff"
+            ]
+        }
+    },
+    "soma": {
+        "Step3": {
+            "soma": [
+                "AP_height",
+                "AHP_slow_time",
+                "ISI_CV",
+                "doublet_ISI",
+                "adaptation_index2",
+                "mean_frequency",
+                "AHP_depth_abs_slow",
+                "AP_width",
+                "time_to_first_spike",
+                "AHP_depth_abs"
+            ]
+        },
+        "Step2": {
+            "soma": [
+                "AP_height",
+                "AHP_slow_time",
+                "ISI_CV",
+                "doublet_ISI",
+                "adaptation_index2",
+                "mean_frequency",
+                "AHP_depth_abs_slow",
+                "AP_width",
+                "time_to_first_spike",
+                "AHP_depth_abs"
+            ]
+        },
+        "Step1": {
+            "soma": [
+                "AP_height",
+                "AHP_slow_time",
+                "ISI_CV",
+                "doublet_ISI",
+                "adaptation_index2",
+                "mean_frequency",
+                "AHP_depth_abs_slow",
+                "AP_width",
+                "time_to_first_spike",
+                "AHP_depth_abs"
+            ]
+        }
+    }
+}

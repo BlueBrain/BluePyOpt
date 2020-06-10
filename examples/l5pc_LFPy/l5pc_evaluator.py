@@ -22,6 +22,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import os
 import json
+import numpy as np
+from pathlib import Path
 
 import l5pc_model  # NOQA
 
@@ -107,18 +109,135 @@ def define_protocols(electrode=None):
     return protocols
 
 
-def define_fitness_calculator(protocols, feature_set='bap', probe=None):
-    """Define fitness calculator"""
+def compute_feature_values(params, cell_model, protocols, sim, feature_set='bap', std=0.2,
+                           feature_folder='config/features', probe=None, channels=None):
+    """Compute feature values based on params"""
 
     assert feature_set in ['bap', 'soma', 'extra']
 
-    feature_definitions = json.load(
-        open(
-            os.path.join(
-                config_dir,
-                'features.json')))[feature_set]
+    feature_list = json.load(
+        open(os.path.join(config_dir, 'features_list.json')))[feature_set]
 
     if feature_set == 'extra':
+        assert probe is not None, "Provide a MEAutility probe to use the 'extra' set"
+        if channels is None:
+            channels = np.arange(probe.number_electrodes)
+
+    features = {}
+
+    for protocol_name, locations in feature_list.items():
+        features[protocol_name] = []
+        for location, feats in locations.items():
+            for efel_feature_name in feats:
+                feature_name = '%s.%s.%s' % (
+                    protocol_name, location, efel_feature_name)
+                kwargs = {}
+
+                stimulus = protocols[protocol_name].stimuli[0]
+                kwargs['stim_start'] = stimulus.step_delay
+
+                if location == 'soma':
+                    kwargs['threshold'] = -20
+                elif 'dend' in location:
+                    kwargs['threshold'] = -55
+                else:
+                    kwargs['threshold'] = -20
+
+                if protocol_name == 'bAP':
+                    kwargs['stim_end'] = stimulus.total_duration
+                else:
+                    kwargs['stim_end'] = stimulus.step_delay + stimulus.step_duration
+
+                if location == 'MEA':
+                    feature_class = ephys.efeatures.extraFELFeature
+                    kwargs['recording_names'] = {'': '%s.%s.LFP' % (protocol_name, location)}
+                    kwargs['fs'] = 20
+                    kwargs['fcut'] = 1
+                    kwargs['ms_cut'] = [3, 10]
+                    kwargs['upsample'] = 10
+                    kwargs['somatic_recording_name'] = f'{protocol_name}.soma.v'
+                    kwargs['channel_locations'] = probe.positions
+                    kwargs['extrafel_feature_name'] = efel_feature_name
+                    if efel_feature_name != 'velocity':
+                        for ch in channels:
+                            kwargs['channel_id'] = int(ch)
+                            feature = feature_class(
+                                feature_name,
+                                exp_mean=0,
+                                exp_std=0,
+                                **kwargs)
+                            features[protocol_name].append(feature)
+                    else:
+                        feature = feature_class(
+                            feature_name,
+                            exp_mean=0,
+                            exp_std=0,
+                            **kwargs)
+                        features[protocol_name].append(feature)
+                else:
+                    feature_class = ephys.efeatures.eFELFeature
+                    kwargs['efel_feature_name'] = efel_feature_name
+                    kwargs['recording_names'] = {'': '%s.%s.v' % (protocol_name, location)}
+
+                    feature = feature_class(
+                        feature_name,
+                        exp_mean=0,
+                        exp_std=0,
+                        **kwargs)
+                    features[protocol_name].append(feature)
+    responses = {}
+
+    for protocol_name, protocol in protocols.items():
+        print('Running', protocol_name)
+        responses.update(protocol.run(cell_model=cell_model, param_values=params, sim=sim))
+
+    feature_meanstd = {}
+    std = 0.2
+    for protocol_name, featlist in features.items():
+        print(protocol_name, 'Num features:', len(featlist))
+
+        mean_std = {}
+        for feat in featlist:
+            prot, location, name = feat.name.split('.')
+            val = feat.calculate_feature(responses)
+            if val is not None:
+                if isinstance(feat, ephys.efeatures.eFELFeature):
+                    feat_name = name
+                else:
+                    feat_name = f'{name}_{str(feat.channel_id)}'
+                if location not in mean_std.keys():
+                    mean_std[location] = {}
+                mean_std[location][feat_name] = [val, np.abs(std * val)]
+        feature_meanstd[protocol_name] = mean_std
+
+    feature_folder = Path(feature_folder)
+    if not feature_folder.is_dir():
+        os.makedirs(feature_folder)
+
+    feature_file = feature_folder / f'{feature_set}.json'
+
+    with feature_file.open('w') as f:
+        json.dump(feature_meanstd, f, indent=4)
+
+    return str(feature_file)
+
+
+def define_fitness_calculator(protocols, feature_file=None, feature_set=None, probe=None):
+    """Define fitness calculator"""
+
+    assert feature_file is not None or feature_set is not None
+    if feature_set is not None:
+        assert feature_set in ['bap', 'soma', 'extra']
+
+        feature_definitions = json.load(
+            open(
+                os.path.join(
+                    config_dir,
+                    'features.json')))[feature_set]
+    else:
+        feature_definitions = json.load(open(feature_file))
+
+    if feature_set == 'extra' or 'extra' in feature_file:
         assert probe is not None, "Provide a MEAutility probe to use the 'extra' set"
 
     objectives = []
@@ -150,11 +269,12 @@ def define_fitness_calculator(protocols, feature_set='bap', probe=None):
                     kwargs['recording_names'] = {'': '%s.%s.LFP' % (protocol_name, location)}
                     kwargs['fs'] = 20
                     kwargs['fcut'] = 1
+                    kwargs['ms_cut'] = [3, 10]
+                    kwargs['upsample'] = 10
                     kwargs['somatic_recording_name'] = f'{protocol_name}.soma.v'
                     if efel_feature_name != 'velocity':
                         kwargs['channel_id'] = int(efel_feature_name.split('_')[-1])
                     kwargs['channel_locations'] = probe.positions
-                    kwargs['fs'] = 20
                     kwargs['extrafel_feature_name'] = '_'.join(efel_feature_name.split('_')[:-1])
                 else:
                     feature_class = ephys.efeatures.eFELFeature
