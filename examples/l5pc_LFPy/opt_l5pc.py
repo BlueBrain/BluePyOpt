@@ -36,6 +36,7 @@ from datetime import datetime
 import bluepyopt
 
 import l5pc_evaluator
+import l5pc_model
 
 logger = logging.getLogger()
 
@@ -63,8 +64,10 @@ def create_optimizer(args):
     else:
         map_function = None
 
-    evaluator = l5pc_evaluator.create()
+    evaluator = l5pc_evaluator.create(args.feature_set)
+
     seed = os.getenv('BLUEPYOPT_SEED', args.seed)
+    
     opt = bluepyopt.optimisations.DEAPOptimisation(
         evaluator=evaluator,
         map_function=map_function,
@@ -100,6 +103,7 @@ The folling environment variables are considered:
                         help='Seed to use for optimization')
     parser.add_argument('--ipyparallel', action="store_true", default=False,
                         help='Use ipyparallel')
+    parser.add_argument('--feature_set', type=str, default='extra')
     parser.add_argument(
         '--diversity',
         help='plot the diversity of parameters from checkpoint pickle file')

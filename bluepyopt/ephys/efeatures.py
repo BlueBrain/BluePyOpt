@@ -434,7 +434,7 @@ class extraFELFeature(EFeature, DictMixin):
         feature_value = self.calculate_feature(responses)
 
         if not np.isnan(feature_value):
-            score = (feature_value - self.exp_mean) / self.exp_std
+            score = np.abs((feature_value - self.exp_mean)) / self.exp_std
         else:
             score = self.max_score
 

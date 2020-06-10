@@ -26,10 +26,12 @@ import numpy as np
 from pathlib import Path
 
 import l5pc_model  # NOQA
+import bluepyopt as bpopt
 
 import bluepyopt.ephys as ephys
 
 import LFPy
+import numpy as np
 
 script_dir = os.path.dirname(__file__)
 config_dir = os.path.join(script_dir, 'config')
@@ -274,8 +276,10 @@ def define_fitness_calculator(protocols, feature_file=None, feature_set=None, pr
                     kwargs['somatic_recording_name'] = f'{protocol_name}.soma.v'
                     if efel_feature_name != 'velocity':
                         kwargs['channel_id'] = int(efel_feature_name.split('_')[-1])
+                        kwargs['extrafel_feature_name'] = '_'.join(efel_feature_name.split('_')[:-1])
+                    else:
+                        kwargs['extrafel_feature_name'] = efel_feature_name
                     kwargs['channel_locations'] = probe.positions
-                    kwargs['extrafel_feature_name'] = '_'.join(efel_feature_name.split('_')[:-1])
                 else:
                     feature_class = ephys.efeatures.eFELFeature
                     kwargs['efel_feature_name'] = efel_feature_name
@@ -300,34 +304,55 @@ def define_electrode():
     """Define electrode"""
     import MEAutility as mu
 
-    sq_mea = mu.return_mea('SqMEA-10-15')
-    sq_mea.rotate([0, 1, 0], 90)
-    sq_mea.move([0, 0, -50])
+    mea_positions = np.zeros((5, 3))
+    mea_positions[:, 2] = 20
+    mea_positions[:, 1] = np.linspace(0, 900, 5)
+    probe = mu.return_mea(info={'pos': mea_positions, 'center': False, 'plane': 'xy'})
+    electrode = LFPy.RecExtElectrode(probe=probe, method='linesource')
+    
+    return electrode, probe
 
-    electrode = LFPy.RecExtElectrode(probe=sq_mea)
 
-    return electrode
-
-
-def create():
+def create(feature_set):
     """Setup"""
+    
+    electrode, probe = define_electrode()
 
-    l5pc_cell = l5pc_model.create()
+    feature_set = "extra" # 'soma'/'bap'
 
-    electrode = define_electrode()
-    sim = ephys.simulators.LFPySimulator(LFPyCellModel=l5pc_cell,
-                                         electrode=electrode)
+    morphology = ephys.morphologies.NrnFileMorphology('morphology/C060114A7.asc', do_replace_axon=True)
+    param_configs = json.load(open('config/parameters.json'))
+    parameters = l5pc_model.define_parameters()
+    mechanisms = l5pc_model.define_mechanisms()
+
+    l5pc_cell = ephys.models.LFPyCellModel('l5pc', 
+                                           v_init=-65., 
+                                           morph=morphology, 
+                                           mechs=mechanisms, 
+                                           params=parameters)
+
+    param_names = [param.name for param in l5pc_cell.params.values() if not param.frozen]      
+
+    if feature_set == "extra":
+        fitness_protocols = define_protocols(electrode) 
+    else:
+        fitness_protocols = define_protocols() 
+
+    fitness_calculator = define_fitness_calculator(fitness_protocols, 
+                                                   feature_set=feature_set, 
+                                                   probe=probe)
+
+    if feature_set == "extra":
+        sim = ephys.simulators.LFPySimulator(LFPyCellModel=l5pc_cell, cvode_active=True, electrode=electrode)
+    else:
+        sim = ephys.simulators.LFPySimulator(LFPyCellModel=l5pc_cell, cvode_active=True)
+
+    evaluator = ephys.evaluators.CellEvaluator(                                          
+                    cell_model=l5pc_cell,                                                       
+                    param_names=param_names,                                                    
+                    fitness_protocols=fitness_protocols,                                        
+                    fitness_calculator=fitness_calculator,                                      
+                    sim=sim)  
     
-    fitness_protocols = define_protocols(electrode=electrode)
-    fitness_calculator = define_fitness_calculator(fitness_protocols)
-    
-    param_names = [param.name
-                   for param in l5pc_cell.params.values()
-                   if not param.frozen]
-    
-    return ephys.evaluators.CellEvaluator(
-        cell_model=l5pc_cell,
-        param_names=param_names,
-        fitness_protocols=fitness_protocols,
-        fitness_calculator=fitness_calculator,
-        sim=sim)
+    return evaluator
+
