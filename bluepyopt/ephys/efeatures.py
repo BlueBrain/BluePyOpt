@@ -368,7 +368,6 @@ class extraFELFeature(EFeature, DictMixin):
 
     def calculate_feature(self, responses, raise_warnings=False, return_waveforms=False, verbose=False):
         """Calculate feature value"""
-        # import spikefeatures as sf
         peak_times = self._get_peak_times(responses, raise_warnings=raise_warnings)
 
         if len(peak_times) > 1 and self.skip_first_spike:
@@ -433,7 +432,7 @@ class extraFELFeature(EFeature, DictMixin):
         """Calculate the score"""
         feature_value = self.calculate_feature(responses)
 
-        if not np.isnan(feature_value):
+        if not np.isfinite(feature_value):
             score = np.abs((feature_value - self.exp_mean)) / self.exp_std
         else:
             score = self.max_score
