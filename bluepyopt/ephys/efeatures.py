@@ -432,9 +432,14 @@ class extraFELFeature(EFeature, DictMixin):
         """Calculate the score"""
         feature_value = self.calculate_feature(responses)
 
-        if not np.isfinite(feature_value):
+        if np.isfinite(feature_value):
             score = np.abs((feature_value - self.exp_mean)) / self.exp_std
         else:
+            score = self.max_score
+
+        if not np.isfinite(score):
+            logger.debug(f'Found score nan value {self.extrafel_feature_name} - std: {self.exp_std} '
+                         f'- channel: {self.channel_id}')
             score = self.max_score
 
         if self.force_max_score:
