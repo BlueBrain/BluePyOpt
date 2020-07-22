@@ -85,6 +85,10 @@ class CMA_MO(cma.StrategyMultiObjective):
             sigma (float): initial standard deviation of the distribution
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
+            weight_hv (float): between 0 and 1. Weight given to the 
+                hypervolume contribution when computing the score of an 
+                individual in MO-CMA. The weight of the fitness contribution
+                is computed as 1 - weight_hv.
         """
 
         if offspring_size is None:
