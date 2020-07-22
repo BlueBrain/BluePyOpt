@@ -73,7 +73,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 algorithm, possible values are 'single_objective' or
                 'multi_objective'
             weight_hv (float): between 0 and 1. Weight given to the 
-                hypervolume contribution when computing the score of an 
+                hyper-volume contribution when computing the score of an
                 individual in MO-CMA. The weight of the fitness contribution
                 is computed as 1 - weight_hv.
             fitness_reduce (fcn): function used to reduce the objective values
