@@ -54,6 +54,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                  map_function=None,
                  hof=None,
                  selector_name="single_objective",
+                 weight_hv=0.5,
                  fitness_reduce=numpy.sum):
         """Constructor
 
@@ -89,6 +90,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.offspring_size = offspring_size
         self.centroids = centroids
         self.sigma = sigma
+        self.weight_hv = weight_hv
 
         self.selector_name = selector_name
         if self.selector_name == 'single_objective':
@@ -245,6 +247,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                                       use_scoop=self.use_scoop)
 
             if self.selector_name == 'multi_objective':
+                CMA_es.weight_hv = self.weight_hv
                 to_evaluate = CMA_es.get_parents(self.to_space)
                 fitness = self.toolbox.map(self.toolbox.evaluate, to_evaluate)
                 fitness = list(map(list, fitness))

@@ -32,34 +32,36 @@ from deap import cma
 
 from .stoppingCriteria import MaxNGen
 from . import utils
+from . import hype
 
 logger = logging.getLogger('__main__')
 
-from deap.tools._hypervolume import hv as hv_c
 
+def get_hyped(pop):
+    # Cap the obj at 250
+    points = numpy.array([ind.fitness.values for ind in pop])
+    points[points > 250.] = 250.
+    lbounds = numpy.min(points, axis=0)
+    ubounds = numpy.max(points, axis=0)
 
-def get_hv(to_evaluate):
-    i = to_evaluate[0]
-    wobj = to_evaluate[1]
-    ref = to_evaluate[2]
-    return hv_c.hypervolume(numpy.concatenate((wobj[:i], wobj[i + 1:])), ref)
+    # Remove the dimensions that do not show any improvement
+    to_remove = []
+    for i, (lb, ub) in enumerate(zip(lbounds, ubounds)):
+        if lb >= 240:
+            to_remove.append(i)
+            points = numpy.delete(points, to_remove, axis=1)
+            lbounds = numpy.delete(lbounds, to_remove)
+            ubounds = numpy.delete(ubounds, to_remove)
 
+    # Rescale the objective space
+    points = (points - lbounds) / numpy.max(ubounds.flatten())
+    ubounds = numpy.max(points, axis=0) + 2.
 
-def contribution(to_evaluate):
-    def _reduce_method(meth):
-        """Overwrite reduce"""
-        return (getattr, (meth.__self__, meth.__func__.__name__))
-
-    import copyreg
-    import types
-    copyreg.pickle(types.MethodType, _reduce_method)
-    import pebble
-
-    with pebble.ProcessPool(max_tasks=1) as pool:
-        tasks = pool.schedule(get_hv, kwargs={'to_evaluate': to_evaluate})
-        response = tasks.result()
-
-    return response
+    hv = hype.hypeIndicatorSampled(points=points,
+                                   bounds=ubounds,
+                                   k=5,
+                                   nrOfSamples=200000)
+    return hv
 
 
 class CMA_MO(cma.StrategyMultiObjective):
@@ -72,6 +74,7 @@ class CMA_MO(cma.StrategyMultiObjective):
                  max_ngen,
                  IndCreator,
                  RandIndCreator,
+                 weight_hv=0.5,
                  map_function=None,
                  use_scoop=False):
         """Constructor
@@ -105,6 +108,8 @@ class CMA_MO(cma.StrategyMultiObjective):
 
         self.population = []
         self.problem_size = len(starters[0])
+        
+        self.weight_hv = weight_hv
 
         self.map_function = map_function
         self.use_scoop = use_scoop
@@ -130,31 +135,6 @@ class CMA_MO(cma.StrategyMultiObjective):
 
         self.stopping_conditions = [MaxNGen(max_ngen)]
 
-    def hyper_volume(self, front):
-        """Compute the hypervolume contribution of each individual"""
-        wobj = numpy.array([ind.fitness.values for ind in front])
-        obj_ranges = (numpy.max(wobj, axis=0) - numpy.min(wobj, axis=0))
-        ref = numpy.max(wobj, axis=0) + 1
-
-        # Above 23 dimension, the hypervolume computation is too slow,
-        # we settle for the 23 dimension showing the largest range of values
-        max_ndim = 23
-        if len(ref) > max_ndim:
-            idxs = list(range(len(ref)))
-            idxs = [idxs[k] for k in numpy.argsort(obj_ranges)]
-            idxs = idxs[::-1]
-            idxs = idxs[:max_ndim]
-            wobj = wobj[:, idxs]
-            ref = ref[idxs]
-
-        # Prepare the data and send it to multiprocess
-        to_evaluate = []
-        for i in range(len(front)):
-            to_evaluate.append([i, numpy.copy(wobj), numpy.copy(ref)])
-        contrib_values = self.map_function(contribution, to_evaluate)
-
-        return list(contrib_values)
-
     def _select(self, candidates):
         """Select the best candidates of the population
 
@@ -163,36 +143,60 @@ class CMA_MO(cma.StrategyMultiObjective):
         we rely on the hypervolume for this front. The remaining fronts are
         explicitly not chosen"""
 
-        if len(candidates) <= self.mu:
-            return candidates, []
+        #if len(candidates) <= self.mu:
+        #    return candidates, []
 
-        pareto_fronts = deap.tools.sortLogNondominated(candidates,
-                                                       len(candidates))
+        #pareto_fronts = deap.tools.sortLogNondominated(candidates,
+        #                                               len(candidates))
 
-        chosen = list()
-        mid_front = None
-        not_chosen = list()
+        #chosen = list()
+        #mid_front = None
+        #not_chosen = list()
 
-        full = False
-        for front in pareto_fronts:
-            if len(chosen) + len(front) <= self.mu and not full:
-                chosen += front
-            elif mid_front is None and len(chosen) < self.mu:
-                mid_front = front
-                # With this front, we selected enough individuals
-                full = True
-            else:
-                not_chosen += front
+        #full = False
+        #for front in pareto_fronts:
+        #    if len(chosen) + len(front) <= self.mu and not full:
+        #        chosen += front
+        #    elif mid_front is None and len(chosen) < self.mu:
+        #        mid_front = front
+        #        # With this front, we selected enough individuals
+        #        full = True
+        #    else:
+        #        not_chosen += front
 
-        # Hypervolume contribution to get the best candidates on the remaining
-        # front
-        k = self.mu - len(chosen)
-        if k > 0:
-            hyperv = self.hyper_volume(mid_front)
-            _ = [mid_front[k] for k in numpy.argsort(hyperv)]
-            chosen += _[:k]
-            not_chosen += _[k:]
+        # HypE contribution to get the best candidates on the remaining front
+        #k = self.mu - len(chosen)
+        #if k > 0:
+        #    contribution = get_hyped(mid_front)
+        #    print(contribution)
+        #    idxs = numpy.argsort(contribution)
+        #    ordered_front = [mid_front[i] for i in idxs[::-1]]
+        #    chosen += ordered_front[:k]
+        #    not_chosen += ordered_front[k:]
+        
+        if self.weight_hv == 0.: 
+            fit = [numpy.sum(ind.fitness.values) for ind in candidates]
+            idx_fit = list(numpy.argsort(fit))
+            idx_scores = idx_fit[:]
 
+        elif self.weight_hv == 1.:
+            hv = get_hyped(candidates)
+            idx_hv = list(numpy.argsort(hv))[::-1] 
+            idx_scores = idx_hv[:] 
+
+        else:
+            hv = get_hyped(candidates)
+            idx_hv = list(numpy.argsort(hv))[::-1] 
+            fit = [numpy.sum(ind.fitness.values) for ind in candidates]
+            idx_fit = list(numpy.argsort(fit))
+            scores = []
+            for i in range(len(candidates)):
+                score = (self.weight_hv * idx_hv.index(i)) + ((1.-self.weight_hv) * idx_fit.index(i))
+                scores.append(score)
+            idx_scores = list(numpy.argsort(scores))
+
+        chosen = [candidates[i] for i in idx_scores[:self.mu]]
+        not_chosen = [candidates[i] for i in idx_scores[self.mu:]]
         return chosen, not_chosen
 
     def get_population(self, to_space):
