@@ -6,7 +6,7 @@ Examples and test are BSD-licensed.
 External dependencies are either LGPL or BSD-licensed. 
 See file ACKNOWLEDGEMENTS.txt and AUTHORS.txt for further details.
 
-Copyright (C) 2005-2015, Blue Brain Project/EPFL. 
+Copyright (C) 2016-2020, Blue Brain Project/EPFL. 
 
 This program is free software: you can redistribute it and/or modify it under 
 the terms of the GNU Lesser General Public License as published by the 
