@@ -259,7 +259,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             continue_cp=False,
             cp_filename=None,
             cp_frequency=1,
-            population=[]):
+            population=None):
         """Run optimisation"""
         # Allow run function to override offspring_size
         # TODO probably in the future this should not be an object field
@@ -269,7 +269,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             offspring_size = self.offspring_size
 
         # Generate the population object
-        if len(population):
+        if population is not None:
 
             if len(population) != offspring_size:
                 offspring_size = len(population)
