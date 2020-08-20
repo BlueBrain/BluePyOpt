@@ -147,7 +147,8 @@ class NrnSimulator(object):
         except Exception as e:
             raise NrnSimulatorException('Neuron simulator error', e)
 
-        self.cvode_minstep = save_minstep
+        if self.cvode_minstep_value is not None:
+            self.cvode_minstep = save_minstep
 
         logger.debug('Neuron simulation finished')
 
