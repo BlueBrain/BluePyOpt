@@ -63,18 +63,18 @@ def test_nrnsimulator_cvode_minstep():
     nt.assert_equal(neuron_sim.cvode.minstep(), 0.0)
     nt.assert_equal(neuron_sim.cvode_minstep, 0.0)
 
-    # Check with minstep specified, before after simulation
+    # Check default minstep before and after run
     neuron_sim = ephys.simulators.NrnSimulator(cvode_minstep=0.01)
-    nt.assert_equal(neuron_sim.cvode.minstep(), 0.01)
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.)
     neuron_sim.run(tstop=10)
-    nt.assert_equal(neuron_sim.cvode.minstep(), 0.01)
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.)
 
-    # Check with minstep specified, before after simulation
+    # Check with that minstep is set back to the original value after run
     neuron_sim = ephys.simulators.NrnSimulator(cvode_minstep=0.0)
-    nt.assert_equal(neuron_sim.cvode.minstep(), 0.0)
-    neuron_sim.cvode_minstep = 0.02
+    neuron_sim.cvode_minstep = 0.05
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.05)
     neuron_sim.run(tstop=10)
-    nt.assert_equal(neuron_sim.cvode.minstep(), 0.02)
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.05)
 
 
 @attr('unit')
