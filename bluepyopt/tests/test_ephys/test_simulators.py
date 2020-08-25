@@ -94,7 +94,7 @@ def test_nrnsimulator_cvode_minstep():
     t_series = numpy.array(responses['Step1.soma.v']['time'])
     t_series = t_series[((ton + 1.) < t_series) & (t_series < (toff - 1.))]
     min_dt = numpy.min(numpy.ediff1d(t_series))
-    nt.assert_equal(min_dt, cvode_minstep)
+    nt.assert_equal(min_dt >= cvode_minstep, 1)
     evaluator.cell_model.freeze(params.keys())
 
 
