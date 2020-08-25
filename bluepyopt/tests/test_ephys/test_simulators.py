@@ -92,7 +92,7 @@ def test_nrnsimulator_cvode_minstep():
     toff = ton + list(evaluator.fitness_protocols.values())[0].stimuli[
         0].step_duration
     t_series = numpy.array(responses['Step1.soma.v']['time'])
-    t_series = t_series[((ton+1.) < t_series) & (t_series < (toff-1.))]
+    t_series = t_series[((ton + 1.) < t_series) & (t_series < (toff - 1.))]
     min_dt = numpy.min(numpy.ediff1d(t_series))
     nt.assert_equal(min_dt, cvode_minstep)
     evaluator.cell_model.freeze(params.keys())
