@@ -79,14 +79,19 @@ def test_nrnsimulator_cvode_minstep():
     nt.assert_equal(neuron_sim.cvode.minstep(), 0.05)
 
     # Check that the minstep is effective
-    cvode_minstep = 0.5
+    cvode_minstep = 0.012
     evaluator = examples.simplecell.cell_evaluator
     evaluator.sim = ephys.simulators.NrnSimulator(cvode_minstep=cvode_minstep)
     responses = evaluator.run_protocols(
-        protocols=list(evaluator.fitness_protocols.values())[1],
-        param_values=[0.10299326453483033, 0.027124836082684685])
-    min_t = numpy.min(numpy.ediff1d(responses['step2.soma.v']['time']))
-    nt.assert_equal(min_t, cvode_minstep)
+        protocols=evaluator.fitness_protocols.values(),
+        param_values={'gnabar_hh': 0.10299326453483033,
+                      'gkbar_hh': 0.027124836082684685})
+    ton = list(evaluator.fitness_protocols.values())[0].stimuli[0].step_delay
+    toff = ton + list(evaluator.fitness_protocols.values())[0].stimuli[
+        0].step_duration
+    t_series = numpy.array(responses['Step1.soma.v']['time'])
+    min_dt = numpy.min(numpy.ediff1d(t_series))
+    nt.assert_equal(min_dt, cvode_minstep)
 
 
 @attr('unit')
