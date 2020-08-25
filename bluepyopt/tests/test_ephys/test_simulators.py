@@ -80,18 +80,22 @@ def test_nrnsimulator_cvode_minstep():
 
     # Check that the minstep is effective
     cvode_minstep = 0.012
+    params = {'gnabar_hh': 0.10299326453483033,
+              'gkbar_hh': 0.027124836082684685}
     evaluator = examples.simplecell.cell_evaluator
+    evaluator.cell_model.unfreeze(params.keys())
     evaluator.sim = ephys.simulators.NrnSimulator(cvode_minstep=cvode_minstep)
     responses = evaluator.run_protocols(
         protocols=evaluator.fitness_protocols.values(),
-        param_values={'gnabar_hh': 0.10299326453483033,
-                      'gkbar_hh': 0.027124836082684685})
+        param_values=params)
     ton = list(evaluator.fitness_protocols.values())[0].stimuli[0].step_delay
     toff = ton + list(evaluator.fitness_protocols.values())[0].stimuli[
         0].step_duration
     t_series = numpy.array(responses['Step1.soma.v']['time'])
+    t_series = t_series[((ton+1.) < t_series) & (t_series < (toff-1.))]
     min_dt = numpy.min(numpy.ediff1d(t_series))
     nt.assert_equal(min_dt, cvode_minstep)
+    evaluator.cell_model.freeze(params.keys())
 
 
 @attr('unit')
