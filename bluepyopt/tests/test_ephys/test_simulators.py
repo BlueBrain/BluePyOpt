@@ -83,7 +83,7 @@ def test_nrnsimulator_cvode_minstep():
     evaluator = examples.simplecell.cell_evaluator
     evaluator.sim = ephys.simulators.NrnSimulator(cvode_minstep=cvode_minstep)
     responses = evaluator.run_protocols(
-        protocols=evaluator.fitness_protocols.values()[1],
+        protocols=list(evaluator.fitness_protocols.values())[1],
         param_values=[0.10299326453483033, 0.027124836082684685])
     min_t = numpy.min(numpy.ediff1d(responses['step2.soma.v']['time']))
     nt.assert_equal(min_t, cvode_minstep)
