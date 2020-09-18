@@ -38,7 +38,7 @@ from . import utils
 
 import bluepyopt.optimisations
 
-logger = logging.getLogger('__main__')
+logger = logging.getLogger(__name__)
 
 # TODO decide which variables go in constructor,which ones go in 'run' function
 # TODO abstract the algorithm by creating a class for every algorithm, that way
