@@ -1,7 +1,6 @@
 import numpy
 
-def hypesub(l, A, actDim, bounds, pvec, alpha, k):
-
+def hypesub_(l, A, actDim, bounds, pvec, alpha, k):
     h = numpy.zeros(l)
     i = numpy.argsort(A[:, actDim - 1])
     S = A[i]
@@ -27,12 +26,15 @@ def hypesub(l, A, actDim, bounds, pvec, alpha, k):
 
 
 def hypeIndicatorExact(points, bounds, k):
-    """
-    points: objectives (to be minimized),
-    bounds: reference point,
-    k: parameter of HypE
+    """HypE algorithm. Python implementation of the Matlab code available at
+    https://sop.tik.ee.ethz.ch/download/supplementary/hype/
 
-    Example: scores = hypeIndicatorExact([[1., 3.], [3., 1.]], [4., 4.], 1)
+    Args:
+        points(array): 2D array containing the objective values of the
+        population
+        bounds(array): 1D array containing the reference point from which to
+        compute the hyper-volume
+        k(int): HypE parameter
     """
 
     Ps = points.shape[0]
@@ -47,10 +49,23 @@ def hypeIndicatorExact(points, bounds, k):
         alpha.append(numpy.prod((k - j) / (Ps - j) / i))
     alpha = numpy.asarray(alpha)
 
-    return hypesub(points.shape[0], points, actDim, bounds, pvec, alpha, k)
+    return hypesub_(points.shape[0], points, actDim, bounds, pvec, alpha, k)
 
 
 def hypeIndicatorSampled(points, bounds, k, nrOfSamples):
+    """Monte-Carlo approximation of the HypE algorithm. Python implementation
+    of the Matlab code available at
+    https://sop.tik.ee.ethz.ch/download/supplementary/hype/
+
+    Args:
+        points(array): 2D array containing the objective values of the
+        population
+        bounds(array): 1D array containing the reference point from which to
+        compute the hyper-volume
+        k(int): HypE parameter
+        nrOfSamples(int): number of random samples to use for the
+        Monte-Carlo approximation
+    """
 
     nrP = points.shape[0]
     dim = points.shape[1]
