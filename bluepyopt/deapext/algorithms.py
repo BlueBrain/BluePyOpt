@@ -34,7 +34,7 @@ import pickle
 from .stoppingCriteria import MaxNGen
 from . import utils
 
-logger = logging.getLogger('__main__')
+logger = logging.getLogger(__name__)
 
 
 def _define_fitness(pop, obj_size):

@@ -37,7 +37,7 @@ class ObjectivesCalculator(object):
 
     def calculate_scores(self, responses):
         """Calculator the score for every objective"""
-
+        
         return {objective.name: objective.calculate_score(responses)
                 for objective in self.objectives}
 

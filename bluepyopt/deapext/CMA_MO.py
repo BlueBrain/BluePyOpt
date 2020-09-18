@@ -34,7 +34,7 @@ from .stoppingCriteria import MaxNGen
 from . import utils
 from . import hype
 
-logger = logging.getLogger('__main__')
+logger = logging.getLogger(__name__)
 
 
 def get_hyped(pop):
@@ -49,9 +49,9 @@ def get_hyped(pop):
     for i, (lb, ub) in enumerate(zip(lbounds, ubounds)):
         if lb >= 240:
             to_remove.append(i)
-            points = numpy.delete(points, to_remove, axis=1)
-            lbounds = numpy.delete(lbounds, to_remove)
-            ubounds = numpy.delete(ubounds, to_remove)
+    points = numpy.delete(points, to_remove, axis=1)
+    lbounds = numpy.delete(lbounds, to_remove)
+    ubounds = numpy.delete(ubounds, to_remove)
 
     # Rescale the objective space
     points = (points - lbounds) / numpy.max(ubounds.flatten())
