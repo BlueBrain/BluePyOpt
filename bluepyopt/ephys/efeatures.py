@@ -453,6 +453,10 @@ class extraFELFeature(EFeature, DictMixin):
                 score = np.abs((feature_value - self.exp_mean)) / self.exp_std
             else:
                 score = self.max_score
+            if not np.isfinite(score):
+                logger.debug(f'Found score nan value {self.extrafel_feature_name} - std: {self.exp_std} '
+                             f'- channel: {self.channel_id}')
+                score = self.max_score
         else:
             non_nan_idxs_mean = set(np.where(np.isfinite(self.exp_mean))[0])
             non_nan_idxs_feat = set(np.where(np.isfinite(feature_value))[0])
