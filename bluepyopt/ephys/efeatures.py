@@ -26,6 +26,7 @@ import logging
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 from .extra_features_utils import *
+from scipy.spatial import distance
 
 logger = logging.getLogger(__name__)
 
@@ -244,6 +245,7 @@ class extraFELFeature(EFeature, DictMixin):
             skip_last_spike=True,
             channel_id=None,
             channel_locations=None,
+            detect_threshold=None,
             stim_start=None,
             stim_end=None,
             exp_mean=None,
@@ -293,6 +295,7 @@ class extraFELFeature(EFeature, DictMixin):
         self.upsample = upsample
         self.skip_first_spike = skip_first_spike
         self.skip_last_spike = skip_last_spike
+        self.detect_threshold = detect_threshold
         self.channel_id = channel_id
         self.channel_locations = channel_locations
         self.exp_mean = exp_mean
@@ -366,7 +369,8 @@ class extraFELFeature(EFeature, DictMixin):
 
         return peak_times
 
-    def calculate_feature(self, responses, raise_warnings=False, return_waveforms=False, verbose=False):
+    def calculate_feature(self, responses, raise_warnings=False, return_waveforms=False,
+                          detect_threshold=None, verbose=False):
         """Calculate feature value"""
         peak_times = self._get_peak_times(responses, raise_warnings=raise_warnings)
 
@@ -411,10 +415,21 @@ class extraFELFeature(EFeature, DictMixin):
             mean_wf_up = mean_wf
             fs_up = self.fs
 
+        amplitudes = np.max(np.abs(mean_wf_up), axis=1)
         values = calculate_features(mean_wf_up, fs_up * 1000, feature_names=[self.extrafel_feature_name],
                                     channel_locations=self.channel_locations)
 
+        if detect_threshold is not None:
+            assert 0 <= detect_threshold < 1, "'detect_threshold should be between 0 and 1"
+            self.detect_threshold = detect_threshold
+
         feature_value = values[self.extrafel_feature_name]
+
+        if self.detect_threshold is not None:
+            nan_idxs = amplitudes < (self.detect_threshold * np.max(amplitudes))
+            # raise Exception
+            feature_value[nan_idxs] = np.nan
+
         if self.channel_id is not None:
             feature_value = feature_value[self.channel_id]
 
@@ -432,10 +447,23 @@ class extraFELFeature(EFeature, DictMixin):
         """Calculate the score"""
         feature_value = self.calculate_feature(responses)
 
-        if not np.isfinite(feature_value):
-            score = np.abs((feature_value - self.exp_mean)) / self.exp_std
+        if len(feature_value) == 1:
+            # scalar feature
+            if not np.isfinite(feature_value):
+                score = np.abs((feature_value - self.exp_mean)) / self.exp_std
+            else:
+                score = self.max_score
         else:
-            score = self.max_score
+            non_nan_idxs_mean = set(np.where(np.isfinite(self.exp_mean))[0])
+            non_nan_idxs_feat = set(np.where(np.isfinite(feature_value))[0])
+            non_nan_idxs = np.array(list(non_nan_idxs_mean.intersection(non_nan_idxs_feat)))
+            if len(non_nan_idxs) > 0:
+                score = distance.cosine(feature_value[non_nan_idxs], self.exp_mean[non_nan_idxs])
+                # scale by number of non nan idxs in the mean
+                # if the feature_value has less nan values, it is penalized
+                score *= len(non_nan_idxs_mean) / len(non_nan_idxs)
+            else:
+                score = self.max_score
 
         if self.force_max_score:
             score = min(score, self.max_score)

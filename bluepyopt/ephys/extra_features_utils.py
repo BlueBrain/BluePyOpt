@@ -326,20 +326,44 @@ def velocity(waveforms, sampling_frequency, channel_locations=None):
 
 
 def relative_amplitude(waveforms, sign='negative'):
+    '''
+    Normalized amplitude with respect to channel with largest amplitude.
+
+    Parameters
+    ----------
+    waveforms
+    sign
+
+    Returns
+    -------
+
+    '''
     assert len(waveforms) > 1
 
-    if sign =='negative':
+    if sign == 'negative':
         fun = np.min
     else:
         fun = np.max
 
-    peak_amp = fun(waveforms)
-    relative_peaks = fun(waveforms, 1) / peak_amp
+    peak_amp = np.abs(fun(waveforms))
+    relative_peaks = np.abs(fun(waveforms, 1)) / peak_amp
 
     return relative_peaks
 
 
 def peak_time_diff(waveforms, fs, sign='negative'):
+    '''
+
+    Parameters
+    ----------
+    waveforms
+    fs
+    sign
+
+    Returns
+    -------
+
+    '''
     assert len(waveforms) > 1
 
     if sign =='negative':

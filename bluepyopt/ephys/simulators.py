@@ -232,6 +232,9 @@ class LFPySimulator(object):
             rng = self.neuron.h.Random()
             rng.Random123_globalindex(random123_globalindex)
 
+        # if self.electrode.mapping is not None:
+        #     print("Using existing mapping")
+
         sim_params = {"electrode": self.electrode,
                       "rec_vmem": False,
                       "rec_imem": False,
@@ -244,7 +247,7 @@ class LFPySimulator(object):
                       "to_memory": True,
                       "to_file": False,
                       "file_name": None,
-                      "dotprodcoeffs": None
+                      "dotprodcoeffs": None  # [self.electrode.mapping]
                       }
 
         try:
