@@ -30,8 +30,21 @@ import deap.tools
 import pickle
 
 from .stoppingCriteria import MaxNGen
+from .optimisations import WSListIndividual
 
 logger = logging.getLogger('__main__')
+
+
+def _define_fitness(pop, obj_size):
+    ''' Re-instanciate the fitness of the individuals for it to matches the
+    evaluation function.
+    '''
+    new_pop = []
+    if pop:
+        for ind in pop:
+            new_pop.append(WSListIndividual(list(ind), obj_size=obj_size))
+
+    return new_pop
 
 
 def _evaluate_invalid_fitness(toolbox, population):
@@ -65,7 +78,7 @@ def _record_stats(stats, logbook, gen, population, invalid_count):
 
 
 def _get_offspring(parents, toolbox, cxpb, mutpb):
-    '''return the offsprint, use toolbox.variate if possible'''
+    '''return the offspring, use toolbox.variate if possible'''
     if hasattr(toolbox, 'variate'):
         return toolbox.variate(parents, toolbox, cxpb, mutpb)
     return deap.algorithms.varAnd(parents, toolbox, cxpb, mutpb)
@@ -110,6 +123,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         continue_cp(bool): whether to continue
     """
 
+    obj_size = len(population[0].fitness.wvalues)
+
     if continue_cp:
         # A file name has been given, then load the data from the file
         cp = pickle.load(open(cp_filename, "rb"))
@@ -120,6 +135,13 @@ def eaAlphaMuPlusLambdaCheckpoint(
         logbook = cp["logbook"]
         history = cp["history"]
         random.setstate(cp["rndstate"])
+
+        # Assert that the fitness of the individuals match the evaluator
+        population = _define_fitness(population, obj_size)
+        parents = _define_fitness(parents, obj_size)
+        _evaluate_invalid_fitness(toolbox, parents)
+        _evaluate_invalid_fitness(toolbox, population)
+
     else:
         # Start a new evolution
         start_gen = 1
@@ -128,7 +150,6 @@ def eaAlphaMuPlusLambdaCheckpoint(
         logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
         history = deap.tools.History()
 
-        # TODO this first loop should be not be repeated !
         invalid_count = _evaluate_invalid_fitness(toolbox, population)
         _update_history_and_hof(halloffame, history, population)
         _record_stats(stats, logbook, start_gen, population, invalid_count)
