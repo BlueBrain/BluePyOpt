@@ -466,6 +466,8 @@ class extraFELFeature(EFeature, DictMixin):
                 # scale by number of non nan idxs in the mean
                 # if the feature_value has less nan values, it is penalized
                 score *= len(non_nan_idxs_mean) / len(non_nan_idxs)
+                if np.isnan(score):
+                    score = self.max_score
             else:
                 score = self.max_score
 
