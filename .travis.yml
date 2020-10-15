@@ -29,7 +29,7 @@ before_install:
   - pip install pip --upgrade
   - pip install tox --upgrade
   - pip install codecov
-script: tox -v -e "$(echo py$TRAVIS_PYTHON_VERSION | tr -d .)-unit-functional-style-syntax"
+script: tox -e "$(echo py$TRAVIS_PYTHON_VERSION | tr -d .)-unit-functional-style-syntax"
 after_success:
   - codecov
 addons:
