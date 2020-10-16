@@ -36,8 +36,7 @@ class NrnSimulator(object):
         self.neuron.h.dt = self.dt
 
         self.neuron.h.cvode_active(1 if cvode_active else 0)
-        if cvode_minstep is not None:
-            self.cvode_minstep = cvode_minstep
+        self.cvode_minstep_value = cvode_minstep
 
         self.cvode_active = cvode_active
 
@@ -122,6 +121,9 @@ class NrnSimulator(object):
             dt = self.dt
 
         self.neuron.h.cvode_active(1 if cvode_active else 0)
+        if self.cvode_minstep_value is not None:
+            save_minstep = self.cvode_minstep
+            self.cvode_minstep = self.cvode_minstep_value
 
         if cvode_active:
             logger.debug('Running Neuron simulator %.6g ms, with cvode', tstop)
@@ -144,6 +146,9 @@ class NrnSimulator(object):
             self.neuron.h.run()
         except Exception as e:
             raise NrnSimulatorException('Neuron simulator error', e)
+
+        if self.cvode_minstep_value is not None:
+            self.cvode_minstep = save_minstep
 
         logger.debug('Neuron simulation finished')
 

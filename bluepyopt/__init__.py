@@ -1,7 +1,7 @@
 """Init script"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -29,6 +29,7 @@ from . import tools  # NOQA
 
 from .api import *  # NOQA
 import bluepyopt.optimisations
+import bluepyopt.deapext.algorithms
 import bluepyopt.stoppingCriteria
 import bluepyopt.deapext.optimisations
 import bluepyopt.deapext.optimisationsCMA

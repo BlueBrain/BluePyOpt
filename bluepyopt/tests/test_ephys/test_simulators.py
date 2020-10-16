@@ -1,7 +1,7 @@
 """bluepyopt.ephys.simulators tests"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -26,8 +26,10 @@ import nose.tools as nt
 from nose.plugins.attrib import attr
 
 import mock
+import numpy
 
 import bluepyopt.ephys as ephys
+import bluepyopt.ephys.examples as examples
 
 
 @attr('unit')
@@ -63,18 +65,37 @@ def test_nrnsimulator_cvode_minstep():
     nt.assert_equal(neuron_sim.cvode.minstep(), 0.0)
     nt.assert_equal(neuron_sim.cvode_minstep, 0.0)
 
-    # Check with minstep specified, before after simulation
+    # Check default minstep before and after run
     neuron_sim = ephys.simulators.NrnSimulator(cvode_minstep=0.01)
-    nt.assert_equal(neuron_sim.cvode.minstep(), 0.01)
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.)
     neuron_sim.run(tstop=10)
-    nt.assert_equal(neuron_sim.cvode.minstep(), 0.01)
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.)
 
-    # Check with minstep specified, before after simulation
+    # Check with that minstep is set back to the original value after run
     neuron_sim = ephys.simulators.NrnSimulator(cvode_minstep=0.0)
-    nt.assert_equal(neuron_sim.cvode.minstep(), 0.0)
-    neuron_sim.cvode_minstep = 0.02
+    neuron_sim.cvode_minstep = 0.05
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.05)
     neuron_sim.run(tstop=10)
-    nt.assert_equal(neuron_sim.cvode.minstep(), 0.02)
+    nt.assert_equal(neuron_sim.cvode.minstep(), 0.05)
+
+    # Check that the minstep is effective
+    cvode_minstep = 0.012
+    params = {'gnabar_hh': 0.10299326453483033,
+              'gkbar_hh': 0.027124836082684685}
+    evaluator = examples.simplecell.cell_evaluator
+    evaluator.cell_model.unfreeze(params.keys())
+    evaluator.sim = ephys.simulators.NrnSimulator(cvode_minstep=cvode_minstep)
+    responses = evaluator.run_protocols(
+        protocols=evaluator.fitness_protocols.values(),
+        param_values=params)
+    ton = list(evaluator.fitness_protocols.values())[0].stimuli[0].step_delay
+    toff = ton + list(evaluator.fitness_protocols.values())[0].stimuli[
+        0].step_duration
+    t_series = numpy.array(responses['Step1.soma.v']['time'])
+    t_series = t_series[((ton + 1.) < t_series) & (t_series < (toff - 1.))]
+    min_dt = numpy.min(numpy.ediff1d(t_series))
+    nt.assert_equal(min_dt >= cvode_minstep, 1)
+    evaluator.cell_model.freeze(params)
 
 
 @attr('unit')

@@ -1,7 +1,7 @@
 """Optimisation class"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -24,6 +24,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import random
 import logging
+import shutil
+import os
 
 import deap.algorithms
 import deap.tools
@@ -33,6 +35,20 @@ from .stoppingCriteria import MaxNGen
 from . import utils
 
 logger = logging.getLogger(__name__)
+
+
+def _define_fitness(pop, obj_size):
+    ''' Re-instanciate the fitness of the individuals for it to matches the
+    evaluation function.
+    '''
+    from .optimisations import WSListIndividual
+
+    new_pop = []
+    if pop:
+        for ind in pop:
+            new_pop.append(WSListIndividual(list(ind), obj_size=obj_size))
+
+    return new_pop
 
 
 def _evaluate_invalid_fitness(toolbox, population):
@@ -49,7 +65,7 @@ def _evaluate_invalid_fitness(toolbox, population):
 
 
 def _get_offspring(parents, toolbox, cxpb, mutpb):
-    '''return the offsprint, use toolbox.variate if possible'''
+    '''return the offspring, use toolbox.variate if possible'''
     if hasattr(toolbox, 'variate'):
         return toolbox.variate(parents, toolbox, cxpb, mutpb)
     return deap.algorithms.varAnd(parents, toolbox, cxpb, mutpb)
@@ -94,6 +110,11 @@ def eaAlphaMuPlusLambdaCheckpoint(
         continue_cp(bool): whether to continue
     """
 
+    obj_size = len(population[0].fitness.wvalues)
+
+    if cp_filename:
+        cp_filename_tmp = cp_filename + '.tmp'
+
     if continue_cp:
         # A file name has been given, then load the data from the file
         cp = pickle.load(open(cp_filename, "rb"))
@@ -104,6 +125,13 @@ def eaAlphaMuPlusLambdaCheckpoint(
         logbook = cp["logbook"]
         history = cp["history"]
         random.setstate(cp["rndstate"])
+
+        # Assert that the fitness of the individuals match the evaluator
+        population = _define_fitness(population, obj_size)
+        parents = _define_fitness(parents, obj_size)
+        _evaluate_invalid_fitness(toolbox, parents)
+        _evaluate_invalid_fitness(toolbox, population)
+
     else:
         # Start a new evolution
         start_gen = 1
@@ -112,7 +140,6 @@ def eaAlphaMuPlusLambdaCheckpoint(
         logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
         history = deap.tools.History()
 
-        # TODO this first loop should be not be repeated !
         invalid_count = _evaluate_invalid_fitness(toolbox, population)
         utils.update_history_and_hof(halloffame, history, population)
         utils.record_stats(stats,
@@ -149,8 +176,10 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       history=history,
                       logbook=logbook,
                       rndstate=random.getstate())
-            pickle.dump(cp, open(cp_filename, "wb"))
-            logger.debug('Wrote checkpoint to %s', cp_filename)
+            pickle.dump(cp, open(cp_filename_tmp, "wb"))
+            if os.path.isfile(cp_filename_tmp):
+                shutil.copy(cp_filename_tmp, cp_filename)
+                logger.debug('Wrote checkpoint to %s', cp_filename)
 
         gen += 1
         stopping_params["gen"] = gen
