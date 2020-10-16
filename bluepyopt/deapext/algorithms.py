@@ -32,7 +32,6 @@ import deap.tools
 import pickle
 
 from .stoppingCriteria import MaxNGen
-from .optimisations import WSListIndividual
 
 logger = logging.getLogger('__main__')
 
@@ -41,6 +40,8 @@ def _define_fitness(pop, obj_size):
     ''' Re-instanciate the fitness of the individuals for it to matches the
     evaluation function.
     '''
+    from .optimisations import WSListIndividual
+
     new_pop = []
     if pop:
         for ind in pop:
