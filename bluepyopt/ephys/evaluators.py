@@ -82,7 +82,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         self.fitness_protocols = fitness_protocols
         # Fitness value calculator
         self.fitness_calculator = fitness_calculator
-        
+
         self.isolate_protocols = isolate_protocols
         self.timeout = timeout
         self.use_params_for_seed = use_params_for_seed
