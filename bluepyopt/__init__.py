@@ -29,6 +29,7 @@ from . import tools  # NOQA
 
 from .api import *  # NOQA
 import bluepyopt.optimisations
+import bluepyopt.deapext.algorithms
 import bluepyopt.stoppingCriteria
 import bluepyopt.deapext.optimisations
 

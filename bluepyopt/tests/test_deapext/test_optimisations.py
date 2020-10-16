@@ -61,6 +61,21 @@ def test_DEAPOptimisation_run():
 
 
 @attr('unit')
+def test_DEAPOptimisation_run_from_parents():
+    "deapext.optimisation: Testing DEAPOptimisation run using prior parents"
+
+    optimisation = bluepyopt.optimisations.DEAPOptimisation(
+        examples.simplecell.cell_evaluator, offspring_size=1)
+
+    parent_population = [[0.060, 0.065]]
+    pop, hof, log, hist = optimisation.run(max_ngen=0,
+                                           parent_population=parent_population)
+
+    nt.assert_equal(len(pop), 1)
+    nt.assert_almost_equal(pop[0], parent_population[0])
+
+
+@attr('unit')
 def test_selectorname():
     "deapext.optimisation: Testing selector_name argument"
 

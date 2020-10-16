@@ -258,7 +258,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             offspring_size=None,
             continue_cp=False,
             cp_filename=None,
-            cp_frequency=1):
+            cp_frequency=1,
+            parent_population=None):
         """Run optimisation"""
         # Allow run function to override offspring_size
         # TODO probably in the future this should not be an object field
@@ -268,7 +269,32 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             offspring_size = self.offspring_size
 
         # Generate the population object
-        pop = self.toolbox.population(n=offspring_size)
+        if parent_population is not None:
+
+            if len(parent_population) != offspring_size:
+                offspring_size = len(parent_population)
+                self.offspring_size = len(parent_population)
+                logger.warning(
+                    'The length of the provided population is different from '
+                    'the offspring_size. The offspring_size will be '
+                    'overwritten.'
+                )
+
+            OBJ_SIZE = len(self.evaluator.objectives)
+            IND_SIZE = len(self.evaluator.params)
+
+            pop = []
+            for ind in parent_population:
+
+                if len(ind) != IND_SIZE:
+                    raise Exception(
+                        'The length of the provided individual is not equal '
+                        'to the number of parameter in the evaluator ')
+
+                pop.append(WSListIndividual(ind, obj_size=OBJ_SIZE))
+
+        else:
+            pop = self.toolbox.population(n=offspring_size)
 
         stats = deap.tools.Statistics(key=lambda ind: ind.fitness.sum)
         import numpy
