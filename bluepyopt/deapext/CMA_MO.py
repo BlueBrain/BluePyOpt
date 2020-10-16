@@ -34,7 +34,7 @@ from .stoppingCriteria import MaxNGen
 from . import utils
 from . import hype
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('__main__')
 
 
 def get_hyped(pop):
@@ -142,42 +142,10 @@ class CMA_MO(cma.StrategyMultiObjective):
     def _select(self, candidates):
         """Select the best candidates of the population
 
-        Fill the next population (chosen) with the Pareto fronts until there is
-        not enouch space. When an entire front does not fit in the space left
-        we rely on the hypervolume for this front. The remaining fronts are
-        explicitly not chosen"""
+        The quality of an individual is based on a mixture of
+        absolute fitness and hyper-volume contribution.
+        """
 
-        #if len(candidates) <= self.mu:
-        #    return candidates, []
-
-        #pareto_fronts = deap.tools.sortLogNondominated(candidates,
-        #                                               len(candidates))
-
-        #chosen = list()
-        #mid_front = None
-        #not_chosen = list()
-
-        #full = False
-        #for front in pareto_fronts:
-        #    if len(chosen) + len(front) <= self.mu and not full:
-        #        chosen += front
-        #    elif mid_front is None and len(chosen) < self.mu:
-        #        mid_front = front
-        #        # With this front, we selected enough individuals
-        #        full = True
-        #    else:
-        #        not_chosen += front
-
-        # HypE contribution to get the best candidates on the remaining front
-        #k = self.mu - len(chosen)
-        #if k > 0:
-        #    contribution = get_hyped(mid_front)
-        #    print(contribution)
-        #    idxs = numpy.argsort(contribution)
-        #    ordered_front = [mid_front[i] for i in idxs[::-1]]
-        #    chosen += ordered_front[:k]
-        #    not_chosen += ordered_front[k:]
-        
         if self.weight_hv == 0.: 
             fit = [numpy.sum(ind.fitness.values) for ind in candidates]
             idx_fit = list(numpy.argsort(fit))
@@ -195,7 +163,8 @@ class CMA_MO(cma.StrategyMultiObjective):
             idx_fit = list(numpy.argsort(fit))
             scores = []
             for i in range(len(candidates)):
-                score = (self.weight_hv * idx_hv.index(i)) + ((1.-self.weight_hv) * idx_fit.index(i))
+                score = (self.weight_hv * idx_hv.index(i)) + \
+                        ((1.-self.weight_hv) * idx_fit.index(i))
                 scores.append(score)
             idx_scores = list(numpy.argsort(scores))
 

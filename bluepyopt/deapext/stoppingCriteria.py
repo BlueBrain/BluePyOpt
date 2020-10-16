@@ -24,7 +24,7 @@ from collections import deque
 
 import bluepyopt.stoppingCriteria
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('__main__')
 
 
 def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
