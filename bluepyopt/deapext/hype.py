@@ -1,5 +1,6 @@
 import numpy
 
+
 def hypesub_(l, A, actDim, bounds, pvec, alpha, k):
     h = numpy.zeros(l)
     i = numpy.argsort(A[:, actDim - 1])

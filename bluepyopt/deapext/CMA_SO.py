@@ -34,7 +34,7 @@ from .stoppingCriteria import MaxNGen, Stagnation, TolHistFun, EqualFunVals, \
 
 from . import utils
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('__main__')
 
 
 class CMA_SO(cma.Strategy):
