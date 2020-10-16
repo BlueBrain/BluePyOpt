@@ -114,5 +114,5 @@ def test_eaAlphaMuPlusLambdaCheckpoint_with_checkpoint():
                     cp_frequency=1,
                     cp_filename='cp_test',
                     continue_cp=True)
-
-    nt.assert_equal(new_population, population)
+    for ind1, ind2 in zip(new_population, population):
+        nt.assert_equal(list(ind1), list(ind2))
