@@ -224,7 +224,7 @@ class SweepProtocol(Protocol):
             if timeout is not None:
                 if timeout < 0:
                     raise ValueError("timeout should be > 0")
-            
+
             with pebble.ProcessPool(max_workers=1, max_tasks=1) as pool:
                 tasks = pool.schedule(self._run_func, kwargs={
                     'cell_model': cell_model,
