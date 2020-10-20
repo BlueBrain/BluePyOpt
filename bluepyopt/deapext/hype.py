@@ -1,8 +1,27 @@
+"""
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
+
+ This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
+
+ This library is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Lesser General Public License version 3.0 as published
+ by the Free Software Foundation.
+
+ This library is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this library; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+
 import numpy
 
 
-def hypesub_(l, A, actDim, bounds, pvec, alpha, k):
-    h = numpy.zeros(l)
+def hypesub_(L, A, actDim, bounds, pvec, alpha, k):
+    h = numpy.zeros(L)
     i = numpy.argsort(A[:, actDim - 1])
     S = A[i]
     pvec = pvec[i]
@@ -19,9 +38,10 @@ def hypesub_(l, A, actDim, bounds, pvec, alpha, k):
                 break
             if alpha[i - 1] >= 0:
                 h[pvec[0:i]] += extrusion * alpha[i - 1]
-        elif extrusion > 0.:
-            h += extrusion * hypesub(l, S[0:i, :], actDim - 1, bounds,
-                                     pvec[0:i], alpha, k)
+        elif extrusion > 0.0:
+            h += extrusion * hypesub_(
+                L, S[0:i, :], actDim - 1, bounds, pvec[0:i], alpha, k
+            )
 
     return h
 
@@ -78,24 +98,22 @@ def hypeIndicatorSampled(points, bounds, k, nrOfSamples):
     for i in range(1, k + 1):
         j = numpy.arange(1, i)
         alpha.append(numpy.prod((k - j) / (nrP - j) / i))
-    alpha = numpy.asarray(alpha + [0.]*nrP)
+    alpha = numpy.asarray(alpha + [0.0] * nrP)
 
     S = numpy.random.uniform(low=BoxL, high=bounds, size=(nrOfSamples, dim))
 
-
     dominated = numpy.zeros(nrOfSamples, dtype="uint")
-    for j in range(1, nrP+1):
-        B = S - points[j-1]
+    for j in range(1, nrP + 1):
+        B = S - points[j - 1]
         ind = numpy.sum(B >= 0, axis=1) == dim
         dominated[ind] += 1
 
-    for j in range(1, nrP+1):
-        B = S - points[j-1]
+    for j in range(1, nrP + 1):
+        B = S - points[j - 1]
         ind = numpy.sum(B >= 0, axis=1) == dim
         x = dominated[ind]
-        F[j-1] = numpy.sum(alpha[x-1])
+        F[j - 1] = numpy.sum(alpha[x - 1])
 
     F = F * numpy.prod(bounds - BoxL) / nrOfSamples
 
     return F
-
