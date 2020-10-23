@@ -25,6 +25,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import random
 import logging
 import functools
+import numpy
 
 import deap
 import deap.base
@@ -33,10 +34,11 @@ import deap.tools
 
 from . import algorithms
 from . import tools
+from . import utils
 
 import bluepyopt.optimisations
 
-logger = logging.getLogger('__main__')
+logger = logging.getLogger(__name__)
 
 # TODO decide which variables go in constructor,which ones go in 'run' function
 # TODO abstract the algorithm by creating a class for every algorithm, that way
@@ -161,7 +163,6 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         IND_SIZE = len(self.evaluator.params)
 
         # Bounds for the parameters
-
         LOWER = []
         UPPER = []
 
@@ -169,19 +170,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             LOWER.append(parameter.lower_bound)
             UPPER.append(parameter.upper_bound)
 
-        # Define a function that will uniformly pick an individual
-        def uniform(lower_list, upper_list, dimensions):
-            """Fill array """
-
-            if hasattr(lower_list, '__iter__'):
-                return [random.uniform(lower, upper) for lower, upper in
-                        zip(lower_list, upper_list)]
-            else:
-                return [random.uniform(lower_list, upper_list)
-                        for _ in range(dimensions)]
-
         # Register the 'uniform' function
-        self.toolbox.register("uniformparams", uniform, LOWER, UPPER, IND_SIZE)
+        self.toolbox.register("uniformparams", utils.uniform, LOWER, UPPER,
+                              IND_SIZE)
 
         # Register the individual format
         # An indiviual is create by WSListIndividual and parameters
@@ -233,12 +224,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             raise ValueError('DEAPOptimisation: Constructor selector_name '
                              'argument only accepts "IBEA" or "NSGA2"')
 
-        def _reduce_method(meth):
-            """Overwrite reduce"""
-            return (getattr, (meth.__self__, meth.__func__.__name__))
         import copyreg
         import types
-        copyreg.pickle(types.MethodType, _reduce_method)
+        copyreg.pickle(types.MethodType, utils.reduce_method)
 
         if self.use_scoop:
             if self.map_function:

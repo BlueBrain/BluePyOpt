@@ -31,6 +31,7 @@ from .api import *  # NOQA
 import bluepyopt.optimisations
 import bluepyopt.stoppingCriteria
 import bluepyopt.deapext.optimisations
+import bluepyopt.deapext.optimisationsCMA
 
 # Add some backward compatibility for the time when DEAPoptimisation not in
 # deapext yet
