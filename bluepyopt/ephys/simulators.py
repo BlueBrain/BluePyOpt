@@ -9,6 +9,7 @@ import ctypes
 import platform
 import warnings
 import time
+import numpy
 
 logger = logging.getLogger(__name__)
 
@@ -165,12 +166,13 @@ class LFPySimulator(object):
     """Neuron simulator"""
 
     def __init__(self, LFPyCellModel, electrode=None, cvode_active=True,
-                 random123_globalindex=None):
+                 random123_globalindex=None, electrode_mapping=None):
         """Constructor"""
 
         self.LFPyCellModel = LFPyCellModel
         self.electrode = electrode
-
+        self.electrode_mapping = electrode_mapping
+        
         if platform.system() == 'Windows':
             # hoc.so does not exist on NEURON Windows
             # although \\hoc.pyd can work here, it gives an error for
@@ -247,7 +249,7 @@ class LFPySimulator(object):
                       "to_memory": True,
                       "to_file": False,
                       "file_name": None,
-                      "dotprodcoeffs": None  # [self.electrode.mapping]
+                      "dotprodcoeffs": self.electrode_mapping
                       }
 
         try:
