@@ -63,15 +63,15 @@ class CellModel(Model):
     """Cell model class"""
 
     def __init__(
-            self,
-            name,
-            morph=None,
-            mechs=None,
-            params=None,
-            gid=0,
-            seclist_names=None,
-            secarray_names=None
-            ):
+        self,
+        name,
+        morph=None,
+        mechs=None,
+        params=None,
+        gid=0,
+        seclist_names=None,
+        secarray_names=None
+    ):
         """Constructor
 
         Args:
