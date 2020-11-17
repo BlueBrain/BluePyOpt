@@ -3,13 +3,11 @@ from scipy.stats import linregress
 
 all_1D_features = ['peak_to_valley', 'halfwidth', 'peak_trough_ratio',
                    'repolarization_slope', 'recovery_slope', 'neg_peak_relative', 'pos_peak_relative',
-                   'neg_peak_diff', 'pos_peak_diff']
-
-all_2D_features = ['velocity']
+                   'neg_peak_diff', 'pos_peak_diff', 'neg_image', 'pos_image']
 
 
 def calculate_features(waveforms, sampling_frequency, feature_names=None,
-                       recovery_slope_window=0.7, channel_locations=None):
+                       recovery_slope_window=0.7):
     """ Calculate features for all waveforms
 
     Parameters
@@ -35,8 +33,7 @@ def calculate_features(waveforms, sampling_frequency, feature_names=None,
         feature_names = all_1D_features
     else:
         for name in feature_names:
-            assert name in all_1D_features or name in all_2D_features, f'{name} not in {all_1D_features} ' \
-                                                                       f'or {all_2D_features}'
+            assert name in all_1D_features,  f'{name} not in {all_1D_features}'
 
     if 'peak_to_valley' in feature_names:
         metrics['peak_to_valley'] = peak_to_valley(waveforms=waveforms,
@@ -61,13 +58,6 @@ def calculate_features(waveforms, sampling_frequency, feature_names=None,
             window=recovery_slope_window,
         )
 
-    if 'velocity' in feature_names:
-        metrics['velocity'] = velocity(
-            waveforms=waveforms,
-            sampling_frequency=sampling_frequency,
-            channel_locations=channel_locations,
-        )
-
     if 'neg_peak_diff' in feature_names:
         metrics['neg_peak_diff'] = peak_time_diff(
             waveforms=waveforms, fs=sampling_frequency, sign='negative'
@@ -85,6 +75,16 @@ def calculate_features(waveforms, sampling_frequency, feature_names=None,
 
     if 'pos_peak_relative' in feature_names:
         metrics['pos_peak_relative'] = relative_amplitude(
+            waveforms=waveforms, sign='positive'
+        )
+
+    if 'neg_image' in feature_names:
+        metrics['neg_image'] = peak_image(
+            waveforms=waveforms, sign='negative'
+        )
+
+    if 'pos_image' in feature_names:
+        metrics['pos_image'] = peak_image(
             waveforms=waveforms, sign='positive'
         )
 
@@ -307,22 +307,32 @@ def recovery_slope(waveforms, sampling_frequency, window):
     return rslope
 
 
-# TODO improve implementation
-def velocity(waveforms, sampling_frequency, channel_locations=None):
+def peak_image(waveforms, sign='negative'):
+    '''
+    Normalized amplitude at the time of minimum or maximum peak.
+
+    Parameters
+    ----------
+    waveforms
+    sign
+
+    Returns
+    -------
+
+    '''
     assert len(waveforms) > 1
-    trough_idx, peak_idx = _get_trough_and_peak_idx(waveforms)
 
-    if channel_locations is None:
-        channel_locations = np.arange(len(waveforms))
+    if sign == 'negative':
+        funarg = np.argmin
+        fun = np.min
+    else:
+        funarg = np.argmax
+        fun = np.max
 
-    sort_idxs = np.argsort(trough_idx)
-    channel_locs_sorted = channel_locations[sort_idxs]
-    peak_times = (trough_idx - np.min(trough_idx))[sort_idxs] / sampling_frequency
-    dists = np.array([np.linalg.norm(loc - channel_locs_sorted[0]) for loc in channel_locs_sorted])
+    peak_channel, peak_time = np.unravel_index(funarg(waveforms), waveforms.shape)
+    relative_peaks = waveforms[:, peak_time] / fun(waveforms[peak_channel])
 
-    slope, intercept, r, prob, sterrest = linregress(peak_times, dists)
-
-    return slope
+    return relative_peaks
 
 
 def relative_amplitude(waveforms, sign='negative'):
