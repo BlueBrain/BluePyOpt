@@ -445,6 +445,11 @@ class extraFELFeature(EFeature, DictMixin):
 
     def calculate_score(self, responses, trace_check=False):
         """Calculate the score"""
+        
+        if responses[self.recording_names[''].replace('soma.v', 'MEA.LFP')] is None or \
+                responses[self.recording_names['']] is None:
+            return self.max_score
+
         feature_value = self.calculate_feature(responses)
 
         if len(feature_value) == 1:
