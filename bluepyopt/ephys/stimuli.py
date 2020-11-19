@@ -21,6 +21,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint: disable=W0511
 import LFPy
+import numpy as np
 
 import logging
 logger = logging.getLogger(__name__)
@@ -359,9 +360,21 @@ class LFPySquarePulse(Stimulus):
 
     def instantiate(self, sim=None, icell=None, LFPyCell=None):
         """Run stimulus"""
-        
+        from .locations import NrnSomaDistanceCompLocation
+
+        if hasattr(self.location, 'sec_index'):
+            sec_index = self.location.sec_index
+        elif isinstance(self.location, NrnSomaDistanceCompLocation):
+            # compute sec_index closest to soma_distance
+            cell_seg_locs = np.array([LFPyCell.xmid, LFPyCell.ymid, LFPyCell.zmid]).T
+            soma_loc = LFPyCell.somapos
+            dist_from_soma = np.array([np.linalg.norm(loc - soma_loc) for loc in cell_seg_locs])
+            sec_index = np.argmin(np.abs(dist_from_soma - self.location.soma_distance))
+        else:
+            raise NotImplementedError(f"{type(self.location)} is currently not implemented with the LFPy backend")
+
         self.iclamp = LFPy.StimIntElectrode(cell=LFPyCell,
-                                            idx=self.location.sec_index,
+                                            idx=sec_index,
                                             pptype='IClamp',
                                             amp=self.step_amplitude,
                                             delay=self.step_delay,
