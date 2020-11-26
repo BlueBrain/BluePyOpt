@@ -63,12 +63,15 @@ class CellModel(Model):
     """Cell model class"""
 
     def __init__(
-            self,
-            name,
-            morph=None,
-            mechs=None,
-            params=None,
-            gid=0):
+        self,
+        name,
+        morph=None,
+        mechs=None,
+        params=None,
+        gid=0,
+        seclist_names=None,
+        secarray_names=None
+    ):
         """Constructor
 
         Args:
@@ -81,8 +84,14 @@ class CellModel(Model):
                 Mechanisms associated with the cell
             params (list of Parameters):
                 Parameters of the cell model
+            seclist_names (list of strings):
+                Names of the lists of sections
+            secarray_names (list of strings):
+                Names of the sections
         """
+
         super(CellModel, self).__init__(name)
+
         self.check_name()
         self.morphology = morph
         self.mechanisms = mechs
@@ -96,10 +105,20 @@ class CellModel(Model):
 
         self.param_values = None
         self.gid = gid
-        self.seclist_names = \
-            ['all', 'somatic', 'basal', 'apical', 'axonal', 'myelinated']
-        self.secarray_names = \
-            ['soma', 'dend', 'apic', 'axon', 'myelin']
+
+        if seclist_names is None:
+            self.seclist_names = [
+                'all', 'somatic', 'basal', 'apical', 'axonal', 'myelinated'
+            ]
+        else:
+            self.seclist_names = seclist_names
+
+        if secarray_names is None:
+            self.secarray_names = [
+                'soma', 'dend', 'apic', 'axon', 'myelin'
+            ]
+        else:
+            self.secarray_names = secarray_names
 
     def check_name(self):
         """Check if name complies with requirements"""
