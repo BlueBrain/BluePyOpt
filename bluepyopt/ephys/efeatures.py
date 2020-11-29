@@ -416,8 +416,7 @@ class extraFELFeature(EFeature, DictMixin):
             fs_up = self.fs
 
         amplitudes = np.max(np.abs(mean_wf_up), axis=1)
-        values = calculate_features(mean_wf_up, fs_up * 1000, feature_names=[self.extrafel_feature_name],
-                                    channel_locations=self.channel_locations)
+        values = calculate_features(mean_wf_up, fs_up * 1000, feature_names=[self.extrafel_feature_name])
 
         if detect_threshold is not None:
             assert 0 <= detect_threshold < 1, "'detect_threshold should be between 0 and 1"
