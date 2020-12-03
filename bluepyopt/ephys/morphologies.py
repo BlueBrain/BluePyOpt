@@ -1,19 +1,15 @@
 """Morphology classes"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
-
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
-
  This library is free software; you can redistribute it and/or modify it under
  the terms of the GNU Lesser General Public License version 3.0 as published
  by the Free Software Foundation.
-
  This library is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  details.
-
  You should have received a copy of the GNU Lesser General Public License
  along with this library; if not, write to the Free Software Foundation, Inc.,
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -50,17 +46,25 @@ class NrnFileMorphology(Morphology, DictMixin):
             do_replace_axon=False,
             do_set_nseg=True,
             comment='',
-            replace_axon_hoc=None):
+            replace_axon_hoc=None,
+            nseg_frequency=40,
+            morph_modifiers=None,
+            morph_modifiers_hoc=None):
         """Constructor
-
         Args:
             morphology_path (str): location of the file describing the
                 morphology
-            do_replace_axon(bool): Does the axon need to be replaced by an AIS
-                stub ?
-            replace_axon_hoc(str): String replacement for the 'replace_axon'
-            command in hoc  Must include 'proc replace_axon(){ ... }  If None,
-            the default replace_axon is used in any created hoc files
+            do_replace_axon (bool): Does the axon need to be replaced by an AIS
+                stub with default function ?
+            replace_axon_hoc (str): String replacement for the 'replace_axon'
+                command in hoc  Must include 'proc replace_axon(){ ... }
+                If None,the default replace_axon is used
+            nseg_frequency (float): frequency of nseg
+            do_set_nseg (bool): if True, it will use nseg_frequency
+            morph_modifiers (list): list of functions to modify the icell
+                with (sim, icell) as arguments
+            morph_modifiers_hoc (list): list of hoc strings corresponding
+                to morph_modifiers
         """
         name = os.path.basename(morphology_path)
         super(NrnFileMorphology, self).__init__(name=name, comment=comment)
@@ -69,6 +73,9 @@ class NrnFileMorphology(Morphology, DictMixin):
         self.morphology_path = morphology_path
         self.do_replace_axon = do_replace_axon
         self.do_set_nseg = do_set_nseg
+        self.nseg_frequency = nseg_frequency
+        self.morph_modifiers = morph_modifiers
+        self.morph_modifiers_hoc = morph_modifiers_hoc
 
         if replace_axon_hoc is None:
             self.replace_axon_hoc = self.default_replace_axon_hoc
@@ -125,26 +132,27 @@ class NrnFileMorphology(Morphology, DictMixin):
         # (in case e.g. Ra was changed)
         if self.do_set_nseg:
             self.set_nseg(icell)
-        
-        # TODO replace these two functions with general function users can
-        # specify
+
         if self.do_replace_axon:
             self.replace_axon(sim=sim, icell=icell)
+
+        if self.morph_modifiers is not None:
+            for morph_modifier in self.morph_modifiers:
+                morph_modifier(sim=sim, icell=icell)
 
     def destroy(self, sim=None):
         """Destroy morphology instantiation"""
         pass
 
-    @staticmethod
-    def set_nseg(icell):
+    def set_nseg(self, icell):
         """Set the nseg of every section"""
-
         for section in icell.all:
-            section.nseg = 1 + 2 * int(section.L / 40)
+            section.nseg = 1 + 2 * int(section.L / self.nseg_frequency)
 
     @staticmethod
     def replace_axon(sim=None, icell=None):
         """Replace axon"""
+
         nsec = len([sec for sec in icell.axonal])
 
         if nsec == 0:
@@ -185,7 +193,6 @@ class NrnFileMorphology(Morphology, DictMixin):
 proc replace_axon(){ local nSec, D1, D2
   // preserve the number of original axonal sections
   nSec = sec_count(axonal)
-
   // Try to grab info from original axon
   if(nSec == 0) { //No axon section present
     D1 = D2 = 1
@@ -202,14 +209,11 @@ proc replace_axon(){ local nSec, D1, D2
       }
     }
   }
-
   // get rid of the old axon
   forsec axonal{
     delete_section()
   }
-
   create axon[2]
-
   axon[0] {
     L = 30
     diam = D1
