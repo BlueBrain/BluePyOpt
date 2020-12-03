@@ -96,7 +96,8 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
             name=None,
             distribution=None,
             comment='',
-            dist_param_names=None):
+            dist_param_names=None,
+            soma_ref_location=0.5):
         """Constructor
 
         Args:
@@ -110,12 +111,19 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
                 object.
                 The distribution string should contain these names, and they
                 will be replaced by values of the corresponding attributes
+            soma_ref_location (float): location along the soma used as origin
+                from which to compute the distances. Expressed as a fraction
+                (between 0.0 and 1.0).
         """
 
         super(NrnSegmentSomaDistanceScaler, self).__init__(name, comment)
         self.distribution = distribution
 
         self.dist_param_names = dist_param_names
+        self.soma_ref_location = soma_ref_location
+
+        if not(0. <= self.soma_ref_location <= 1.):
+            raise ValueError('soma_ref_location must be between 0 and 1.')
 
         if self.dist_param_names is not None:
             for dist_param_name in self.dist_param_names:
@@ -160,7 +168,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
         soma = segment.sec.cell().soma[0]
 
         # Initialise origin
-        sim.neuron.h.distance(0, 0.5, sec=soma)
+        sim.neuron.h.distance(0, self.soma_ref_location, sec=soma)
 
         distance = sim.neuron.h.distance(1, segment.x, sec=segment.sec)
 
