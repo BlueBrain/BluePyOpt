@@ -32,8 +32,8 @@
 <tr>
   <td>Build Status</td>
   <td>
-    <a href="https://travis-ci.org/BlueBrain/BluePyOpt">
-    <img src="https://travis-ci.org/BlueBrain/BluePyOpt.svg?branch=master" alt="travis build status" />
+    <a href="https://travis-ci.com/BlueBrain/BluePyOpt">
+    <img src="https://travis-ci.com/BlueBrain/BluePyOpt.svg?branch=master" alt="travis build status" />
     </a>
   </td>
 </tr>
