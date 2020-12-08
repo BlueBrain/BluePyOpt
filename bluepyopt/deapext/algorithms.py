@@ -126,8 +126,6 @@ def eaAlphaMuPlusLambdaCheckpoint(
         continue_cp(bool): whether to continue
     """
 
-    obj_size = len(population[0].fitness.wvalues)
-
     if cp_filename:
         cp_filename_tmp = cp_filename + '.tmp'
 
@@ -143,6 +141,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         random.setstate(cp["rndstate"])
 
         # Assert that the fitness of the individuals match the evaluator
+        obj_size = len(population[0].fitness.wvalues)
         population = _define_fitness(population, obj_size)
         parents = _define_fitness(parents, obj_size)
         _evaluate_invalid_fitness(toolbox, parents)
