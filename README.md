@@ -94,7 +94,7 @@ ISSN={1662-5196}
 ```
 Support
 =======
-We are providing support using a chat channel on [Gitter](https://gitter.im/BlueBrain/BluePyOpt).
+We are providing support using a chat channel on [Gitter](https://gitter.im/BlueBrain/BluePyOpt), or the [Github discussion page](https://github.com/BlueBrain/BluePyOpt/discussions).
 
 News
 ====
