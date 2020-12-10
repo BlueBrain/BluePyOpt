@@ -329,7 +329,7 @@ class NrnSecSomaDistanceCompLocation(Location, DictMixin):
        from the soma """
 
     SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'sec_name',
-            'sec_index', )
+                         'sec_index', )
 
     def __init__(
         self,
@@ -357,7 +357,7 @@ class NrnSecSomaDistanceCompLocation(Location, DictMixin):
 
         if self.sec_index is None:
             raise ephys.locations.EPhysLocInstantiateException(
-                    "No apical point was given")
+                "No apical point was given")
 
         sections = getattr(icell, self.sec_name)
         section = _nth_isectionlist(sections, self.sec_index)
@@ -396,7 +396,7 @@ class NrnSecSomaDistanceCompLocation(Location, DictMixin):
             if min_distance <= self.soma_distance <= end_distance:
 
                 comp_x = float(self.soma_distance - min_distance) / \
-                        (max_distance - min_distance)
+                    (max_distance - min_distance)
 
                 icomp = isec(comp_x)
                 seccomp = isec
