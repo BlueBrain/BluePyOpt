@@ -323,7 +323,7 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
             self.soma_distance, self.seclist_name)
 
 
-class NrnSecSomaDistanceCompLocation(ephys.locations.Location, DictMixin):
+class NrnSecSomaDistanceCompLocation(Location, DictMixin):
 
     """Compartment on a section defined both by a section index and distance from the soma """
 
