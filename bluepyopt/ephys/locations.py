@@ -325,9 +325,11 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
 
 class NrnSecSomaDistanceCompLocation(Location, DictMixin):
 
-    """Compartment on a section defined both by a section index and distance from the soma """
+    """Compartment on a section defined both by a section index and distance
+       from the soma """
 
-    SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'sec_name', 'sec_index', )
+    SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'sec_name',
+            'sec_index', )
 
     def __init__(
         self,
@@ -335,7 +337,7 @@ class NrnSecSomaDistanceCompLocation(Location, DictMixin):
         soma_distance=None,
         sec_index=None,
         sec_name=None,
-        comment="", 
+        comment=""
     ):
         """Constructor
 
@@ -354,7 +356,8 @@ class NrnSecSomaDistanceCompLocation(Location, DictMixin):
         """Find the instantiate compartment"""
 
         if self.sec_index is None:
-            raise ephys.locations.EPhysLocInstantiateException("No apical point was given")
+            raise ephys.locations.EPhysLocInstantiateException(
+                    "No apical point was given")
 
         sections = getattr(icell, self.sec_name)
         section = _nth_isectionlist(sections, self.sec_index)
@@ -372,7 +375,8 @@ class NrnSecSomaDistanceCompLocation(Location, DictMixin):
                 section = sim.neuron.h.SectionRef(sec=section).parent
             else:
                 raise ephys.locations.EPhysLocInstantiateException(
-                    "soma[0] was not reached from isec point %f" % self.sec_index
+                    "soma[0] was not reached from isec point "
+                    "%f" % self.sec_index
                 )
 
         soma = icell.soma[0]
@@ -391,14 +395,16 @@ class NrnSecSomaDistanceCompLocation(Location, DictMixin):
 
             if min_distance <= self.soma_distance <= end_distance:
 
-                comp_x = float(self.soma_distance - min_distance) / (max_distance - min_distance)
+                comp_x = float(self.soma_distance - min_distance) / \
+                        (max_distance - min_distance)
 
                 icomp = isec(comp_x)
                 seccomp = isec
 
         if icomp is None:
             raise ephys.locations.EPhysLocInstantiateException(
-                "No comp found at %s distance from soma for section %s" % (self.soma_distance, self.sec_name)
+                "No comp found at %s distance from soma for section "
+                "%s" % (self.soma_distance, self.sec_name)
             )
 
         return icomp
