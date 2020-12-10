@@ -259,6 +259,7 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
     """Compartment at distance from soma"""
 
     SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'seclist_name', )
+    max_diam = 0.0
 
     def __init__(
             self,
@@ -281,18 +282,11 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
     # TODO this definitely has to be unit-tested
     # TODO add ability to specify origin
     # TODO rename 'seg' in 'compartment' everywhere
-    def instantiate(self, sim=None, icell=None):
-        """Find the instantiate compartment"""
-
-        soma = icell.soma[0]
-
-        sim.neuron.h.distance(0, 0.5, sec=soma)
-
-        iseclist = getattr(icell, self.seclist_name)
-
+    
+    def find_icomp(self, sim, iseclist):
+        """Find the index of the seg based on a list of isec and a distance"""
         icomp = None
-        max_diam = 0.0
-
+        
         for isec in iseclist:
             start_distance = sim.neuron.h.distance(1, 0.0, sec=isec)
             end_distance = sim.neuron.h.distance(1, 1.0, sec=isec)
@@ -306,15 +300,26 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
 
                 comp_diam = isec(comp_x).diam
 
-                if comp_diam > max_diam:
+                if comp_diam > self.max_diam:
                     icomp = isec(comp_x)
-
+        
         if icomp is None:
             raise EPhysLocInstantiateException(
                 'No comp found at %s distance from soma' %
                 self.soma_distance)
 
         return icomp
+    
+    def instantiate(self, sim=None, icell=None):
+        """Find the instantiate compartment"""
+
+        soma = icell.soma[0]
+
+        sim.neuron.h.distance(0, 0.5, sec=soma)
+
+        iseclist = getattr(icell, self.seclist_name)
+
+        return self.find_icomp(sim, iseclist)
 
     def __str__(self):
         """String representation"""
@@ -323,7 +328,7 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
             self.soma_distance, self.seclist_name)
 
 
-class NrnSecSomaDistanceCompLocation(Location, DictMixin):
+class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
 
     """Compartment on a section defined both by a section index and distance
        from the soma """
@@ -347,10 +352,13 @@ class NrnSecSomaDistanceCompLocation(Location, DictMixin):
             sec_index (int): index of the section  to consider
             sec_name (str): name of Neuron sections (ex: 'apic')
         """
-        super(NrnSecSomaDistanceCompLocation, self).__init__(name, comment)
-        self.soma_distance = soma_distance
+        super(NrnSecSomaDistanceCompLocation, self).__init__(
+            name,
+            soma_distance=soma_distance,
+            seclist_name=sec_name,
+            comment=''
+        )
         self.sec_index = sec_index
-        self.sec_name = sec_name
 
     def instantiate(self, sim=None, icell=None):
         """Find the instantiate compartment"""
@@ -359,7 +367,7 @@ class NrnSecSomaDistanceCompLocation(Location, DictMixin):
             raise ephys.locations.EPhysLocInstantiateException(
                 "No apical point was given")
 
-        sections = getattr(icell, self.sec_name)
+        sections = getattr(icell, self.seclist_name)
         section = _nth_isectionlist(sections, self.sec_index)
 
         branches = []
@@ -383,37 +391,7 @@ class NrnSecSomaDistanceCompLocation(Location, DictMixin):
 
         sim.neuron.h.distance(0, 0.5, sec=soma)
 
-        icomp = None
-
-        for isec in branches:
-
-            start_distance = sim.neuron.h.distance(1, 0.0, sec=isec)
-            end_distance = sim.neuron.h.distance(1, 1.0, sec=isec)
-
-            min_distance = min(start_distance, end_distance)
-            max_distance = max(start_distance, end_distance)
-
-            if min_distance <= self.soma_distance <= end_distance:
-
-                comp_x = float(self.soma_distance - min_distance) / \
-                    (max_distance - min_distance)
-
-                icomp = isec(comp_x)
-                seccomp = isec
-
-        if icomp is None:
-            raise ephys.locations.EPhysLocInstantiateException(
-                "No comp found at %s distance from soma for section "
-                "%s" % (self.soma_distance, self.sec_name)
-            )
-
-        return icomp
-
-    def __str__(self):
-        """String representation"""
-
-        return '%f micron from soma on %s section %f' % (
-            self.soma_distance, self.sec_name, self.sec_index)
+        return self.find_icomp(sim, branches)
 
 
 class EPhysLocInstantiateException(Exception):
