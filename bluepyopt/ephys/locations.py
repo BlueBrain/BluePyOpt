@@ -271,7 +271,7 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
 
         Args:
             name (str): name of this object
-            soma_distance (float): distance from soma to this segment
+            soma_distance (float): distance from soma to this compartment
             seclist_name (str): name of Neuron section list (ex: 'apical')
         """
 
@@ -281,9 +281,9 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
 
     # TODO this definitely has to be unit-tested
     # TODO add ability to specify origin
-    # TODO rename 'seg' in 'compartment' everywhere
     def find_icomp(self, sim, iseclist):
-        """Find the index of the seg based on a list of isec and a distance"""
+        """Find the index of the compartment based on a list of isec
+           and a distance"""
         icomp = None
 
         for isec in iseclist:
@@ -347,7 +347,7 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
 
         Args:
             name (str): name of this object
-            soma_distance (float): distance from soma to this segment
+            soma_distance (float): distance from soma to this compartment
             sec_index (int): index of the section  to consider
             sec_name (str): name of Neuron sections (ex: 'apic')
         """
@@ -363,7 +363,7 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
         """Find the instantiate compartment"""
 
         if self.sec_index is None:
-            raise ephys.locations.EPhysLocInstantiateException(
+            raise EPhysLocInstantiateException(
                 "No apical point was given")
 
         sections = getattr(icell, self.seclist_name)
@@ -381,7 +381,7 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
             if sim.neuron.h.SectionRef(sec=section).has_parent():
                 section = sim.neuron.h.SectionRef(sec=section).parent
             else:
-                raise ephys.locations.EPhysLocInstantiateException(
+                raise EPhysLocInstantiateException(
                     "soma[0] was not reached from isec point "
                     "%f" % self.sec_index
                 )
