@@ -282,11 +282,10 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
     # TODO this definitely has to be unit-tested
     # TODO add ability to specify origin
     # TODO rename 'seg' in 'compartment' everywhere
-    
     def find_icomp(self, sim, iseclist):
         """Find the index of the seg based on a list of isec and a distance"""
         icomp = None
-        
+
         for isec in iseclist:
             start_distance = sim.neuron.h.distance(1, 0.0, sec=isec)
             end_distance = sim.neuron.h.distance(1, 1.0, sec=isec)
@@ -302,14 +301,14 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
 
                 if comp_diam > self.max_diam:
                     icomp = isec(comp_x)
-        
+
         if icomp is None:
             raise EPhysLocInstantiateException(
                 'No comp found at %s distance from soma' %
                 self.soma_distance)
 
         return icomp
-    
+
     def instantiate(self, sim=None, icell=None):
         """Find the instantiate compartment"""
 
