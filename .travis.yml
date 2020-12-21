@@ -18,3 +18,13 @@ cache:
       - "$TRAVIS_BUILD_DIR/.tox"
 git:
   depth: 2147483647
+before_install: 
+  - pip install pip --upgrade
+  - pip install tox --upgrade
+  - pip install codecov
+script: tox -e "$(echo py$TRAVIS_PYTHON_VERSION | tr -d .)-unit-functional-style-syntax"
+after_success:
+  - codecov
+addons:
+  code_climate:
+    repo_token: 94713078b6ae3fe8344e80649ea189e2e0d0cb78e707edf169b3ff9d3765da46
