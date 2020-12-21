@@ -33,7 +33,7 @@ jobs:
   
   build-n-publish:
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    name: Build and publish on TestPyPI
+    name: Build and publish on PyPI
     runs-on: ubuntu-latest
     needs: test
     steps:
@@ -48,9 +48,8 @@ jobs:
         run:
             python setup.py sdist
 
-      - name: Publish package to TestPyPI
+      - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
-          password: ${{ secrets.TEST_PYPI_PASSWORD }}
-          repository_url: https://test.pypi.org/legacy/
+          password: ${{ secrets.PYPI_PASSWORD }}
