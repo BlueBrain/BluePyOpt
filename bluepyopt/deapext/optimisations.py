@@ -110,7 +110,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             offspring_size (int): Number of offspring individuals in each
                 generation
             eta (float): Parameter that controls how far the crossover and
-            mutation operator disturbe the original individuals
+                mutation operator disturbe the original individuals
             mutpb (float): Mutation probability
             cxpb (float): Crossover probability
             map_function (function): Function used to map (parallelise) the
