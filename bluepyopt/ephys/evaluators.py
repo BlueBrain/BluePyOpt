@@ -116,8 +116,8 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
     def objective_list(self, objective_dict):
         """Convert objective_dict in objective_list"""
         objective_list = []
-        objective_names = [objective.name
-                           for objective in self.fitness_calculator.objectives]
+        objective_names = [objective.name for objective in self.fitness_calculator.objectives]
+        
         for objective_name in objective_names:
             objective_list.append(objective_dict[objective_name])
 

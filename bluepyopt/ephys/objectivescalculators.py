@@ -19,6 +19,7 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+from . import objectives
 
 class ObjectivesCalculator(object):
 
@@ -35,11 +36,25 @@ class ObjectivesCalculator(object):
 
         self.objectives = objectives
 
-    def calculate_scores(self, responses):
+    def calculate_scores(self, responses, cell_model, param_dict):
         """Calculator the score for every objective"""
+        
+        scores = {}
+        
+        cell_model.freeze(param_dict)
+        
+        for objective in self.objectives:
+            
+            if issubclass(type(objective), objectives.EFeatureObjective):
+                scores[objective.name] = objective.calculate_score(responses)
+            elif issubclass(type(objective), objectives.RuleObjective):
+                scores[objective.name] = objective.calculate_score(cell_model)
+            else:
+                raise Exception('Unknown objective class: {}'.format(type(objective)))
 
-        return {objective.name: objective.calculate_score(responses)
-                for objective in self.objectives}
+        cell_model.unfreeze(param_dict.keys())
+        
+        return scores
 
     def calculate_values(self, responses):
         """Calculator the value of each objective"""
@@ -48,6 +63,7 @@ class ObjectivesCalculator(object):
                 for objective in self.objectives}
 
     def __str__(self):
+        
         return 'objectives:\n  %s' % '\n  '.join(
             [str(obj) for obj in self.objectives]) \
             if self.objectives is not None else 'objectives:\n'
