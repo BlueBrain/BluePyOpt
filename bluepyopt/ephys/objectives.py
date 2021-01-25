@@ -113,3 +113,52 @@ class WeightedSumObjective(EFeatureObjective):
             score += weight * feature_score
 
         return score
+
+
+class RuleObjective(bluepyopt.objectives.Objective):
+
+    """Multi rules objective"""
+
+    def __init__(self, name, rules=None):
+        """Constructor
+        Args:
+            name (str): name of this object
+            rules (list): rule used in the Objective
+        """
+
+        super(RuleObjective, self).__init__(name)
+        self.name = name
+        self.rules = rules
+
+    def calculate_scores(self, cell_model):
+        """Calculate the scores for the individual rules"""
+
+        scores = []
+        for rule in self.rules:
+            scores.append(rule.calculate_score(cell_model))
+
+        return scores
+
+
+class SingletonRuleObjective(RuleObjective):
+
+    """Single rule objective"""
+
+    def __init__(self, name, rule):
+        """Constructor
+        Args:
+            name (str): name of this object
+            rule (EFeature): single rule inside this objective
+        """
+
+        super(SingletonRuleObjective, self).__init__(name, [rule])
+
+    def calculate_score(self, cell_model):
+        """Objective score"""
+
+        return self.calculate_scores(cell_model)[0]
+
+    def __str__(self):
+        """String representation"""
+
+        return '( %s )' % self.rule[0]

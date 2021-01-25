@@ -37,6 +37,7 @@ from . import responses  # NOQA
 from . import recordings  # NOQA
 from . import objectivescalculators  # NOQA
 from . import stimuli  # NOQA
+from . import rules  # NOQA
 
 # TODO create all the necessary abstract methods
 # TODO check inheritance structure

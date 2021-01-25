@@ -109,9 +109,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cp_filename(string): path to checkpoint filename
         continue_cp(bool): whether to continue
     """
-
-    obj_size = len(population[0].fitness.wvalues)
-
+    
     if cp_filename:
         cp_filename_tmp = cp_filename + '.tmp'
 
@@ -127,6 +125,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         random.setstate(cp["rndstate"])
 
         # Assert that the fitness of the individuals match the evaluator
+        obj_size = len(population[0].fitness.wvalues)
         population = _define_fitness(population, obj_size)
         parents = _define_fitness(parents, obj_size)
         _evaluate_invalid_fitness(toolbox, parents)
@@ -141,6 +140,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         history = deap.tools.History()
 
         invalid_count = _evaluate_invalid_fitness(toolbox, population)
+        
         utils.update_history_and_hof(halloffame, history, population)
         utils.record_stats(stats,
                            logbook,
@@ -149,7 +149,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
                            invalid_count)
 
     stopping_criteria = [MaxNGen(ngen)]
-
+        
     # Begin the generational process
     gen = start_gen + 1
     stopping_params = {"gen": gen}
@@ -161,7 +161,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         invalid_count = _evaluate_invalid_fitness(toolbox, offspring)
         utils.update_history_and_hof(halloffame, history, population)
         utils.record_stats(stats, logbook, gen, population, invalid_count)
-
+        
         # Select the next generation parents
         parents = toolbox.select(population, mu)
 
