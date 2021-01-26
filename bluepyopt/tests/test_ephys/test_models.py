@@ -235,7 +235,7 @@ def test_metaparameter():
             1.0,
             cell_model.icell.apic[0](.5),
             sim=sim),
-        1.045510068328892)
+        1.0764239941636502)
 
     cell_model.unfreeze(param_names=['ParamA', 'ParamB'])
 
