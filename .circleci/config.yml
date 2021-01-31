@@ -47,11 +47,11 @@ jobs:
       - run: pip install allensdk==0.16.3
       - run: pip install frozendict
       - run: pip install nose
+      - run: pip install unittest
       - run: rm -rf /opt/conda/lib/python3.8/site-packages/sciunit
       - run: git clone -b dev https://github.com/russelljjarvis/sciunit.git
       - run: cd sciunit; pip install -e .; cd ..;
-      - run: cd bluepyopt/tests; python rheobase_dtc_test.py
-      - run: cd bluepyopt/tests; python adexp_opt.py
+      - run: cd neuronunit/tests; python -m unittest scores_unit_test.py
       - run: cd bluepyopt/tests; python test_evaluators.py
 
       # causes time out

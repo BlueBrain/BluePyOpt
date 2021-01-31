@@ -1,15 +1,24 @@
 import unittest
+
 #!/usr/bin/env python
 # coding: utf-8
 import matplotlib
 
 import numpy as np
-from neuronunit.optimization.model_parameters import MODEL_PARAMS, BPO_PARAMS, to_bpo_param
-from neuronunit.optimization.optimization_management import dtc_to_rheo,inject_and_plot_model
+from neuronunit.optimization.model_parameters import (
+    MODEL_PARAMS,
+    BPO_PARAMS,
+    to_bpo_param
+)
+from neuronunit.optimization.optimization_management import (
+    dtc_to_rheo,
+    inject_and_plot_model
+)
 from neuronunit.optimization.data_transport_container import DataTC
 from jithub.models import model_classes
 import matplotlib.pyplot as plt
 import quantities as qt
+
 
 class testOptimization(unittest.TestCase):
     def setUp(self):
@@ -25,13 +34,12 @@ class testOptimization(unittest.TestCase):
         if cellmodel == "ADEXP":
             model = model_classes.ADEXPModel()
 
-        dtc = DataTC()
-        dtc.backend = cellmodel
-        dtc._backend = model._backend
-        dtc.attrs = model.attrs
-        dtc.params = {k:np.mean(v) for k,v in MODEL_PARAMS[cellmodel].items()}
+        dtc = DataTC(backend=cellmodel)
+        assert dtc.backend == cellmodel
+        dtc.params = {k: np.mean(v) for k, v in MODEL_PARAMS[cellmodel].items()}
         other_params = BPO_PARAMS[cellmodel]
         dtc = dtc_to_rheo(dtc)
+        print(dtc.rheobase)
         assert dtc.rheobase is not None
         self.assertIsNotNone(dtc.rheobase)
         vm, plt, dtc = inject_and_plot_model(dtc, plotly=False)
