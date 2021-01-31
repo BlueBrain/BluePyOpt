@@ -36,9 +36,10 @@ jobs:
       - run: pip install pip --upgrade; pip install -r requirements.txt;
       - run: pip install -e .
       - run: git clone -b neuronunit https://github.com/russelljjarvis/jit_hub.git
+
       - run: cd jit_hub; pip install -e .; cd ..;
       - run: git clone -b optimization https://github.com/russelljjarvis/neuronunit
-      - run: cd jit_hub; pip install -e .; cd ..;
+      - run: cd neuronunit; pip install -e .; cd ..;
 
       #- run: pip install ipfx
       - run: pip install efel
