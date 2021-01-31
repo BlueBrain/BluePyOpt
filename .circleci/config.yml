@@ -43,8 +43,8 @@ jobs:
       #- run: pip install ipfx
       - run: pip install efel
       #- run: git clone https://github.com/russelljjarvis/eFEL
-      #- run: cd eFEL; python 
-	
+      #- run: cd eFEL; python
+
       - run: pip install cython
       #- run: pip install asciiplotlib;
       - run: pip install streamlit;
