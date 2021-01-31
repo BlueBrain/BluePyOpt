@@ -28,7 +28,6 @@ jobs:
       - run: conda config --set always_yes true
       - run: conda config --set quiet true
       - run: conda install conda-build
-      - run: which pip
       - run: conda install scipy;
       - run: conda install numpy;
       - run: conda install numba;
@@ -36,14 +35,18 @@ jobs:
       - run: pip install tables
       - run: pip install pip --upgrade; pip install -r requirements.txt;
       - run: pip install -e .
-      - run: pip install coverage
       - run: git clone -b neuronunit https://github.com/russelljjarvis/jit_hub.git
       - run: cd jit_hub; pip install -e .; cd ..;
-      - run: pip install git+https://github.com/russelljjarvis/neuronunit@optimization
-      - run: pip install ipfx
-      - run: pip install git+https://github.com/russelljjarvis/eFEL
+      - run: git clone -b optimization https://github.com/russelljjarvis/neuronunit
+      - run: cd jit_hub; pip install -e .; cd ..;
+
+      #- run: pip install ipfx
+      - run: pip install efel
+      #- run: git clone https://github.com/russelljjarvis/eFEL
+      #- run: cd eFEL; python 
+	
       - run: pip install cython
-      - run: pip install asciiplotlib;
+      #- run: pip install asciiplotlib;
       - run: pip install streamlit;
       - run: pip install seaborn;
       - run: pip install sklearn
