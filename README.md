@@ -53,7 +53,7 @@
 	</td>
 </tr>
 </table>
-[![Build Status](https://circleci.com/gh/russelljjarvis/BluePyOpt.svg?style=svg)](https://app.circleci.com/pipelines/github/russelljjarvis/BluePyOpt/)
+[![Build Status](https://circleci.com/gh/russelljjarvis/BluePyOpt.svg?style=svg)](https://app.circleci.com/pipelines/github/russelljjarvis/BluePyOpt/neuronunit_reduced_cells)
 Introduction
 ============
 
