@@ -38,15 +38,21 @@ def optimize_job(
     efel_filter_iterable=None,
 ):
     find_sweep_with_n_spikes = 8
-    dtc = DataTC(backend=model_type)
-    dtc.backend = model_type
-    model = dtc.dtc_to_model()
+
+
+    #dtc = DataTC(backend=model_type)
+    #dtc.backend = model_type
+    #model = dtc.dtc_to_model()
 
     fixed_current = 122 * qt.pA
     if model_type is "ADEXP":
+        from jithub.models.model_classes import ADEXPModel
+        model = ADEXPModel()
         NGEN = 150
         MU = 150
     if model_type is "IZHI":
+        from jithub.models.model_classes import IzhiModel
+        model = IzhiModel()
         # model.params['celltype'].freeze(int(7))
         NGEN = 350
         MU = 150

@@ -376,67 +376,68 @@ class NeuronUnitAllenStepProtocol(SweepProtocol):
 	def neuronunit_model_instantiate(self,cell_model,param_values):
 		'''
 		-- Synopsis
-		# first populate the dtc by frozen default attributes
+		# first populate the cell_model by frozen default attributes
 		# then update with dynamic gene attributes as appropriate.
 		'''
-		dtc = cell_model.model_to_dtc(attrs=param_values)
-		assert dtc.backend == cell_model.backend
-		dtc._backend = cell_model._backend
-		return dtc,cell_model
+		#cell_model = cell_model.model_to_cell_model(attrs=param_values)
+		#assert cell_model.backend == cell_model.backend
+		#cell_model._backend = cell_model._backend
+		return cell_model,cell_model
 
-	def neuronunit_model_evaluate(self,cell_model,dtc,param_values):
+	def neuronunit_model_evaluate(self,cell_model,param_values):
 		from neuronunit.optimization.optimization_management import dtc_to_rheo
 		from neuronunit.optimization.optimization_management import multi_spiking_feature_extraction
 		if hasattr(cell_model,'allen'):
 			if hasattr(cell_model,'seeded_current'):
-				dtc.seeded_current = cell_model.seeded_current
-				dtc.spk_count = cell_model.spk_count
-				dtc.attrs = param_values
+				#cell_model.seeded_current = cell_model.seeded_current
+				#cell_model.spk_count = cell_model.spk_count
+				cell_model.attrs = param_values
 				##########################################
 				# Not syntactically necessary but facilitates tighter BPO integration
 				self.step_stimulus = {}
-				self.step_stimulus['amplitude'] = dtc.seeded_current
+				self.step_stimulus['amplitude'] = cell_model.seeded_current
 				###########################################
 				if hasattr(cell_model,'efel_filter_iterable'):
 					temp_efel_iter = cell_model.efel_filter_iterable
 				else:
 					temp_efel_iter = None
-				dtc = multi_spiking_feature_extraction(dtc,
+				cell_model = multi_spiking_feature_extraction(cell_model,
 					solve_for_current = cell_model.seeded_current,
 					efel_filter_iterable = temp_efel_iter)
-				if hasattr(dtc,'efel'):
-					responses = {'features':dtc.efel,
-					'dtc':dtc,'model':cell_model,'params':param_values}
+				if hasattr(cell_model,'efel'):
+					responses = {'features':cell_model.efel,
+					'cell_model':cell_model,'model':cell_model,'params':param_values}
 				else:
-					responses = {'model':dtc,
+					responses = {'model':cell_model,
 					'rheobase':cell_model.rheobase,'params':param_values}
 
 			else:
-				dtc = multi_spiking_feature_extraction(dtc)
+				cell_model = multi_spiking_feature_extraction(cell_model)
 
-				if hasattr(dtc,'efel'):
-					responses = {'features':dtc.efel,
-					'dtc':dtc,'model':cell_model,'params':param_values}
+				if hasattr(cell_model,'efel'):
+					responses = {'features':cell_model.efel,
+					'cell_model':cell_model,'model':cell_model,'params':param_values}
 				else:
 					responses = {'model':cell_model,
 					'rheobase':cell_model.rheobase,'params':param_values}
 		else:
-			dtc.attrs = param_values
-			dtc = dtc_to_rheo(dtc,bind_vm=True)
+			cell_model.attrs = param_values
+			cell_model = dtc_to_rheo(cell_model,bind_vm=True)
 			responses = {
-				'response':dtc.vmrh,
-				'model':dtc.dtc_to_model(),
-				'dtc':dtc,
-				'rheobase':dtc.rheobase,
+				'response':cell_model.vmrh,
+				'model':cell_model,#.cell_model_to_model(),
+				'dtc':cell_model,
+				'rheobase':cell_model.rheobase,
 				'params':param_values}
 		return responses
 
 	def _run_func(self, cell_model, param_values, sim=None):
 		"""Run protocols"""
 		#try:
+		cell_model.unfreeze(param_values.keys())
 		cell_model.freeze(param_values)
-		dtc,cell_model = self.neuronunit_model_instantiate(cell_model,param_values)
-		responses = self.neuronunit_model_evaluate(cell_model,dtc,param_values)
+		cell_model,cell_model = self.neuronunit_model_instantiate(cell_model,param_values)
+		responses = self.neuronunit_model_evaluate(cell_model,param_values)
 		cell_model.unfreeze(param_values.keys())
 		return responses
 		#except BaseException:

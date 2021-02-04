@@ -25,27 +25,32 @@ class testOptimization(unittest.TestCase):
         self = self
 
     def test_opt_1(self):
-        cellmodel = "ADEXP"
+        model_type = "ADEXP"
 
-        if cellmodel == "IZHI":
-            model = model_classes.IzhiModel()
-        if cellmodel == "MAT":
-            model = model_classes.MATModel()
-        if cellmodel == "ADEXP":
-            model = model_classes.ADEXPModel()
+        if model_type == "IZHI":
+            from jithub.models.model_classes import IzhiModel
+            cellmodel = IzhiModel()
+        #    model = model_classes.IzhiModel()
+        #if cellmodel == "MAT":
+        #    model = model_classes.MATModel()
+        if model_type == "ADEXP":
+            from jithub.models.model_classes import ADEXPModel
+            cellmodel = ADEXPModel()
 
-        dtc = DataTC(backend=cellmodel)
-        assert dtc.backend == cellmodel
-        dtc.params = {k: np.mean(v) for k, v in MODEL_PARAMS[cellmodel].items()}
-        other_params = BPO_PARAMS[cellmodel]
-        dtc = dtc_to_rheo(dtc)
-        print(dtc.rheobase)
-        assert dtc.rheobase is not None
-        self.assertIsNotNone(dtc.rheobase)
-        vm, plt, dtc = inject_and_plot_model(dtc, plotly=False)
+        #    model = model_classes.ADEXPModel()
+
+        #dtc = DataTC(backend=cellmodel)
+        #assert dtc.backend == cellmodel
+        cellmodel.params = {k: np.mean(v) for k, v in MODEL_PARAMS[model_type].items()}
+        #other_params = BPO_PARAMS[cellmodel]
+        cellmodel = dtc_to_rheo(cellmodel)
+        print(cellmodel.rheobase)
+        assert cellmodel.rheobase is not None
+        self.assertIsNotNone(cellmodel.rheobase)
+        vm, plt, cellmodel = inject_and_plot_model(cellmodel, plotly=False)
         self.assertIsNotNone(vm)
-        model = dtc.dtc_to_model()
-        self.assertIsNotNone(model)
+
+        self.assertIsNotNone(cellmodel)
 
 
 if __name__ == "__main__":
