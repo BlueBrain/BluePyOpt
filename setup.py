@@ -31,9 +31,6 @@ setuptools.setup(
         "numpy>=1.6",
         "pandas>=0.18",
         "deap",
-        "efel>=2.13",
-        "scoop>=0.7",
-        "ipyparallel",
         "pickleshare>=0.7.3",
         "Jinja2>=2.8",
         "future",
@@ -48,7 +45,6 @@ setuptools.setup(
 	    "sklearn",
 	    "allensdk",
 	    "frozendict",
-		"eFEL @ git+ssh://git@github.com/russelljjarvis/eFEL",
 		"sciunit @ git+ssh://git@github.com/russelljjarvis/sciunit.git@dev",
 		"neuronunit @ git+ssh://git@github.com/russelljjarvis/neuronunit.git@optimization"
 	],
