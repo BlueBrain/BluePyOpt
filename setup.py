@@ -47,8 +47,7 @@ setuptools.setup(
 	    "seaborn",
 	    "sklearn",
 	    "allensdk",
-	    "frozendict"],
-	install_requires = [
+	    "frozendict",
 		"eFEL @ https://github.com/russelljjarvis/eFEL.git",
 		"sciunit @ https://github.com/russelljjarvis/sciunit.git@dev",
 		"neuronunit @ https://github.com/russelljjarvis/neuronunit.git@optimization"
