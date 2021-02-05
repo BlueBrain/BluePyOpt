@@ -48,9 +48,9 @@ setuptools.setup(
 	    "sklearn",
 	    "allensdk",
 	    "frozendict",
-		"eFEL @ https://github.com/russelljjarvis/eFEL.git",
-		"sciunit @ https://github.com/russelljjarvis/sciunit.git@dev",
-		"neuronunit @ https://github.com/russelljjarvis/neuronunit.git@optimization"
+		"eFEL @ git+ssh://git@github.com/russelljjarvis/eFEL",
+		"sciunit @ git+ssh://git@github.com/russelljjarvis/sciunit.git@dev",
+		"neuronunit @ git+ssh://git@github.com/russelljjarvis/neuronunit.git@optimization"
 	],
     packages=setuptools.find_packages(
         exclude=(
