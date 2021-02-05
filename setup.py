@@ -46,7 +46,6 @@ setuptools.setup(
 	    "allensdk",
 	    "frozendict",
         "efel>=2.13",
-		"sciunit @ git+ssh://git@github.com/russelljjarvis/sciunit.git@dev",
 		"neuronunit @ git+ssh://git@github.com/russelljjarvis/neuronunit.git@abolish_dtc"
 	],
     packages=setuptools.find_packages(
