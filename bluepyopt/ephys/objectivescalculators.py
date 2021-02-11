@@ -36,23 +36,26 @@ class ObjectivesCalculator(object):
 
         self.objectives = objectives
 
-    def calculate_scores(self, responses, cell_model, param_dict):
+    def calculate_scores(self, responses, cell_model=None, param_dict=None):
         """Calculator the score for every objective"""
         
         scores = {}
         
-        cell_model.freeze(param_dict)
+        if param_dict and cell_model:
+            cell_model.freeze(param_dict)
         
         for objective in self.objectives:
             
             if issubclass(type(objective), objectives.EFeatureObjective):
                 scores[objective.name] = objective.calculate_score(responses)
             elif issubclass(type(objective), objectives.RuleObjective):
-                scores[objective.name] = objective.calculate_score(cell_model)
+                if param_dict and cell_model:
+                    scores[objective.name] = objective.calculate_score(cell_model)
             else:
                 raise Exception('Unknown objective class: {}'.format(type(objective)))
-
-        cell_model.unfreeze(param_dict.keys())
+        
+        if param_dict and cell_model:
+            cell_model.unfreeze(param_dict.keys())
         
         return scores
 

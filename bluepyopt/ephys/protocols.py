@@ -163,7 +163,7 @@ class SweepProtocol(Protocol):
 
     def _run_func(self, cell_model, param_values, sim=None):
         """Run protocols"""
-
+        
         try:
             cell_model.freeze(param_values)
             cell_model.instantiate(sim=sim)
