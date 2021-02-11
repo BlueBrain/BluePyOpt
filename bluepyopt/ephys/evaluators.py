@@ -195,7 +195,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             self.fitness_protocols.values(),
             param_dict)
 
-        return self.fitness_calculator.calculate_scores(responses, self.cell_model, param_dict)
+        return self.fitness_calculator.calculate_scores(responses, self.cell_model, param_dict)  
 
     def evaluate_with_lists(self, param_list=None):
         """Run evaluation with lists as input and outputs"""
