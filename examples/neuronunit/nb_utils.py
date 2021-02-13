@@ -12,10 +12,8 @@ from neuronunit.optimization.model_parameters import (
     BPO_PARAMS,
     to_bpo_param,
 )
-from neuronunit.optimization.optimization_management import (
-    dtc_to_rheo,
-    inject_and_plot_model,
-)
+from neuronunit.optimization.optimization_management import inject_and_plot_model
+
 from neuronunit.optimization.data_transport_container import DataTC
 from jithub.models import model_classes
 
@@ -31,6 +29,12 @@ if SILENT:
     warnings.filterwarnings("ignore")
 
 
+def rounding(params):
+    for k,v in params.items():
+        if np.round(v, 1) != 0:
+            params[k] = np.round(v, 1)
+    return params
+
 def optimize_job(
     specimen_id,
     model_type,
@@ -39,24 +43,22 @@ def optimize_job(
 ):
     find_sweep_with_n_spikes = 8
 
-
-    #dtc = DataTC(backend=model_type)
-    #dtc.backend = model_type
-    #model = dtc.dtc_to_model()
-
-    fixed_current = 122 * qt.pA
-    if model_type is "ADEXP":
+    if model_type is str("ADEXP"):
         from jithub.models.model_classes import ADEXPModel
         model = ADEXPModel()
-        NGEN = 150
-        MU = 150
-    if model_type is "IZHI":
-        from jithub.models.model_classes import IzhiModel
-        model = IzhiModel()
-        # model.params['celltype'].freeze(int(7))
-        NGEN = 350
-        MU = 150
+    if model_type is str("IZHI"):
+        from jithub.models.model_classes import IZHIModel
+        model = IZHIModel()
+
     model.params = BPO_PARAMS[model_type]
+    fixed_current = 122 *qt.pA
+    if model_type is "ADEXP":
+        NGEN = 500
+        MU = 100
+    if model_type is "IZHI":
+        NGEN = 300
+        MU = 100
+
     mapping_funct = dask_map_function
     [ cell_evaluator,
     simple_cell,

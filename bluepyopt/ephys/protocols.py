@@ -385,7 +385,7 @@ class NeuronUnitAllenStepProtocol(SweepProtocol):
 		return cell_model,cell_model
 
 	def neuronunit_model_evaluate(self,cell_model,param_values):
-		from neuronunit.optimization.optimization_management import dtc_to_rheo
+		from neuronunit.optimization.optimization_management import model_to_rheo
 		from neuronunit.optimization.optimization_management import multi_spiking_feature_extraction
 		if hasattr(cell_model,'allen'):
 			if hasattr(cell_model,'seeded_current'):
@@ -422,7 +422,7 @@ class NeuronUnitAllenStepProtocol(SweepProtocol):
 					'rheobase':cell_model.rheobase,'params':param_values}
 		else:
 			cell_model.attrs = param_values
-			cell_model = dtc_to_rheo(cell_model,bind_vm=True)
+			cell_model = model_to_rheo(cell_model,bind_vm=True)
 			responses = {
 				'response':cell_model.vmrh,
 				'model':cell_model,#.cell_model_to_model(),
