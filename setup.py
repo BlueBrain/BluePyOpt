@@ -45,8 +45,11 @@ setuptools.setup(
 	    "sklearn",
 	    "allensdk",
 	    "frozendict",
-        "efel>=2.13"
-	],
+        "efel>=2.13"],
+    dependency_links=[
+        # Make sure to include the `#egg` portion so the `install_requires` recognizes the package
+        'git+ssh://git@github.com/russelljjarvis/neuronunit.git@optimization#egg=neuronunit'
+    ],
     packages=setuptools.find_packages(
         exclude=(
             'examples',

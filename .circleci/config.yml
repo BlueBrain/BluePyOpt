@@ -52,7 +52,7 @@ jobs:
       - run: git clone -b dev https://github.com/russelljjarvis/sciunit.git
       - run: cd sciunit; pip install -e .; cd ..;
       - run: cd bluepyopt/tests; python test_evaluators.py
-      - run: cd bluepyopt/tests; python rheobase_dtc_test.py
+      - run: cd bluepyopt/tests; python rheobase_model_test.py
       - run: cd bluepyopt/tests; python scores_unit_test.py
 
       # causes time out
