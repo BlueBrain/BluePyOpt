@@ -56,7 +56,7 @@ def optimize_job(
         NGEN = 500
         MU = 100
     if model_type is "IZHI":
-        NGEN = 300
+        NGEN = 500
         MU = 100
 
     mapping_funct = dask_map_function
