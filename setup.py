@@ -45,7 +45,7 @@ setuptools.setup(
 	    "sklearn",
 	    "allensdk",
 	    "frozendict",
-        "efel>=2.13",
+        "efel>=2.13"
 	],
     packages=setuptools.find_packages(
         exclude=(
