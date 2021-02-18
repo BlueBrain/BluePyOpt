@@ -24,7 +24,7 @@ from neuronunit.optimization.optimization_management import (
     inject_and_plot_model,
 )
 import numpy as np
-from neuronunit.optimization.data_transport_container import DataTC
+from neuronunit.optimization.data_transport_container import DataTC as GenericModel
 from jithub.models import model_classes
 import matplotlib.pyplot as plt
 import quantities as qt
@@ -55,9 +55,8 @@ class testOptimizationAllenMultiSpike(unittest.TestCase):
 
     def optimize_job(self, model_type, score_type=ZScore):
         find_sweep_with_n_spikes = 8
-        dtc = DataTC()
-        dtc.backend = model_type
-        model = dtc.dtc_to_model()
+        model = GenericModel()
+        model.backend = model_type
         model.params = BPO_PARAMS[model_type]
         fixed_current = 122 * qt.pA
         if model_type == "ADEXP":
