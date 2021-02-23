@@ -184,17 +184,17 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
 
     def evaluate_with_dicts(self, param_dict=None, target='scores'):
         """Run evaluation with dict as input and output"""
-        
+
         if target not in ['scores', 'values']:
             raise Exception(
                 'CellEvaluator: target has to be "scores" or "values".')
-            
+
         if self.fitness_calculator is None:
             raise Exception(
                 'CellEvaluator: need fitness_calculator to evaluate')
 
         logger.debug('Evaluating %s', self.cell_model.name)
-    
+
         responses = self.run_protocols(
             self.fitness_protocols.values(),
             param_dict)

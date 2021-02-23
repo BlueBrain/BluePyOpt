@@ -75,7 +75,7 @@ class SingletonObjective(EFeatureObjective):
         """Objective score"""
 
         return self.calculate_feature_scores(responses)[0]
-    
+
     def calculate_value(self, responses):
         """Objective value"""
 
