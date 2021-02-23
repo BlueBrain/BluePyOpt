@@ -47,6 +47,15 @@ class EFeatureObjective(bluepyopt.objectives.Objective):
 
         return scores
 
+    def calculate_feature_values(self, responses):
+        """Calculate the value of an individual features"""
+
+        values = []
+        for feature in self.features:
+            values.append(feature.calculate_feature(responses))
+
+        return values
+
 
 class SingletonObjective(EFeatureObjective):
 
@@ -66,6 +75,11 @@ class SingletonObjective(EFeatureObjective):
         """Objective score"""
 
         return self.calculate_feature_scores(responses)[0]
+    
+    def calculate_value(self, responses):
+        """Objective value"""
+
+        return self.calculate_feature_values(responses)[0]
 
     def __str__(self):
         """String representation"""

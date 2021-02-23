@@ -182,34 +182,44 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
 
         return responses
 
-    def evaluate_with_dicts(self, param_dict=None):
+    def evaluate_with_dicts(self, param_dict=None, target='scores'):
         """Run evaluation with dict as input and output"""
-
+        
+        if target not in ['scores', 'values']:
+            raise Exception(
+                'CellEvaluator: target has to be "scores" or "values".')
+            
         if self.fitness_calculator is None:
             raise Exception(
                 'CellEvaluator: need fitness_calculator to evaluate')
 
         logger.debug('Evaluating %s', self.cell_model.name)
-
+    
         responses = self.run_protocols(
             self.fitness_protocols.values(),
             param_dict)
 
-        return self.fitness_calculator.calculate_scores(responses)
+        if target == 'scores':
+            return self.fitness_calculator.calculate_scores(responses)
 
-    def evaluate_with_lists(self, param_list=None):
+        elif target == 'values':
+            return self.fitness_calculator.calculate_values(responses)
+
+    def evaluate_with_lists(self, param_list=None, target='scores'):
         """Run evaluation with lists as input and outputs"""
 
         param_dict = self.param_dict(param_list)
 
-        obj_dict = self.evaluate_with_dicts(param_dict=param_dict)
+        obj_dict = self.evaluate_with_dicts(
+            param_dict=param_dict, target=target
+        )
 
         return self.objective_list(obj_dict)
 
-    def evaluate(self, param_list=None):
+    def evaluate(self, param_list=None, target='scores'):
         """Run evaluation with lists as input and outputs"""
 
-        return self.evaluate_with_lists(param_list)
+        return self.evaluate_with_lists(param_list, target=target)
 
     def __str__(self):
 
