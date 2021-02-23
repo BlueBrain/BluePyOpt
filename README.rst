@@ -1,59 +1,10 @@
-<img src="docs/source/logo/BluePyOptBanner.png"/>
+|banner|
 
------------------
+|release| |docs| |license| |build| |coverage| |gitter|
 
-# BluePyOpt: Blue Brain Python Optimisation Library
+BluePyOpt
+=========
 
-<table>
-<tr>
-  <td>Latest Release</td>
-  <td>
-    <a href="https://pypi.org/project/bluepyopt/">
-    <img src="https://img.shields.io/pypi/v/bluepyopt.svg" alt="latest release" />
-    </a>
-  </td>
-</tr>
-<tr>
-  <td>Documentation</td>
-  <td>
-    <a href="https://bluepyopt.readthedocs.io/">
-    <img src="https://readthedocs.org/projects/bluepyopt/badge/?version=latest" alt="latest documentation" />
-    </a>
-  </td>
-</tr>
-<tr>
-  <td>License</td>
-  <td>
-    <a href="https://github.com/BlueBrain/bluepyopt/blob/master/LICENSE.txt">
-    <img src="https://img.shields.io/pypi/l/bluepyopt.svg" alt="license" />
-    </a>
-</td>
-</tr>
-<tr>
-  <td>Build Status</td>
-  <td>
-    <a href="https://github.com/BlueBrain/BluePyOpt/actions">
-    <img src="https://github.com/BlueBrain/BluePyOpt/workflows/Build/badge.svg?branch=master" alt="Actions build status" />
-    </a>
-  </td>
-</tr>
-<tr>
-  <td>Coverage</td>
-  <td>
-    <a href="https://codecov.io/gh/BlueBrain/bluepyopt">
-    <img src="https://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=master" alt="coverage" />
-    </a>
-  </td>
-</tr>
-<tr>
-	<td>Gitter</td>
-	<td>
-		<a href="https://gitter.im/bluebrain/bluepyopt">
-		<img src="https://badges.gitter.im/Join%20Chat.svg"
-	</a>
-	</td>
-</tr>
-</table>
 
 Introduction
 ============
@@ -77,24 +28,27 @@ Citation
 
 When you use the BluePyOpt software or method for your research, we ask you to cite the following publication (**this includes poster presentations**):
 
-[Van Geit W, Gevaert M, Chindemi G, Rössert C, Courcol J, Muller EB, Schürmann F, Segev I and Markram H (2016). BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience. Front. Neuroinform. 10:17. doi: 10.3389/fninf.2016.00017](http://journal.frontiersin.org/article/10.3389/fninf.2016.00017)
+`Van Geit W, Gevaert M, Chindemi G, Rössert C, Courcol J, Muller EB, Schürmann F, Segev I and Markram H (2016). BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience. Front. Neuroinform. 10:17. doi: 10.3389/fninf.2016.00017 <http://journal.frontiersin.org/article/10.3389/fninf.2016.00017>`_.
 
-```bibtex
-@ARTICLE{bluepyopt,
- AUTHOR={Van Geit, Werner  and  Gevaert, Michael  and  Chindemi, Giuseppe  and  Rössert, Christian  and  Courcol, Jean-Denis  and  Muller, Eilif Benjamin  and  Schürmann, Felix  and  Segev, Idan  and  Markram, Henry},   
-TITLE={BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience},
-JOURNAL={Frontiers in Neuroinformatics},
-VOLUME={10},
-YEAR={2016},
-NUMBER={17},
-URL={http://www.frontiersin.org/neuroinformatics/10.3389/fninf.2016.00017/abstract},
-DOI={10.3389/fninf.2016.00017},
-ISSN={1662-5196}
-}
-```
+.. code-block:: 
+
+	bibtex
+	@ARTICLE{bluepyopt,
+	AUTHOR={Van Geit, Werner  and  Gevaert, Michael  and  Chindemi, Giuseppe  and  Rössert, Christian  and  Courcol, Jean-Denis  and  Muller, Eilif Benjamin  and  Schürmann, Felix  and  Segev, Idan  and  Markram, Henry},   
+	TITLE={BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience},
+	JOURNAL={Frontiers in Neuroinformatics},
+	VOLUME={10},
+	YEAR={2016},
+	NUMBER={17},
+	URL={http://www.frontiersin.org/neuroinformatics/10.3389/fninf.2016.00017/abstract},
+	DOI={10.3389/fninf.2016.00017},
+	ISSN={1662-5196}
+	}
+
+
 Support
 =======
-We are providing support using a chat channel on [Gitter](https://gitter.im/BlueBrain/BluePyOpt), or the [Github discussion page](https://github.com/BlueBrain/BluePyOpt/discussions).
+We are providing support using a chat channel on `Gitter <https://gitter.im/BlueBrain/BluePyOpt>`_, or the `Github discussion page <https://github.com/BlueBrain/BluePyOpt/discussions>`_.
 
 News
 ====
@@ -109,14 +63,13 @@ News
 Requirements
 ============
 
-* [Python 2.7+](https://www.python.org/download/releases/2.7/) or [Python 3.6+](https://www.python.org/downloads/release/python-360/)
-* [Pip](https://pip.pypa.io) (installed by default in newer versions of Python)
-* [Neuron 7.4+](http://neuron.yale.edu/) (compiled with Python support)
-* [eFEL eFeature Extraction Library](https://github.com/BlueBrain/eFEL) (automatically installed by pip)
-* [Numpy](http://www.numpy.org) (automatically installed by pip)
-* [Pandas](http://pandas.pydata.org/) (automatically installed by pip)
-* The instruction below are written assuming you have access to a command shell
-on Linux / UNIX / MacOSX / Cygwin
+* `Python 2.7+ <https://www.python.org/download/releases/2.7/>`_ or `Python 3.6+ <https://www.python.org/downloads/release/python-360/>`_
+* `Pip <https://pip.pypa.io>`_ (installed by default in newer versions of Python)
+* `Neuron 7.4+ <http://neuron.yale.edu/>`_ (compiled with Python support)
+* `eFEL eFeature Extraction Library` <https://github.com/BlueBrain/eFEL>`_ (automatically installed by pip)
+* `Numpy <http://www.numpy.org>`_ (automatically installed by pip)
+* `Pandas <http://pandas.pydata.org/>`_ (automatically installed by pip)
+* The instruction below are written assuming you have access to a command shell on Linux / UNIX / MacOSX / Cygwin
 
 Installation
 ============
@@ -125,16 +78,18 @@ If you want to use the ephys module of BluePyOpt, you first need to install NEUR
 
 And then bluepyopt itself:
 
-```bash
-pip install bluepyopt
-```
+
+.. code-block:: bash
+
+    pip install bluepyopt
+
 
 Cloud infrastructure
 ====================
 
 We provide instructions on how to set up an optimisation environment on cloud
 infrastructure or cluster computers
-[here](https://github.com/BlueBrain/BluePyOpt/tree/master/cloud-config)
+`here <https://github.com/BlueBrain/BluePyOpt/tree/master/cloud-config>`_
 
 Quick Start
 ===========
@@ -147,13 +102,16 @@ model with 2 HH channels can be found at
 
 https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/simplecell.ipynb
 
-![Landscape example](https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/figures/landscape_example.png)
+
+.. image:: ../../examples/simplecell/figures/landscape_example.png
+
+
 **Figure**: The solution space of a single compartmental model with two parameters: the maximal conductance of Na and K ion channels. The color represents how well the model fits two objectives: when injected with two different currents, the model has to fire 1 and 4 action potential respectively during the stimuli. Dark blue is the best fitness. The blue circles represent solutions with a perfect score.
 
 Neocortical Layer 5 Pyramidal Cell
 ----------------------------------
 Scripts for a more complex neocortical L5PC are in
-[this directory](https://github.com/BlueBrain/BluePyOpt/tree/master/examples/l5pc)
+`this directory <https://github.com/BlueBrain/BluePyOpt/tree/master/examples/l5pc>`__
 
 With a notebook:
 
@@ -162,7 +120,7 @@ https://github.com/BlueBrain/BluePyOpt/blob/master/examples/l5pc/L5PC.ipynb
 Thalamocortical Cells
 ---------------------
 Scripts for 2 thalamocortical cell types are in
-[this directory](https://github.com/BlueBrain/BluePyOpt/tree/master/examples/thalamocortical-cell)
+`this directory <https://github.com/BlueBrain/BluePyOpt/tree/master/examples/thalamocortical-cell>`__
 
 With a notebook:
 
@@ -170,9 +128,9 @@ https://github.com/BlueBrain/BluePyOpt/blob/master/examples/thalamocortical-cell
 
 
 Tsodyks-Markram Model of Short-Term Plasticity
----------------------
+----------------------------------------------
 Scripts for 2 version of fitting the Tsodyks-Markram model to synaptic traces are in
-[this directory](https://github.com/BlueBrain/BluePyOpt/tree/master/examples/tsodyksmarkramstp)
+`this directory <https://github.com/BlueBrain/BluePyOpt/tree/master/examples/tsodyksmarkramstp>`__
 
 With 2 notebooks:
 
@@ -180,8 +138,8 @@ https://github.com/BlueBrain/BluePyOpt/blob/master/examples/tsodyksmarkramstp/ts
 https://github.com/BlueBrain/BluePyOpt/blob/master/examples/tsodyksmarkramstp/tsodyksmarkramstp_multiplefreqs.ipynb
 
 API documentation
-==================
-The API documentation can be found on [ReadTheDocs](http://bluepyopt.readthedocs.io/en/latest/).
+=================
+The API documentation can be found on `ReadTheDocs <http://bluepyopt.readthedocs.io/en/latest/>`_.
 
 Funding
 =======
@@ -189,3 +147,28 @@ This work has been partially funded by the European Union Seventh Framework Prog
 This project/research was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government’s ETH Board of the Swiss Federal Institutes of Technology.
 
 © 2016-2021, Blue Brain Project/EPFL
+
+.. |release| image:: https://img.shields.io/pypi/v/bluepyopt.svg
+              :target: https://pypi.org/project/bluepyopt
+
+.. |docs| image:: https://readthedocs.org/projects/bluepyopt/badge/?version=latest
+          :target: https://bluepyopt.readthedocs.io/
+
+.. |license| image:: https://img.shields.io/pypi/l/bluepyopt.svg
+                :target: https://github.com/BlueBrain/bluepyopt/blob/master/LICENSE.txt
+
+.. |build| image:: https://github.com/BlueBrain/BluePyOpt/workflows/Build/badge.svg?branch=master
+              :target: https://github.com/BlueBrain/BluePyOpt/actions
+
+.. |coverage| image:: hhttps://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=master
+              :target: https://codecov.io/gh/BlueBrain/bluepyopt
+
+.. |gitter| image:: https://badges.gitter.im/Join%20Chat.svg
+            :target: https://gitter.im/bluebrain/bluepyopt
+
+..
+    The following image must also be defined in the index.rst file for unknown reasons.
+    The phrase ".. substitutions" must not be removed. Function: unknown
+
+.. substitutions
+.. |banner| image:: docs/source/logo/BluePyOptBanner.png
