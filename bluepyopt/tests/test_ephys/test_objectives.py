@@ -79,10 +79,12 @@ def test_SingletonObjective():
     responses = {'square_pulse_step1.soma.v': response, }
 
     efeature_value = efeature.calculate_feature(responses)
+    efeature_value_obj = s_obj.calculate_value(responses)
 
     nt.assert_almost_equal(
         s_obj.calculate_score(responses),
         abs(efeature_value - mean))
+    nt.assert_almost_equal(efeature_value_obj, efeature_value)
 
 
 @attr('unit')
