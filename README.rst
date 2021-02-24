@@ -1,9 +1,61 @@
 |banner|
 
-|release| |docs| |license| |build| |coverage| |gitter|
-
 BluePyOpt
 =========
+
+.. raw:: html
+
+	<table>
+	<tr>
+	  <td>Latest Release</td>
+	  <td>
+	    <a href="https://pypi.org/project/bluepyopt/">
+	    <img src="https://img.shields.io/pypi/v/bluepyopt.svg" alt="latest release" />
+	    </a>
+	  </td>
+	</tr>
+	<tr>
+	  <td>Documentation</td>
+	  <td>
+	    <a href="https://bluepyopt.readthedocs.io/">
+	    <img src="https://readthedocs.org/projects/bluepyopt/badge/?version=latest" alt="latest documentation" />
+	    </a>
+	  </td>
+	</tr>
+	<tr>
+	  <td>License</td>
+	  <td>
+	    <a href="https://github.com/BlueBrain/bluepyopt/blob/master/LICENSE.txt">
+	    <img src="https://img.shields.io/pypi/l/bluepyopt.svg" alt="license" />
+	    </a>
+	</td>
+	</tr>
+	<tr>
+	  <td>Build Status</td>
+	  <td>
+	    <a href="https://github.com/BlueBrain/BluePyOpt/actions">
+	    <img src="https://github.com/BlueBrain/BluePyOpt/workflows/Build/badge.svg?branch=master" alt="Actions build status" />
+	    </a>
+	  </td>
+	</tr>
+	<tr>
+	  <td>Coverage</td>
+	  <td>
+	    <a href="https://codecov.io/gh/BlueBrain/bluepyopt">
+	    <img src="https://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=master" alt="coverage" />
+	    </a>
+	  </td>
+	</tr>
+	<tr>
+		<td>Gitter</td>
+		<td>
+			<a href="https://gitter.im/bluebrain/bluepyopt">
+			<img src="https://badges.gitter.im/Join%20Chat.svg"
+		</a>
+		</td>
+	</tr>
+	</table>
+
 
 
 Introduction
@@ -32,7 +84,6 @@ When you use the BluePyOpt software or method for your research, we ask you to c
 
 .. code-block:: 
 
-	bibtex
 	@ARTICLE{bluepyopt,
 	AUTHOR={Van Geit, Werner  and  Gevaert, Michael  and  Chindemi, Giuseppe  and  Rössert, Christian  and  Courcol, Jean-Denis  and  Muller, Eilif Benjamin  and  Schürmann, Felix  and  Segev, Idan  and  Markram, Henry},   
 	TITLE={BluePyOpt: Leveraging open source software and cloud infrastructure to optimise model parameters in neuroscience},
@@ -56,7 +107,7 @@ News
 - 2016/11/10: BluePyOpt now supports NEURON point processes. This means we can fit parameters of Adex/GIF/Izhikevich models, and also synapse models.
 - 2016/06/14: Started a wiki: https://github.com/BlueBrain/BluePyOpt/wiki
 - 2016/06/07: The BluePyOpt paper was published in Frontiers in Neuroinformatics (for link, see above)
-- 2016/05/03: The API documentation was moved to [ReadTheDocs](http://bluepyopt.readthedocs.io/en/latest/)
+- 2016/05/03: The API documentation was moved to `ReadTheDocs <http://bluepyopt.readthedocs.io/en/latest/>`_
 - 2016/04/20: BluePyOpt now contains the code of the IBEA selector, no need to install a BBP-specific version of DEAP anymore
 - 2016/03/24: Released version 1.0
 
@@ -148,27 +199,12 @@ This project/research was supported by funding to the Blue Brain Project, a rese
 
 © 2016-2021, Blue Brain Project/EPFL
 
-.. |release| image:: https://img.shields.io/pypi/v/bluepyopt.svg
-              :target: https://pypi.org/project/bluepyopt
-
-.. |docs| image:: https://readthedocs.org/projects/bluepyopt/badge/?version=latest
-          :target: https://bluepyopt.readthedocs.io/
-
-.. |license| image:: https://img.shields.io/pypi/l/bluepyopt.svg
-                :target: https://github.com/BlueBrain/bluepyopt/blob/master/LICENSE.txt
-
-.. |build| image:: https://github.com/BlueBrain/BluePyOpt/workflows/Build/badge.svg?branch=master
-              :target: https://github.com/BlueBrain/BluePyOpt/actions
-
-.. |coverage| image:: hhttps://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=master
-              :target: https://codecov.io/gh/BlueBrain/bluepyopt
-
-.. |gitter| image:: https://badges.gitter.im/Join%20Chat.svg
-            :target: https://gitter.im/bluebrain/bluepyopt
-
 ..
-    The following image must also be defined in the index.rst file for unknown reasons.
-    The phrase ".. substitutions" must not be removed. Function: unknown
+    The following image is also defined in the index.rst file, as the relative path is 
+    different, depending from where it is sourced.
+    The following location is used for the github README
+    The index.rst location is used for the docs README; index.rst also defined an end-marker, 
+    to skip content after the marker 'substitutions'.
 
 .. substitutions
 .. |banner| image:: docs/source/logo/BluePyOptBanner.png
