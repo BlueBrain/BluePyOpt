@@ -22,3 +22,4 @@ Indices and tables
 * :ref:`search`
 
 .. |banner| image:: /logo/BluePyOptBanner.png
+.. |landscape_example| image:: ../../examples/simplecell/figures/landscape_example.png

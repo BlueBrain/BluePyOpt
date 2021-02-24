@@ -208,3 +208,4 @@ This project/research was supported by funding to the Blue Brain Project, a rese
 
 .. substitutions
 .. |banner| image:: docs/source/logo/BluePyOptBanner.png
+.. |landscape_example| image:: examples/simplecell/figures/landscape_example.png
