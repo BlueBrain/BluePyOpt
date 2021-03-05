@@ -104,7 +104,7 @@ class CMA_MO(cma.StrategyMultiObjective):
                 from itertools import cycle
 
                 generator = cycle(centroids)
-                starters = [numpy.copy(next(generator)) for i in range(lambda_)]
+                starters = [copy.deepcopy(next(generator)) for i in range(lambda_)]
             else:
                 starters = centroids
 
