@@ -24,6 +24,8 @@ import numpy
 import pickle
 import random
 import functools
+import os
+import shutil
 
 import deap.tools
 
@@ -223,7 +225,9 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         """
 
         stats = self.get_stats()
-
+        if cp_filename:
+            cp_filename_tmp = str(cp_filename) + '.tmp'
+        
         if continue_cp:
 
             # A file name has been given, then load the data from the file
@@ -308,8 +312,10 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                           rndstate=random.getstate(),
                           np_rndstate=numpy.random.get_state(),
                           CMA_es=CMA_es)
-                pickle.dump(cp, open(cp_filename, "wb"))
-                logger.debug('Wrote checkpoint to %s', cp_filename)
+                pickle.dump(cp, open(cp_filename_tmp, "wb"))
+                if os.path.isfile(cp_filename_tmp):
+                    shutil.copy(cp_filename_tmp, cp_filename)
+                    logger.debug('Wrote checkpoint to %s', cp_filename)
 
                 CMA_es.map_function = temp_mf
 

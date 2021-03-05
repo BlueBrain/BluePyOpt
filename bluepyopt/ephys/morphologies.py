@@ -139,7 +139,14 @@ class NrnFileMorphology(Morphology, DictMixin):
         if self.morph_modifiers is not None:
             for morph_modifier in self.morph_modifiers:
                 morph_modifier(sim=sim, icell=icell)
-
+        
+        if self.morph_modifiers_hoc is not None:
+            hoc_modifiers = ''
+            for morph_modifier_hoc in self.morph_modifiers_hoc:
+                hoc_modifiers += morph_modifier_hoc
+                hoc_modifiers += '\n'
+            sim.neuron.h(hoc_modifiers)
+                
     def destroy(self, sim=None):
         """Destroy morphology instantiation"""
         pass

@@ -217,6 +217,7 @@ class NrnSectionParameter(NrnParameter, DictMixin):
         for location in self.locations:
             iseclist = location.instantiate(sim=sim, icell=icell)
             for section in iseclist:
+                print(section, self.param_name)
                 setattr(section, self.param_name,
                         self.value_scale_func(self.value, section, sim=sim))
             logger.debug(

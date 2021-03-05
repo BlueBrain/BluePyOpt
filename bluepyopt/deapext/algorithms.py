@@ -24,6 +24,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 import random
 import logging
+import os
+import shutil
 
 import deap.algorithms
 import deap.tools
@@ -94,6 +96,9 @@ def eaAlphaMuPlusLambdaCheckpoint(
         continue_cp(bool): whether to continue
     """
 
+    if cp_filename:
+        cp_filename_tmp = str(cp_filename) + '.tmp'
+        
     if continue_cp:
         # A file name has been given, then load the data from the file
         cp = pickle.load(open(cp_filename, "rb"))
@@ -149,8 +154,10 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       history=history,
                       logbook=logbook,
                       rndstate=random.getstate())
-            pickle.dump(cp, open(cp_filename, "wb"))
-            logger.debug('Wrote checkpoint to %s', cp_filename)
+            pickle.dump(cp, open(cp_filename_tmp, "wb"))
+            if os.path.isfile(cp_filename_tmp):
+                shutil.copy(cp_filename_tmp, cp_filename)
+                logger.debug('Wrote checkpoint to %s', cp_filename)
 
         gen += 1
         stopping_params["gen"] = gen
