@@ -18,12 +18,15 @@ from neuronunit.optimization.data_transport_container import DataTC
 from jithub.models import model_classes
 import matplotlib.pyplot as plt
 import quantities as qt
+import unittest
+import nose.tools as nt
+
 
 
 class testOptimization(unittest.TestCase):
     def setUp(self):
         self = self
-
+    @attr('unit')
     def test_opt_1(self):
         model_type = "ADEXP"
 
@@ -49,6 +52,8 @@ class testOptimization(unittest.TestCase):
         self.assertIsNotNone(cellmodel.rheobase)
         vm, plt, cellmodel = inject_and_plot_model(cellmodel, plotly=False)
         self.assertIsNotNone(vm)
+		#nt.assert_is_instance(vm, np.sum(fitnesses))
+
 
         self.assertIsNotNone(cellmodel)
 

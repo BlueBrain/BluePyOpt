@@ -11,6 +11,9 @@ import efel
 import matplotlib.pyplot as plt
 import quantities as qt
 
+import unittest
+import nose.tools as nt
+
 from neuronunit.allenapi.allen_data_efel_features_opt import (
     opt_to_model,
     opt_setup,
@@ -40,7 +43,7 @@ class testOptimization(unittest.TestCase):
                 482493761,
                 471819401
                ]
-
+    @attr('unit')
     def test_opt_1(self):
         specimen_id = self.ids[1]
         cellmodel = "IZHI"
@@ -95,6 +98,8 @@ class testOptimization(unittest.TestCase):
         fitnesses = cell_evaluator.evaluate_with_lists(best_ind)
         assert np.sum(fitnesses) < 8.5
         self.assertGreater(8.5, np.sum(fitnesses))
+		nt.assert_is_instance(8.5, np.sum(fitnesses))
+
 
 if __name__ == "__main__":
     unittest.main()

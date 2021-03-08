@@ -5,7 +5,7 @@ import warnings
 if SILENT:
     warnings.filterwarnings("ignore")
 
-import unittest
+
 import numpy as np
 import efel
 import matplotlib.pyplot as plt
@@ -27,10 +27,36 @@ from neuronunit.optimization.model_parameters import (
 from neuronunit.optimization.optimization_management import inject_model_soma
 from neuronunit.optimization.data_transport_container import DataTC
 from jithub.models import model_classes
-
 from sciunit.scores import RelativeDifferenceScore
 
+from nose.plugins.attrib import attr
+import unittest
+import nose.tools as nt
+@attr('unit')
+def test_import():
+    """bluepyopt: test importing neuronunit"""
+	from neuronunit.allenapi.allen_data_efel_features_opt import (
+	    opt_to_model,
+	    opt_setup,
+	    opt_exec,
+	)
+	from neuronunit.allenapi.allen_data_efel_features_opt import opt_to_model
+	from neuronunit.allenapi.utils import dask_map_function
+
+	from neuronunit.optimization.model_parameters import (
+	    MODEL_PARAMS,
+	    BPO_PARAMS,
+	    to_bpo_param,
+	)
+	from neuronunit.optimization.optimization_management import inject_model_soma
+	from neuronunit.optimization.data_transport_container import DataTC
+	from jithub.models import model_classes
+	from sciunit.scores import RelativeDifferenceScore
+
+
 class testOptimization(unittest.TestCase):
+
+
     def setUp(self):
         self.ids = [ 324257146,
                 325479788,
@@ -40,7 +66,7 @@ class testOptimization(unittest.TestCase):
                 482493761,
                 471819401
                ]
-
+	@attr('unit')
     def test_opt_1(self):
         specimen_id = self.ids[1]
         cellmodel = "ADEXP"
@@ -95,6 +121,7 @@ class testOptimization(unittest.TestCase):
         best_ind = hall_of_fame[0]
         fitnesses = cell_evaluator.evaluate_with_lists(best_ind)
         assert np.sum(fitnesses) < 10.7
+		nt.assert_is_instance(10.7, np.sum(fitnesses))
         self.assertGreater(10.7, np.sum(fitnesses))
 
 
