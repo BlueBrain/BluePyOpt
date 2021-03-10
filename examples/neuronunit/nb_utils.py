@@ -14,7 +14,7 @@ from neuronunit.optimization.model_parameters import (
 )
 from neuronunit.optimization.optimization_management import inject_and_plot_model
 
-from neuronunit.optimization.data_transport_container import DataTC
+#from neuronunit.optimization.data_transport_container import DataTC
 from jithub.models import model_classes
 
 from sciunit.scores import RelativeDifferenceScore, ZScore
@@ -47,8 +47,8 @@ def optimize_job(
         from jithub.models.model_classes import ADEXPModel
         model = ADEXPModel()
     if model_type is str("IZHI"):
-        from jithub.models.model_classes import IZHIModel
-        model = IZHIModel()
+        from jithub.models.model_classes import IzhiModel
+        model = IzhiModel()
 
     model.params = BPO_PARAMS[model_type]
     fixed_current = 122 *qt.pA
