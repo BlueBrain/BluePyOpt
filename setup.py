@@ -45,13 +45,14 @@ setuptools.setup(
 
 	extras_require={'neo': ['neo[neomatlabio]>=0.5.1'],
 					'sciunit':'sciunit==0.2.3',
-					'numba',
-					'dask',
-					'streamlit',
+					'numba':'numba',
+					'dask':'dask',
+					'streamlit':'streamlit',
+					'tqdm':'tqdm==4.48.2',
 			        'neuronunit': ['neuronunit @ git+http://github.com/russelljjarvis/neuronunit.git@optimization'],
-			        'jithub': ['jithub @ git+http://github.com/russelljjarvis/neuronunit.git@optimization'],
-			        'sciunit': ['sciunit @ git+http://github.com/russelljjarvis/neuronunit.git@optimization'],
-					'allensdk'},
+			        'jithub': ['jithub @ git+https://github.com/russelljjarvis/jit_hub.git@neuronunit'],
+			        'sciunit': ['sciunit @ git+https://github.com/russelljjarvis/sciunit@dev'],
+					'allensdk':'allensdk==0.16.3'},
 
 
 

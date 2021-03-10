@@ -97,9 +97,9 @@ class testOptimization(unittest.TestCase):
         )
         best_ind = hall_of_fame[0]
         fitnesses = cell_evaluator.evaluate_with_lists(best_ind)
-        assert np.sum(fitnesses) < 8.5
+        #assert np.sum(fitnesses) < 8.5
         self.assertGreater(8.5, np.sum(fitnesses))
-        nt.assert_is_instance(8.5, np.sum(fitnesses))
+        nt.assert_is_greater(8.5, np.sum(fitnesses))
 
 
 if __name__ == "__main__":
