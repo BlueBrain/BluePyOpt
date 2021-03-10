@@ -37,19 +37,25 @@ setuptools.setup(
 		"Pebble>=4.3.10",
 	    "scipy",
 	    "numpy",
-	    "numba",
-	    "dask",
 	    "cython",
-	    "streamlit",
 	    "seaborn",
 	    "sklearn",
-	    "allensdk",
 	    "frozendict",
         "efel>=2.13"],
-    dependency_links=[
-        # Make sure to include the `#egg` portion so the `install_requires` recognizes the package
-        'git+ssh://git@github.com/russelljjarvis/neuronunit.git@optimization#egg=neuronunit'
-    ],
+
+	extras_require={'neo': ['neo[neomatlabio]>=0.5.1'],
+					'sciunit':'sciunit==0.2.3',
+					'numba',
+					'dask',
+					'streamlit',
+			        'neuronunit': ['neuronunit @ git+http://github.com/russelljjarvis/neuronunit.git@optimization'],
+			        'jithub': ['jithub @ git+http://github.com/russelljjarvis/neuronunit.git@optimization'],
+			        'sciunit': ['sciunit @ git+http://github.com/russelljjarvis/neuronunit.git@optimization'],
+					'allensdk'},
+
+
+
+
     packages=setuptools.find_packages(
         exclude=(
             'examples',
