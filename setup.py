@@ -28,16 +28,28 @@ setuptools.setup(
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     install_requires=[
-        'numpy>=1.6',
-        'pandas>=0.18',
-        'deap',
-        'efel>=2.13',
-        'scoop>=0.7',
-        'ipyparallel',
-        'pickleshare>=0.7.3',
-        'Jinja2>=2.8',
-        'future',
-	'Pebble>=4.3.10'],
+        "numpy>=1.6",
+        "pandas>=0.18",
+        "deap",
+        "pickleshare>=0.7.3",
+        "Jinja2>=2.8",
+        "future",
+		"Pebble>=4.3.10",
+	    "scipy",
+	    "numpy",
+	    "numba",
+	    "dask",
+	    "cython",
+	    "streamlit",
+	    "seaborn",
+	    "sklearn",
+	    "allensdk",
+	    "frozendict",
+        "efel>=2.13"],
+    dependency_links=[
+        # Make sure to include the `#egg` portion so the `install_requires` recognizes the package
+        'git+ssh://git@github.com/russelljjarvis/neuronunit.git@optimization#egg=neuronunit'
+    ],
     packages=setuptools.find_packages(
         exclude=(
             'examples',

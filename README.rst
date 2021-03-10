@@ -1,3 +1,4 @@
+<<<<<<< HEAD:README.rst
 |banner|
 
 BluePyOpt
@@ -58,6 +59,63 @@ BluePyOpt
 
 
 
+=======
+<img src="docs/source/logo/BluePyOptBanner.png"/>
+
+-----------------
+# BluePyOpt: Blue Brain Python Optimisation Library
+
+<table>
+<tr>
+  <td>Latest Release</td>
+  <td>
+    <a href="https://pypi.org/project/bluepyopt/">
+    <img src="https://img.shields.io/pypi/v/bluepyopt.svg" alt="latest release" />
+    </a>
+  </td>
+</tr>
+<tr>
+  <td>Documentation</td>
+  <td>
+    <a href="https://bluepyopt.readthedocs.io/">
+    <img src="https://readthedocs.org/projects/bluepyopt/badge/?version=latest" alt="latest documentation" />
+    </a>
+  </td>
+</tr>
+<tr>
+  <td>License</td>
+  <td>
+    <a href="https://github.com/BlueBrain/bluepyopt/blob/master/LICENSE.txt">
+    <img src="https://img.shields.io/pypi/l/bluepyopt.svg" alt="license" />
+    </a>
+</td>
+</tr>
+<tr>
+  <td>Build Status</td>
+  <td>
+    <a href="https://github.com/BlueBrain/BluePyOpt/actions">
+    <img src="https://github.com/BlueBrain/BluePyOpt/workflows/Build/badge.svg?branch=master" alt="Actions build status" />
+    </a>
+  </td>
+</tr>
+<tr>
+  <td>Coverage</td>
+  <td>
+    <a href="https://codecov.io/gh/BlueBrain/bluepyopt">
+    <img src="https://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=master" alt="coverage" />
+    </a>
+  </td>
+</tr>
+<tr>
+	<td>Gitter</td>
+	<td>
+		<a href="https://gitter.im/bluebrain/bluepyopt">
+		<img src="https://badges.gitter.im/Join%20Chat.svg"
+	</a>
+	</td>
+</tr>
+</table>
+>>>>>>> neuronunit_reduced_cells:README.md
 Introduction
 ============
 
@@ -195,6 +253,7 @@ The API documentation can be found on `ReadTheDocs <http://bluepyopt.readthedocs
 Funding
 =======
 This work has been partially funded by the European Union Seventh Framework Program (FP7/2007­2013) under grant agreement no. 604102 (HBP), the European Union’s Horizon 2020 Framework Programme for Research and Innovation under the Specific Grant Agreement No. 720270, 785907 (Human Brain Project SGA1/SGA2) and by the EBRAINS research infrastructure, funded from the European Union’s Horizon 2020 Framework Programme for Research and Innovation under the Specific Grant Agreement No. 945539 (Human Brain Project SGA3).
+<<<<<<< HEAD:README.rst
 This project/research was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government’s ETH Board of the Swiss Federal Institutes of Technology.
 
 © 2016-2021, Blue Brain Project/EPFL
@@ -209,3 +268,6 @@ This project/research was supported by funding to the Blue Brain Project, a rese
 .. substitutions
 .. |banner| image:: docs/source/logo/BluePyOptBanner.png
 .. |landscape_example| image:: examples/simplecell/figures/landscape_example.png
+=======
+- This project/research was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government’s ETH Board of the Swiss Federal Institutes of Technology.
+>>>>>>> neuronunit_reduced_cells:README.md
