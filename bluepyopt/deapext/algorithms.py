@@ -93,7 +93,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         halloffame=None,
         cp_frequency=1,
         cp_filename=None,
-        continue_cp=False):
+        continue_cp=False,
+        terminator=None):
     r"""This is the :math:`(~\alpha,\mu~,~\lambda)` evolutionary algorithm
 
     Args:
@@ -108,6 +109,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cp_frequency(int): generations between checkpoints
         cp_filename(string): path to checkpoint filename
         continue_cp(bool): whether to continue
+        terminator (multiprocessing.Event): exit loop when is set.
+            Not taken into account if None.
     """
     
     if cp_filename:
@@ -153,7 +156,9 @@ def eaAlphaMuPlusLambdaCheckpoint(
     # Begin the generational process
     gen = start_gen + 1
     stopping_params = {"gen": gen}
-    while not(_check_stopping_criteria(stopping_criteria, stopping_params)):
+    while utils.run_next_gen(
+            not(_check_stopping_criteria(stopping_criteria, stopping_params)),
+            terminator):
         offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
         population = parents + offspring
