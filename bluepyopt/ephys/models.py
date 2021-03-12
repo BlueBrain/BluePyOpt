@@ -448,7 +448,7 @@ class HocCellModel(CellModel):
     def get_template_name(hoc_string):
         """Find the template name from hoc_string
 
-        Note: this will fail if there is a begintemplate in a /* */ style
+        Note: this will fail if there is a begintemplate in a `/* */` style
         comment before the real begintemplate
         """
         for i, line in enumerate(hoc_string.split('\n')):

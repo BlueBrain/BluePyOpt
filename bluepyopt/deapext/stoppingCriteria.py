@@ -79,7 +79,7 @@ class Stagnation(bluepyopt.stoppingCriteria.StoppingCriteria):
         self.median.append(fitness[int(round(len(fitness) / 2.0))])
         self.stagnation_iter = int(
             numpy.ceil(0.2 * ngen + 120 + 30.0 * self.problem_size
-                / self.lambda_)
+                       / self.lambda_)
         )
 
         cbest = len(self.best) > self.stagnation_iter
@@ -104,7 +104,7 @@ class TolHistFun(bluepyopt.stoppingCriteria.StoppingCriteria):
         super(TolHistFun, self).__init__()
         self.tolhistfun = 10 ** -12
         self.mins = deque(maxlen=10 + int(numpy.ceil(30.0 * problem_size
-                                        / lambda_)))
+                                                     / lambda_)))
 
     def check(self, kwargs):
         """Check if the range of the best values is smaller than
