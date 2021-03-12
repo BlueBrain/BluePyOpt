@@ -104,7 +104,9 @@ class CMA_MO(cma.StrategyMultiObjective):
                 from itertools import cycle
 
                 generator = cycle(centroids)
-                starters = [copy.deepcopy(next(generator)) for i in range(lambda_)]
+                starters = [
+                    copy.deepcopy(next(generator)) for _ in range(lambda_)
+                ]
             else:
                 starters = centroids
 
@@ -138,9 +140,8 @@ class CMA_MO(cma.StrategyMultiObjective):
         # Set termination conditions
         self.active = True
         if max_ngen <= 0:
-            max_ngen = 100 + 50 * (self.problem_size + 3) ** 2 / numpy.sqrt(
-                self.lambda_
-            )
+            max_ngen = 100 + 50 * (self.problem_size + 3) ** 2 / \
+                numpy.sqrt(self.lambda_)
 
         self.stopping_conditions = [MaxNGen(max_ngen)]
 
