@@ -75,10 +75,10 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
         self.multiplier = multiplier
         self.offset = offset
 
-    def scale(self, value, segment=None, sim=None):  # pylint: disable=W0613
+    def scale(self, values, segment=None, sim=None):  # pylint: disable=W0613
         """Scale a value based on a segment"""
-
-        return self.multiplier * value + self.offset
+        
+        return self.multiplier * values['value'] + self.offset
 
     def __str__(self):
         """String representation"""
@@ -151,16 +151,17 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
         # Use this special formatting to bypass missing keys
         return string.Formatter().vformat(self.distribution, (), dist_dict)
 
-    def eval_dist(self, value, distance):
+    def eval_dist(self, values, distance):
         """Create the final dist string"""
 
         scale_dict = {}
+        for k, v in values.items():
+            scale_dict[k] = format_float(v)
         scale_dict['distance'] = format_float(distance)
-        scale_dict['value'] = format_float(value)
 
         return self.inst_distribution.format(**scale_dict)
 
-    def scale(self, value, segment, sim=None):
+    def scale(self, values, segment, sim=None):
         """Scale a value based on a segment"""
 
         # TODO soma needs other addressing scheme
@@ -177,7 +178,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
 
         # This eval is unsafe (but is it ever dangerous ?)
         # pylint: disable=W0123
-        return eval(self.eval_dist(value, distance))
+        return eval(self.eval_dist(values, distance))
 
     def __str__(self):
         """String representation"""

@@ -99,6 +99,7 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
         for location in self.locations:
             isec_list = location.instantiate(sim=sim, icell=icell)
             for isec in isec_list:
+                
                 try:
                     isec.insert(self.suffix)
                 except ValueError as e:

@@ -150,8 +150,8 @@ class CellModel(Model):
     def freeze(self, param_dict):
         """Set params"""
 
-        for param_name, param_value in param_dict.items():
-            self.params[param_name].freeze(param_value)
+        for param_name in param_dict.keys():
+            self.params[param_name].freeze(param_dict[param_name])
 
     def unfreeze(self, param_names):
         """Unset params"""
@@ -249,7 +249,7 @@ class CellModel(Model):
         if self.params is not None:
             for param in self.params.values():
                 param.instantiate(sim=sim, icell=self.icell)
-
+                
     def destroy(self, sim=None):  # pylint: disable=W0613
         """Destroy instantiated model in simulator"""
 
@@ -576,9 +576,9 @@ class LFPyCellModel(Model):
 
     def freeze(self, param_dict):
         """Set params"""
-
+        
         for param_name, param_value in param_dict.items():
-            self.params[param_name].freeze(param_value)
+            self.params[param_name].freeze(param_dict[param_name])
 
     def unfreeze(self, param_names):
         """Unset params"""
@@ -682,7 +682,7 @@ class LFPyCellModel(Model):
 
         if self.params is not None:
             for param in self.params.values():
-                param.instantiate(sim=sim, icell=self.icell)
+                param.instantiate(sim=sim, icell=self.icell, params=self.params)
 
 
     def destroy(self, sim=None):  # pylint: disable=W0613

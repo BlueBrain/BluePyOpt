@@ -29,8 +29,6 @@ from . import parameterscalers
 
 logger = logging.getLogger(__name__)
 
-# TODO location and stimulus parameters should also be optimisable
-
 
 class NrnParameter(bluepyopt.parameters.Parameter):
 
@@ -41,16 +39,20 @@ class NrnParameter(bluepyopt.parameters.Parameter):
             name,
             value=None,
             frozen=False,
-            bounds=None):
+            bounds=None, 
+            param_dependancies=None
+    ):
         """Contructor"""
 
         super(NrnParameter, self).__init__(
             name,
             value=value,
             frozen=frozen,
-            bounds=bounds)
+            bounds=bounds,
+            param_dependancies=param_dependancies
+        )
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None, params=None):
         """Instantiate the parameter in the simulator"""
         pass
 
@@ -101,7 +103,7 @@ class MetaParameter(NrnParameter):
 class NrnMetaListEqualParameter(bluepyopt.parameters.MetaListEqualParameter):
     """Nrn version of MetaListEqualParameter, implements instantiate"""
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None, params=None):
         """Instantiate"""
 
         for sub_parameter in self.sub_parameters:
@@ -147,7 +149,7 @@ class NrnGlobalParameter(NrnParameter, DictMixin):
 
         self.param_name = param_name
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None, params=None):
         """Instantiate"""
 
         setattr(sim.neuron.h, self.param_name, self.value)
@@ -175,7 +177,8 @@ class NrnSectionParameter(NrnParameter, DictMixin):
             bounds=None,
             param_name=None,
             value_scaler=None,
-            locations=None):
+            locations=None,
+            param_dependancies=None):
         """Contructor
 
         Args:
@@ -195,7 +198,8 @@ class NrnSectionParameter(NrnParameter, DictMixin):
             name,
             value=value,
             frozen=frozen,
-            bounds=bounds)
+            bounds=bounds,
+            param_dependancies=param_dependancies)
 
         self.locations = locations
         self.param_name = param_name
@@ -206,20 +210,23 @@ class NrnSectionParameter(NrnParameter, DictMixin):
             self.value_scaler = parameterscalers.NrnSegmentLinearScaler()
         self.value_scale_func = self.value_scaler.scale
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None, params=None):
         """Instantiate"""
         if self.value is None:
             raise Exception(
                 'NrnSectionParameter: impossible to instantiate parameter "%s"'
                 ' without value' %
                 self.name)
-
+        
+        _values = {'value': self.value}
+        for param in self.param_dependancies:
+            _values[param] = params[param].value
+        
         for location in self.locations:
             iseclist = location.instantiate(sim=sim, icell=icell)
             for section in iseclist:
-                print(section, self.param_name)
                 setattr(section, self.param_name,
-                        self.value_scale_func(self.value, section, sim=sim))
+                        self.value_scale_func(_values, section, sim=sim))
             logger.debug(
                 'Set %s in %s to %s',
                 self.param_name,
@@ -312,7 +319,8 @@ class NrnRangeParameter(NrnParameter, DictMixin):
             bounds=None,
             param_name=None,
             value_scaler=None,
-            locations=None):
+            locations=None,
+            param_dependancies=None):
         """Contructor
 
         Args:
@@ -332,7 +340,9 @@ class NrnRangeParameter(NrnParameter, DictMixin):
             name,
             value=value,
             frozen=frozen,
-            bounds=bounds)
+            bounds=bounds,
+            param_dependancies=param_dependancies
+        )
 
         self.locations = locations
         self.param_name = param_name
@@ -342,18 +352,22 @@ class NrnRangeParameter(NrnParameter, DictMixin):
             self.value_scaler = parameterscalers.NrnSegmentLinearScaler()
         self.value_scale_func = self.value_scaler.scale
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None, params=None):
         """Instantiate"""
         if self.value is None:
             raise Exception(
                 'NrnRangeParameter: impossible to instantiate parameter "%s" '
                 'without value' % self.name)
-
+        
+        _values = {'value': self.value}
+        for param in self.param_dependancies:
+            _values[param] = params[param].value
+        
         for location in self.locations:
             for isection in location.instantiate(sim=sim, icell=icell):
                 for seg in isection:
                     setattr(seg, '%s' % self.param_name,
-                            self.value_scale_func(self.value, seg, sim=sim))
+                            self.value_scale_func(_values, seg, sim=sim))
         logger.debug(
             'Set %s in %s to %s with scaler %s', self.param_name,
             [str(location)

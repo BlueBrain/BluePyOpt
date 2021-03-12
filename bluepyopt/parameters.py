@@ -24,7 +24,7 @@ class Parameter(object):
 
     """Base parameter class"""
 
-    def __init__(self, name, value=None, frozen=False, bounds=None):
+    def __init__(self, name, value=None, frozen=False, bounds=None, param_dependancies=None):
         """Constructor"""
 
         self.name = name
@@ -33,6 +33,10 @@ class Parameter(object):
         self._value = value
         self.check_bounds()
         self.frozen = frozen
+
+        self.param_dependancies = param_dependancies
+        if param_dependancies is None:
+            self.param_dependancies = []
 
     @property
     def lower_bound(self):
@@ -57,12 +61,14 @@ class Parameter(object):
 
     def freeze(self, value):
         """Freeze parameter to certain value"""
+
         self.value = value
         self.frozen = True
 
     def unfreeze(self):
         """Unfreeze parameter"""
         self._value = None
+        self._value_dependancies = {p: None for p in self.scaler_dependancies}
         self.frozen = False
 
     @value.setter
