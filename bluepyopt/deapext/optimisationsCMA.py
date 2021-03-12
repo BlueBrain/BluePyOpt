@@ -230,7 +230,12 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             self.toolbox.register("map", self.map_function)
 
     def run(
-        self, max_ngen=0, cp_frequency=1, continue_cp=False, cp_filename=None
+        self,
+        max_ngen=0,
+        cp_frequency=1,
+        continue_cp=False,
+        cp_filename=None,
+        terminator=None,
     ):
         """ Run the optimizer until a stopping criteria is met.
 
@@ -239,6 +244,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             cp_frequency(int): generations between checkpoints
             continue_cp(bool): whether to continue
             cp_filename(string): path to checkpoint filename
+            terminator (multiprocessing.Event): exit loop when is set.
+                Not taken into account if None.
         """
 
         stats = self.get_stats()
@@ -285,7 +292,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         pop = CMA_es.get_population(self.to_space)
 
         # Run until a termination criteria is met
-        while CMA_es.active:
+        while utils.run_next_gen(CMA_es.active, terminator):
             logger.info("Generation {}".format(gen))
 
             # Generate the new populations
