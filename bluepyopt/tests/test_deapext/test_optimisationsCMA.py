@@ -33,5 +33,3 @@ def test_optimisationsCMA_run():
     optimiser = bluepyopt.deapext.optimisationsCMA.DEAPOptimisationCMA
     optimisation = optimiser(evaluator=evaluator, centroids=[x])
     pop, hof, log, hist = optimisation.run(max_ngen=2)
-    raised = False
-    nt.assert_equal(raised, False)
