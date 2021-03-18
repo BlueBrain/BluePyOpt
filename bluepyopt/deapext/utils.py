@@ -137,3 +137,10 @@ def uniform(lower_list, upper_list, dimensions):
 def reduce_method(meth):
     """Overwrite reduce"""
     return (getattr, (meth.__self__, meth.__func__.__name__))
+
+
+def run_next_gen(criteria, terminator):
+    """Condition to stay inside the loop."""
+    if terminator is None:
+        return criteria
+    return criteria and not terminator.is_set()

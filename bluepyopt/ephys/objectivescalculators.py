@@ -21,6 +21,7 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
 from . import objectives
 
+
 class ObjectivesCalculator(object):
 
     """Score calculator"""
@@ -38,29 +39,60 @@ class ObjectivesCalculator(object):
 
     def calculate_scores(self, responses, cell_model=None, param_dict=None):
         """Calculator the score for every objective"""
-        
+
         scores = {}
-        
+
         if param_dict and cell_model:
             cell_model.freeze(param_dict)
-        
+
         for objective in self.objectives:
-            
+
             if issubclass(type(objective), objectives.EFeatureObjective):
                 scores[objective.name] = objective.calculate_score(responses)
             elif issubclass(type(objective), objectives.RuleObjective):
                 if param_dict and cell_model:
-                    scores[objective.name] = objective.calculate_score(cell_model)
+                    scores[objective.name] = objective.calculate_score(
+                        cell_model
+                    )
             else:
-                raise Exception('Unknown objective class: {}'.format(type(objective)))
-        
+                raise Exception('Unknown objective class: {}'.format(type(
+                    objective))
+                )
+
         if param_dict and cell_model:
             cell_model.unfreeze(param_dict.keys())
-        
+
         return scores
 
+    def calculate_values(self, responses, cell_model=None, param_dict=None):
+        """Calculator the value of each objective"""
+
+        values = {}
+
+        if param_dict and cell_model:
+            cell_model.freeze(param_dict)
+
+        for objective in self.objectives:
+
+            if issubclass(type(objective), objectives.EFeatureObjective):
+                values[objective.name] = objective.calculate_value(responses)
+            elif issubclass(type(objective), objectives.RuleObjective):
+                if param_dict and cell_model:
+                    values[objective.name] = objective.calculate_value(
+                        cell_model
+                    )
+            else:
+                raise Exception('Unknown objective class: {}'.format(
+                    type(objective))
+                )
+
+        if param_dict and cell_model:
+            cell_model.unfreeze(param_dict.keys())
+
+        return values
+
     def __str__(self):
-        
+
         return 'objectives:\n  %s' % '\n  '.join(
             [str(obj) for obj in self.objectives]) \
             if self.objectives is not None else 'objectives:\n'

@@ -32,9 +32,9 @@ def sigmoid(x):
 
 
 class Rule():
-    
+
     """Abstract Rule class"""
-    
+
     name = ""
 
     def __init__(
@@ -50,19 +50,19 @@ class Rule():
                 the score
             max_score (float): upper bound for the score
         """
-        
+
         if name:
             self.name = name
 
         self.force_max_score = force_max_score
         self.max_score = max_score
-    
+
     def _rule(self, cell_model):
         return None
-    
+
     def _loss_function(self, value):
         return None
-    
+
     def calculate_value(self, cell_model):
         """Calculate rule value"""
 
@@ -83,7 +83,7 @@ class Rule():
         """Calculate the score"""
 
         if cell_model is None:
-            score =  self.max_score
+            score = self.max_score
         else:
             score = self._loss_function(self._rule(cell_model))
 
@@ -99,7 +99,7 @@ class Rule():
 
         return "Rule %s " % (self.name)
 
- 
+
 class SumConductivityRule(Rule):
 
     """SumConductivityRule class
@@ -129,9 +129,9 @@ class SumConductivityRule(Rule):
             force_max_score=force_max_score,
             max_score=max_score
         )
-        
+
         self.conductivity_target = conductivity_target
-        
+
     def _rule(self, cell_model):
 
         sum_g = 0
@@ -145,7 +145,6 @@ class SumConductivityRule(Rule):
 
         # Center on conductivity_target
         _ = (value / self.conductivity_target) - 1.
-        
+
         # Take the sigmoid
         return self.max_score * sigmoid(_)
-

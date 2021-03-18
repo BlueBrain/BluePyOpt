@@ -110,7 +110,11 @@ def test_CellEvaluator_evaluate():
         sim=sim)
 
     responses = protocol.run(cell_model, {'cm': 1.0}, sim=sim)
+
     feature_value = efeature.calculate_feature(responses)
+    feature_value_eva = evaluator.evaluate_with_dicts(
+        {'cm': 1.0}, target='values'
+    )
 
     score = evaluator.evaluate([1.0])
     expected_score = abs(mean - feature_value)
@@ -120,3 +124,6 @@ def test_CellEvaluator_evaluate():
     score_dict = evaluator.objective_dict(score)
 
     nt.assert_almost_equal(score_dict['singleton'], expected_score)
+    nt.assert_almost_equal(
+        feature_value, feature_value_eva['singleton']
+    )
