@@ -91,9 +91,12 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.hof = hof
         if self.hof is None:
             self.hof = deap.tools.HallOfFame(10)
-
-        self.fitness_reduce = fitness_reduce
+        
+        if offspring_size < 2:
+            raise Exception("offspring_size has to be at least 2.")
         self.offspring_size = offspring_size
+        
+        self.fitness_reduce = fitness_reduce
         self.centroids = centroids
         self.sigma = sigma
 
@@ -300,8 +303,10 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 lbounds=self.lbounds, ubounds=self.ubounds
             )
             logger.debug(
-                "Number of individuals outside of bounds: {} ({:.2f}%)" +
-                "".format(n_out, 100.0 * n_out / len(CMA_es.population))
+                "Number of individuals outside of bounds: {} ({:.2f}%)".format(
+                    n_out,
+                    100.0 * n_out / len(CMA_es.population)
+                )
             )
 
             # Get all the individuals in the original space for evaluation
