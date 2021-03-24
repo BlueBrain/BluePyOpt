@@ -22,11 +22,11 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
 import setuptools
 import versioneer
+#version=versioneer.get_version(),
+#cmdclass=versioneer.get_cmdclass(),
 
 setuptools.setup(
     name="bluepyopt",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
     install_requires=[
         "numpy>=1.6",
         "pandas>=0.18",
