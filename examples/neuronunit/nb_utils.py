@@ -39,7 +39,7 @@ def optimize_job(
     specimen_id,
     model_type,
     score_type=RelativeDifferenceScore,
-    efel_filter_iterable=None,
+    efel_filter_iterable=None,NGEN = 100, MU=20
 ):
     find_sweep_with_n_spikes = 8
 
@@ -52,12 +52,6 @@ def optimize_job(
 
     model.params = BPO_PARAMS[model_type]
     fixed_current = 122 *qt.pA
-    if model_type is "ADEXP":
-        NGEN = 500
-        MU = 100
-    if model_type is "IZHI":
-        NGEN = 500
-        MU = 100
 
     mapping_funct = dask_map_function
     [ cell_evaluator,
