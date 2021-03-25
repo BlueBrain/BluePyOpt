@@ -49,7 +49,7 @@ setuptools.setup(
 					'dask':'dask==2.5.2',
 					'streamlit':'streamlit',
 					'tqdm':'tqdm==4.48.2',
-			        'neuronunit': ['neuronunit @ git+http://github.com/russelljjarvis/neuronunit.git@optimization'],
+			        'neuronunit': ['neuronunit @ git+https://github.com/russelljjarvis/neuronunit.git@optimization'],
 			        'jithub': ['jithub @ git+https://github.com/russelljjarvis/jit_hub.git@neuronunit'],
 			        'sciunit': ['sciunit @ git+https://github.com/russelljjarvis/sciunit@dev'],
 					'allensdk':'allensdk==0.16.3'},
