@@ -50,7 +50,7 @@ setuptools.setup(
 					'streamlit':['streamlit'],
 					'tqdm':['tqdm==4.48.2'],
 			        'neuronunit': ['neuronunit','neuronunitopt==0.19'],
-			        'jithub': ['jithub @ git+https://github.com/russelljjarvis/jit_hub.git@neuronunit'],
+			        'jithub': ['jithub','jithub==0.1.0'],
 			        'sciunit': ['sciunit @ git+https://github.com/russelljjarvis/sciunit@dev'],
 					'allensdk':['allensdk==0.16.3']},
 
