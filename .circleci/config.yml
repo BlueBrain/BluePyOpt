@@ -19,20 +19,21 @@ jobs:
       - checkout
       - run: git fetch --unshallow || true
       - run: apt-get update
-      - run: apt-get install -y gcc
-      - run: apt-get install -y libx11-6 python-dev git build-essential
-      - run: apt-get install -y autoconf automake gcc g++ make gfortran
-      - run: apt-get install -y python-tables
-      - run: apt-get install -y libhdf5-serial-dev
+      - run: sh reduced_cell_install.sh
+      #- run: apt-get install -y gcc
+      #- run: apt-get install -y libx11-6 python-dev git build-essential
+      #- run: apt-get install -y autoconf automake gcc g++ make gfortran
+      #- run: apt-get install -y python-tables
+      #- run: apt-get install -y libhdf5-serial-dev
 
-      - run: conda config --add channels conda-forge
-      - run: conda config --set always_yes true
-      - run: conda config --set quiet true
-      - run: conda install conda-build
-      - run: conda install scipy;
-      - run: conda install numpy;
-      - run: conda install numba;
-      - run: conda install dask;
+      #- run: conda config --add channels conda-forge
+      #- run: conda config --set always_yes true
+      #- run: conda config --set quiet true
+      #- run: conda install conda-build
+      #- run: conda install scipy;
+      #- run: conda install numpy;
+      #- run: conda install numba;
+      #- run: conda install dask;
       - run: pip install tables
       - run: pip install pip --upgrade; pip install -r requirements.txt;
       - run: pip install -e .
