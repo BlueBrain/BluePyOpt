@@ -37,8 +37,9 @@ jobs:
       - run: pip install -e .
       - run: git clone -b neuronunit https://github.com/russelljjarvis/jit_hub.git
       - run: cd jit_hub; pip install -e .; cd ..;
-      - run: git clone -b optimization https://github.com/russelljjarvis/neuronunit
-      - run: cd neuronunit; pip install -e .; cd ..;
+      #- run: git clone -b optimization https://github.com/russelljjarvis/neuronunit
+      #- run: cd neuronunit; pip install -e .; cd ..;
+      - run: pip install neuronunitopt==0.19
       - run: git clone https://github.com/russelljjarvis/eFEL
       - run: cd eFEL; pip install -e .; cd ..;
       - run: pip install cython
