@@ -37,11 +37,12 @@ jobs:
       - run: pip install tables
       - run: pip install pip --upgrade; pip install -r requirements.txt;
       - run: pip install -e .
-      #- run: pip install jithub==0.1.0
+      - run: pip install jithub==0.1.0
+      - run: pip install git+https://github.com/russelljjarvis/jit_hub.git@neuronunit
       - run: git clone -b neuronunit https://github.com/russelljjarvis/jit_hub.git
       - run: cd jit_hub; pip install -e .; cd ..;
-      #- run: git clone -b optimization https://github.com/russelljjarvis/neuronunit
-      #- run: cd neuronunit; pip install -e .; cd ..;
+      - run: git clone -b optimization https://github.com/russelljjarvis/neuronunit
+      - run: cd neuronunit; pip install -e .; cd ..;
       - run: pip install neuronunitopt==0.19
       - run: git clone https://github.com/russelljjarvis/eFEL
       - run: cd eFEL; pip install -e .; cd ..;
@@ -55,6 +56,7 @@ jobs:
       - run: rm -rf /opt/conda/lib/python3.8/site-packages/sciunit
       - run: git clone -b dev https://github.com/russelljjarvis/sciunit.git
       - run: cd sciunit; pip install -e .; cd ..;
+      - run: cd bluepyopt/tests; nosetests test_numba_models.py
       - run: cd bluepyopt/tests; nosetests test_evaluators.py
       - run: cd bluepyopt/tests; nosetests test_rheobase_model.py
       - run: cd bluepyopt/tests; nosetests test_izhi_opt.py
