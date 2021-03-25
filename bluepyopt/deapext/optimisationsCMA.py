@@ -256,7 +256,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         if continue_cp:
 
             # A file name has been given, then load the data from the file
-            cp = pickle.load(open(cp_filename, "br"))
+            cp = pickle.load(open(cp_filename, "rb"))
             gen = cp["generation"]
             self.hof = cp["halloffame"]
             logbook = cp["logbook"]
