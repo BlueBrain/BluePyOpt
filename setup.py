@@ -44,15 +44,15 @@ setuptools.setup(
         "efel>=2.13"],
 
 	extras_require={'neo': ['neo[neomatlabio]>=0.5.1'],
-					'sciunit':'sciunit==0.2.3',
-					'numba':'numba==0.45.1',
-					'dask':'dask==2.5.2',
-					'streamlit':'streamlit',
-					'tqdm':'tqdm==4.48.2',
-			        'neuronunit': ['neuronunit @ git+https://github.com/russelljjarvis/neuronunit.git@optimization'],
+					'sciunit':['sciunit==0.2.3'],
+					'numba':['numba==0.45.1'],
+					'dask':['dask==2.5.2'],
+					'streamlit':['streamlit'],
+					'tqdm':['tqdm==4.48.2'],
+			        'neuronunit': ['neuronunit','neuronunitopt==0.19'],
 			        'jithub': ['jithub @ git+https://github.com/russelljjarvis/jit_hub.git@neuronunit'],
 			        'sciunit': ['sciunit @ git+https://github.com/russelljjarvis/sciunit@dev'],
-					'allensdk':'allensdk==0.16.3'},
+					'allensdk':['allensdk==0.16.3']},
 
 
 
