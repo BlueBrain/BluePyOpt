@@ -16,7 +16,7 @@ from neuronunit.optimization.optimization_management import (
     inject_and_plot_model
 )
 from jithub.models import model_classes
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import quantities as qt
 import unittest
 import nose.tools as nt
@@ -41,7 +41,7 @@ class testOptimization(unittest.TestCase):
         cellmodel = model_to_rheo(cellmodel)
         #assert cellmodel.rheobase is not None
         self.assertIsNotNone(cellmodel.rheobase)
-        vm, plt, cellmodel = inject_and_plot_model(cellmodel, plotly=False)
+        vm, _, cellmodel = inject_and_plot_model(cellmodel, plotly=False)
         self.assertIsNotNone(vm)
         self.assertIsNotNone(cellmodel)
 
