@@ -85,7 +85,7 @@ class testOptimization(unittest.TestCase):
         if cellmodel == "ADEXP":
             model = model_classes.ADEXPModel()
 
-        target_num_spikes = 9
+        target_num_spikes = 5
 
         efel_filter_iterable = [
             "ISI_log_slope",

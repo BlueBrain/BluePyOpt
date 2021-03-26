@@ -33,6 +33,16 @@ from jithub.models import model_classes
 from sciunit.scores import RelativeDifferenceScore
 
 
+import allensdk
+sdk_logger = logging.getLogger('allensdk')
+sdk_logger.setLevel(logging.ERROR)
+
+
+
+from nose.plugins.attrib import attr
+import unittest
+import nose.tools as nt
+
 class testOptimization(unittest.TestCase):
     def setUp(self):
         self.ids = [
@@ -57,7 +67,7 @@ class testOptimization(unittest.TestCase):
         if cellmodel == "ADEXP":
             model = model_classes.ADEXPModel()
 
-        target_num_spikes = 9
+        target_num_spikes = 8
 
         efel_filter_iterable = [
             "ISI_log_slope",
