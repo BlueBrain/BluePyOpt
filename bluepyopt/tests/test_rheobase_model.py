@@ -1,8 +1,9 @@
-import unittest
-
 #!/usr/bin/env python
 # coding: utf-8
-import matplotlib
+import unittest
+
+
+#import matplotlib
 
 import numpy as np
 from neuronunit.optimization.model_parameters import (
@@ -25,7 +26,7 @@ import nose.tools as nt
 class testOptimization(unittest.TestCase):
     def setUp(self):
         self = self
-    @attr('unit')
+    #@attr('unit')
     def test_opt_1(self):
         model_type = "ADEXP"
 
