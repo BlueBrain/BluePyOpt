@@ -24,7 +24,7 @@ from neuronunit.optimization.optimization_management import (
     inject_and_plot_model,
 )
 import numpy as np
-from neuronunit.optimization.data_transport_container import DataTC as GenericModel
+#from neuronunit.optimization.data_transport_container import DataTC as GenericModel
 from jithub.models import model_classes
 import matplotlib.pyplot as plt
 import quantities as qt
