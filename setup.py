@@ -41,7 +41,8 @@ setuptools.setup(
 	    "seaborn",
 	    "sklearn",
 	    "frozendict",
-        "efel>=2.13"],
+        "efel",
+		""],
 
 	extras_require={'neo': ['neo[neomatlabio]>=0.5.1'],
 					'sciunit':['sciunit==0.2.3'],
@@ -52,7 +53,8 @@ setuptools.setup(
 			        'neuronunit': ['neuronunit','neuronunitopt==0.19'],
 			        'jithub': ['jithub','jithub==0.1.0'],
 			        'sciunit': ['sciunit @ git+https://github.com/russelljjarvis/sciunit@dev'],
-					'allensdk':['allensdk==0.16.3']},
+					'allensdk':['allensdk==0.16.3'],
+					'pynwb':['pynwb']}
 
 
 
