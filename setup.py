@@ -54,7 +54,7 @@ setuptools.setup(
 			        'jithub': ['jithub','jithub==0.1.0'],
 			        'sciunit': ['sciunit @ git+https://github.com/russelljjarvis/sciunit@dev'],
 					'allensdk':['allensdk==0.16.3'],
-					'pynwb':['pynwb']}
+					'pynwb':['pynwb']},
 
 
 
