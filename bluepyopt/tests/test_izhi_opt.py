@@ -34,6 +34,7 @@ from sciunit.scores import RelativeDifferenceScore
 
 
 import allensdk
+import logging
 sdk_logger = logging.getLogger('allensdk')
 sdk_logger.setLevel(logging.ERROR)
 
