@@ -7,6 +7,9 @@ if SILENT:
     warnings.filterwarnings("ignore")
 
 
+import logging
+import sys
+
 import numpy as np
 import efel
 import quantities as qt
@@ -28,13 +31,16 @@ from neuronunit.optimization.optimization_management import inject_model_soma
 from neuronunit.models.optimization_model_layer import OptimizationModel
 from jithub.models import model_classes
 from sciunit.scores import RelativeDifferenceScore
+import allensdk
+sdk_logger = logging.getLogger('allensdk')
+sdk_logger.setLevel(logging.ERROR)
 
 from nose.plugins.attrib import attr
 import unittest
 import nose.tools as nt
 
 
-#@attr("unit")
+
 def test_import():
     """bluepyopt: test importing neuronunit"""
     from neuronunit.allenapi.allen_data_efel_features_opt import (
