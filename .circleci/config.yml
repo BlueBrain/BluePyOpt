@@ -59,8 +59,8 @@ jobs:
       - run: cd bluepyopt/tests; nosetests test_numba_models.py
       - run: cd bluepyopt/tests; nosetests test_evaluators.py
       - run: cd bluepyopt/tests; nosetests test_rheobase_model.py
-      - run: cd bluepyopt/tests; nosetests test_izhi_opt.py
-      - run: cd bluepyopt/tests; nosetests test_adexp_opt.py
+      #- run: cd bluepyopt/tests; nosetests test_izhi_opt.py
+      #- run: cd bluepyopt/tests; nosetests test_adexp_opt.py
       - run: cd bluepyopt/tests; nosetests test_scores_unit.py
       - run: pip install tox && tox
 
