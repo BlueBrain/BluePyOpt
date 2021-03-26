@@ -41,7 +41,7 @@ setuptools.setup(
 	    "seaborn",
 	    "sklearn",
 	    "frozendict",
-        "efel==2.13"],
+        "efel"],
 
 	extras_require={'neo': ['neo[neomatlabio]>=0.5.1'],
 					'sciunit':['sciunit==0.2.3'],
