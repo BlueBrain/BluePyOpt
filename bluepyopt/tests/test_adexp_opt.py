@@ -9,7 +9,6 @@ if SILENT:
 
 import numpy as np
 import efel
-import matplotlib.pyplot as plt
 import quantities as qt
 
 from neuronunit.allenapi.allen_data_efel_features_opt import (
@@ -68,7 +67,7 @@ class testOptimization(unittest.TestCase):
             471819401,
         ]
 
-    @attr("unit")
+    #@attr("unit")
     def test_opt_1(self):
         specimen_id = self.ids[1]
         cellmodel = "ADEXP"
