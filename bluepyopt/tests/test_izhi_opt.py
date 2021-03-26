@@ -5,7 +5,12 @@ import warnings
 
 if SILENT:
     warnings.filterwarnings("ignore")
-
+import logging.config
+logging.config.dictConfig({
+    'version': 1,
+    # Other configs ...
+    'disable_existing_loggers': True
+})
 import unittest
 import numpy as np
 import efel
