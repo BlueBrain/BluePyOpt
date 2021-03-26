@@ -45,7 +45,7 @@ class testOptimization(unittest.TestCase):
             471819401,
         ]
 
-    @attr("unit")
+    #@attr("unit")
     def test_opt_1(self):
         specimen_id = self.ids[1]
         cellmodel = "IZHI"

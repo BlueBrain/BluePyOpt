@@ -34,7 +34,7 @@ import unittest
 import nose.tools as nt
 
 
-@attr("unit")
+#@attr("unit")
 def test_import():
     """bluepyopt: test importing neuronunit"""
     from neuronunit.allenapi.allen_data_efel_features_opt import (
