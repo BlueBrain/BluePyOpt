@@ -18,3 +18,4 @@ conda install scipy;
 conda install numpy;
 conda install numba;
 conda install dask;
+conda install -c conda-forge pynwb
