@@ -74,16 +74,20 @@ class testOptimization(unittest.TestCase):
             "ISI_log_slope",
             "mean_frequency",
             "adaptation_index2",
-            "first_isi",
             "ISI_CV",
-            "median_isi",
             "Spikecount",
             "all_ISI_values",
             "ISI_values",
             "time_to_first_spike",
             "time_to_last_spike",
             "time_to_second_spike",
+
         ]
+        sss = efel.getFeatureNames()
+
+        for s in efel_filter_iterable:
+            print(s in sss)
+
         [suite, target_current, spk_count, cell_evaluator, simple_cell] = opt_setup(
             specimen_id,
             cellmodel,
