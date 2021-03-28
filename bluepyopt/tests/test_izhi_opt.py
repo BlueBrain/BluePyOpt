@@ -5,15 +5,6 @@ import warnings
 
 if SILENT:
     warnings.filterwarnings("ignore")
-import logging.config
-
-logging.config.dictConfig(
-    {
-        "version": 1,
-        # Other configs ...
-        "disable_existing_loggers": True,
-    }
-)
 import unittest
 import numpy as np
 import efel
@@ -41,17 +32,22 @@ from jithub.models import model_classes
 from sciunit.scores import RelativeDifferenceScore
 
 
-import allensdk
-import logging
 
-sdk_logger = logging.getLogger("allensdk")
-sdk_logger.setLevel(logging.ERROR)
 
 
 from nose.plugins.attrib import attr
 import unittest
 import nose.tools as nt
-
+import allensdk
+import logging
+sdk_logger = logging.getLogger('allensdk')
+sdk_logger.setLevel(logging.ERROR)
+import logging.config
+logging.config.dictConfig({
+    'version': 1,
+    # Other configs ...
+    'disable_existing_loggers': True
+})
 
 class testOptimization(unittest.TestCase):
     def setUp(self):
@@ -65,7 +61,7 @@ class testOptimization(unittest.TestCase):
             471819401,
         ]
 
-    # @attr("unit")
+    #@attr("unit")
     def test_opt_1(self):
         specimen_id = self.ids[1]
         cellmodel = "IZHI"
@@ -104,7 +100,7 @@ class testOptimization(unittest.TestCase):
         )
 
         NGEN = 155
-        MU = 35
+        MU = 100
 
         mapping_funct = dask_map_function
         final_pop, hall_of_fame, logs, hist = opt_exec(
@@ -115,9 +111,9 @@ class testOptimization(unittest.TestCase):
         )
         best_ind = hall_of_fame[0]
         fitnesses = cell_evaluator.evaluate_with_lists(best_ind)
-        # assert np.sum(fitnesses) < 8.5
-        self.assertGreater(8.5, np.sum(fitnesses))
-        nt.assert_is_greater(8.5, np.sum(fitnesses))
+        assert np.sum(fitnesses) < 30.5
+        self.assertGreater(30.5, np.sum(fitnesses))
+        nt.assert_is_greater(30.5, np.sum(fitnesses))
 
 
 if __name__ == "__main__":
