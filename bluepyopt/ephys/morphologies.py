@@ -61,8 +61,11 @@ class NrnFileMorphology(Morphology, DictMixin):
                 morphology
             do_replace_axon (bool): Does the axon need to be replaced by an AIS
                 stub with default function ?
-            replace_axon_hoc (str): String replacement for the 'replace_axon'
-                command in hoc  Must include 'proc replace_axon(){ ... }
+            replace_axon_hoc (str): Translation in HOC language for the
+                'replace_axon' method. This code will 'only' be used when
+                calling create_hoc on a cell model. While the model is run in
+                python, replace_axon is used instead. Must include
+                'proc replace_axon(){ ... }
                 If None,the default replace_axon is used
             nseg_frequency (float): frequency of nseg
             do_set_nseg (bool): if True, it will use nseg_frequency
