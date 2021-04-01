@@ -19,9 +19,7 @@ from neuronunit.optimization.model_parameters import (
     BPO_PARAMS,
     to_bpo_param,
 )
-from neuronunit.optimization.optimization_management import (
-    inject_and_plot_model
-)
+from neuronunit.optimization.optimization_management import inject_and_plot_model
 import numpy as np
 from neuronunit.models.optimization_model_layer import OptimizationModel
 from jithub.models import model_classes
@@ -51,9 +49,11 @@ class testOptimizationAllenMultiSpike(unittest.TestCase):
             471819401,
         ]
         self.specimen_id = self.ids[1]
+
     def optimize_job(self, model_type, score_type=ZScore):
         find_sweep_with_n_spikes = 8
         from jithub.models.model_classes import ADEXPModel
+
         model = ADEXPModel()
         model.params = BPO_PARAMS[model_type]
         fixed_current = 122 * qt.pA

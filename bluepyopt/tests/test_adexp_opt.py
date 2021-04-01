@@ -6,11 +6,14 @@ import warnings
 if SILENT:
     warnings.filterwarnings("ignore")
 import logging.config
-logging.config.dictConfig({
-    'version': 1,
-    # Other configs ...
-    'disable_existing_loggers': True
-})
+
+logging.config.dictConfig(
+    {
+        "version": 1,
+        # Other configs ...
+        "disable_existing_loggers": True,
+    }
+)
 
 import logging
 import sys
@@ -37,13 +40,13 @@ from neuronunit.models.optimization_model_layer import OptimizationModel
 from jithub.models import model_classes
 from sciunit.scores import RelativeDifferenceScore
 import allensdk
-sdk_logger = logging.getLogger('allensdk')
+
+sdk_logger = logging.getLogger("allensdk")
 sdk_logger.setLevel(logging.ERROR)
 
 from nose.plugins.attrib import attr
 import unittest
 import nose.tools as nt
-
 
 
 def test_import():
@@ -78,7 +81,7 @@ class testOptimization(unittest.TestCase):
             471819401,
         ]
 
-    #@attr("unit")
+    # @attr("unit")
     def test_opt_1(self):
         specimen_id = self.ids[1]
         cellmodel = "ADEXP"
@@ -129,7 +132,7 @@ class testOptimization(unittest.TestCase):
         )
         best_ind = hall_of_fame[0]
         fitnesses = cell_evaluator.evaluate_with_lists(best_ind)
-        #assert np.sum(fitnesses) < 10.7
+        # assert np.sum(fitnesses) < 10.7
         nt.assert_greater(10.7, np.sum(fitnesses))
         self.assertGreater(10.7, np.sum(fitnesses))
 

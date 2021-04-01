@@ -65,7 +65,7 @@ jobs:
       - run: pip install tox && tox
       - run: cd bluepyopt/tests; nosetests test_adexp_opt.py
       - run: cd bluepyopt/tests; nosetests test_scores_unit.py
-      - run: cd bluepyopt/tests; nosetests test_izhi_opt.py
+      #- run: cd bluepyopt/tests; nosetests test_izhi_opt.py
 
       # causes time out
       #- run: cd bluepyopt/tests; python izhi_opt.py
