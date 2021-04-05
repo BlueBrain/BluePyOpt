@@ -70,7 +70,7 @@ class SequenceProtocol(Protocol):
 		"""Instantiate protocol"""
 
 		responses = collections.OrderedDict({})
-
+			
 		for protocol in self.protocols:
 
 			# Try/except added for backward compatibility
@@ -389,8 +389,6 @@ class NeuronUnitAllenStepProtocol(SweepProtocol):
 		from neuronunit.optimization.optimization_management import multi_spiking_feature_extraction
 		if hasattr(cell_model,'allen'):
 			if hasattr(cell_model,'seeded_current'):
-				#cell_model.seeded_current = cell_model.seeded_current
-				#cell_model.spk_count = cell_model.spk_count
 				cell_model.attrs = param_values
 				##########################################
 				# Not syntactically necessary but facilitates tighter BPO integration
