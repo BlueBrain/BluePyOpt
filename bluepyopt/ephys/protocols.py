@@ -25,6 +25,7 @@ import collections
 
 # TODO: maybe find a better name ? -> sweep ?
 import logging
+
 logger = logging.getLogger(__name__)
 
 from . import locations
@@ -33,362 +34,365 @@ from . import simulators
 
 class Protocol(object):
 
-	"""Class representing a protocol (stimulus and recording)."""
+    """Class representing a protocol (stimulus and recording)."""
 
-	def __init__(self, name=None):
-		"""Constructor
+    def __init__(self, name=None):
+        """Constructor
 
-		Args:
-			name (str): name of the feature
-		"""
+        Args:
+                name (str): name of the feature
+        """
 
-		self.name = name
+        self.name = name
 
 
 class SequenceProtocol(Protocol):
 
-	"""A protocol consisting of a sequence of other protocols"""
+    """A protocol consisting of a sequence of other protocols"""
 
-	def __init__(self, name=None, protocols=None):
-		"""Constructor
+    def __init__(self, name=None, protocols=None):
+        """Constructor
 
-		Args:
-			name (str): name of this object
-			protocols (list of Protocols): subprotocols this protocol
-				consists of
-		"""
-		super(SequenceProtocol, self).__init__(name)
-		self.protocols = protocols
+        Args:
+                name (str): name of this object
+                protocols (list of Protocols): subprotocols this protocol
+                        consists of
+        """
+        super(SequenceProtocol, self).__init__(name)
+        self.protocols = protocols
 
-	def run(
-			self,
-			cell_model,
-			param_values,
-			sim=None,
-			isolate=None,
-			timeout=None):
-		"""Instantiate protocol"""
+    def run(self, cell_model, param_values, sim=None, isolate=None, timeout=None):
+        """Instantiate protocol"""
 
-		responses = collections.OrderedDict({})
-			
-		for protocol in self.protocols:
+        responses = collections.OrderedDict({})
 
-			# Try/except added for backward compatibility
-			try:
-				response = protocol.run(
-					cell_model=cell_model,
-					param_values=param_values,
-					sim=sim,
-					isolate=isolate,
-					timeout=timeout)
-			except TypeError as e:
-				if "unexpected keyword" in str(e):
-					response = protocol.run(
-						cell_model=cell_model,
-						param_values=param_values,
-						sim=sim,
-						isolate=isolate)
-				else:
-					raise
+        for protocol in self.protocols:
 
-			key_intersect = set(
-				response.keys()).intersection(set(responses.keys()))
-			if len(key_intersect) != 0:
-				raise Exception(
-					'SequenceProtocol: one of the protocols (%s) is trying to '
-					'add already existing keys to the response: %s' %
-					(protocol.name, key_intersect))
+            # Try/except added for backward compatibility
+            try:
+                response = protocol.run(
+                    cell_model=cell_model,
+                    param_values=param_values,
+                    sim=sim,
+                    isolate=isolate,
+                    timeout=timeout,
+                )
+            except TypeError as e:
+                if "unexpected keyword" in str(e):
+                    response = protocol.run(
+                        cell_model=cell_model,
+                        param_values=param_values,
+                        sim=sim,
+                        isolate=isolate,
+                    )
+                else:
+                    raise
 
-			responses.update(response)
+            key_intersect = set(response.keys()).intersection(set(responses.keys()))
+            if len(key_intersect) != 0:
+                raise Exception(
+                    "SequenceProtocol: one of the protocols (%s) is trying to "
+                    "add already existing keys to the response: %s"
+                    % (protocol.name, key_intersect)
+                )
 
-		return responses
+            responses.update(response)
 
-	def subprotocols(self):
-		"""Return subprotocols"""
+        return responses
 
-		subprotocols = collections.OrderedDict({self.name: self})
+    def subprotocols(self):
+        """Return subprotocols"""
 
-		for protocol in self.protocols:
-			subprotocols.update(protocol.subprotocols())
+        subprotocols = collections.OrderedDict({self.name: self})
 
-		return subprotocols
+        for protocol in self.protocols:
+            subprotocols.update(protocol.subprotocols())
 
-	def __str__(self):
-		"""String representation"""
+        return subprotocols
 
-		content = 'Sequence protocol %s:\n' % self.name
+    def __str__(self):
+        """String representation"""
 
-		content += '%d subprotocols:\n' % len(self.protocols)
-		for protocol in self.protocols:
-			content += '%s\n' % str(protocol)
+        content = "Sequence protocol %s:\n" % self.name
 
-		return content
+        content += "%d subprotocols:\n" % len(self.protocols)
+        for protocol in self.protocols:
+            content += "%s\n" % str(protocol)
+
+        return content
 
 
 class SweepProtocol(Protocol):
 
-	"""Sweep protocol"""
+    """Sweep protocol"""
 
-	def __init__(
-			self,
-			name=None,
-			stimuli=None,
-			recordings=None,
-			cvode_active=None):
-		"""Constructor
+    def __init__(self, name=None, stimuli=None, recordings=None, cvode_active=None):
+        """Constructor
 
-		Args:
-			name (str): name of this object
-			stimuli (list of Stimuli): Stimulus objects used in the protocol
-			recordings (list of Recordings): Recording objects used in the
-				protocol
-			cvode_active (bool): whether to use variable time step
-		"""
+        Args:
+                name (str): name of this object
+                stimuli (list of Stimuli): Stimulus objects used in the protocol
+                recordings (list of Recordings): Recording objects used in the
+                        protocol
+                cvode_active (bool): whether to use variable time step
+        """
 
-		super(SweepProtocol, self).__init__(name)
-		self.stimuli = stimuli
-		self.recordings = recordings
-		self.cvode_active = cvode_active
+        super(SweepProtocol, self).__init__(name)
+        self.stimuli = stimuli
+        self.recordings = recordings
+        self.cvode_active = cvode_active
 
-	@property
-	def total_duration(self):
-		"""Total duration"""
+    @property
+    def total_duration(self):
+        """Total duration"""
 
-		return max([stimulus.total_duration for stimulus in self.stimuli])
+        return max([stimulus.total_duration for stimulus in self.stimuli])
 
-	def subprotocols(self):
-		"""Return subprotocols"""
+    def subprotocols(self):
+        """Return subprotocols"""
 
-		return collections.OrderedDict({self.name: self})
+        return collections.OrderedDict({self.name: self})
 
-	def _run_func(self, cell_model, param_values, sim=None):
-		"""Run protocols"""
+    def _run_func(self, cell_model, param_values, sim=None):
+        """Run protocols"""
 
-		try:
-			cell_model.freeze(param_values)
-			cell_model.instantiate(sim=sim)
+        try:
+            cell_model.freeze(param_values)
+            cell_model.instantiate(sim=sim)
 
-			self.instantiate(sim=sim, icell=cell_model.icell)
+            self.instantiate(sim=sim, icell=cell_model.icell)
 
-			try:
-				sim.run(self.total_duration, cvode_active=self.cvode_active)
-			except (RuntimeError, simulators.NrnSimulatorException):
-				logger.debug(
-					'SweepProtocol: Running of parameter set {%s} generated '
-					'an exception, returning None in responses',
-					str(param_values))
-				responses = {recording.name:
-							 None for recording in self.recordings}
-			else:
-				responses = {
-					recording.name: recording.response
-					for recording in self.recordings}
+            try:
+                sim.run(self.total_duration, cvode_active=self.cvode_active)
+            except (RuntimeError, simulators.NrnSimulatorException):
+                logger.debug(
+                    "SweepProtocol: Running of parameter set {%s} generated "
+                    "an exception, returning None in responses",
+                    str(param_values),
+                )
+                responses = {recording.name: None for recording in self.recordings}
+            else:
+                responses = {
+                    recording.name: recording.response for recording in self.recordings
+                }
 
-			self.destroy(sim=sim)
+            self.destroy(sim=sim)
 
-			cell_model.destroy(sim=sim)
+            cell_model.destroy(sim=sim)
 
-			cell_model.unfreeze(param_values.keys())
+            cell_model.unfreeze(param_values.keys())
 
-			return responses
-		except BaseException:
-			import sys
-			import traceback
-			raise Exception(
-				"".join(
-					traceback.format_exception(*sys.exc_info())))
+            return responses
+        except BaseException:
+            import sys
+            import traceback
 
-	def run(
-			self,
-			cell_model,
-			param_values,
-			sim=None,
-			isolate=None,
-			timeout=None):
-		"""Instantiate protocol"""
+            raise Exception("".join(traceback.format_exception(*sys.exc_info())))
 
-		if isolate is None:
-			isolate = True
+    def run(self, cell_model, param_values, sim=None, isolate=None, timeout=None):
+        """Instantiate protocol"""
 
-		if isolate:
-			def _reduce_method(meth):
-				"""Overwrite reduce"""
-				return (getattr, (meth.__self__, meth.__func__.__name__))
+        if isolate is None:
+            isolate = True
 
-			import copyreg
-			import types
-			copyreg.pickle(types.MethodType, _reduce_method)
-			import pebble
-			from concurrent.futures import TimeoutError
+        if isolate:
 
-			if timeout is not None:
-				if timeout < 0:
-					raise ValueError("timeout should be > 0")
+            def _reduce_method(meth):
+                """Overwrite reduce"""
+                return (getattr, (meth.__self__, meth.__func__.__name__))
 
-			with pebble.ProcessPool(max_workers=1, max_tasks=1) as pool:
-				tasks = pool.schedule(self._run_func, kwargs={
-					'cell_model': cell_model,
-					'param_values': param_values,
-					'sim': sim},
-					timeout=timeout)
-				try:
-					responses = tasks.result()
-				except TimeoutError:
-					logger.debug('SweepProtocol: task took longer than '
-								 'timeout, will return empty response '
-								 'for this recording')
-					responses = self._run_func(cell_model=cell_model,
-											   param_values=param_values,
-											   sim=sim)
-		else:
-			responses = self._run_func(cell_model=cell_model,
-									   param_values=param_values,
-									   sim=sim)
-		return responses
+            import copyreg
+            import types
 
-	def instantiate(self, sim=None, icell=None):
-		"""Instantiate"""
+            copyreg.pickle(types.MethodType, _reduce_method)
+            import pebble
+            from concurrent.futures import TimeoutError
 
-		for stimulus in self.stimuli:
-			stimulus.instantiate(sim=sim, icell=icell)
+            if timeout is not None:
+                if timeout < 0:
+                    raise ValueError("timeout should be > 0")
 
-		for recording in self.recordings:
-			try:
-				recording.instantiate(sim=sim, icell=icell)
-			except locations.EPhysLocInstantiateException:
-				logger.debug(
-					'SweepProtocol: Instantiating recording generated '
-					'location exception, will return empty response for '
-					'this recording')
+            with pebble.ProcessPool(max_workers=1, max_tasks=1) as pool:
+                tasks = pool.schedule(
+                    self._run_func,
+                    kwargs={
+                        "cell_model": cell_model,
+                        "param_values": param_values,
+                        "sim": sim,
+                    },
+                    timeout=timeout,
+                )
+                try:
+                    responses = tasks.result()
+                except TimeoutError:
+                    logger.debug(
+                        "SweepProtocol: task took longer than "
+                        "timeout, will return empty response "
+                        "for this recording"
+                    )
+                    responses = self._run_func(
+                        cell_model=cell_model, param_values=param_values, sim=sim
+                    )
+        else:
+            responses = self._run_func(
+                cell_model=cell_model, param_values=param_values, sim=sim
+            )
+        return responses
 
-	def destroy(self, sim=None):
-		"""Destroy protocol"""
+    def instantiate(self, sim=None, icell=None):
+        """Instantiate"""
 
-		for stimulus in self.stimuli:
-			stimulus.destroy(sim=sim)
+        for stimulus in self.stimuli:
+            stimulus.instantiate(sim=sim, icell=icell)
 
-		for recording in self.recordings:
-			recording.destroy(sim=sim)
+        for recording in self.recordings:
+            try:
+                recording.instantiate(sim=sim, icell=icell)
+            except locations.EPhysLocInstantiateException:
+                logger.debug(
+                    "SweepProtocol: Instantiating recording generated "
+                    "location exception, will return empty response for "
+                    "this recording"
+                )
 
-	def __str__(self):
-		"""String representation"""
+    def destroy(self, sim=None):
+        """Destroy protocol"""
 
-		content = '%s:\n' % self.name
+        for stimulus in self.stimuli:
+            stimulus.destroy(sim=sim)
 
-		content += '  stimuli:\n'
-		for stimulus in self.stimuli:
-			content += '    %s\n' % str(stimulus)
+        for recording in self.recordings:
+            recording.destroy(sim=sim)
 
-		content += '  recordings:\n'
-		for recording in self.recordings:
-			content += '    %s\n' % str(recording)
+    def __str__(self):
+        """String representation"""
 
-		return content
+        content = "%s:\n" % self.name
+
+        content += "  stimuli:\n"
+        for stimulus in self.stimuli:
+            content += "    %s\n" % str(stimulus)
+
+        content += "  recordings:\n"
+        for recording in self.recordings:
+            content += "    %s\n" % str(recording)
+
+        return content
 
 
 class StepProtocol(SweepProtocol):
 
-	"""Protocol consisting of step and holding current"""
+    """Protocol consisting of step and holding current"""
 
-	def __init__(
-			self,
-			name=None,
-			step_stimulus=None,
-			holding_stimulus=None,
-			recordings=None,
-			cvode_active=None):
-		"""Constructor
+    def __init__(
+        self,
+        name=None,
+        step_stimulus=None,
+        holding_stimulus=None,
+        recordings=None,
+        cvode_active=None,
+    ):
+        """Constructor
 
-		Args:
-			name (str): name of this object
-			step_stimulus (list of Stimuli): Stimulus objects used in protocol
-			recordings (list of Recordings): Recording objects used in the
-				protocol
-			cvode_active (bool): whether to use variable time step
-		"""
+        Args:
+                name (str): name of this object
+                step_stimulus (list of Stimuli): Stimulus objects used in protocol
+                recordings (list of Recordings): Recording objects used in the
+                        protocol
+                cvode_active (bool): whether to use variable time step
+        """
 
-		super(StepProtocol, self).__init__(
-			name,
-			stimuli=[
-				step_stimulus,
-				holding_stimulus]
-			if holding_stimulus is not None else [step_stimulus],
-			recordings=recordings,
-			cvode_active=cvode_active)
+        super(StepProtocol, self).__init__(
+            name,
+            stimuli=[step_stimulus, holding_stimulus]
+            if holding_stimulus is not None
+            else [step_stimulus],
+            recordings=recordings,
+            cvode_active=cvode_active,
+        )
 
-		self.step_stimulus = step_stimulus
-		self.holding_stimulus = holding_stimulus
+        self.step_stimulus = step_stimulus
+        self.holding_stimulus = holding_stimulus
 
-	@property
-	def step_delay(self):
-		"""Time stimulus starts"""
-		return self.step_stimulus.step_delay
+    @property
+    def step_delay(self):
+        """Time stimulus starts"""
+        return self.step_stimulus.step_delay
 
-	@property
-	def step_duration(self):
-		"""Time stimulus starts"""
-		return self.step_stimulus.step_duration
+    @property
+    def step_duration(self):
+        """Time stimulus starts"""
+        return self.step_stimulus.step_duration
+
 
 class NeuronUnitAllenStepProtocol(SweepProtocol):
 
-	"""Protocol consisting of step and holding current"""
+    """Protocol consisting of step and holding current"""
 
-	def __init__(
-			self,
-			name=None,
-			step_stimulus=None,
-			holding_stimulus=None,
-			recordings=None,
-			cvode_active=None):
-		"""Constructor
+    def __init__(
+        self,
+        name=None,
+        step_stimulus=None,
+        holding_stimulus=None,
+        recordings=None,
+        cvode_active=None,
+    ):
+        """Constructor
 
-		Args:
-			name (str): name of this object
-			step_stimulus (list of Stimuli): Stimulus objects used in protocol
-			recordings (list of Recordings): Recording objects used in the
-				protocol
-			cvode_active (bool): whether to use variable time step
-		"""
+        Args:
+                name (str): name of this object
+                step_stimulus (list of Stimuli): Stimulus objects used in protocol
+                recordings (list of Recordings): Recording objects used in the
+                        protocol
+                cvode_active (bool): whether to use variable time step
+        """
 
-		super(NeuronUnitAllenStepProtocol, self).__init__(
-			name,
-			stimuli=[
-				step_stimulus,
-				holding_stimulus]
-			if holding_stimulus is not None else [step_stimulus],
-			recordings=recordings,
-			cvode_active=cvode_active)
+        super(NeuronUnitAllenStepProtocol, self).__init__(
+            name,
+            stimuli=[step_stimulus, holding_stimulus]
+            if holding_stimulus is not None
+            else [step_stimulus],
+            recordings=recordings,
+            cvode_active=cvode_active,
+        )
 
-		self.step_stimulus = step_stimulus
-		self.holding_stimulus = holding_stimulus
+        self.step_stimulus = step_stimulus
+        self.holding_stimulus = holding_stimulus
 
-	@property
-	def step_delay(self):
-		"""Time stimulus starts"""
-		return self.step_stimulus.step_delay
+    @property
+    def step_delay(self):
+        """Time stimulus starts"""
+        return self.step_stimulus.step_delay
 
-	@property
-	def step_duration(self):
-		"""Time stimulus starts"""
-		return self.step_stimulus.step_duration
+    @property
+    def step_duration(self):
+        """Time stimulus starts"""
+        return self.step_stimulus.step_duration
 
+    def neuronunit_model_instantiate(self, cell_model, param_values):
+        """
+        -- Synopsis
+        # first populate the cell_model by frozen default attributes
+        # then update with dynamic gene attributes as appropriate.
+        """
+        # cell_model = cell_model.model_to_cell_model(attrs=param_values)
+        # assert cell_model.backend == cell_model.backend
+        # cell_model._backend = cell_model._backend
+        return cell_model, cell_model
 
-	def neuronunit_model_instantiate(self,cell_model,param_values):
-		'''
-		-- Synopsis
-		# first populate the cell_model by frozen default attributes
-		# then update with dynamic gene attributes as appropriate.
-		'''
-		#cell_model = cell_model.model_to_cell_model(attrs=param_values)
-		#assert cell_model.backend == cell_model.backend
-		#cell_model._backend = cell_model._backend
-		return cell_model,cell_model
+    def neuronunit_model_evaluate(self, cell_model, param_values):
+        from neuronunit.optimization.optimization_management import model_to_rheo
+        from neuronunit.optimization.optimization_management import (
+            multi_spiking_feature_extraction,
+        )
 
 	def neuronunit_model_evaluate(self,cell_model,param_values):
 		from neuronunit.optimization.optimization_management import model_to_rheo
 		from neuronunit.optimization.optimization_management import multi_spiking_feature_extraction
 		if hasattr(cell_model,'allen'):
 			if hasattr(cell_model,'seeded_current'):
+				#cell_model.seeded_current = cell_model.seeded_current
+				#cell_model.spk_count = cell_model.spk_count
 				cell_model.attrs = param_values
 				##########################################
 				# Not syntactically necessary but facilitates tighter BPO integration
@@ -409,52 +413,56 @@ class NeuronUnitAllenStepProtocol(SweepProtocol):
 					responses = {'model':cell_model,
 					'rheobase':cell_model.rheobase,'params':param_values}
 
-			else:
-				cell_model = multi_spiking_feature_extraction(cell_model)
+            else:
+                cell_model = multi_spiking_feature_extraction(cell_model)
 
-				if hasattr(cell_model,'efel'):
-					responses = {'features':cell_model.efel,
-					'cell_model':cell_model,'model':cell_model,'params':param_values}
-				else:
-					responses = {'model':cell_model,
-					'rheobase':cell_model.rheobase,'params':param_values}
-		else:
-			cell_model.attrs = param_values
-			cell_model = model_to_rheo(cell_model,bind_vm=True)
-			responses = {
-				'response':cell_model.vmrh,
-				'model':cell_model,#.cell_model_to_model(),
-				'dtc':cell_model,
-				'rheobase':cell_model.rheobase,
-				'params':param_values}
-		return responses
+                if hasattr(cell_model, "efel"):
+                    responses = {
+                        "features": cell_model.efel,
+                        "cell_model": cell_model,
+                        "model": cell_model,
+                        "params": param_values,
+                    }
+                else:
+                    responses = {
+                        "model": cell_model,
+                        "rheobase": cell_model.rheobase,
+                        "params": param_values,
+                    }
+        else:
+            cell_model.attrs = param_values
+            cell_model = model_to_rheo(cell_model, bind_vm=True)
+            responses = {
+                "response": cell_model.vmrh,
+                "model": cell_model,  # .cell_model_to_model(),
+                "dtc": cell_model,
+                "rheobase": cell_model.rheobase,
+                "params": param_values,
+            }
+        return responses
 
-	def _run_func(self, cell_model, param_values, sim=None):
-		"""Run protocols"""
-		#try:
-		cell_model.unfreeze(param_values.keys())
-		cell_model.freeze(param_values)
-		cell_model,cell_model = self.neuronunit_model_instantiate(cell_model,param_values)
-		responses = self.neuronunit_model_evaluate(cell_model,param_values)
-		cell_model.unfreeze(param_values.keys())
-		return responses
-		#except BaseException:
-		#	import sys
-		#	import traceback
-		#	raise Exception(
-		#		"".join(
-		#			traceback.format_exception(*sys.exc_info())))
+    def _run_func(self, cell_model, param_values, sim=None):
+        """Run protocols"""
+        # try:
+        cell_model.unfreeze(param_values.keys())
+        cell_model.freeze(param_values)
+        cell_model, cell_model = self.neuronunit_model_instantiate(
+            cell_model, param_values
+        )
+        responses = self.neuronunit_model_evaluate(cell_model, param_values)
+        cell_model.unfreeze(param_values.keys())
+        return responses
+        # except BaseException:
+        # 	import sys
+        # 	import traceback
+        # 	raise Exception(
+        # 		"".join(
+        # 			traceback.format_exception(*sys.exc_info())))
 
-	def run(
-			self,
-			cell_model,
-			param_values,
-			sim=None,
-			isolate=None,
-			timeout=None):
-		"""Instantiate protocol"""
+    def run(self, cell_model, param_values, sim=None, isolate=None, timeout=None):
+        """Instantiate protocol"""
 
-		responses = self._run_func(cell_model=cell_model,
-								   param_values=param_values,
-								   sim=sim)
-		return responses
+        responses = self._run_func(
+            cell_model=cell_model, param_values=param_values, sim=sim
+        )
+        return responses

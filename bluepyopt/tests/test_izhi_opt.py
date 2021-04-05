@@ -32,22 +32,24 @@ from jithub.models import model_classes
 from sciunit.scores import RelativeDifferenceScore
 
 
-
-
-
 from nose.plugins.attrib import attr
 import unittest
 import nose.tools as nt
 import allensdk
 import logging
-sdk_logger = logging.getLogger('allensdk')
+
+sdk_logger = logging.getLogger("allensdk")
 sdk_logger.setLevel(logging.ERROR)
 import logging.config
-logging.config.dictConfig({
-    'version': 1,
-    # Other configs ...
-    'disable_existing_loggers': True
-})
+
+logging.config.dictConfig(
+    {
+        "version": 1,
+        # Other configs ...
+        "disable_existing_loggers": True,
+    }
+)
+
 
 class testOptimization(unittest.TestCase):
     def setUp(self):
@@ -61,7 +63,7 @@ class testOptimization(unittest.TestCase):
             471819401,
         ]
 
-    #@attr("unit")
+    # @attr("unit")
     def test_opt_1(self):
         specimen_id = self.ids[1]
         cellmodel = "IZHI"
@@ -79,9 +81,7 @@ class testOptimization(unittest.TestCase):
             "ISI_log_slope",
             "mean_frequency",
             "adaptation_index2",
-            "first_isi",
             "ISI_CV",
-            "median_isi",
             "Spikecount",
             "all_ISI_values",
             "ISI_values",
@@ -89,6 +89,11 @@ class testOptimization(unittest.TestCase):
             "time_to_last_spike",
             "time_to_second_spike",
         ]
+        sss = efel.getFeatureNames()
+
+        for s in efel_filter_iterable:
+            print(s in sss)
+
         [suite, target_current, spk_count, cell_evaluator, simple_cell] = opt_setup(
             specimen_id,
             cellmodel,
