@@ -222,14 +222,16 @@ class eFELFeature(EFeature, DictMixin):
              self.threshold)
 
 
-
 class extraFELFeature(EFeature, DictMixin):
 
     """extraFEL feature"""
 
-    SERIALIZED_FIELDS = ('name', 'extrafel_feature_name', 'recording_names', 'somatic_recording_name', 'fcut', 'fs',
-                         'channel_id', 'stim_start', 'stim_end', 'exp_mean',
-                         'exp_std', 'threshold', 'comment')
+    SERIALIZED_FIELDS = (
+            'name', 'extrafel_feature_name', 'recording_names',
+            'somatic_recording_name', 'fcut', 'fs', 'channel_id',
+            'stim_start', 'stim_end', 'exp_mean', 'exp_std',
+            'threshold', 'comment'
+    )
 
     def __init__(
             self,
@@ -262,15 +264,18 @@ class extraFELFeature(EFeature, DictMixin):
 
         Args:
             name (str): name of the extraFELFeature object
-            extrafel_feature_name (str): name of the eFeature in the spikefeatures library
-                (ex: 'halfwidth')
+            extrafel_feature_name (str): name of the eFeature in the spikefeatures
+                library (ex: 'halfwidth')
             recording_names (dict): eFEL features can accept several recordings
                 as input
-            somatic_recording_name (str): intracellualar recording from soma, used to detect spikes. If None, spikes are
-                                          detected from extracellular trace
-            fcut (float, array, or None): cutoff frequency(ies) for filter. If float, a high-pass filter is used. If
-                                           array-like a bandpass filter is used. If None, traces are note filtered
-            fs (float): sampling frequency to resample extracellular traces (in kHz)
+            somatic_recording_name (str): intracellualar recording from soma,
+                used to detect spikes. If None, spikes are detected from
+                extracellular trace
+            fcut (float, array, or None): cutoff frequency(ies) for filter. If
+                float, a high-pass filter is used. If array-like a bandpass
+                filter is used. If None, traces are note filtered
+            fs (float): sampling frequency to resample extracellular traces
+                (in kHz)
             stim_start (float): stimulation start time (ms)
             stim_end (float): stimulation end time (ms)
             exp_mean (float): experimental mean of this eFeature
@@ -362,17 +367,23 @@ class extraFELFeature(EFeature, DictMixin):
             self._setup_efel()
 
             import efel
-            peaks = efel.getFeatureValues([efel_trace], ['peak_time'], raise_warnings=raise_warnings)
+            peaks = efel.getFeatureValues(
+                [efel_trace], ['peak_time'], raise_warnings=raise_warnings
+            )
             peak_times = peaks[0]['peak_time']
 
             efel.reset()
 
         return peak_times
 
-    def calculate_feature(self, responses, raise_warnings=False, return_waveforms=False,
-                          detect_threshold=None, verbose=False):
+    def calculate_feature(
+            self, responses, raise_warnings=False, return_waveforms=False,
+            detect_threshold=None, verbose=False
+    ):
         """Calculate feature value"""
-        peak_times = self._get_peak_times(responses, raise_warnings=raise_warnings)
+        peak_times = self._get_peak_times(
+            responses, raise_warnings=raise_warnings
+        )
 
         if len(peak_times) > 1 and self.skip_first_spike:
             peak_times = peak_times[1:]
@@ -385,7 +396,8 @@ class extraFELFeature(EFeature, DictMixin):
         else:
             return None
 
-        if np.std(np.diff(response['time'])) > 0.001 * np.mean(np.diff(response['time'])):
+        if np.std(np.diff(response['time'])) > \
+                0.001 * np.mean(np.diff(response['time'])):
             assert self.fs is not None
             if verbose:
                 print('interpolate')
@@ -416,16 +428,21 @@ class extraFELFeature(EFeature, DictMixin):
             fs_up = self.fs
 
         amplitudes = np.max(np.abs(mean_wf_up), axis=1)
-        values = calculate_features(mean_wf_up, fs_up * 1000, feature_names=[self.extrafel_feature_name])
+        values = calculate_features(
+                mean_wf_up, fs_up * 1000,
+                feature_names=[self.extrafel_feature_name]
+        )
 
         if detect_threshold is not None:
-            assert 0 <= detect_threshold < 1, "'detect_threshold should be between 0 and 1"
+            assert 0 <= detect_threshold < 1, \
+                    "'detect_threshold should be between 0 and 1"
             self.detect_threshold = detect_threshold
 
         feature_value = values[self.extrafel_feature_name]
 
         if self.detect_threshold is not None:
-            nan_idxs = amplitudes < (self.detect_threshold * np.max(amplitudes))
+            nan_idxs = amplitudes < (self.detect_threshold * \
+                    np.max(amplitudes))
             # raise Exception
             feature_value[nan_idxs] = np.nan
 
@@ -445,8 +462,8 @@ class extraFELFeature(EFeature, DictMixin):
     def calculate_score(self, responses, trace_check=False):
         """Calculate the score"""
         
-        if responses[self.recording_names[''].replace('soma.v', 'MEA.LFP')] is None or \
-                responses[self.recording_names['']] is None:
+        if responses[self.recording_names[''].replace('soma.v', 'MEA.LFP')] \
+                is None or responses[self.recording_names['']] is None:
             return self.max_score
 
         feature_value = self.calculate_feature(responses)
@@ -458,15 +475,18 @@ class extraFELFeature(EFeature, DictMixin):
             else:
                 score = self.max_score
             if not np.isfinite(score):
-                logger.debug(f'Found score nan value {self.extrafel_feature_name} - std: {self.exp_std} '
-                             f'- channel: {self.channel_id}')
+                logger.debug(
+                        f'Found score nan value {self.extrafel_feature_name} '
+                        f'- std: {self.exp_std} - channel: {self.channel_id}')
                 score = self.max_score
         else:
             non_nan_idxs_mean = set(np.where(np.isfinite(self.exp_mean))[0])
             non_nan_idxs_feat = set(np.where(np.isfinite(feature_value))[0])
-            non_nan_idxs = np.array(list(non_nan_idxs_mean.intersection(non_nan_idxs_feat)))
+            non_nan_idxs = np.array(list(non_nan_idxs_mean.intersection(
+                non_nan_idxs_feat)))
             if len(non_nan_idxs) > 0:
-                score = distance.cosine(feature_value[non_nan_idxs], self.exp_mean[non_nan_idxs])
+                score = distance.cosine(feature_value[non_nan_idxs],
+                        self.exp_mean[non_nan_idxs])
                 # scale by number of non nan idxs in the mean
                 # if the feature_value has less nan values, it is penalized
                 score *= len(non_nan_idxs_mean) / len(non_nan_idxs)
@@ -559,7 +579,8 @@ def _get_waveforms(response, peak_times, snippet_len_ms):
     times = response['time']
     traces = response['voltage']
 
-    assert np.std(np.diff(times)) < 0.001 * np.mean(np.diff(times)), "Sampling frequency must be constant"
+    assert np.std(np.diff(times)) < 0.001 * np.mean(np.diff(times)),\
+            "Sampling frequency must be constant"
 
     fs = 1. / np.mean(np.diff(times))  # kHz
 
@@ -580,13 +601,17 @@ def _get_waveforms(response, peak_times, snippet_len_ms):
         traces = traces[np.newaxis, :]
     num_frames = len(times)
     snippet_len_total = int(snippet_len_before + snippet_len_after)
-    waveforms = np.zeros((num_snippets, num_channels, snippet_len_total), dtype=traces.dtype)
+    waveforms = np.zeros((num_snippets, num_channels, snippet_len_total),
+            dtype=traces.dtype)
 
     for i in range(num_snippets):
-        snippet_chunk = np.zeros((num_channels, snippet_len_total), dtype=traces.dtype)
+        snippet_chunk = np.zeros((num_channels, snippet_len_total),
+                dtype=traces.dtype)
         if 0 <= reference_frames[i] < num_frames:
-            snippet_range = np.array([int(reference_frames[i]) - snippet_len_before,
-                                      int(reference_frames[i]) + snippet_len_after])
+            snippet_range = np.array(
+                    [int(reference_frames[i]) - snippet_len_before,
+                     int(reference_frames[i]) + snippet_len_after]
+            )
             snippet_buffer = np.array([0, snippet_len_total], dtype='int')
             # The following handles the out-of-bounds cases
             if snippet_range[0] < 0:
@@ -595,7 +620,8 @@ def _get_waveforms(response, peak_times, snippet_len_ms):
             if snippet_range[1] >= num_frames:
                 snippet_buffer[1] -= snippet_range[1] - num_frames
                 snippet_range[1] -= snippet_range[1] - num_frames
-            snippet_chunk[:, snippet_buffer[0]:snippet_buffer[1]] = traces[:, snippet_range[0]:snippet_range[1]]
+            snippet_chunk[:, snippet_buffer[0]:snippet_buffer[1]] = \
+                    traces[:, snippet_range[0]:snippet_range[1]]
         waveforms[i] = snippet_chunk
 
     return waveforms

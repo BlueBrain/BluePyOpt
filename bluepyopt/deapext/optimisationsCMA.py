@@ -74,7 +74,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             selector_name (str): The selector used in the evolutionary
                 algorithm, possible values are 'single_objective' or
                 'multi_objective'
-            weight_hv (float): between 0 and 1. Weight given to the 
+            weight_hv (float): between 0 and 1. Weight given to the
                 hyper-volume contribution when computing the score of an
                 individual in MO-CMA. The weight of the fitness contribution
                 is computed as 1 - weight_hv.
@@ -227,7 +227,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         stats = self.get_stats()
         if cp_filename:
             cp_filename_tmp = str(cp_filename) + '.tmp'
-        
+
         if continue_cp:
 
             # A file name has been given, then load the data from the file

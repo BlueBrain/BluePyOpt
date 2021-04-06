@@ -85,8 +85,8 @@ class CMA_MO(cma.StrategyMultiObjective):
             sigma (float): initial standard deviation of the distribution
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
-            weight_hv (float): between 0 and 1. Weight given to the 
-                hypervolume contribution when computing the score of an 
+            weight_hv (float): between 0 and 1. Weight given to the
+                hypervolume contribution when computing the score of an
                 individual in MO-CMA. The weight of the fitness contribution
                 is computed as 1 - weight_hv.
         """
@@ -112,7 +112,7 @@ class CMA_MO(cma.StrategyMultiObjective):
 
         self.population = []
         self.problem_size = len(starters[0])
-        
+
         self.weight_hv = weight_hv
 
         self.map_function = map_function
@@ -147,37 +147,6 @@ class CMA_MO(cma.StrategyMultiObjective):
         we rely on the hypervolume for this front. The remaining fronts are
         explicitly not chosen"""
 
-        #if len(candidates) <= self.mu:
-        #    return candidates, []
-
-        #pareto_fronts = deap.tools.sortLogNondominated(candidates,
-        #                                               len(candidates))
-
-        #chosen = list()
-        #mid_front = None
-        #not_chosen = list()
-
-        #full = False
-        #for front in pareto_fronts:
-        #    if len(chosen) + len(front) <= self.mu and not full:
-        #        chosen += front
-        #    elif mid_front is None and len(chosen) < self.mu:
-        #        mid_front = front
-        #        # With this front, we selected enough individuals
-        #        full = True
-        #    else:
-        #        not_chosen += front
-
-        # HypE contribution to get the best candidates on the remaining front
-        #k = self.mu - len(chosen)
-        #if k > 0:
-        #    contribution = get_hyped(mid_front)
-        #    print(contribution)
-        #    idxs = numpy.argsort(contribution)
-        #    ordered_front = [mid_front[i] for i in idxs[::-1]]
-        #    chosen += ordered_front[:k]
-        #    not_chosen += ordered_front[k:]
-        
         if self.weight_hv == 0.: 
             fit = [numpy.sum(ind.fitness.values) for ind in candidates]
             idx_fit = list(numpy.argsort(fit))

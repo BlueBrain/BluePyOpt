@@ -1,7 +1,8 @@
 import numpy
 
-def hypesub_(l, A, actDim, bounds, pvec, alpha, k):
-    h = numpy.zeros(l)
+
+def hypesub_(la, A, actDim, bounds, pvec, alpha, k):
+    h = numpy.zeros(la)
     i = numpy.argsort(A[:, actDim - 1])
     S = A[i]
     pvec = pvec[i]
@@ -19,7 +20,7 @@ def hypesub_(l, A, actDim, bounds, pvec, alpha, k):
             if alpha[i - 1] >= 0:
                 h[pvec[0:i]] += extrusion * alpha[i - 1]
         elif extrusion > 0.:
-            h += extrusion * hypesub(l, S[0:i, :], actDim - 1, bounds,
+            h += extrusion * hypesub(la, S[0:i, :], actDim - 1, bounds,
                                      pvec[0:i], alpha, k)
 
     return h
@@ -77,22 +78,21 @@ def hypeIndicatorSampled(points, bounds, k, nrOfSamples):
     for i in range(1, k + 1):
         j = numpy.arange(1, i)
         alpha.append(numpy.prod((k - j) / (nrP - j) / i))
-    alpha = numpy.asarray(alpha + [0.]*nrP)
+    alpha = numpy.asarray(alpha + [0.] * nrP)
 
     S = numpy.random.uniform(low=BoxL, high=bounds, size=(nrOfSamples, dim))
 
-
     dominated = numpy.zeros(nrOfSamples, dtype="uint")
-    for j in range(1, nrP+1):
-        B = S - points[j-1]
+    for j in range(1, nrP + 1):
+        B = S - points[j - 1]
         ind = numpy.sum(B >= 0, axis=1) == dim
         dominated[ind] += 1
 
-    for j in range(1, nrP+1):
-        B = S - points[j-1]
+    for j in range(1, nrP + 1):
+        B = S - points[j - 1]
         ind = numpy.sum(B >= 0, axis=1) == dim
         x = dominated[ind]
-        F[j-1] = numpy.sum(alpha[x-1])
+        F[j - 1] = numpy.sum(alpha[x - 1])
 
     F = F * numpy.prod(bounds - BoxL) / nrOfSamples
 

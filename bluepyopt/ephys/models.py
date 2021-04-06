@@ -19,6 +19,17 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import itertools
+def _nth_isectionlist(isectionlist, index):
+    """Get nth element of isectionlist
+    Sectionlists don't support direct indexing
+    """
+    isection = next(
+        itertools.islice(
+            isectionlist,
+            index,
+            index + 1))
+    return isection
 
 # pylint: disable=W0511
 
@@ -249,7 +260,7 @@ class CellModel(Model):
         if self.params is not None:
             for param in self.params.values():
                 param.instantiate(sim=sim, icell=self.icell)
-                
+        
     def destroy(self, sim=None):  # pylint: disable=W0613
         """Destroy instantiated model in simulator"""
 
@@ -683,7 +694,26 @@ class LFPyCellModel(Model):
         if self.params is not None:
             for param in self.params.values():
                 param.instantiate(sim=sim, icell=self.icell, params=self.params)
-
+        
+        for sec in sim.neuron.h.allsec():
+            if sim.neuron.h.ismembrane('ca_ion'):
+                sec.eca = 140
+                sim.neuron.h.ion_style("ca_ion", 0, 1, 0, 0, 0)
+                sim.neuron.h.vshift_ca = 8
+        # Print params
+        #iseclist = getattr(self.icell, 'axon_initial_segment')
+        #iseclist_size = len([x for x in iseclist])
+        #isection = _nth_isectionlist(iseclist, 0)
+        #icomp = isection(0.45)
+        #sim.neuron.h.pop_section()
+        #print(icomp)
+        #for m in icomp:
+        #    for p in dir(m):
+        #        if p not in ['__class__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__iter__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', 'is_ion', 'name', 'segment']:
+        #            try:
+        #                print(m, p, getattr(m, p))
+        #            except:
+        #                pass
 
     def destroy(self, sim=None):  # pylint: disable=W0613
         """Destroy instantiated model in simulator"""

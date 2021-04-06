@@ -24,7 +24,9 @@ class Parameter(object):
 
     """Base parameter class"""
 
-    def __init__(self, name, value=None, frozen=False, bounds=None, param_dependancies=None):
+    def __init__(
+            self, name, value=None, frozen=False, bounds=None, param_dependancies=None
+    ):
         """Constructor"""
 
         self.name = name
