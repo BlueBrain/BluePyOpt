@@ -36,13 +36,11 @@ class DummyCellModel1(ephys.models.Model):
 
         self.icell = Cell()
 
-        self.icell.soma = [sim.neuron.h.Section(name='soma', cell=self.icell)]
-        self.icell.apic = [
-            sim.neuron.h.Section(
-                name='apic1',
-                cell=self.icell)]
+        self.icell.soma = [sim.neuron.h.Section(name="soma", cell=self.icell)]
+        self.icell.apic = [sim.neuron.h.Section(name="apic1", cell=self.icell)]
 
-        self.icell.somatic = sim.neuron.h.SectionList(
+        self.icell.somatic = (
+            sim.neuron.h.SectionList()
         )  # pylint: disable = W0201
         self.icell.somatic.append(sec=self.icell.soma[0])
 

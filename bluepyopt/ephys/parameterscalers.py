@@ -27,7 +27,7 @@ from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
 
-FLOAT_FORMAT = '%.17g'
+FLOAT_FORMAT = "%.17g"
 
 
 def format_float(value):
@@ -41,13 +41,15 @@ class MissingFormatDict(dict):
 
     def __missing__(self, key):  # pylint: disable=R0201
         """Return string with format key for missing keys"""
-        return '{' + key + '}'
+        return "{" + key + "}"
 
 
 class ParameterScaler(BaseEPhys):
 
     """Parameter scalers"""
+
     pass
+
 
 # TODO get rid of the 'segment' here
 
@@ -55,14 +57,15 @@ class ParameterScaler(BaseEPhys):
 class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
 
     """Linear scaler"""
-    SERIALIZED_FIELDS = ('name', 'comment', 'multiplier', 'offset', )
 
-    def __init__(
-            self,
-            name=None,
-            multiplier=1.0,
-            offset=0.0,
-            comment=''):
+    SERIALIZED_FIELDS = (
+        "name",
+        "comment",
+        "multiplier",
+        "offset",
+    )
+
+    def __init__(self, name=None, multiplier=1.0, offset=0.0, comment=""):
         """Constructor
 
         Args:
@@ -77,27 +80,33 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
 
     def scale(self, values, segment=None, sim=None):  # pylint: disable=W0613
         """Scale a value based on a segment"""
-        
-        return self.multiplier * values['value'] + self.offset
+
+        return self.multiplier * values["value"] + self.offset
 
     def __str__(self):
         """String representation"""
 
-        return '%s * value + %s' % (self.multiplier, self.offset)
+        return "%s * value + %s" % (self.multiplier, self.offset)
 
 
 class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
 
     """Scaler based on distance from soma"""
-    SERIALIZED_FIELDS = ('name', 'comment', 'distribution', )
+
+    SERIALIZED_FIELDS = (
+        "name",
+        "comment",
+        "distribution",
+    )
 
     def __init__(
-            self,
-            name=None,
-            distribution=None,
-            comment='',
-            dist_param_names=None,
-            soma_ref_location=0.5):
+        self,
+        name=None,
+        distribution=None,
+        comment="",
+        dist_param_names=None,
+        soma_ref_location=0.5,
+    ):
         """Constructor
 
         Args:
@@ -122,16 +131,17 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
         self.dist_param_names = dist_param_names
         self.soma_ref_location = soma_ref_location
 
-        if not(0. <= self.soma_ref_location <= 1.):
-            raise ValueError('soma_ref_location must be between 0 and 1.')
+        if not (0.0 <= self.soma_ref_location <= 1.0):
+            raise ValueError("soma_ref_location must be between 0 and 1.")
 
         if self.dist_param_names is not None:
             for dist_param_name in self.dist_param_names:
                 if dist_param_name not in self.distribution:
                     raise ValueError(
                         'NrnSegmentSomaDistanceScaler: "{%s}" '
-                        'missing from distribution string "%s"' %
-                        (dist_param_name, distribution))
+                        'missing from distribution string "%s"'
+                        % (dist_param_name, distribution)
+                    )
                 setattr(self, dist_param_name, None)
 
     @property
@@ -144,8 +154,10 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
             for dist_param_name in self.dist_param_names:
                 dist_param_value = getattr(self, dist_param_name)
                 if dist_param_value is None:
-                    raise ValueError('NrnSegmentSomaDistanceScaler: %s '
-                                     'was uninitialised' % dist_param_name)
+                    raise ValueError(
+                        "NrnSegmentSomaDistanceScaler: %s "
+                        "was uninitialised" % dist_param_name
+                    )
                 dist_dict[dist_param_name] = dist_param_value
 
         # Use this special formatting to bypass missing keys
@@ -157,7 +169,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
         scale_dict = {}
         for k, v in values.items():
             scale_dict[k] = format_float(v)
-        scale_dict['distance'] = format_float(distance)
+        scale_dict["distance"] = format_float(distance)
 
         return self.inst_distribution.format(**scale_dict)
 

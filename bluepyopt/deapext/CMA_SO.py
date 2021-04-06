@@ -29,8 +29,17 @@ import copy
 from deap import base
 from deap import cma
 
-from .stoppingCriteria import MaxNGen, Stagnation, TolHistFun, EqualFunVals, \
-    NoEffectAxis, TolUpSigma, TolX, ConditionCov, NoEffectCoor
+from .stoppingCriteria import (
+    MaxNGen,
+    Stagnation,
+    TolHistFun,
+    EqualFunVals,
+    NoEffectAxis,
+    TolUpSigma,
+    TolX,
+    ConditionCov,
+    NoEffectCoor,
+)
 
 from . import utils
 
@@ -40,15 +49,17 @@ logger = logging.getLogger(__name__)
 class CMA_SO(cma.Strategy):
     """Single objective covariance matrix adaption"""
 
-    def __init__(self,
-                 centroids,
-                 offspring_size,
-                 sigma,
-                 max_ngen,
-                 IndCreator,
-                 RandIndCreator,
-                 map_function=None,
-                 use_scoop=False):
+    def __init__(
+        self,
+        centroids,
+        offspring_size,
+        sigma,
+        max_ngen,
+        IndCreator,
+        RandIndCreator,
+        map_function=None,
+        use_scoop=False,
+    ):
         """Constructor
 
         Args:
@@ -86,7 +97,8 @@ class CMA_SO(cma.Strategy):
         self.active = True
         if max_ngen <= 0:
             max_ngen = 100 + 50 * (self.problem_size + 3) ** 2 / numpy.sqrt(
-                self.lambda_)
+                self.lambda_
+            )
 
         self.stopping_conditions = [
             MaxNGen(max_ngen),
@@ -97,15 +109,16 @@ class CMA_SO(cma.Strategy):
             TolUpSigma(float(self.sigma)),
             TolX(),
             ConditionCov(),
-            NoEffectCoor()
+            NoEffectCoor(),
         ]
 
     def update(self, population):
         """Update the current covariance matrix strategy from the
         population"""
 
-        population.sort(key=lambda ind: ind.fitness.weighted_reduce,
-                        reverse=True)
+        population.sort(
+            key=lambda ind: ind.fitness.weighted_reduce, reverse=True
+        )
 
         old_centroid = self.centroid
         self.centroid = numpy.dot(self.weights, population[0:self.mu])
@@ -113,29 +126,50 @@ class CMA_SO(cma.Strategy):
         c_diff = self.centroid - old_centroid
 
         # Cumulation : update evolution path
-        self.ps = (1 - self.cs) * self.ps + sqrt(self.cs * (2 - self.cs) *
-                   self.mueff) / self.sigma * numpy.dot(self.B, (1. /
-                   self.diagD) * numpy.dot(self.B.T, c_diff))  # noqa
+        self.ps = (1 - self.cs) * self.ps + sqrt(
+            self.cs * (2 - self.cs) * self.mueff
+        ) / self.sigma * numpy.dot(
+            self.B, (1.0 / self.diagD) * numpy.dot(self.B.T, c_diff)
+        )  # noqa
 
-        hsig = float((numpy.linalg.norm(self.ps) / sqrt(1. - (1. - self.cs)
-                     ** (2. * (self.update_count + 1.))) / self.chiN <
-                      (1.4 + 2. / (self.dim + 1.))))  # noqa
+        hsig = float(
+            (
+                numpy.linalg.norm(self.ps)
+                / sqrt(
+                    1.0 - (1.0 - self.cs) ** (2.0 * (self.update_count + 1.0))
+                )
+                / self.chiN
+                < (1.4 + 2.0 / (self.dim + 1.0))
+            )
+        )  # noqa
 
         self.update_count += 1
 
-        self.pc = (1 - self.cc) * self.pc + hsig * sqrt(self.cc * (2 - self.cc)
-                  * self.mueff) / self.sigma * c_diff  # noqa
+        self.pc = (1 - self.cc) * self.pc + hsig * sqrt(
+            self.cc * (2 - self.cc) * self.mueff
+        ) / self.sigma * c_diff  # noqa
 
         # Update covariance matrix
         artmp = population[0:self.mu] - old_centroid
-        self.C = (1 - self.ccov1 - self.ccovmu + (1 - hsig) *
-                  self.ccov1 * self.cc * (2 - self.cc)) * self.C \
-                 + self.ccov1 * numpy.outer(self.pc, self.pc) \
-                 + self.ccovmu * numpy.dot((self.weights * artmp.T), artmp) \
-                 / self.sigma ** 2  # noqa
+        self.C = (
+            (
+                1
+                - self.ccov1
+                - self.ccovmu
+                + (1 - hsig) * self.ccov1 * self.cc * (2 - self.cc)
+            )
+            * self.C
+            + self.ccov1 * numpy.outer(self.pc, self.pc)
+            + self.ccovmu
+            * numpy.dot((self.weights * artmp.T), artmp)
+            / self.sigma ** 2
+        )  # noqa
 
-        self.sigma *= numpy.exp((numpy.linalg.norm(self.ps) / self.chiN - 1.) *
-                                self.cs / self.damps)  # noqa
+        self.sigma *= numpy.exp(
+            (numpy.linalg.norm(self.ps) / self.chiN - 1.0)
+            * self.cs
+            / self.damps
+        )  # noqa
 
         self.diagD, self.B = numpy.linalg.eigh(self.C)
         indx = numpy.argsort(self.diagD)
@@ -182,6 +216,8 @@ class CMA_SO(cma.Strategy):
         [c.check(stopping_params) for c in self.stopping_conditions]
         for c in self.stopping_conditions:
             if c.criteria_met:
-                logger.info('CMA stopped because of termination criteria: ' +
-                            ' '.join(c.name))
+                logger.info(
+                    "CMA stopped because of termination criteria: "
+                    + " ".join(c.name)
+                )
                 self.active = False

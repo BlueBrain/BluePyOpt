@@ -1,4 +1,4 @@
-'''Mixin class to make dictionaries'''
+"""Mixin class to make dictionaries"""
 from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
@@ -9,32 +9,43 @@ from __future__ import absolute_import
 # standard_library.install_aliases()
 
 
-SENTINAL = 'class'
+SENTINAL = "class"
 
 
 class DictMixin(object):
 
-    '''Mixin class to create dictionaries of selected elements'''
+    """Mixin class to create dictionaries of selected elements"""
+
     SERIALIZED_FIELDS = ()
 
     @staticmethod
     def _serializer(value):
         """_serializer"""
-        if hasattr(value, 'to_dict'):
+        if hasattr(value, "to_dict"):
             return value.to_dict()
-        elif isinstance(value, (list, tuple)) and \
-                value and hasattr(value[0], 'to_dict'):
+        elif (
+            isinstance(value, (list, tuple))
+            and value
+            and hasattr(value[0], "to_dict")
+        ):
             return [v.to_dict() for v in value]
-        elif(isinstance(value, dict) and value and
-             hasattr(next(iter(list(value.values()))), 'to_dict')):
+        elif (
+            isinstance(value, dict)
+            and value
+            and hasattr(next(iter(list(value.values()))), "to_dict")
+        ):
             return {k: v.to_dict() for k, v in list(value.items())}
         return value
 
     @staticmethod
     def _deserializer(value):
         """_deserializer"""
-        if(isinstance(value, list) and value and
-           isinstance(value[0], dict) and SENTINAL in value[0]):
+        if (
+            isinstance(value, list)
+            and value
+            and isinstance(value[0], dict)
+            and SENTINAL in value[0]
+        ):
             return [instantiator(v) for v in value]
         elif isinstance(value, dict) and value:
             if SENTINAL in value:
@@ -45,20 +56,22 @@ class DictMixin(object):
         return value
 
     def to_dict(self):
-        '''create dictionary'''
+        """create dictionary"""
         ret = {}
         for field in self.SERIALIZED_FIELDS:
             ret[field] = DictMixin._serializer(getattr(self, field))
-        ret['class'] = repr(self.__class__)
+        ret["class"] = repr(self.__class__)
         return ret
 
     @classmethod
     def from_dict(cls, fields):
-        '''create class from serialized values'''
+        """create class from serialized values"""
         klass = fields[SENTINAL]
-        assert klass == repr(cls), 'Class names much match %s != %s' % (
-            klass, repr(cls))
-        del fields['class']
+        assert klass == repr(cls), "Class names much match %s != %s" % (
+            klass,
+            repr(cls),
+        )
+        del fields["class"]
         for name in list(fields.keys()):
             fields[name] = DictMixin._deserializer(fields[name])
         return cls(**fields)

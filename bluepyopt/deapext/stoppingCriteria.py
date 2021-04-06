@@ -33,6 +33,7 @@ def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
 
 class MaxNGen(bluepyopt.stoppingCriteria.StoppingCriteria):
     """Max ngen stopping criteria class"""
+
     name = "Max ngen"
 
     def __init__(self, max_ngen):
@@ -49,6 +50,7 @@ class MaxNGen(bluepyopt.stoppingCriteria.StoppingCriteria):
 
 class Stagnation(bluepyopt.stoppingCriteria.StoppingCriteria):
     """Stagnation stopping criteria class"""
+
     name = "Stagnation"
 
     def __init__(self, lambda_, problem_size):
@@ -70,22 +72,28 @@ class Stagnation(bluepyopt.stoppingCriteria.StoppingCriteria):
         fitness.sort()
 
         self.best.append(fitness[0])
-        self.median.append(fitness[int(round(len(fitness) / 2.))])
-        self.stagnation_iter = int(numpy.ceil(
-            0.2 * ngen + 120 + 30. * self.problem_size / self.lambda_))
+        self.median.append(fitness[int(round(len(fitness) / 2.0))])
+        self.stagnation_iter = int(
+            numpy.ceil(
+                0.2 * ngen + 120 + 30.0 * self.problem_size / self.lambda_
+            )
+        )
 
         cbest = len(self.best) > self.stagnation_iter
         cmed = len(self.median) > self.stagnation_iter
         cbest2 = numpy.median(self.best[-20:]) >= numpy.median(
-            self.best[-self.stagnation_iter:-self.stagnation_iter + 20])
+            self.best[-self.stagnation_iter:-self.stagnation_iter + 20]
+        )
         cmed2 = numpy.median(self.median[-20:]) >= numpy.median(
-            self.median[-self.stagnation_iter:-self.stagnation_iter + 20])
+            self.median[-self.stagnation_iter:-self.stagnation_iter + 20]
+        )
         if cbest and cmed and cbest2 and cmed2:
             self.criteria_met = True
 
 
 class TolHistFun(bluepyopt.stoppingCriteria.StoppingCriteria):
     """TolHistFun stopping criteria class"""
+
     name = "TolHistFun"
 
     def __init__(self, lambda_, problem_size):
@@ -93,7 +101,8 @@ class TolHistFun(bluepyopt.stoppingCriteria.StoppingCriteria):
         super(TolHistFun, self).__init__()
         self.tolhistfun = 10 ** -12
         self.mins = deque(
-            maxlen=10 + int(numpy.ceil(30. * problem_size / lambda_)))
+            maxlen=10 + int(numpy.ceil(30.0 * problem_size / lambda_))
+        )
 
     def check(self, kwargs):
         """Check if the range of the best values is smaller than
@@ -101,21 +110,24 @@ class TolHistFun(bluepyopt.stoppingCriteria.StoppingCriteria):
         population = kwargs.get("population")
         self.mins.append(numpy.min([ind.fitness.reduce for ind in population]))
 
-        if len(self.mins) == self.mins.maxlen and max(self.mins) - min(
-                self.mins) < self.tolhistfun:
+        if (
+            len(self.mins) == self.mins.maxlen
+            and max(self.mins) - min(self.mins) < self.tolhistfun
+        ):
             self.criteria_met = True
 
 
 class EqualFunVals(bluepyopt.stoppingCriteria.StoppingCriteria):
     """EqualFunVals stopping criteria class"""
+
     name = "EqualFunVals"
 
     def __init__(self, lambda_, problem_size):
         """Constructor"""
         super(EqualFunVals, self).__init__()
         self.problem_size = problem_size
-        self.equalvals = float(problem_size) / 3.
-        self.equalvals_k = int(numpy.ceil(0.1 + lambda_ / 4.))
+        self.equalvals = float(problem_size) / 3.0
+        self.equalvals_k = int(numpy.ceil(0.1 + lambda_ / 4.0))
         self.equalvalues = []
 
     def check(self, kwargs):
@@ -132,13 +144,16 @@ class EqualFunVals(bluepyopt.stoppingCriteria.StoppingCriteria):
         else:
             self.equalvalues.append(0)
 
-        if ngen > self.problem_size and \
-                sum(self.equalvalues[-self.problem_size:]) > self.equalvals:
+        if (
+            ngen > self.problem_size
+            and sum(self.equalvalues[-self.problem_size:]) > self.equalvals
+        ):
             self.criteria_met = True
 
 
 class TolX(bluepyopt.stoppingCriteria.StoppingCriteria):
     """TolX stopping criteria class"""
+
     name = "TolX"
 
     def __init__(self):
@@ -158,6 +173,7 @@ class TolX(bluepyopt.stoppingCriteria.StoppingCriteria):
 
 class TolUpSigma(bluepyopt.stoppingCriteria.StoppingCriteria):
     """TolUpSigma stopping criteria class"""
+
     name = "TolUpSigma"
 
     def __init__(self, sigma0):
@@ -177,6 +193,7 @@ class TolUpSigma(bluepyopt.stoppingCriteria.StoppingCriteria):
 
 class ConditionCov(bluepyopt.stoppingCriteria.StoppingCriteria):
     """ConditionCov stopping criteria class"""
+
     name = "ConditionCov"
 
     def __init__(self):
@@ -195,6 +212,7 @@ class ConditionCov(bluepyopt.stoppingCriteria.StoppingCriteria):
 
 class NoEffectAxis(bluepyopt.stoppingCriteria.StoppingCriteria):
     """NoEffectAxis stopping criteria class"""
+
     name = "NoEffectAxis"
 
     def __init__(self, problem_size):
@@ -213,13 +231,17 @@ class NoEffectAxis(bluepyopt.stoppingCriteria.StoppingCriteria):
 
         noeffectaxis_index = ngen % self.problem_size
 
-        if all(centroid == centroid + 0.1 * sigma *
-               diagD[-noeffectaxis_index] * B[-noeffectaxis_index]):
+        if all(
+            centroid
+            == centroid
+            + 0.1 * sigma * diagD[-noeffectaxis_index] * B[-noeffectaxis_index]
+        ):
             self.criteria_met = True
 
 
 class NoEffectCoor(bluepyopt.stoppingCriteria.StoppingCriteria):
     """NoEffectCoor stopping criteria class"""
+
     name = "NoEffectCoor"
 
     def __init__(self):

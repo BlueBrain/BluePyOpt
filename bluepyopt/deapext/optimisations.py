@@ -85,8 +85,8 @@ class WSListIndividual(list):
 
     def __init__(self, *args, **kwargs):
         """Constructor"""
-        self.fitness = WeightedSumFitness(obj_size=kwargs['obj_size'])
-        del kwargs['obj_size']
+        self.fitness = WeightedSumFitness(obj_size=kwargs["obj_size"])
+        del kwargs["obj_size"]
         super(WSListIndividual, self).__init__(*args, **kwargs)
 
 
@@ -94,16 +94,19 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
     """DEAP Optimisation class"""
 
-    def __init__(self, evaluator=None,
-                 use_scoop=False,
-                 seed=1,
-                 offspring_size=10,
-                 eta=10,
-                 mutpb=1.0,
-                 cxpb=1.0,
-                 map_function=None,
-                 hof=None,
-                 selector_name=None):
+    def __init__(
+        self,
+        evaluator=None,
+        use_scoop=False,
+        seed=1,
+        offspring_size=10,
+        eta=10,
+        mutpb=1.0,
+        cxpb=1.0,
+        map_function=None,
+        hof=None,
+        selector_name=None,
+    ):
         """Constructor
 
         Args:
@@ -134,7 +137,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
         self.selector_name = selector_name
         if self.selector_name is None:
-            self.selector_name = 'IBEA'
+            self.selector_name = "IBEA"
 
         self.hof = hof
         if self.hof is None:
@@ -171,8 +174,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             UPPER.append(parameter.upper_bound)
 
         # Register the 'uniform' function
-        self.toolbox.register("uniformparams", utils.uniform, LOWER, UPPER,
-                              IND_SIZE)
+        self.toolbox.register(
+            "uniformparams", utils.uniform, LOWER, UPPER, IND_SIZE
+        )
 
         # Register the individual format
         # An indiviual is create by WSListIndividual and parameters
@@ -182,14 +186,13 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             "Individual",
             deap.tools.initIterate,
             functools.partial(WSListIndividual, obj_size=OBJ_SIZE),
-            self.toolbox.uniformparams)
+            self.toolbox.uniformparams,
+        )
 
         # Register the population format. It is a list of individuals
         self.toolbox.register(
-            "population",
-            deap.tools.initRepeat,
-            list,
-            self.toolbox.Individual)
+            "population", deap.tools.initRepeat, list, self.toolbox.Individual
+        )
 
         # Register the evaluation function for the individuals
         # import deap_efel_eval1
@@ -201,7 +204,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             deap.tools.cxSimulatedBinaryBounded,
             eta=ETA,
             low=LOWER,
-            up=UPPER)
+            up=UPPER,
+        )
 
         # Register the mutation operator
         self.toolbox.register(
@@ -210,43 +214,50 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             eta=ETA,
             low=LOWER,
             up=UPPER,
-            indpb=0.5)
+            indpb=0.5,
+        )
 
         # Register the variate operator
         self.toolbox.register("variate", deap.algorithms.varAnd)
 
         # Register the selector (picks parents from population)
-        if self.selector_name == 'IBEA':
+        if self.selector_name == "IBEA":
             self.toolbox.register("select", tools.selIBEA)
-        elif self.selector_name == 'NSGA2':
+        elif self.selector_name == "NSGA2":
             self.toolbox.register("select", deap.tools.emo.selNSGA2)
         else:
-            raise ValueError('DEAPOptimisation: Constructor selector_name '
-                             'argument only accepts "IBEA" or "NSGA2"')
+            raise ValueError(
+                "DEAPOptimisation: Constructor selector_name "
+                'argument only accepts "IBEA" or "NSGA2"'
+            )
 
         import copyreg
         import types
+
         copyreg.pickle(types.MethodType, utils.reduce_method)
 
         if self.use_scoop:
             if self.map_function:
                 raise Exception(
-                    'Impossible to use scoop is providing self '
-                    'defined map function: %s' %
-                    self.map_function)
+                    "Impossible to use scoop is providing self "
+                    "defined map function: %s" % self.map_function
+                )
 
             from scoop import futures
+
             self.toolbox.register("map", futures.map)
 
         elif self.map_function:
             self.toolbox.register("map", self.map_function)
 
-    def run(self,
-            max_ngen=10,
-            offspring_size=None,
-            continue_cp=False,
-            cp_filename=None,
-            cp_frequency=1):
+    def run(
+        self,
+        max_ngen=10,
+        offspring_size=None,
+        continue_cp=False,
+        cp_filename=None,
+        cp_frequency=1,
+    ):
         """Run optimisation"""
         # Allow run function to override offspring_size
         # TODO probably in the future this should not be an object field
@@ -260,6 +271,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
         stats = deap.tools.Statistics(key=lambda ind: ind.fitness.sum)
         import numpy
+
         stats.register("avg", numpy.mean)
         stats.register("std", numpy.std)
         stats.register("min", numpy.min)
@@ -276,7 +288,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             halloffame=self.hof,
             cp_frequency=cp_frequency,
             continue_cp=continue_cp,
-            cp_filename=cp_filename)
+            cp_filename=cp_filename,
+        )
 
         # Update hall of fame
         self.hof = hof

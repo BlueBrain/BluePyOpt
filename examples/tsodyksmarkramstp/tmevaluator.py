@@ -1,4 +1,3 @@
-
 """Tsodyks-Markram model Evaluator.
 This module contains an evaluator for the Tsodyks-Markram model.
 
@@ -55,29 +54,36 @@ class TsodyksMarkramEvaluator(bpop.evaluators.Evaluator):
         # Compute time windows where to compare model and data
         offset = 0.005  # s
         window = 0.04  # s
-        window_samples = int(np.round(window/self.dx))
-        psp_start = np.searchsorted(t, tstim+offset)
+        window_samples = int(np.round(window / self.dx))
+        psp_start = np.searchsorted(t, tstim + offset)
         psp_stop = psp_start + window_samples
-        psp_stop[-1] += 2*window_samples  # Extend last psp window (RTR case)
+        psp_stop[-1] += 2 * window_samples  # Extend last psp window (RTR case)
         self.split_idx = zip(psp_start, psp_stop)
         # Parameters to be optimized
-        self.params = [bpop.parameters.Parameter(name, bounds=(minval, maxval))
-                       for name, minval, maxval in self.params]
+        self.params = [
+            bpop.parameters.Parameter(name, bounds=(minval, maxval))
+            for name, minval, maxval in self.params
+        ]
         # Objectives
-        self.objectives = [bpop.objectives.Objective('interval_%d' % (i,))
-                           for i in xrange(len(self.split_idx))]
+        self.objectives = [
+            bpop.objectives.Objective("interval_%d" % (i,))
+            for i in xrange(len(self.split_idx))
+        ]
 
     def generate_model(self, individual):
         """Calls numerical integrator `tmodeint.py` and returns voltage trace based on the input parameters"""
 
-        v, _ = tmodeint.integrate(self.stimidx, self.nsamples, self.dx,
-                                  self.vrest, *individual)
+        v, _ = tmodeint.integrate(
+            self.stimidx, self.nsamples, self.dx, self.vrest, *individual
+        )
         return v
 
     def evaluate_with_lists(self, individual):
         """Errors used by BluePyOpt for the optimization"""
 
         candidate_v = self.generate_model(individual)
-        errors = [np.linalg.norm(self.v[t0:t1] - candidate_v[t0:t1])
-                  for t0, t1 in self.split_idx]
+        errors = [
+            np.linalg.norm(self.v[t0:t1] - candidate_v[t0:t1])
+            for t0, t1 in self.split_idx
+        ]
         return errors

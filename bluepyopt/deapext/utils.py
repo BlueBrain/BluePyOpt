@@ -66,15 +66,16 @@ class WSListIndividual(list):
         """Constructor"""
 
         reduce_fcn = kwargs.get("reduce_fcn", numpy.sum)
-        self.fitness = WeightedReducedFitness(obj_size=kwargs['obj_size'],
-                                              reduce_fcn=reduce_fcn)
+        self.fitness = WeightedReducedFitness(
+            obj_size=kwargs["obj_size"], reduce_fcn=reduce_fcn
+        )
 
         # Index of the parent, used by MO-CMA
         self._ps = "p", 0
 
-        del kwargs['obj_size']
-        if 'reduce_fcn' in kwargs:
-            del kwargs['reduce_fcn']
+        del kwargs["obj_size"]
+        if "reduce_fcn" in kwargs:
+            del kwargs["reduce_fcn"]
         super(WSListIndividual, self).__init__(*args, **kwargs)
 
 
@@ -110,7 +111,8 @@ def bound(population, lbounds, ubounds):
     n_out = 0
     for i, ind in enumerate(population):
         if numpy.any(numpy.less(ind, lbounds)) or numpy.any(
-                numpy.greater(ind, ubounds)):
+            numpy.greater(ind, ubounds)
+        ):
             population[i] = closest_feasible(ind, lbounds, ubounds)
             n_out += 1
     return n_out
@@ -118,12 +120,15 @@ def bound(population, lbounds, ubounds):
 
 def uniform(lower_list, upper_list, dimensions):
     """Uniformly pick an individual"""
-    if hasattr(lower_list, '__iter__'):
-        return [random.uniform(lower, upper) for lower, upper in
-                zip(lower_list, upper_list)]
+    if hasattr(lower_list, "__iter__"):
+        return [
+            random.uniform(lower, upper)
+            for lower, upper in zip(lower_list, upper_list)
+        ]
     else:
-        return [random.uniform(lower_list, upper_list)
-                for _ in range(dimensions)]
+        return [
+            random.uniform(lower_list, upper_list) for _ in range(dimensions)
+        ]
 
 
 def reduce_method(meth):

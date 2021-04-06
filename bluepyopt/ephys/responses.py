@@ -38,7 +38,7 @@ class Response(object):
         self.name = name
 
     def __str__(self):
-        return '%s: %s' % (self.__class__.__name__, self.name)
+        return "%s: %s" % (self.__class__.__name__, self.name)
 
 
 class TimeVoltageResponse(Response):
@@ -57,8 +57,8 @@ class TimeVoltageResponse(Response):
         super(TimeVoltageResponse, self).__init__(name)
 
         self.response = pandas.DataFrame()
-        self.response['time'] = pandas.Series(time)
-        self.response['voltage'] = pandas.Series(voltage)
+        self.response["time"] = pandas.Series(time)
+        self.response["voltage"] = pandas.Series(voltage)
 
     def read_csv(self, filename):
         """Load response from csv file"""
@@ -80,10 +80,10 @@ class TimeVoltageResponse(Response):
         """Plot the response"""
 
         axes.plot(
-            self.response['time'],
-            self.response['voltage'],
-            label='%s' %
-            self.name)
+            self.response["time"],
+            self.response["voltage"],
+            label="%s" % self.name,
+        )
 
 
 class TimeLFPResponse(Response):
@@ -102,8 +102,8 @@ class TimeLFPResponse(Response):
         super(TimeLFPResponse, self).__init__(name)
 
         self.response = {}
-        self.response['time'] = time
-        self.response['voltage'] = LFP
+        self.response["time"] = time
+        self.response["voltage"] = LFP
 
     def read_csv(self, filename):
         """Load response from csv file"""
@@ -119,4 +119,3 @@ class TimeLFPResponse(Response):
         """Return item at index"""
 
         return self.response.__getitem__(index)
-

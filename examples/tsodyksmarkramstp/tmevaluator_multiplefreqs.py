@@ -43,22 +43,30 @@ class TsodyksMarkramEvaluator(bpop.evaluators.Evaluator):
         """
 
         super(TsodyksMarkramEvaluator, self).__init__()
-        self.t_stims = {freq:vals["t_spikes"] for freq, vals in data.items()}
-        self.amplitudes = {freq:vals["amps"] for freq, vals in data.items()}
+        self.t_stims = {freq: vals["t_spikes"] for freq, vals in data.items()}
+        self.amplitudes = {freq: vals["amps"] for freq, vals in data.items()}
         self.params = params
-        self.params = [bpop.parameters.Parameter(name, bounds=(minval, maxval))
-                       for name, minval, maxval in self.params]
+        self.params = [
+            bpop.parameters.Parameter(name, bounds=(minval, maxval))
+            for name, minval, maxval in self.params
+        ]
 
         # Bpop Objectives
         self.objectives = []
         for freq, _ in data.items():
-            self.objectives.extend([bpop.objectives.Objective("%s_amplitude_%i"%(freq, i))
-                                    for i in xrange(len(self.t_stims[freq]))])
+            self.objectives.extend(
+                [
+                    bpop.objectives.Objective("%s_amplitude_%i" % (freq, i))
+                    for i in xrange(len(self.t_stims[freq]))
+                ]
+            )
 
     def generate_model(self, freq, individual):
         """Calls numerical solver `tmodesolve.py` and returns amplitudes based on the input parameters"""
 
-        amps, tm_statevars = tmodesolve.solve_TM(self.t_stims[freq], *individual)
+        amps, tm_statevars = tmodesolve.solve_TM(
+            self.t_stims[freq], *individual
+        )
         return amps, tm_statevars
 
     def evaluate_with_lists(self, individual):
@@ -67,5 +75,7 @@ class TsodyksMarkramEvaluator(bpop.evaluators.Evaluator):
         errors = []
         for freq, _ in self.t_stims.items():
             candidate_amps, _ = self.generate_model(freq, individual)
-            errors.extend(np.power(self.amplitudes[freq] - candidate_amps, 2).tolist())
+            errors.extend(
+                np.power(self.amplitudes[freq] - candidate_amps, 2).tolist()
+            )
         return errors

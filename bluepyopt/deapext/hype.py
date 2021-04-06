@@ -19,9 +19,10 @@ def hypesub_(la, A, actDim, bounds, pvec, alpha, k):
                 break
             if alpha[i - 1] >= 0:
                 h[pvec[0:i]] += extrusion * alpha[i - 1]
-        elif extrusion > 0.:
-            h += extrusion * hypesub(la, S[0:i, :], actDim - 1, bounds,
-                                     pvec[0:i], alpha, k)
+        elif extrusion > 0.0:
+            h += extrusion * hypesub(
+                la, S[0:i, :], actDim - 1, bounds, pvec[0:i], alpha, k
+            )
 
     return h
 
@@ -78,7 +79,7 @@ def hypeIndicatorSampled(points, bounds, k, nrOfSamples):
     for i in range(1, k + 1):
         j = numpy.arange(1, i)
         alpha.append(numpy.prod((k - j) / (nrP - j) / i))
-    alpha = numpy.asarray(alpha + [0.] * nrP)
+    alpha = numpy.asarray(alpha + [0.0] * nrP)
 
     S = numpy.random.uniform(low=BoxL, high=bounds, size=(nrOfSamples, dim))
 
@@ -97,4 +98,3 @@ def hypeIndicatorSampled(points, bounds, k, nrOfSamples):
     F = F * numpy.prod(bounds - BoxL) / nrOfSamples
 
     return F
-

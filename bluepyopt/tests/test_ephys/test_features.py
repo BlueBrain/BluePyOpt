@@ -10,184 +10,203 @@ from bluepyopt.ephys.responses import TimeVoltageResponse
 from bluepyopt.ephys.serializer import instantiator
 
 
-@attr('unit')
+@attr("unit")
 def test_EFeature():
     """ephys.efeatures: Testing EFeature creation"""
-    efeature = efeatures.EFeature('name')
-    nt.eq_(efeature.name, 'name')
+    efeature = efeatures.EFeature("name")
+    nt.eq_(efeature.name, "name")
 
 
-@attr('unit')
+@attr("unit")
 def test_eFELFeature():
     """ephys.efeatures: Testing eFELFeature creation"""
-    recording_names = {'': 'square_pulse_step1.soma.v'}
-    efeature = efeatures.eFELFeature(name='test_eFELFeature',
-                                     efel_feature_name='voltage_base',
-                                     recording_names=recording_names,
-                                     stim_start=700,
-                                     stim_end=2700,
-                                     exp_mean=1,
-                                     exp_std=1)
-
-    response = TimeVoltageResponse('mock_response')
-    testdata_dir = joinp(
-        os.path.dirname(
-            os.path.abspath(__file__)),
-        'testdata')
-    response.read_csv(joinp(testdata_dir, 'TimeVoltageResponse.csv'))
-    responses = {'square_pulse_step1.soma.v': response, }
-
-    ret = efeature.calculate_feature(responses, raise_warnings=True)
-    nt.assert_almost_equal(ret, -72.0575843859)
-
-    score = efeature.calculate_score(responses)
-    nt.assert_almost_equal(score, 73.05758438592171)
-
-    nt.eq_(efeature.name, 'test_eFELFeature')
-    nt.ok_('voltage_base' in str(efeature))
-
-
-@attr('unit')
-def test_eFELFeature_max_score():
-    """ephys.efeatures: Testing eFELFeature max_score option"""
-
-    recording_names = {'': 'square_pulse_step1.soma.v'}
-
-    response = TimeVoltageResponse('mock_response')
-    testdata_dir = joinp(
-        os.path.dirname(
-            os.path.abspath(__file__)),
-        'testdata')
-    response.read_csv(joinp(testdata_dir, 'TimeVoltageResponse.csv'))
-    responses = {'square_pulse_step1.soma.v': response, }
-
-    efeature_normal = efeatures.eFELFeature(name='test_eFELFeature',
-                                            efel_feature_name='AP_amplitude',
-                                            recording_names=recording_names,
-                                            stim_start=600,
-                                            stim_end=700,
-                                            exp_mean=1,
-                                            exp_std=1)
-    score_normal = efeature_normal.calculate_score(responses)
-    nt.assert_almost_equal(score_normal, 250)
-
-    efeature_150 = efeatures.eFELFeature(name='test_eFELFeature',
-                                         efel_feature_name='AP_amplitude',
-                                         recording_names=recording_names,
-                                         stim_start=600,
-                                         stim_end=700,
-                                         exp_mean=1,
-                                         exp_std=1,
-                                         max_score=150)
-
-    score_150 = efeature_150.calculate_score(responses)
-    nt.assert_almost_equal(score_150, 150)
-
-
-@attr('unit')
-def test_eFELFeature_force_max_score():
-    """ephys.efeatures: Testing eFELFeature force_max_score option"""
-
-    recording_names = {'': 'square_pulse_step1.soma.v'}
-
-    response = TimeVoltageResponse('mock_response')
-    testdata_dir = joinp(
-        os.path.dirname(
-            os.path.abspath(__file__)),
-        'testdata')
-    response.read_csv(joinp(testdata_dir, 'TimeVoltageResponse.csv'))
-    responses = {'square_pulse_step1.soma.v': response, }
-
-    efeature_normal = efeatures.eFELFeature(name='test_eFELFeature',
-                                            efel_feature_name='voltage_base',
-                                            recording_names=recording_names,
-                                            stim_start=700,
-                                            stim_end=2700,
-                                            exp_mean=1,
-                                            exp_std=.001)
-    score_normal = efeature_normal.calculate_score(responses)
-    nt.assert_true(score_normal > 250)
-
-    efeature_force = efeatures.eFELFeature(name='test_eFELFeature',
-                                           efel_feature_name='voltage_base',
-                                           recording_names=recording_names,
-                                           stim_start=700,
-                                           stim_end=2700,
-                                           exp_mean=1,
-                                           exp_std=.001,
-                                           force_max_score=True)
-
-    score_force = efeature_force.calculate_score(responses)
-    nt.assert_almost_equal(score_force, 250)
-
-
-@attr('unit')
-def test_eFELFeature_double_settings():
-    """ephys.efeatures: Testing eFELFeature double_settings"""
-    recording_names = {'': 'square_pulse_step1.soma.v'}
-    efeature = efeatures.eFELFeature(name='test_eFELFeature',
-                                     efel_feature_name='voltage_base',
-                                     recording_names=recording_names,
-                                     stim_start=700,
-                                     stim_end=2700,
-                                     exp_mean=1,
-                                     exp_std=1)
-    efeature_ds = efeatures.eFELFeature(
-        name='test_eFELFeature_other_perc',
-        efel_feature_name='voltage_base',
+    recording_names = {"": "square_pulse_step1.soma.v"}
+    efeature = efeatures.eFELFeature(
+        name="test_eFELFeature",
+        efel_feature_name="voltage_base",
         recording_names=recording_names,
         stim_start=700,
         stim_end=2700,
         exp_mean=1,
         exp_std=1,
-        double_settings={
-            'voltage_base_start_perc': 0.01})
+    )
 
-    response = TimeVoltageResponse('mock_response')
+    response = TimeVoltageResponse("mock_response")
     testdata_dir = joinp(
-        os.path.dirname(
-            os.path.abspath(__file__)),
-        'testdata')
-    response.read_csv(joinp(testdata_dir, 'TimeVoltageResponse.csv'))
-    responses = {'square_pulse_step1.soma.v': response, }
+        os.path.dirname(os.path.abspath(__file__)), "testdata"
+    )
+    response.read_csv(joinp(testdata_dir, "TimeVoltageResponse.csv"))
+    responses = {
+        "square_pulse_step1.soma.v": response,
+    }
+
+    ret = efeature.calculate_feature(responses, raise_warnings=True)
+    nt.assert_almost_equal(ret, -72.0576124731685)
+
+    score = efeature.calculate_score(responses)
+    nt.assert_almost_equal(score, 73.05761247316)
+
+    nt.eq_(efeature.name, "test_eFELFeature")
+    nt.ok_("voltage_base" in str(efeature))
+
+
+@attr("unit")
+def test_eFELFeature_max_score():
+    """ephys.efeatures: Testing eFELFeature max_score option"""
+
+    recording_names = {"": "square_pulse_step1.soma.v"}
+
+    response = TimeVoltageResponse("mock_response")
+    testdata_dir = joinp(
+        os.path.dirname(os.path.abspath(__file__)), "testdata"
+    )
+    response.read_csv(joinp(testdata_dir, "TimeVoltageResponse.csv"))
+    responses = {
+        "square_pulse_step1.soma.v": response,
+    }
+
+    efeature_normal = efeatures.eFELFeature(
+        name="test_eFELFeature",
+        efel_feature_name="AP_amplitude",
+        recording_names=recording_names,
+        stim_start=600,
+        stim_end=700,
+        exp_mean=1,
+        exp_std=1,
+    )
+    score_normal = efeature_normal.calculate_score(responses)
+    nt.assert_almost_equal(score_normal, 250)
+
+    efeature_150 = efeatures.eFELFeature(
+        name="test_eFELFeature",
+        efel_feature_name="AP_amplitude",
+        recording_names=recording_names,
+        stim_start=600,
+        stim_end=700,
+        exp_mean=1,
+        exp_std=1,
+        max_score=150,
+    )
+
+    score_150 = efeature_150.calculate_score(responses)
+    nt.assert_almost_equal(score_150, 150)
+
+
+@attr("unit")
+def test_eFELFeature_force_max_score():
+    """ephys.efeatures: Testing eFELFeature force_max_score option"""
+
+    recording_names = {"": "square_pulse_step1.soma.v"}
+
+    response = TimeVoltageResponse("mock_response")
+    testdata_dir = joinp(
+        os.path.dirname(os.path.abspath(__file__)), "testdata"
+    )
+    response.read_csv(joinp(testdata_dir, "TimeVoltageResponse.csv"))
+    responses = {
+        "square_pulse_step1.soma.v": response,
+    }
+
+    efeature_normal = efeatures.eFELFeature(
+        name="test_eFELFeature",
+        efel_feature_name="voltage_base",
+        recording_names=recording_names,
+        stim_start=700,
+        stim_end=2700,
+        exp_mean=1,
+        exp_std=0.001,
+    )
+    score_normal = efeature_normal.calculate_score(responses)
+    nt.assert_true(score_normal > 250)
+
+    efeature_force = efeatures.eFELFeature(
+        name="test_eFELFeature",
+        efel_feature_name="voltage_base",
+        recording_names=recording_names,
+        stim_start=700,
+        stim_end=2700,
+        exp_mean=1,
+        exp_std=0.001,
+        force_max_score=True,
+    )
+
+    score_force = efeature_force.calculate_score(responses)
+    nt.assert_almost_equal(score_force, 250)
+
+
+@attr("unit")
+def test_eFELFeature_double_settings():
+    """ephys.efeatures: Testing eFELFeature double_settings"""
+    recording_names = {"": "square_pulse_step1.soma.v"}
+    efeature = efeatures.eFELFeature(
+        name="test_eFELFeature",
+        efel_feature_name="voltage_base",
+        recording_names=recording_names,
+        stim_start=700,
+        stim_end=2700,
+        exp_mean=1,
+        exp_std=1,
+    )
+    efeature_ds = efeatures.eFELFeature(
+        name="test_eFELFeature_other_perc",
+        efel_feature_name="voltage_base",
+        recording_names=recording_names,
+        stim_start=700,
+        stim_end=2700,
+        exp_mean=1,
+        exp_std=1,
+        double_settings={"voltage_base_start_perc": 0.01},
+    )
+
+    response = TimeVoltageResponse("mock_response")
+    testdata_dir = joinp(
+        os.path.dirname(os.path.abspath(__file__)), "testdata"
+    )
+    response.read_csv(joinp(testdata_dir, "TimeVoltageResponse.csv"))
+    responses = {
+        "square_pulse_step1.soma.v": response,
+    }
 
     vb_other_perc = efeature_ds.calculate_feature(
-        responses,
-        raise_warnings=True)
+        responses, raise_warnings=True
+    )
     vb = efeature.calculate_feature(responses, raise_warnings=True)
 
     nt.assert_true(vb_other_perc != vb)
 
 
-@attr('unit')
+@attr("unit")
 def test_eFELFeature_int_settings():
     """ephys.efeatures: Testing eFELFeature int_settings"""
-    recording_names = {'': 'square_pulse_step1.soma.v'}
-    efeature = efeatures.eFELFeature(name='test_eFELFeature',
-                                     efel_feature_name='Spikecount',
-                                     recording_names=recording_names,
-                                     stim_start=1200,
-                                     stim_end=2000,
-                                     exp_mean=1,
-                                     exp_std=1)
-    efeature_strict = efeatures.eFELFeature(
-        name='test_eFELFeature_strict',
-        efel_feature_name='Spikecount',
+    recording_names = {"": "square_pulse_step1.soma.v"}
+    efeature = efeatures.eFELFeature(
+        name="test_eFELFeature",
+        efel_feature_name="Spikecount",
         recording_names=recording_names,
         stim_start=1200,
         stim_end=2000,
         exp_mean=1,
         exp_std=1,
-        int_settings={
-            'strict_stiminterval': True})
+    )
+    efeature_strict = efeatures.eFELFeature(
+        name="test_eFELFeature_strict",
+        efel_feature_name="Spikecount",
+        recording_names=recording_names,
+        stim_start=1200,
+        stim_end=2000,
+        exp_mean=1,
+        exp_std=1,
+        int_settings={"strict_stiminterval": True},
+    )
 
-    response = TimeVoltageResponse('mock_response')
+    response = TimeVoltageResponse("mock_response")
     testdata_dir = joinp(
-        os.path.dirname(
-            os.path.abspath(__file__)),
-        'testdata')
-    response.read_csv(joinp(testdata_dir, 'TimeVoltageResponse.csv'))
-    responses = {'square_pulse_step1.soma.v': response, }
+        os.path.dirname(os.path.abspath(__file__)), "testdata"
+    )
+    response.read_csv(joinp(testdata_dir, "TimeVoltageResponse.csv"))
+    responses = {
+        "square_pulse_step1.soma.v": response,
+    }
 
     spikecount = efeature.calculate_feature(responses)
     spikecount_strict = efeature_strict.calculate_feature(responses)
@@ -195,17 +214,19 @@ def test_eFELFeature_int_settings():
     nt.assert_true(spikecount_strict != spikecount)
 
 
-@attr('unit')
+@attr("unit")
 def test_eFELFeature_serialize():
     """ephys.efeatures: Testing eFELFeature serialization"""
-    recording_names = {'': 'square_pulse_step1.soma.v'}
-    efeature = efeatures.eFELFeature(name='test_eFELFeature',
-                                     efel_feature_name='voltage_base',
-                                     recording_names=recording_names,
-                                     stim_start=700,
-                                     stim_end=2700,
-                                     exp_mean=1,
-                                     exp_std=1)
+    recording_names = {"": "square_pulse_step1.soma.v"}
+    efeature = efeatures.eFELFeature(
+        name="test_eFELFeature",
+        efel_feature_name="voltage_base",
+        recording_names=recording_names,
+        stim_start=700,
+        stim_end=2700,
+        exp_mean=1,
+        exp_std=1,
+    )
     serialized = efeature.to_dict()
     deserialized = instantiator(serialized)
     nt.ok_(isinstance(deserialized, efeatures.eFELFeature))

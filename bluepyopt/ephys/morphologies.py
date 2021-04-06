@@ -31,25 +31,32 @@ logger = logging.getLogger(__name__)
 class Morphology(BaseEPhys):
 
     """Morphology class"""
+
     pass
 
 
 class NrnFileMorphology(Morphology, DictMixin):
 
     """Morphology loaded from a file"""
-    SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg',
-                         'replace_axon_hoc', )
+
+    SERIALIZED_FIELDS = (
+        "morphology_path",
+        "do_replace_axon",
+        "do_set_nseg",
+        "replace_axon_hoc",
+    )
 
     def __init__(
-            self,
-            morphology_path,
-            do_replace_axon=False,
-            do_set_nseg=True,
-            comment='',
-            replace_axon_hoc=None,
-            nseg_frequency=40,
-            morph_modifiers=None,
-            morph_modifiers_hoc=None):
+        self,
+        morphology_path,
+        do_replace_axon=False,
+        do_set_nseg=True,
+        comment="",
+        replace_axon_hoc=None,
+        nseg_frequency=40,
+        morph_modifiers=None,
+        morph_modifiers_hoc=None,
+    ):
         """Constructor
         Args:
             morphology_path (str): location of the file describing the
@@ -90,21 +97,21 @@ class NrnFileMorphology(Morphology, DictMixin):
     def instantiate(self, sim=None, icell=None):
         """Load morphology"""
 
-        logger.debug('Loading morphology %s', self.morphology_path)
+        logger.debug("Loading morphology %s", self.morphology_path)
 
         if not os.path.exists(self.morphology_path):
             raise IOError(
-                'Morphology not found at \'%s\'' %
-                self.morphology_path)
+                "Morphology not found at '%s'" % self.morphology_path
+            )
 
-        sim.neuron.h.load_file('stdrun.hoc')
-        sim.neuron.h.load_file('import3d.hoc')
+        sim.neuron.h.load_file("stdrun.hoc")
+        sim.neuron.h.load_file("import3d.hoc")
 
-        extension = self.morphology_path.split('.')[-1]
+        extension = self.morphology_path.split(".")[-1]
 
-        if extension.lower() == 'swc':
+        if extension.lower() == "swc":
             imorphology = sim.neuron.h.Import3d_SWC_read()
-        elif extension.lower() == 'asc':
+        elif extension.lower() == "asc":
             imorphology = sim.neuron.h.Import3d_Neurolucida3()
         else:
             raise ValueError("Unknown filetype: %s" % extension)
@@ -115,10 +122,10 @@ class NrnFileMorphology(Morphology, DictMixin):
 
         imorphology.quiet = 1
 
-        if platform.system() == 'Windows':
-            sim.neuron.h.hoc_stdout('NUL')
+        if platform.system() == "Windows":
+            sim.neuron.h.hoc_stdout("NUL")
         else:
-            sim.neuron.h.hoc_stdout('/dev/null')
+            sim.neuron.h.hoc_stdout("/dev/null")
 
         imorphology.input(str(self.morphology_path))
         sim.neuron.h.hoc_stdout()
@@ -174,7 +181,7 @@ class NrnFileMorphology(Morphology, DictMixin):
             sim.neuron.h.delete_section(sec=section)
 
         # Create new axon array
-        sim.neuron.h.execute('create axon[2]', icell)
+        sim.neuron.h.execute("create axon[2]", icell)
 
         for index, section in enumerate(icell.axon):
             section.nseg = 1
@@ -186,10 +193,9 @@ class NrnFileMorphology(Morphology, DictMixin):
         icell.axon[0].connect(icell.soma[0], 1.0, 0.0)
         icell.axon[1].connect(icell.axon[0], 1.0, 0.0)
 
-        logger.debug('Replace axon with AIS')
+        logger.debug("Replace axon with AIS")
 
-    default_replace_axon_hoc = \
-        '''
+    default_replace_axon_hoc = """
 proc replace_axon(){ local nSec, D1, D2
   // preserve the number of original axonal sections
   nSec = sec_count(axonal)
@@ -232,4 +238,4 @@ proc replace_axon(){ local nSec, D1, D2
   soma[0] connect axon[0](0), 1
   axon[0] connect axon[1](0), 1
 }
-        '''
+        """

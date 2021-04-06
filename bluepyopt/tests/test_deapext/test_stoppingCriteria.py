@@ -9,7 +9,7 @@ from nose.plugins.attrib import attr
 import deap.tools
 
 
-@attr('unit')
+@attr("unit")
 def test_MaxNGen():
     """deapext.stoppingCriteria: Testing MaxNGen"""
 

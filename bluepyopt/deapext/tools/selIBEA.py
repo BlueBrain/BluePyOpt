@@ -35,7 +35,7 @@ import numpy
 import random
 
 
-def selIBEA(population, mu, alpha=None, kappa=.05, tournament_n=4):
+def selIBEA(population, mu, alpha=None, kappa=0.05, tournament_n=4):
     """IBEA Selector"""
 
     if alpha is None:
@@ -61,16 +61,19 @@ def _calc_fitness_components(population, kappa):
     # DEAP selector are supposed to maximise the objective values
     # We take the negative objectives because this algorithm will minimise
     population_matrix = numpy.fromiter(
-        iter(-x for individual in population
-             for x in individual.fitness.wvalues),
-        dtype=numpy.float)
+        iter(
+            -x for individual in population for x in individual.fitness.wvalues
+        ),
+        dtype=numpy.float,
+    )
     pop_len = len(population)
     feat_len = len(population[0].fitness.wvalues)
     population_matrix = population_matrix.reshape((pop_len, feat_len))
 
     # Calculate minimal square bounding box of the objectives
-    box_ranges = (numpy.max(population_matrix, axis=0) -
-                  numpy.min(population_matrix, axis=0))
+    box_ranges = numpy.max(population_matrix, axis=0) - numpy.min(
+        population_matrix, axis=0
+    )
 
     # Replace all possible zeros to avoid division by zero
     # Basically 0/0 is replaced by 0/1
@@ -80,8 +83,8 @@ def _calc_fitness_components(population, kappa):
     for i in xrange(0, pop_len):
         diff = population_matrix - population_matrix[i, :]
         components_matrix[i, :] = numpy.max(
-            numpy.divide(diff, box_ranges),
-            axis=1)
+            numpy.divide(diff, box_ranges), axis=1
+        )
 
     # Calculate max of absolute value of all elements in matrix
     max_absolute_indicator = numpy.max(numpy.abs(components_matrix))
@@ -89,7 +92,8 @@ def _calc_fitness_components(population, kappa):
     # Normalisation
     if max_absolute_indicator != 0:
         components_matrix = numpy.exp(
-            (-1.0 / (kappa * max_absolute_indicator)) * components_matrix.T)
+            (-1.0 / (kappa * max_absolute_indicator)) * components_matrix.T
+        )
 
     return components_matrix
 
@@ -137,4 +141,4 @@ def _environmental_selection(population, selection_size):
     return population[:selection_size]
 
 
-__all__ = ['selIBEA']
+__all__ = ["selIBEA"]

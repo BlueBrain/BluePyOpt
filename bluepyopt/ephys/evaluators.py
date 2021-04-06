@@ -23,6 +23,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=W0511
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 import bluepyopt as bpopt
@@ -34,15 +35,16 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
     """Simple cell class"""
 
     def __init__(
-            self,
-            cell_model=None,
-            param_names=None,
-            fitness_protocols=None,
-            fitness_calculator=None,
-            isolate_protocols=None,
-            sim=None,
-            use_params_for_seed=False,
-            timeout=None):
+        self,
+        cell_model=None,
+        param_names=None,
+        fitness_protocols=None,
+        fitness_calculator=None,
+        isolate_protocols=None,
+        sim=None,
+        use_params_for_seed=False,
+        timeout=None,
+    ):
         """Constructor
 
         Args:
@@ -68,12 +70,15 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
 
         super(CellEvaluator, self).__init__(
             fitness_calculator.objectives,
-            cell_model.params_by_names(param_names))
+            cell_model.params_by_names(param_names),
+        )
 
         if sim is None:
-            raise ValueError("CellEvaluator: you have to provide a Simulator "
-                             "object to the 'sim' argument of the "
-                             "CellEvaluator constructor")
+            raise ValueError(
+                "CellEvaluator: you have to provide a Simulator "
+                "object to the 'sim' argument of the "
+                "CellEvaluator constructor"
+            )
         self.sim = sim
 
         self.cell_model = cell_model
@@ -90,8 +95,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
     def param_dict(self, param_array):
         """Convert param_array in param_dict"""
         param_dict = {}
-        for param_name, param_value in \
-                zip(self.param_names, param_array):
+        for param_name, param_value in zip(self.param_names, param_array):
             param_dict[param_name] = param_value
 
         return param_dict
@@ -99,16 +103,19 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
     def objective_dict(self, objective_array):
         """Convert objective_array in objective_dict"""
         objective_dict = {}
-        objective_names = [objective.name
-                           for objective in self.fitness_calculator.objectives]
+        objective_names = [
+            objective.name for objective in self.fitness_calculator.objectives
+        ]
 
         if len(objective_names) != len(objective_array):
             raise Exception(
-                'CellEvaluator: list given to objective_dict() '
-                'has wrong number of objectives')
+                "CellEvaluator: list given to objective_dict() "
+                "has wrong number of objectives"
+            )
 
-        for objective_name, objective_value in \
-                zip(objective_names, objective_array):
+        for objective_name, objective_value in zip(
+            objective_names, objective_array
+        ):
             objective_dict[objective_name] = objective_value
 
         return objective_dict
@@ -116,8 +123,9 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
     def objective_list(self, objective_dict):
         """Convert objective_dict in objective_list"""
         objective_list = []
-        objective_names = [objective.name
-                           for objective in self.fitness_calculator.objectives]
+        objective_names = [
+            objective.name for objective in self.fitness_calculator.objectives
+        ]
         for objective_name in objective_names:
             objective_list.append(objective_dict[objective_name])
 
@@ -129,20 +137,21 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
 
         sorted_keys = sorted(param_dict.keys())
 
-        string = ''
+        string = ""
         for key in sorted_keys:
-            string += '%s%s' % (key, str(param_dict[key]))
+            string += "%s%s" % (key, str(param_dict[key]))
 
         return bluepyopt.tools.uint32_seed(string)
 
     def run_protocol(
-            self,
-            protocol,
-            param_values,
-            isolate=None,
-            cell_model=None,
-            sim=None,
-            timeout=None):
+        self,
+        protocol,
+        param_values,
+        isolate=None,
+        cell_model=None,
+        sim=None,
+        timeout=None,
+    ):
         """Run protocol"""
 
         sim = self.sim if sim is None else sim
@@ -157,14 +166,16 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
                 param_values,
                 sim=sim,
                 isolate=isolate,
-                timeout=timeout)
+                timeout=timeout,
+            )
         except TypeError as e:
             if "unexpected keyword" in str(e):
                 return protocol.run(
                     self.cell_model if cell_model is None else cell_model,
                     param_values,
                     sim=sim,
-                    isolate=isolate)
+                    isolate=isolate,
+                )
             else:
                 raise
 
@@ -174,11 +185,14 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         responses = {}
 
         for protocol in protocols:
-            responses.update(self.run_protocol(
-                protocol,
-                param_values=param_values,
-                isolate=self.isolate_protocols,
-                timeout=self.timeout))
+            responses.update(
+                self.run_protocol(
+                    protocol,
+                    param_values=param_values,
+                    isolate=self.isolate_protocols,
+                    timeout=self.timeout,
+                )
+            )
 
         return responses
 
@@ -187,13 +201,14 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
 
         if self.fitness_calculator is None:
             raise Exception(
-                'CellEvaluator: need fitness_calculator to evaluate')
+                "CellEvaluator: need fitness_calculator to evaluate"
+            )
 
-        logger.debug('Evaluating %s', self.cell_model.name)
+        logger.debug("Evaluating %s", self.cell_model.name)
 
         responses = self.run_protocols(
-            self.fitness_protocols.values(),
-            param_dict)
+            self.fitness_protocols.values(), param_dict
+        )
 
         return self.fitness_calculator.calculate_scores(responses)
 
@@ -213,19 +228,19 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
 
     def __str__(self):
 
-        content = 'cell evaluator:\n'
+        content = "cell evaluator:\n"
 
-        content += '  cell model:\n'
+        content += "  cell model:\n"
         if self.cell_model is not None:
-            content += '    %s\n' % str(self.cell_model)
+            content += "    %s\n" % str(self.cell_model)
 
-        content += '  fitness protocols:\n'
+        content += "  fitness protocols:\n"
         if self.fitness_protocols is not None:
             for fitness_protocol in self.fitness_protocols.values():
-                content += '    %s\n' % str(fitness_protocol)
+                content += "    %s\n" % str(fitness_protocol)
 
-        content += '  fitness calculator:\n'
+        content += "  fitness calculator:\n"
         if self.fitness_calculator is not None:
-            content += '    %s\n' % str(self.fitness_calculator)
+            content += "    %s\n" % str(self.fitness_calculator)
 
         return content

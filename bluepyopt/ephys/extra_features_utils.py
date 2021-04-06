@@ -1,14 +1,28 @@
 import numpy as np
 from scipy.stats import linregress
 
-all_1D_features = ['peak_to_valley', 'halfwidth', 'peak_trough_ratio',
-                   'repolarization_slope', 'recovery_slope', 'neg_peak_relative', 'pos_peak_relative',
-                   'neg_peak_diff', 'pos_peak_diff', 'neg_image', 'pos_image']
+all_1D_features = [
+    "peak_to_valley",
+    "halfwidth",
+    "peak_trough_ratio",
+    "repolarization_slope",
+    "recovery_slope",
+    "neg_peak_relative",
+    "pos_peak_relative",
+    "neg_peak_diff",
+    "pos_peak_diff",
+    "neg_image",
+    "pos_image",
+]
 
 
-def calculate_features(waveforms, sampling_frequency, feature_names=None,
-                       recovery_slope_window=0.7):
-    """ Calculate features for all waveforms
+def calculate_features(
+    waveforms,
+    sampling_frequency,
+    feature_names=None,
+    recovery_slope_window=0.7
+):
+    """Calculate features for all waveforms
 
     Parameters
     ----------
@@ -24,7 +38,8 @@ def calculate_features(waveforms, sampling_frequency, feature_names=None,
     Returns
     -------
     metrics : dict  (num_waveforms x num_metrics)
-        Dictionary with computed metrics. Keys are the metric names, values are the computed features
+        Dictionary with computed metrics. Keys are the metric names, values
+            are the computed features
 
     """
     metrics = dict()
@@ -33,66 +48,64 @@ def calculate_features(waveforms, sampling_frequency, feature_names=None,
         feature_names = all_1D_features
     else:
         for name in feature_names:
-            assert name in all_1D_features,  f'{name} not in {all_1D_features}'
+            assert name in all_1D_features, f"{name} not in {all_1D_features}"
 
-    if 'peak_to_valley' in feature_names:
-        metrics['peak_to_valley'] = peak_to_valley(waveforms=waveforms,
-                                                   sampling_frequency=sampling_frequency)
-    if 'peak_trough_ratio' in feature_names:
-        metrics['peak_trough_ratio'] = peak_trough_ratio(waveforms=waveforms)
+    if "peak_to_valley" in feature_names:
+        metrics["peak_to_valley"] = peak_to_valley(
+            waveforms=waveforms, sampling_frequency=sampling_frequency
+        )
+    if "peak_trough_ratio" in feature_names:
+        metrics["peak_trough_ratio"] = peak_trough_ratio(waveforms=waveforms)
 
-    if 'halfwidth' in feature_names:
-        metrics['halfwidth'] = halfwidth(waveforms=waveforms,
-                                         sampling_frequency=sampling_frequency)
+    if "halfwidth" in feature_names:
+        metrics["halfwidth"] = halfwidth(
+            waveforms=waveforms, sampling_frequency=sampling_frequency
+        )
 
-    if 'repolarization_slope' in feature_names:
-        metrics['repolarization_slope'] = repolarization_slope(
+    if "repolarization_slope" in feature_names:
+        metrics["repolarization_slope"] = repolarization_slope(
             waveforms=waveforms,
             sampling_frequency=sampling_frequency,
         )
 
-    if 'recovery_slope' in feature_names:
-        metrics['recovery_slope'] = recovery_slope(
+    if "recovery_slope" in feature_names:
+        metrics["recovery_slope"] = recovery_slope(
             waveforms=waveforms,
             sampling_frequency=sampling_frequency,
             window=recovery_slope_window,
         )
 
-    if 'neg_peak_diff' in feature_names:
-        metrics['neg_peak_diff'] = peak_time_diff(
-            waveforms=waveforms, fs=sampling_frequency, sign='negative'
+    if "neg_peak_diff" in feature_names:
+        metrics["neg_peak_diff"] = peak_time_diff(
+            waveforms=waveforms, fs=sampling_frequency, sign="negative"
         )
 
-    if 'pos_peak_diff' in feature_names:
-        metrics['pos_peak_diff'] = peak_time_diff(
-            waveforms=waveforms, fs=sampling_frequency, sign='positive'
+    if "pos_peak_diff" in feature_names:
+        metrics["pos_peak_diff"] = peak_time_diff(
+            waveforms=waveforms, fs=sampling_frequency, sign="positive"
         )
 
-    if 'neg_peak_relative' in feature_names:
-        metrics['neg_peak_relative'] = relative_amplitude(
-            waveforms=waveforms, sign='negative'
+    if "neg_peak_relative" in feature_names:
+        metrics["neg_peak_relative"] = relative_amplitude(
+            waveforms=waveforms, sign="negative"
         )
 
-    if 'pos_peak_relative' in feature_names:
-        metrics['pos_peak_relative'] = relative_amplitude(
-            waveforms=waveforms, sign='positive'
+    if "pos_peak_relative" in feature_names:
+        metrics["pos_peak_relative"] = relative_amplitude(
+            waveforms=waveforms, sign="positive"
         )
 
-    if 'neg_image' in feature_names:
-        metrics['neg_image'] = peak_image(
-            waveforms=waveforms, sign='negative'
-        )
+    if "neg_image" in feature_names:
+        metrics["neg_image"] = peak_image(waveforms=waveforms, sign="negative")
 
-    if 'pos_image' in feature_names:
-        metrics['pos_image'] = peak_image(
-            waveforms=waveforms, sign='positive'
-        )
+    if "pos_image" in feature_names:
+        metrics["pos_image"] = peak_image(waveforms=waveforms, sign="positive")
 
     return metrics
 
 
 def peak_to_valley(waveforms, sampling_frequency):
-    """ Time between trough and peak
+    """Time between trough and peak
 
     Parameters
     ----------
@@ -114,7 +127,7 @@ def peak_to_valley(waveforms, sampling_frequency):
 
 
 def peak_trough_ratio(waveforms):
-    """ Ratio peak heigth and trough depth
+    """Ratio peak heigth and trough depth
 
     Assumes baseline is 0
 
@@ -174,7 +187,9 @@ def halfwidth(waveforms, sampling_frequency, return_idx=False):
     for i in range(waveforms.shape[0]):
         if peak_idx[i] >= trough_idx[i]:
             trough_val = waveforms[i, trough_idx[i]]
-            threshold = 0.5 * trough_val  # threshold is half of peak heigth (assuming baseline is 0)
+            threshold = (
+                0.5 * trough_val
+            )  # threshold is half of peak heigth (assuming baseline is 0)
 
             cpre_idx = np.where(waveforms[i, :trough_idx[i]] < threshold)[0]
             cpost_idx = np.where(waveforms[i, trough_idx[i]:] < threshold)[0]
@@ -182,13 +197,21 @@ def halfwidth(waveforms, sampling_frequency, return_idx=False):
             if len(cpre_idx) == 0 or len(cpost_idx) == 0:
                 continue
 
-            cross_pre_pk[i] = cpre_idx[0] - 1  # last occurence of waveform lower than thr, before peak
-            cross_post_pk[i] = cpost_idx[-1] + 1 + trough_idx[i]  # first occurence of waveform lower than peak, after peak
+            cross_pre_pk[i] = (
+                cpre_idx[0] - 1
+            )  # last occurence of waveform lower than thr, before peak
+            cross_post_pk[i] = (
+                cpost_idx[-1] + 1 + trough_idx[i]
+            )  # first occurence of waveform lower than peak, after peak
 
-            hw[i] = (cross_post_pk[i] - cross_pre_pk[i]) * (1 / sampling_frequency)  # + peak_idx[i]
+            hw[i] = (cross_post_pk[i] - cross_pre_pk[i]) * (
+                1 / sampling_frequency
+            )  # + peak_idx[i]
         else:
             peak_val = waveforms[i, peak_idx[i]]
-            threshold = 0.5 * peak_val  # threshold is half of peak heigth (assuming baseline is 0)
+            threshold = (
+                0.5 * peak_val
+            )  # threshold is half of peak heigth (assuming baseline is 0)
 
             cpre_idx = np.where(waveforms[i, :peak_idx[i]] > threshold)[0]
             cpost_idx = np.where(waveforms[i, peak_idx[i]:] > threshold)[0]
@@ -196,10 +219,16 @@ def halfwidth(waveforms, sampling_frequency, return_idx=False):
             if len(cpre_idx) == 0 or len(cpost_idx) == 0:
                 continue
 
-            cross_pre_pk[i] = cpre_idx[0] - 1  # last occurence of waveform lower than thr, before peak
-            cross_post_pk[i] = cpost_idx[-1] + 1 + trough_idx[i]  # first occurence of waveform lower than peak, after peak
+            cross_pre_pk[i] = (
+                cpre_idx[0] - 1
+            )  # last occurence of waveform lower than thr, before peak
+            cross_post_pk[i] = (
+                cpost_idx[-1] + 1 + trough_idx[i]
+            )  # first occurence of waveform lower than peak, after peak
 
-            hw[i] = -(cross_post_pk[i] - cross_pre_pk[i]) * (1 / sampling_frequency)  # + peak_idx[i]
+            hw[i] = -(cross_post_pk[i] - cross_pre_pk[i]) * (
+                1 / sampling_frequency
+            )  # + peak_idx[i]
 
     if not return_idx:
         return hw
@@ -212,8 +241,8 @@ def repolarization_slope(waveforms, sampling_frequency, return_idx=False):
     Return slope of repolarization period between trough and baseline
 
     After reaching it's maxumum polarization, the neuron potential will
-    recover. The repolarization slope is defined as the dV/dT of the action potential
-    between trough and baseline.
+    recover. The repolarization slope is defined as the dV/dT of the action
+    potential between trough and baseline.
 
     Optionally the function returns also the indices per waveform where the
     potential crosses baseline.
@@ -232,8 +261,8 @@ def repolarization_slope(waveforms, sampling_frequency, return_idx=False):
     -------
 
     np.ndarray or (np.ndarray, np.ndarray)
-        Repolarization slope of the waveforms or (Repolarization slope of the waveforms,
-        return to base index)
+        Repolarization slope of the waveforms or (Repolarization slope of the
+        waveforms, return to base index)
     """
     trough_idx, peak_idx = _get_trough_and_peak_idx(waveforms)
 
@@ -251,12 +280,16 @@ def repolarization_slope(waveforms, sampling_frequency, return_idx=False):
         if len(rtrn_idx) == 0:
             continue
 
-        return_to_base_idx[i] = rtrn_idx[0] + trough_idx[i]  # first time after  trough, where waveform is at baseline
+        return_to_base_idx[i] = (
+            rtrn_idx[0] + trough_idx[i]
+        )  # first time after  trough, where waveform is at baseline
 
         if return_to_base_idx[i] - trough_idx[i] < 3:
             continue
-        rslope[i] = linregress(time[trough_idx[i]:return_to_base_idx[i]],
-                               waveforms[i, trough_idx[i]: return_to_base_idx[i]])[0]
+        rslope[i] = linregress(
+            time[trough_idx[i]:return_to_base_idx[i]],
+            waveforms[i, trough_idx[i]:return_to_base_idx[i]],
+        )[0]
 
     if not return_idx:
         return rslope
@@ -302,13 +335,15 @@ def recovery_slope(waveforms, sampling_frequency, window):
             continue
         max_idx = int(peak_idx[i] + ((window / 1000) * sampling_frequency))
         max_idx = np.min([max_idx, waveforms.shape[1]])
-        slope = _get_slope(time[peak_idx[i]:max_idx], waveforms[i, peak_idx[i]:max_idx])
+        slope = _get_slope(
+            time[peak_idx[i]:max_idx], waveforms[i, peak_idx[i]:max_idx]
+        )
         rslope[i] = slope[0]
     return rslope
 
 
-def peak_image(waveforms, sign='negative'):
-    '''
+def peak_image(waveforms, sign="negative"):
+    """
     Normalized amplitude at the time of minimum or maximum peak.
 
     Parameters
@@ -319,24 +354,26 @@ def peak_image(waveforms, sign='negative'):
     Returns
     -------
 
-    '''
+    """
     assert len(waveforms) > 1
 
-    if sign == 'negative':
+    if sign == "negative":
         funarg = np.argmin
         fun = np.min
     else:
         funarg = np.argmax
         fun = np.max
 
-    peak_channel, peak_time = np.unravel_index(funarg(waveforms), waveforms.shape)
+    peak_channel, peak_time = np.unravel_index(
+        funarg(waveforms), waveforms.shape
+    )
     relative_peaks = waveforms[:, peak_time] / fun(waveforms[peak_channel])
 
     return relative_peaks
 
 
-def relative_amplitude(waveforms, sign='negative'):
-    '''
+def relative_amplitude(waveforms, sign="negative"):
+    """
     Normalized amplitude with respect to channel with largest amplitude.
 
     Parameters
@@ -347,10 +384,10 @@ def relative_amplitude(waveforms, sign='negative'):
     Returns
     -------
 
-    '''
+    """
     assert len(waveforms) > 1
 
-    if sign == 'negative':
+    if sign == "negative":
         fun = np.min
     else:
         fun = np.max
@@ -361,8 +398,8 @@ def relative_amplitude(waveforms, sign='negative'):
     return relative_peaks
 
 
-def peak_time_diff(waveforms, fs, sign='negative'):
-    '''
+def peak_time_diff(waveforms, fs, sign="negative"):
+    """
 
     Parameters
     ----------
@@ -373,10 +410,10 @@ def peak_time_diff(waveforms, fs, sign='negative'):
     Returns
     -------
 
-    '''
+    """
     assert len(waveforms) > 1
 
-    if sign =='negative':
+    if sign == "negative":
         argfun = np.argmin
     else:
         argfun = np.argmax
@@ -406,18 +443,17 @@ def _get_trough_and_peak_idx(waveform, after_max_trough=False):
     Returns 0 if not detected
     """
     if after_max_trough:
-        max_through_idx = np.unravel_index(np.argmin(waveform), waveform.shape)[1]
-        trough_idx = np.argmin(waveform[:, max_through_idx:], axis=1) + max_through_idx
-        peak_idx = np.argmax(waveform[:, max_through_idx:], axis=1) + max_through_idx
+        max_through_idx = np.unravel_index(
+            np.argmin(waveform),
+            waveform.shape)[1]
+        trough_idx = (
+            np.argmin(waveform[:, max_through_idx:], axis=1) + max_through_idx
+        )
+        peak_idx = (
+            np.argmax(waveform[:, max_through_idx:], axis=1) + max_through_idx
+        )
     else:
         trough_idx = np.argmin(waveform, axis=1)
         peak_idx = np.argmax(waveform, axis=1)
-    # peak_idx = -1 * np.ones(trough_idx.shape, dtype=int)  # int, these are used for indexing
-    # for i, tridx in enumerate(trough_idx):
-    #     # if tridx == waveform.shape[1] - 1:
-    #     #     trough_idx[i] = 0
-    #     #     peak_idx[i] = 0
-    #     #     continue
-    #     idx = np.argmax(waveform[i, tridx:])
-    #     peak_idx[i] = idx + tridx
+
     return trough_idx, peak_idx

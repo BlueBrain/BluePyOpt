@@ -29,16 +29,16 @@ from bluepyopt import ephys
 from bluepyopt.ephys.serializer import instantiator
 
 
-@attr('unit')
+@attr("unit")
 def test_location_init():
     """ephys.locations: test if Location works"""
 
-    loc = ephys.locations.Location('test')
+    loc = ephys.locations.Location("test")
     nt.assert_is_instance(loc, ephys.locations.Location)
-    nt.assert_equal(loc.name, 'test')
+    nt.assert_equal(loc.name, "test")
 
 
-@attr('unit')
+@attr("unit")
 class TestNrnSectionCompLocation(object):
 
     """Test class for NrnSectionCompLocation"""
@@ -51,14 +51,12 @@ class TestNrnSectionCompLocation(object):
     def setup(self):
         """Setup"""
         self.loc = ephys.locations.NrnSectionCompLocation(
-            name='test',
-            sec_name='soma[0]',
-            comp_x=0.5)
+            name="test", sec_name="soma[0]", comp_x=0.5
+        )
         self.loc_dend = ephys.locations.NrnSectionCompLocation(
-            name='test',
-            sec_name='dend[1]',
-            comp_x=0.5)
-        nt.assert_equal(self.loc.name, 'test')
+            name="test", sec_name="dend[1]", comp_x=0.5
+        )
+        nt.assert_equal(self.loc.name, "test")
         self.sim = ephys.simulators.NrnSimulator()
 
     def test_instantiate(self):
@@ -68,11 +66,13 @@ class TestNrnSectionCompLocation(object):
         class Cell(object):
 
             """Cell class"""
+
             pass
+
         cell = Cell()
         soma = self.sim.neuron.h.Section()
-        dend1 = self.sim.neuron.h.Section(name='dend1')
-        dend2 = self.sim.neuron.h.Section(name='dend2')
+        dend1 = self.sim.neuron.h.Section(name="dend1")
+        dend2 = self.sim.neuron.h.Section(name="dend2")
 
         cell.soma = [soma]
         cell.dend = [dend1, dend2]
@@ -84,7 +84,7 @@ class TestNrnSectionCompLocation(object):
         nt.assert_equal(dend_comp, dend2(0.5))
 
 
-@attr('unit')
+@attr("unit")
 class TestNrnSeclistCompLocation(object):
 
     """Test class for NrnSectionCompLocation"""
@@ -97,16 +97,12 @@ class TestNrnSeclistCompLocation(object):
     def setup(self):
         """Setup"""
         self.loc = ephys.locations.NrnSeclistCompLocation(
-            name='test',
-            seclist_name='somatic',
-            sec_index=0,
-            comp_x=0.5)
+            name="test", seclist_name="somatic", sec_index=0, comp_x=0.5
+        )
         self.loc_dend = ephys.locations.NrnSeclistCompLocation(
-            name='test',
-            seclist_name='basal',
-            sec_index=1,
-            comp_x=0.5)
-        nt.assert_equal(self.loc.name, 'test')
+            name="test", seclist_name="basal", sec_index=1, comp_x=0.5
+        )
+        nt.assert_equal(self.loc.name, "test")
         self.sim = ephys.simulators.NrnSimulator()
 
     def test_instantiate(self):
@@ -115,12 +111,13 @@ class TestNrnSeclistCompLocation(object):
         # Create a little test class with a soma and two dendritic sections
         class Cell(object):
             """Cell class"""
+
             pass
 
         cell = Cell()
         soma = self.sim.neuron.h.Section()
-        dend1 = self.sim.neuron.h.Section(name='dend1')
-        dend2 = self.sim.neuron.h.Section(name='dend2')
+        dend1 = self.sim.neuron.h.Section(name="dend1")
+        dend2 = self.sim.neuron.h.Section(name="dend2")
 
         cell.somatic = self.sim.neuron.h.SectionList()
         cell.somatic.append(soma)
@@ -138,7 +135,7 @@ class TestNrnSeclistCompLocation(object):
             soma_comp = self.loc.instantiate(sim=self.sim, icell=cell)
 
 
-@attr('unit')
+@attr("unit")
 class TestNrnSomaDistanceCompLocation(object):
 
     """Test class for NrnSomaDistanceCompLocation"""
@@ -151,10 +148,9 @@ class TestNrnSomaDistanceCompLocation(object):
     def setup(self):
         """Setup"""
         self.loc = ephys.locations.NrnSomaDistanceCompLocation(
-            'test',
-            125,
-            'testdend')
-        nt.assert_equal(self.loc.name, 'test')
+            "test", 125, "testdend"
+        )
+        nt.assert_equal(self.loc.name, "test")
         self.sim = ephys.simulators.NrnSimulator()
 
     def test_instantiate(self):
@@ -164,21 +160,25 @@ class TestNrnSomaDistanceCompLocation(object):
         class Cell(object):
 
             """Cell class"""
+
             pass
+
         cell = Cell()
         soma = self.sim.neuron.h.Section()
         cell.soma = [soma]
         cell.testdend = self.sim.neuron.h.SectionList()
-        dend1 = self.sim.neuron.h.Section(name='dend1')
-        dend2 = self.sim.neuron.h.Section(name='dend2')
+        dend1 = self.sim.neuron.h.Section(name="dend1")
+        dend2 = self.sim.neuron.h.Section(name="dend2")
 
         cell.testdend.append(sec=dend1)
         cell.testdend.append(sec=dend2)
 
-        nt.assert_raises(ephys.locations.EPhysLocInstantiateException,
-                         self.loc.instantiate,
-                         sim=self.sim,
-                         icell=cell)
+        nt.assert_raises(
+            ephys.locations.EPhysLocInstantiateException,
+            self.loc.instantiate,
+            sim=self.sim,
+            icell=cell,
+        )
 
         dend1.connect(soma(0.5), 0.0)
         dend2.connect(dend1(1.0), 0.0)
@@ -187,25 +187,29 @@ class TestNrnSomaDistanceCompLocation(object):
         nt.assert_equal(comp, dend2(0.5))
 
 
-@attr('unit')
+@attr("unit")
 def test_serialize():
     """ephys.locations: Test serialize functionality"""
     from bluepyopt.ephys.locations import (
         NrnSeclistCompLocation,
         NrnSeclistLocation,
         NrnSeclistSecLocation,
-        NrnSomaDistanceCompLocation)
+        NrnSomaDistanceCompLocation,
+    )
 
-    seclist_name, sec_index, comp_x, soma_distance = 'somatic', 0, 0.5, 800
+    seclist_name, sec_index, comp_x, soma_distance = "somatic", 0, 0.5, 800
     locations = (
-        NrnSeclistCompLocation('NrnSeclistCompLocation',
-                               seclist_name, sec_index, comp_x),
-        NrnSeclistLocation(
-            'NrnSeclistLocation', seclist_name),
+        NrnSeclistCompLocation(
+            "NrnSeclistCompLocation", seclist_name, sec_index, comp_x
+        ),
+        NrnSeclistLocation("NrnSeclistLocation", seclist_name),
         NrnSeclistSecLocation(
-            'NrnSeclistSecLocation', seclist_name, sec_index),
+            "NrnSeclistSecLocation", seclist_name, sec_index
+        ),
         NrnSomaDistanceCompLocation(
-            'NrnSomaDistanceCompLocation', soma_distance, seclist_name),)
+            "NrnSomaDistanceCompLocation", soma_distance, seclist_name
+        ),
+    )
 
     for loc in locations:
         serialized = loc.to_dict()

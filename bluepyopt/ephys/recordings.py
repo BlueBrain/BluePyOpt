@@ -46,11 +46,7 @@ class CompRecording(Recording):
 
     """Response to stimulus"""
 
-    def __init__(
-            self,
-            name=None,
-            location=None,
-            variable='v'):
+    def __init__(self, name=None, location=None, variable="v"):
         """Constructor
 
         Args:
@@ -59,8 +55,7 @@ class CompRecording(Recording):
             variable (str): which variable to record from (e.g. 'v')
         """
 
-        super(CompRecording, self).__init__(
-            name=name)
+        super(CompRecording, self).__init__(name=name)
         self.location = location
         self.variable = variable
 
@@ -79,19 +74,22 @@ class CompRecording(Recording):
         if not self.instantiated:
             return None
 
-        return responses.TimeVoltageResponse(self.name,
-                                             self.tvector.to_python(),
-                                             self.varvector.to_python())
+        return responses.TimeVoltageResponse(
+            self.name, self.tvector.to_python(), self.varvector.to_python()
+        )
 
     def instantiate(self, sim=None, icell=None):
         """Instantiate recording"""
 
-        logger.debug('Adding compartment recording of %s at %s',
-                     self.variable, self.location)
+        logger.debug(
+            "Adding compartment recording of %s at %s",
+            self.variable,
+            self.location,
+        )
 
         self.varvector = sim.neuron.h.Vector()
         seg = self.location.instantiate(sim=sim, icell=icell)
-        self.varvector.record(getattr(seg, '_ref_%s' % self.variable))
+        self.varvector.record(getattr(seg, "_ref_%s" % self.variable))
 
         self.tvector = sim.neuron.h.Vector()
         self.tvector.record(sim.neuron.h._ref_t)  # pylint: disable=W0212
@@ -108,20 +106,18 @@ class CompRecording(Recording):
     def __str__(self):
         """String representation"""
 
-        return '%s: %s at %s' % (self.name, self.variable, self.location)
+        return "%s: %s at %s" % (self.name, self.variable, self.location)
 
 
 # TODO add compensation for stimuli
 class LFPRecording(Recording):
 
     """Electrode sesponse to stimulus"""
-    
-    location = "extracellular"
-    variable = 'v'
 
-    def __init__(
-            self,
-            name=None):
+    location = "extracellular"
+    variable = "v"
+
+    def __init__(self, name=None):
         """Constructor
 
         Args:
@@ -129,7 +125,7 @@ class LFPRecording(Recording):
         """
 
         super(LFPRecording, self).__init__(name=name)
-        
+
         self.electrode = None
         self.cell = None
         self.tvector = None
@@ -144,35 +140,40 @@ class LFPRecording(Recording):
         if not self.instantiated:
             return None
         self.tvector = self.cell.tvec
-        return responses.TimeLFPResponse(self.name, 
-                                         self.tvector,
-                                         self.electrode.LFP)
+        return responses.TimeLFPResponse(
+            self.name, self.tvector, self.electrode.LFP
+        )
 
     def instantiate(self, sim=None, icell=None, LFPyCell=None):
         import LFPy
+
         """Instantiate recording"""
 
-        logger.debug('Adding recording of %s at %s', self.variable, self.location)
+        logger.debug(
+            "Adding recording of %s at %s", self.variable, self.location
+        )
 
-        assert isinstance(LFPyCell, LFPy.Cell), "LFPRecording is only available for LFPCellModel"
+        assert isinstance(
+            LFPyCell, LFPy.Cell
+        ), "LFPRecording is only available for LFPCellModel"
         self.cell = LFPyCell
         self.tvector = None
         # self.tvector.record(sim.neuron.h._ref_t)  # pylint: disable=W0212
-        
+
         self.electrode = sim.electrode
 
         self.instantiated = True
 
     def destroy(self, sim=None):
         """Destroy recording"""
-        
+
         self.electrode = None
         self.LFP = None
         self.tvector = None
-        
+
         self.instantiated = False
 
     def __str__(self):
         """String representation"""
 
-        return '%s: %s at %s' % (self.name, self.variable, self.location)
+        return "%s: %s at %s" % (self.name, self.variable, self.location)

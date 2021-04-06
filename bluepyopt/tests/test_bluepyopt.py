@@ -24,7 +24,7 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 from nose.plugins.attrib import attr
 
 
-@attr('unit')
+@attr("unit")
 def test_import():
     """bluepyopt: test importing bluepyopt"""
     import bluepyopt  # NOQA

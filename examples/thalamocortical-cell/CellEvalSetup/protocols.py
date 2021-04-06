@@ -1,5 +1,5 @@
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -29,9 +29,11 @@ import bluepyopt.ephys as ephys
 import os
 
 import argparse
-parser = argparse.ArgumentParser(description='cell')
-parser.add_argument('--live', action="store_true", default=False,
-                  help='plot live')
+
+parser = argparse.ArgumentParser(description="cell")
+parser.add_argument(
+    "--live", action="store_true", default=False, help="plot live"
+)
 args, unknown = parser.parse_known_args()
 
 live_plot = False
@@ -45,12 +47,13 @@ class StepProtocolCustom(ephys.protocols.StepProtocol):
     """Step protocol with custom options to turn stochkv_det on or off"""
 
     def __init__(
-            self,
-            name=None,
-            step_stimulus=None,
-            holding_stimulus=None,
-            recordings=None,
-            cvode_active=None):
+        self,
+        name=None,
+        step_stimulus=None,
+        holding_stimulus=None,
+        recordings=None,
+        cvode_active=None,
+    ):
         """Constructor"""
 
         super(StepProtocolCustom, self).__init__(
@@ -58,21 +61,20 @@ class StepProtocolCustom(ephys.protocols.StepProtocol):
             step_stimulus=step_stimulus,
             holding_stimulus=holding_stimulus,
             recordings=recordings,
-            cvode_active=cvode_active)
-
+            cvode_active=cvode_active,
+        )
 
     def run(self, cell_model, param_values, sim=None, isolate=None):
         """Run protocol"""
 
         responses = {}
 
-        responses.update(super(StepProtocolCustom, self).run(
-            cell_model,
-            param_values,
-            sim=sim,
-            isolate=isolate))
+        responses.update(
+            super(StepProtocolCustom, self).run(
+                cell_model, param_values, sim=sim, isolate=isolate
+            )
+        )
 
-        
         for mechanism in cell_model.mechanisms:
             mechanism.deterministic = True
         self.cvode_active = True
@@ -85,12 +87,13 @@ class RampProtocol(ephys.protocols.SweepProtocol):
     """Protocol consisting of ramp and holding current"""
 
     def __init__(
-            self,
-            name=None,
-            ramp_stimulus=None,
-            holding_stimulus=None,
-            recordings=None,
-            cvode_active=None):
+        self,
+        name=None,
+        ramp_stimulus=None,
+        holding_stimulus=None,
+        recordings=None,
+        cvode_active=None,
+    ):
         """Constructor
         Args:
             name (str): name of this object
@@ -102,12 +105,12 @@ class RampProtocol(ephys.protocols.SweepProtocol):
 
         super(RampProtocol, self).__init__(
             name,
-            stimuli=[
-                ramp_stimulus,
-                holding_stimulus]
-            if holding_stimulus is not None else [ramp_stimulus],
+            stimuli=[ramp_stimulus, holding_stimulus]
+            if holding_stimulus is not None
+            else [ramp_stimulus],
             recordings=recordings,
-            cvode_active=cvode_active)
+            cvode_active=cvode_active,
+        )
 
         self.ramp_stimulus = ramp_stimulus
         self.holding_stimulus = holding_stimulus

@@ -30,7 +30,7 @@ import bluepyopt.ephys as ephys
 import testmodels.dummycells
 
 
-@attr('unit')
+@attr("unit")
 def test_stimulus_init():
     """ephys.stimuli: test if Stimulus constructor works"""
 
@@ -38,7 +38,7 @@ def test_stimulus_init():
     nt.assert_is_instance(stim, ephys.stimuli.Stimulus)
 
 
-@attr('unit')
+@attr("unit")
 def test_NrnNetStimStimulus_init():
     """ephys.stimuli: test if NrnNetStimStimulus constructor works"""
 
@@ -47,10 +47,10 @@ def test_NrnNetStimStimulus_init():
     stim = ephys.stimuli.NrnNetStimStimulus(total_duration=100)
     nt.assert_is_instance(stim, ephys.stimuli.NrnNetStimStimulus)
 
-    nt.assert_equal(str(stim), 'Netstim')
+    nt.assert_equal(str(stim), "Netstim")
 
 
-@attr('unit')
+@attr("unit")
 def test_NrnNetStimStimulus_instantiate():
     """ephys.stimuli: test if NrnNetStimStimulus instantiate works"""
 
@@ -59,21 +59,18 @@ def test_NrnNetStimStimulus_instantiate():
     icell = dummy_cell.instantiate(sim=nrn_sim)
 
     somacenter_loc = ephys.locations.NrnSeclistCompLocation(
-        name=None,
-        seclist_name='somatic',
-        sec_index=0,
-        comp_x=.5)
+        name=None, seclist_name="somatic", sec_index=0, comp_x=0.5
+    )
 
     expsyn_mech = ephys.mechanisms.NrnMODPointProcessMechanism(
-        name='expsyn',
-        suffix='ExpSyn',
-        locations=[somacenter_loc])
+        name="expsyn", suffix="ExpSyn", locations=[somacenter_loc]
+    )
 
     expsyn_mech.instantiate(sim=nrn_sim, icell=icell)
 
     expsyn_loc = ephys.locations.NrnPointProcessLocation(
-        'expsyn_loc',
-        pprocess_mech=expsyn_mech)
+        "expsyn_loc", pprocess_mech=expsyn_mech
+    )
 
     netstim = ephys.stimuli.NrnNetStimStimulus(
         total_duration=200,
@@ -81,7 +78,8 @@ def test_NrnNetStimStimulus_instantiate():
         interval=5,
         start=20,
         weight=5e-4,
-        locations=[expsyn_loc])
+        locations=[expsyn_loc],
+    )
 
     netstim.instantiate(sim=nrn_sim, icell=icell)
 
@@ -92,7 +90,7 @@ def test_NrnNetStimStimulus_instantiate():
     dummy_cell.destroy(sim=nrn_sim)
 
 
-@attr('unit')
+@attr("unit")
 def test_NrnCurrentPlayStimulus_instantiate():
     """ephys.stimuli: test if NrnNetStimStimulus instantiate works"""
 
@@ -101,21 +99,20 @@ def test_NrnCurrentPlayStimulus_instantiate():
     icell = dummy_cell.instantiate(sim=nrn_sim)
 
     somacenter_loc = ephys.locations.NrnSeclistCompLocation(
-        name=None,
-        seclist_name='somatic',
-        sec_index=0,
-        comp_x=.5)
+        name=None, seclist_name="somatic", sec_index=0, comp_x=0.5
+    )
 
     time_points = [10, 50]
     current_points = [0.1, 0.2]
     current_stim = ephys.stimuli.NrnCurrentPlayStimulus(
         time_points=time_points,
         current_points=current_points,
-        location=somacenter_loc)
+        location=somacenter_loc,
+    )
 
     nt.assert_equal(current_stim.time_points, time_points)
     nt.assert_equal(current_stim.current_points, current_points)
-    nt.assert_equal(str(current_stim), 'Current play at somatic[0](0.5)')
+    nt.assert_equal(str(current_stim), "Current play at somatic[0](0.5)")
     current_stim.instantiate(sim=nrn_sim, icell=icell)
 
     nrn_sim.run(100)
@@ -124,14 +121,14 @@ def test_NrnCurrentPlayStimulus_instantiate():
     dummy_cell.destroy(sim=nrn_sim)
 
 
-@attr('unit')
+@attr("unit")
 def test_NrnRampPulse_init():
     """ephys.stimuli: test if NrnRampPulse constructor works"""
     stim = ephys.stimuli.NrnRampPulse()
     nt.assert_is_instance(stim, ephys.stimuli.NrnRampPulse)
 
 
-@attr('unit')
+@attr("unit")
 def test_NrnRampPulse_instantiate():
     """ephys.stimuli: test if NrnRampPulse injects correct current"""
 
@@ -139,13 +136,9 @@ def test_NrnRampPulse_instantiate():
     dummy_cell = testmodels.dummycells.DummyCellModel1()
     icell = dummy_cell.instantiate(sim=nrn_sim)
     soma_loc = ephys.locations.NrnSeclistCompLocation(
-        name=None,
-        seclist_name='somatic',
-        sec_index=0,
-        comp_x=.5)
-    recording = ephys.recordings.CompRecording(
-        location=soma_loc,
-        variable='v')
+        name=None, seclist_name="somatic", sec_index=0, comp_x=0.5
+    )
+    recording = ephys.recordings.CompRecording(location=soma_loc, variable="v")
 
     ramp_amplitude_start = 0.1
     ramp_amplitude_end = 1.0
@@ -159,13 +152,15 @@ def test_NrnRampPulse_instantiate():
         ramp_delay=ramp_delay,
         ramp_duration=ramp_duration,
         total_duration=total_duration,
-        location=soma_loc)
+        location=soma_loc,
+    )
 
     nt.assert_equal(
         str(stim),
-        'Ramp pulse amp_start 0.100000 amp_end 1.000000 '
-        'delay 20.000000 duration 20.000000 totdur 50.000000'
-        ' at somatic[0](0.5)')
+        "Ramp pulse amp_start 0.100000 amp_end 1.000000 "
+        "delay 20.000000 duration 20.000000 totdur 50.000000"
+        " at somatic[0](0.5)",
+    )
     stim.instantiate(sim=nrn_sim, icell=icell)
 
     recording.instantiate(sim=nrn_sim, icell=icell)
@@ -175,41 +170,55 @@ def test_NrnRampPulse_instantiate():
     nrn_sim.run(stim.total_duration)
 
     current = numpy.array(stim_i_vec.to_python())
-    time = numpy.array(recording.response['time'])
-    voltage = numpy.array(recording.response['voltage'])
+    time = numpy.array(recording.response["time"])
+    voltage = numpy.array(recording.response["voltage"])
 
     # make sure current is 0 before stimulus
-    nt.assert_equal(numpy.max(
-        current[numpy.where((0 <= time) & (time < ramp_delay))]), 0)
+    nt.assert_equal(
+        numpy.max(current[numpy.where((0 <= time) & (time < ramp_delay))]), 0
+    )
 
     # make sure voltage stays at v_init before stimulus
-    nt.assert_equal(numpy.max(
-        voltage[
-            numpy.where((0 <= time)
-                        & (time < ramp_delay))]), nrn_sim.neuron.h.v_init)
+    nt.assert_equal(
+        numpy.max(voltage[numpy.where((0 <= time) & (time < ramp_delay))]),
+        nrn_sim.neuron.h.v_init,
+    )
 
     # make sure current is at right amp at end of stimulus
     nt.assert_equal(
-        current[numpy.where(time == ramp_delay)][-1],
-        ramp_amplitude_start)
+        current[numpy.where(time == ramp_delay)][-1], ramp_amplitude_start
+    )
     # make sure current is at right amp at end of stimulus
     nt.assert_equal(
         current[numpy.where(time == (ramp_delay + ramp_duration))][0],
-        ramp_amplitude_end)
+        ramp_amplitude_end,
+    )
 
     # make sure current is 0 after stimulus
-    nt.assert_equal(numpy.max(
-        current[
-            numpy.where(
-                (ramp_delay + ramp_duration < time)
-                & (time <= total_duration))]), 0)
+    nt.assert_equal(
+        numpy.max(
+            current[
+                numpy.where(
+                    (ramp_delay + ramp_duration < time)
+                    & (time <= total_duration)
+                )
+            ]
+        ),
+        0,
+    )
 
     # make sure voltage is correct after stimulus
-    nt.assert_almost_equal(numpy.mean(
-        voltage[
-            numpy.where(
-                (ramp_delay + ramp_duration < time)
-                & (time <= total_duration))]), -57.994437612124869)
+    nt.assert_almost_equal(
+        numpy.mean(
+            voltage[
+                numpy.where(
+                    (ramp_delay + ramp_duration < time)
+                    & (time <= total_duration)
+                )
+            ]
+        ),
+        -57.994437612124869,
+    )
     recording.destroy(sim=nrn_sim)
     stim.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)

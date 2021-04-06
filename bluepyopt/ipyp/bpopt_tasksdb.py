@@ -50,12 +50,14 @@ def get_engine_data(tasksdb_filename):
             completed = dateutil.parser.parse(completed)
 
             duration = (
-                completed -
-                started).total_seconds() if completed else None
-            task = {'started': started,
-                    'completed': completed,
-                    'duration': duration,
-                    'engine_uuid': engine_uuid}
+                (completed - started).total_seconds() if completed else None
+            )
+            task = {
+                "started": started,
+                "completed": completed,
+                "duration": duration,
+                "engine_uuid": engine_uuid,
+            }
 
             tasks[engine_uuid].append(task)
 
@@ -73,37 +75,41 @@ def plot_usage(tasks, engine_number_map):
     for engine_uuid, task_list in tasks.items():
         engine_number = engine_number_map[engine_uuid]
         number_list = [engine_number] * len(task_list)
-        start_list = [task['started'] for task in task_list]
-        completed_list = [task['completed'] for task in task_list]
+        start_list = [task["started"] for task in task_list]
+        completed_list = [task["completed"] for task in task_list]
         plt.plot(
             [number_list, number_list],
-            [start_list, completed_list], linewidth=10,
-            solid_capstyle="butt")
+            [start_list, completed_list],
+            linewidth=10,
+            solid_capstyle="butt",
+        )
 
-    plt.xlim(min(engine_number_map.values()) - 1,
-             max(engine_number_map.values()) + 1)
-    plt.xlabel('Compute engine number')
-    plt.ylabel('Compute time')
+    plt.xlim(
+        min(engine_number_map.values()) - 1
+        max(engine_number_map.values()) + 1
+    )
+    plt.xlabel("Compute engine number")
+    plt.ylabel("Compute time")
 
     idle_time, idle_perc = calculate_unused_compute(tasks)
     plt.title(
-        'Cumulative idle time: %s, perc: %.2f %%' %
-        (idle_time, idle_perc))
+        "Cumulative idle time: %s, perc: %.2f %%" % (idle_time, idle_perc)
+    )
 
 
 def plot_duration_histogram(tasks):
     """Plot duration histogram"""
     plt.figure(figsize=(8, 8))
 
-    durations = np.fromiter((t['duration']
-                             for task_list in tasks.values()
-                             for t in task_list),
-                            dtype=np.float)
+    durations = np.fromiter(
+        (t["duration"] for task_list in tasks.values() for t in task_list),
+        dtype=np.float,
+    )
     plt.hist(durations, 100)
 
-    plt.xlabel('Duration (s)')
-    plt.ylabel('Count')
-    plt.title('Histogram of task execution')
+    plt.xlabel("Duration (s)")
+    plt.ylabel("Count")
+    plt.title("Histogram of task execution")
     plt.grid(True)
 
 
@@ -111,17 +117,19 @@ def calculate_unused_compute(tasks):
     """Calculate unused compute time"""
 
     all_tasks = list(itertools.chain.from_iterable(tasks.values()))
-    start_time = min(task['started'] for task in all_tasks)
-    end_time = max(task['completed'] for task in all_tasks)
+    start_time = min(task["started"] for task in all_tasks)
+    end_time = max(task["completed"] for task in all_tasks)
     total_compute_time = sum(
-        (datetime.timedelta(seconds=task['duration'])
-         for task in all_tasks), datetime.timedelta())
+        (datetime.timedelta(seconds=task["duration"]) for task in all_tasks),
+        datetime.timedelta(),
+    )
 
     n_of_engines = len(tasks.keys())
 
     idle_time = n_of_engines * (end_time - start_time) - total_compute_time
-    idle_perc = 100 * \
-        (idle_time.total_seconds() / total_compute_time.total_seconds())
+    idle_perc = 100 * (
+        idle_time.total_seconds() / total_compute_time.total_seconds()
+    )
     return idle_time, idle_perc
 
 
@@ -129,11 +137,11 @@ def run(arg_list):
     """Main run"""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('tasksdb_filename')
+    parser.add_argument("tasksdb_filename")
     args = parser.parse_args(arg_list)
 
     if not os.path.isfile(args.tasksdb_filename):
-        raise IOError('Tasks db file not found at: %s' % args.tasksdb_filename)
+        raise IOError("Tasks db file not found at: %s" % args.tasksdb_filename)
 
     tasks, engine_number_map = get_engine_data(args.tasksdb_filename)
     plot_usage(tasks, engine_number_map)
@@ -148,5 +156,5 @@ def main():
     run(sys.argv[1:])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

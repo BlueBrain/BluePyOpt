@@ -24,9 +24,7 @@ class ObjectivesCalculator(object):
 
     """Score calculator"""
 
-    def __init__(
-            self,
-            objectives=None):
+    def __init__(self, objectives=None):
         """Constructor
 
         Args:
@@ -38,10 +36,15 @@ class ObjectivesCalculator(object):
     def calculate_scores(self, responses):
         """Calculator the score for every objective"""
 
-        return {objective.name: objective.calculate_score(responses)
-                for objective in self.objectives}
+        return {
+            objective.name: objective.calculate_score(responses)
+            for objective in self.objectives
+        }
 
     def __str__(self):
-        return 'objectives:\n  %s' % '\n  '.join(
-            [str(obj) for obj in self.objectives]) \
-            if self.objectives is not None else 'objectives:\n'
+        return (
+            "objectives:\n  %s"
+            % "\n  ".join([str(obj) for obj in self.objectives])
+            if self.objectives is not None
+            else "objectives:\n"
+        )
