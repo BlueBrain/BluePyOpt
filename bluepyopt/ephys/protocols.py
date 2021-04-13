@@ -40,7 +40,7 @@ class Protocol(object):
         """Constructor
 
         Args:
-                name (str): name of the feature
+                        name (str): name of the feature
         """
 
         self.name = name
@@ -54,9 +54,9 @@ class SequenceProtocol(Protocol):
         """Constructor
 
         Args:
-                name (str): name of this object
-                protocols (list of Protocols): subprotocols this protocol
-                        consists of
+                        name (str): name of this object
+                        protocols (list of Protocols): subprotocols this protocol
+                                        consists of
         """
         super(SequenceProtocol, self).__init__(name)
         self.protocols = protocols
@@ -130,11 +130,11 @@ class SweepProtocol(Protocol):
         """Constructor
 
         Args:
-                name (str): name of this object
-                stimuli (list of Stimuli): Stimulus objects used in the protocol
-                recordings (list of Recordings): Recording objects used in the
-                        protocol
-                cvode_active (bool): whether to use variable time step
+                        name (str): name of this object
+                        stimuli (list of Stimuli): Stimulus objects used in the protocol
+                        recordings (list of Recordings): Recording objects used in the
+                                        protocol
+                        cvode_active (bool): whether to use variable time step
         """
 
         super(SweepProtocol, self).__init__(name)
@@ -295,11 +295,11 @@ class StepProtocol(SweepProtocol):
         """Constructor
 
         Args:
-                name (str): name of this object
-                step_stimulus (list of Stimuli): Stimulus objects used in protocol
-                recordings (list of Recordings): Recording objects used in the
-                        protocol
-                cvode_active (bool): whether to use variable time step
+                        name (str): name of this object
+                        step_stimulus (list of Stimuli): Stimulus objects used in protocol
+                        recordings (list of Recordings): Recording objects used in the
+                                        protocol
+                        cvode_active (bool): whether to use variable time step
         """
 
         super(StepProtocol, self).__init__(
@@ -340,11 +340,11 @@ class NeuronUnitAllenStepProtocol(SweepProtocol):
         """Constructor
 
         Args:
-                name (str): name of this object
-                step_stimulus (list of Stimuli): Stimulus objects used in protocol
-                recordings (list of Recordings): Recording objects used in the
-                        protocol
-                cvode_active (bool): whether to use variable time step
+                        name (str): name of this object
+                        step_stimulus (list of Stimuli): Stimulus objects used in protocol
+                        recordings (list of Recordings): Recording objects used in the
+                                        protocol
+                        cvode_active (bool): whether to use variable time step
         """
 
         super(NeuronUnitAllenStepProtocol, self).__init__(
@@ -386,32 +386,44 @@ class NeuronUnitAllenStepProtocol(SweepProtocol):
             multi_spiking_feature_extraction,
         )
 
-	def neuronunit_model_evaluate(self,cell_model,param_values):
-		from neuronunit.optimization.optimization_management import model_to_rheo
-		from neuronunit.optimization.optimization_management import multi_spiking_feature_extraction
-		if hasattr(cell_model,'allen'):
-			if hasattr(cell_model,'seeded_current'):
-				#cell_model.seeded_current = cell_model.seeded_current
-				#cell_model.spk_count = cell_model.spk_count
-				cell_model.attrs = param_values
-				##########################################
-				# Not syntactically necessary but facilitates tighter BPO integration
-				self.step_stimulus = {}
-				self.step_stimulus['amplitude'] = cell_model.seeded_current
-				###########################################
-				if hasattr(cell_model,'efel_filter_iterable'):
-					temp_efel_iter = cell_model.efel_filter_iterable
-				else:
-					temp_efel_iter = None
-				cell_model = multi_spiking_feature_extraction(cell_model,
-					solve_for_current = cell_model.seeded_current,
-					efel_filter_iterable = temp_efel_iter)
-				if hasattr(cell_model,'efel'):
-					responses = {'features':cell_model.efel,
-					'cell_model':cell_model,'model':cell_model,'params':param_values}
-				else:
-					responses = {'model':cell_model,
-					'rheobase':cell_model.rheobase,'params':param_values}
+    def neuronunit_model_evaluate(self, cell_model, param_values):
+        from neuronunit.optimization.optimization_management import model_to_rheo
+        from neuronunit.optimization.optimization_management import (
+            multi_spiking_feature_extraction,
+        )
+
+        if hasattr(cell_model, "allen"):
+            if hasattr(cell_model, "seeded_current"):
+                # cell_model.seeded_current = cell_model.seeded_current
+                # cell_model.spk_count = cell_model.spk_count
+                cell_model.attrs = param_values
+                ##########################################
+                # Not syntactically necessary but facilitates tighter BPO integration
+                self.step_stimulus = {}
+                self.step_stimulus["amplitude"] = cell_model.seeded_current
+                ###########################################
+                if hasattr(cell_model, "efel_filter_iterable"):
+                    temp_efel_iter = cell_model.efel_filter_iterable
+                else:
+                    temp_efel_iter = None
+                cell_model = multi_spiking_feature_extraction(
+                    cell_model,
+                    solve_for_current=cell_model.seeded_current,
+                    efel_filter_iterable=temp_efel_iter,
+                )
+                if hasattr(cell_model, "efel"):
+                    responses = {
+                        "features": cell_model.efel,
+                        "cell_model": cell_model,
+                        "model": cell_model,
+                        "params": param_values,
+                    }
+                else:
+                    responses = {
+                        "model": cell_model,
+                        "rheobase": cell_model.rheobase,
+                        "params": param_values,
+                    }
 
             else:
                 cell_model = multi_spiking_feature_extraction(cell_model)
