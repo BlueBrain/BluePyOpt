@@ -22,9 +22,7 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 # pylint:disable=W0612
 
 
-
 import pytest
-import numpy
 
 import bluepyopt.ephys as ephys
 
@@ -37,7 +35,7 @@ def test_comprecording_init():
 
     assert isinstance(recording, ephys.recordings.CompRecording)
 
-    assert recording.response == None
+    assert recording.response is None
 
     '''
     nrn_sim = ephys.simulators.NrnSimulator()

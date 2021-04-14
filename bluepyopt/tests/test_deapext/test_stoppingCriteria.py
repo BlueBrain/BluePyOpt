@@ -1,13 +1,9 @@
 """bluepyopt.stoppingCriteria tests"""
 
 
-
 import bluepyopt.stoppingCriteria
 
 import pytest
-import numpy
-
-import deap.tools
 
 
 @pytest.mark.unit
@@ -17,9 +13,9 @@ def test_MaxNGen():
     max_gen = 3
     criteria = bluepyopt.deapext.stoppingCriteria.MaxNGen(max_gen)
 
-    assert criteria.criteria_met == False
+    assert criteria.criteria_met is False
     criteria.check({"gen": max_gen + 1})
-    assert criteria.criteria_met == True
+    assert criteria.criteria_met is True
     criteria.reset()
     criteria.check({"gen": max_gen})
-    assert criteria.criteria_met == False
+    assert criteria.criteria_met is False

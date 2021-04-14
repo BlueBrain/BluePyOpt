@@ -7,7 +7,6 @@ import difflib
 
 
 import pytest
-import numpy
 
 from . import utils
 from bluepyopt import ephys
@@ -50,10 +49,10 @@ def test_nrnmod_instantiate():
     simple_cell.destroy(sim=sim)
 
     pytest.raises(TypeError, ephys.mechanisms.NrnMODMechanism,
-                     'test.pas',
-                     suffix='pas',
-                     prefix='pas',
-                     locations=[simplecell.somatic_loc])
+                  'test.pas',
+                  suffix='pas',
+                  prefix='pas',
+                  locations=[simplecell.somatic_loc])
 
     test_mech = ephys.mechanisms.NrnMODMechanism(
         'test.pas',
@@ -171,7 +170,7 @@ def test_pprocess_instantiate():
 
     simple_cell.instantiate(sim=sim)
 
-    assert test_pprocess.pprocesses == None
+    assert test_pprocess.pprocesses is None
 
     test_pprocess.instantiate(sim=sim, icell=simple_cell.icell)
     assert len(test_pprocess.pprocesses) == 1
@@ -180,7 +179,7 @@ def test_pprocess_instantiate():
     assert hasattr(pprocess, 'tau')
     test_pprocess.destroy(sim=sim)
 
-    assert test_pprocess.pprocesses == None
+    assert test_pprocess.pprocesses is None
 
     simple_cell.destroy(sim=sim)
 

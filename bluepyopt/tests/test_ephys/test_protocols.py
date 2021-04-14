@@ -22,9 +22,7 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 # pylint:disable=W0612
 
 
-
 import pytest
-import numpy
 
 import bluepyopt.ephys as ephys
 from .testmodels import dummycells
@@ -75,8 +73,8 @@ def test_distloc_exception():
         param_values={},
         sim=nrn_sim)
 
-    assert responses['soma.v'] != None
-    assert responses['dend.v'] == None
+    assert responses['soma.v'] is not None
+    assert responses['dend.v'] is None
 
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
@@ -268,9 +266,9 @@ def test_sequenceprotocol_overwrite():
         protocols=sweep_protocols)
 
     pytest.raises(Exception, seq_protocol.run,
-                     cell_model=dummy_cell,
-                     param_values={},
-                     sim=nrn_sim)
+                  cell_model=dummy_cell,
+                  param_values={},
+                  sim=nrn_sim)
 
     for sweep_protocol in sweep_protocols:
         sweep_protocol.destroy(sim=nrn_sim)
@@ -361,7 +359,7 @@ def test_sweepprotocol_run_unisolated():
 
     assert 'soma.v' in responses
     assert 'unknown.v' in responses
-    assert responses['unknown.v'] == None
+    assert responses['unknown.v'] is None
 
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
@@ -404,7 +402,7 @@ def test_nrnsimulator_exception():
         sim=nrn_sim,
         isolate=False)
 
-    assert responses['soma.v'] == None
+    assert responses['soma.v'] is None
 
     nrn_sim.run = run_NrnSimulatorException
 
@@ -414,7 +412,7 @@ def test_nrnsimulator_exception():
         sim=nrn_sim,
         isolate=False)
 
-    assert responses['soma.v'] == None
+    assert responses['soma.v'] is None
 
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)

@@ -57,8 +57,8 @@ def test_cellmodel():
     model = ephys.models.CellModel('test_model', morph=test_morph, mechs=[])
 
     assert (
-        str(model) ==
-        'test_model:\n  morphology:\n    %s\n  mechanisms:\n  params:\n' %
+        str(model)
+        == 'test_model:\n  morphology:\n    %s\n  mechanisms:\n  params:\n' %
         simple_morphology_path)
 
     model.instantiate(sim=sim)
@@ -221,15 +221,15 @@ def test_metaparameter():
                                         params=[cm, paramA, paramB, paramC])
 
     pytest.raises(Exception,
-                     cell_model.freeze,
-                     {'ParamC': 2.0})
+                  cell_model.freeze,
+                  {'ParamC': 2.0})
 
     cell_model.freeze(test_params)
 
     cell_model.instantiate(sim=sim)
 
-    assert (scaler.eval_dist(1.0, 1.0) ==
-                    '(-1 + 2.0 * math.exp(1 * 0.003)) * 1')
+    assert (scaler.eval_dist(1.0, 1.0)
+            == '(-1 + 2.0 * math.exp(1 * 0.003)) * 1')
 
     numpy.testing.assert_almost_equal(
         scaler.scale(
@@ -243,7 +243,7 @@ def test_metaparameter():
     hoc_code = cell_model.create_hoc(param_values=test_params)
 
     assert ('distribute_distance(CellRef.all, "cm", "(-1 + 2.0 * '
-                   'exp(%.17g * 0.003)) * 1")' in hoc_code)
+            'exp(%.17g * 0.003)) * 1")' in hoc_code)
 
     cell_model.destroy(sim=sim)
 

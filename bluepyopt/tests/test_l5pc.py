@@ -13,7 +13,6 @@ else:
 
 
 import pytest
-import numpy
 
 L5PC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '../../examples/l5pc'))
@@ -90,7 +89,7 @@ class TestL5PCModel(object):
         import l5pc_model  # NOQA
         self.l5pc_cell = l5pc_model.create()
         assert isinstance(self.l5pc_cell,
-            bluepyopt.ephys.models.CellModel)
+                          bluepyopt.ephys.models.CellModel)
         self.nrn = ephys.simulators.NrnSimulator()
 
     def test_instantiate(self):
@@ -115,7 +114,7 @@ class TestL5PCEvaluator(object):
         self.l5pc_evaluator = l5pc_evaluator.create()
 
         assert isinstance(self.l5pc_evaluator,
-            bluepyopt.ephys.evaluators.CellEvaluator)
+                          bluepyopt.ephys.evaluators.CellEvaluator)
 
     @pytest.mark.slow
     def test_eval(self):
@@ -131,12 +130,8 @@ class TestL5PCEvaluator(object):
         # expected_results['TestL5PCEvaluator.test_eval'] = result
         # dump_to_json(expected_results, 'expected_results.json')
 
-        try:
-            assert collections.Counter(result) == collections.Counter(expected_results['TestL5PCEvaluator.test_eval'])
-        except AttributeError:
-            assert_items_equal(
-                result,
-                expected_results['TestL5PCEvaluator.test_eval'])
+        assert collections.Counter(result) == collections.Counter(
+            expected_results['TestL5PCEvaluator.test_eval'])
 
     def teardown(self):
         """Teardown"""

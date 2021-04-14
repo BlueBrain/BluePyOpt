@@ -178,6 +178,6 @@ def test_WeightedSumObjective():
         abs(efeature_value - mean) * weight)
 
     pytest.raises(Exception, ephys.objectives.WeightedSumObjective,
-                     'weighted',
-                     features=[efeature],
-                     weights=[1, 2])
+                  'weighted',
+                  features=[efeature],
+                  weights=[1, 2])

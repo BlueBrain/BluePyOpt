@@ -1,8 +1,6 @@
 """Test bluepyopt.tools"""
 
 import pytest
-import numpy
-
 
 
 @pytest.mark.unit

@@ -1,7 +1,6 @@
 """bluepyopt.optimisations tests"""
 
 
-
 import bluepyopt.optimisations
 import bluepyopt.ephys.examples.simplecell
 
@@ -20,9 +19,9 @@ def test_DEAPOptimisation_constructor():
         simplecell.cell_evaluator, map_function=map)
 
     assert isinstance(optimisation,
-        bluepyopt.deapext.optimisations.DEAPOptimisation)
+                      bluepyopt.deapext.optimisations.DEAPOptimisation)
     assert isinstance(optimisation.evaluator,
-        bluepyopt.evaluators.Evaluator)
+                      bluepyopt.evaluators.Evaluator)
 
     pytest.raises(
         ValueError,
@@ -40,7 +39,7 @@ def test_IBEADEAPOptimisation_constructor():
         simplecell.cell_evaluator, map_function=map)
 
     assert isinstance(optimisation,
-        bluepyopt.deapext.optimisations.IBEADEAPOptimisation)
+                      bluepyopt.deapext.optimisations.IBEADEAPOptimisation)
 
 
 @pytest.mark.unit
@@ -95,8 +94,8 @@ def test_selectorname():
         simplecell.cell_evaluator, selector_name='NSGA2')
 
     assert (
-        nsga2_optimisation.toolbox.select.func ==
-        deap.tools.emo.selNSGA2)
+        nsga2_optimisation.toolbox.select.func
+        == deap.tools.emo.selNSGA2)
 
     simplecell = bluepyopt.ephys.examples.simplecell.SimpleCell()
 
@@ -105,5 +104,5 @@ def test_selectorname():
         simplecell.cell_evaluator, selector_name='IBEA')
 
     assert (
-        ibea_optimisation.toolbox.select.func ==
-        bluepyopt.deapext.tools.selIBEA)
+        ibea_optimisation.toolbox.select.func
+        == bluepyopt.deapext.tools.selIBEA)

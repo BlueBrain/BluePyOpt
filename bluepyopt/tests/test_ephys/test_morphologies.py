@@ -4,9 +4,7 @@ import json
 import os
 
 
-
 import pytest
-import numpy
 
 import bluepyopt.ephys as ephys
 from bluepyopt.ephys.serializer import instantiator

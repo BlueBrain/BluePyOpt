@@ -7,11 +7,9 @@ import deap.creator
 import deap.benchmarks
 
 
-
 import bluepyopt.deapext.algorithms
 
 import pytest
-import numpy
 
 
 @pytest.mark.unit

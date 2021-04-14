@@ -4,7 +4,6 @@ import json
 
 
 import pytest
-import numpy
 
 
 from bluepyopt.ephys.parameterscalers import (NrnSegmentLinearScaler,
@@ -33,8 +32,8 @@ def test_NrnSegmentSomaDistanceScaler_dist_params():
     scaler.C = 0.003
     assert scaler.C == 0.003
 
-    assert (scaler.eval_dist(1.0, 1.0) ==
-                    '(-0.9 + 2 * math.exp(1 * 0.003) * 1')
+    assert (scaler.eval_dist(1.0, 1.0)
+            == '(-0.9 + 2 * math.exp(1 * 0.003) * 1')
 
 
 @pytest.mark.unit

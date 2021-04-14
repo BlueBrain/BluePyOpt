@@ -1,7 +1,6 @@
 """selIBEA tests"""
 
 
-
 import deap
 import numpy
 
@@ -11,7 +10,6 @@ from bluepyopt.deapext.tools.selIBEA \
 from .deapext_test_utils import make_mock_population
 
 import pytest
-import numpy
 
 
 @pytest.mark.unit

@@ -4,10 +4,6 @@ import os
 import sys
 import difflib
 
-
-# import pytest
-import numpy
-
 STOCHKV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                             '../../examples/stochkv'))
 
@@ -50,15 +46,15 @@ def test_run():
             stochkvcell.run_stochkv_model(deterministic=deterministic)
 
         assert py_response['Step.soma.v']['time'].equals(
-                hoc_response['Step.soma.v']['time'])
+            hoc_response['Step.soma.v']['time'])
         assert py_response['Step.soma.v']['voltage'].equals(
-                hoc_response['Step.soma.v']['voltage'])
+            hoc_response['Step.soma.v']['voltage'])
         if deterministic:
             assert py_response['Step.soma.v']['voltage'].equals(
-                    different_seed_response['Step.soma.v']['voltage'])
+                different_seed_response['Step.soma.v']['voltage'])
         else:
             assert not py_response['Step.soma.v']['voltage'].equals(
-                    different_seed_response['Step.soma.v']['voltage'])
+                different_seed_response['Step.soma.v']['voltage'])
 
         expected_hoc_filename = os.path.join(
             STOCHKV_PATH,
@@ -82,15 +78,15 @@ def test_run_stochkv3():
             stochkv3cell.run_stochkv3_model(deterministic=deterministic)
 
         assert py_response['Step.soma.v']['time'].equals(
-                hoc_response['Step.soma.v']['time'])
+            hoc_response['Step.soma.v']['time'])
         assert py_response['Step.soma.v']['voltage'].equals(
-                hoc_response['Step.soma.v']['voltage'])
+            hoc_response['Step.soma.v']['voltage'])
         if deterministic:
             assert py_response['Step.soma.v']['voltage'].equals(
-                    different_seed_response['Step.soma.v']['voltage'])
+                different_seed_response['Step.soma.v']['voltage'])
         else:
             assert not py_response['Step.soma.v']['voltage'].equals(
-                    different_seed_response['Step.soma.v']['voltage'])
+                different_seed_response['Step.soma.v']['voltage'])
 
         expected_hoc_filename = os.path.join(
             STOCHKV_PATH,

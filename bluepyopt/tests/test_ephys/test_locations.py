@@ -24,7 +24,6 @@ import json
 
 
 import pytest
-import numpy
 
 from bluepyopt import ephys
 from bluepyopt.ephys.serializer import instantiator
@@ -162,9 +161,9 @@ class TestNrnSomaDistanceCompLocation(object):
         cell.testdend.append(sec=dend2)
 
         pytest.raises(ephys.locations.EPhysLocInstantiateException,
-                         self.loc.instantiate,
-                         sim=self.sim,
-                         icell=cell)
+                      self.loc.instantiate,
+                      sim=self.sim,
+                      icell=cell)
 
         dend1.connect(soma(0.5), 0.0)
         dend2.connect(dend1(1.0), 0.0)

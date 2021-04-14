@@ -23,7 +23,6 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
 
 import pytest
-import numpy
 
 import bluepyopt
 
@@ -43,8 +42,8 @@ def test_parameters_fields():
 
     param = bluepyopt.parameters.Parameter(name='test')
 
-    assert param.lower_bound == None
-    assert param.upper_bound == None
+    assert param.lower_bound is None
+    assert param.upper_bound is None
 
     param.freeze(5)
     pytest.raises(Exception, setattr, param, "value", 5)
@@ -104,7 +103,7 @@ def test_MetaListEqualParameter_freeze_unfreeze():
     param = bluepyopt.parameters.MetaListEqualParameter(
         name='param', sub_parameters=sub_params)
 
-    assert param.value == None
+    assert param.value is None
     assert sub_params[0].value == 1
     assert sub_params[1].value == 2
 
@@ -133,13 +132,13 @@ def test_MetaListEqualParamete_str():
         name='param', sub_parameters=sub_params)
 
     assert (
-        str(param) ==
-        'param (sub_params: sub1: value = None,sub2: value = None): '
+        str(param)
+        == 'param (sub_params: sub1: value = None,sub2: value = None): '
         'value = None')
 
     param.freeze(5.5)
 
     assert (
-        str(param) ==
-        'param (sub_params: sub1: value = 5.5,sub2: value = 5.5): '
+        str(param)
+        == 'param (sub_params: sub1: value = 5.5,sub2: value = 5.5): '
         'value = 5.5')
