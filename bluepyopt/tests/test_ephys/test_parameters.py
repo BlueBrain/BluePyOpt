@@ -11,14 +11,14 @@ from bluepyopt.ephys.serializer import instantiator
 
 import bluepyopt.ephys.examples.simplecell
 
-simplecell = bluepyopt.ephys.examples.simplecell.SimpleCell()
-
 
 @attr('unit')
 def test_pprocessparam_instantiate():
     """ephys.parameters: Testing point process parameter"""
 
+    simplecell = bluepyopt.ephys.examples.simplecell.SimpleCell()
     simple_cell = simplecell.cell_model
+    simple_cell.freeze(simplecell.default_param_values)
     sim = simplecell.nrn_sim
 
     expsyn_mech = ephys.mechanisms.NrnMODPointProcessMechanism(
