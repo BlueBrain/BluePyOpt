@@ -6,14 +6,15 @@ import mock
 import deap.creator
 import deap.benchmarks
 
-import nose.tools as nt
+
 
 import bluepyopt.deapext.algorithms
 
-from nose.plugins.attrib import attr
+import pytest
+import numpy
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_eaAlphaMuPlusLambdaCheckpoint():
     """deapext.algorithms: Testing eaAlphaMuPlusLambdaCheckpoint"""
 
@@ -48,13 +49,13 @@ def test_eaAlphaMuPlusLambdaCheckpoint():
             cp_filename=None,
             continue_cp=False)
 
-    nt.assert_true(isinstance(population, list))
-    nt.assert_equal(len(population), 20)
-    nt.assert_true(isinstance(logbook, deap.tools.support.Logbook))
-    nt.assert_true(isinstance(history, deap.tools.support.History))
+    assert isinstance(population, list)
+    assert len(population) == 20
+    assert isinstance(logbook, deap.tools.support.Logbook)
+    assert isinstance(history, deap.tools.support.History)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_eaAlphaMuPlusLambdaCheckpoint_with_checkpoint():
     """deapext.algorithms: Testing eaAlphaMuPlusLambdaCheckpoint"""
 
@@ -115,4 +116,4 @@ def test_eaAlphaMuPlusLambdaCheckpoint_with_checkpoint():
                     cp_filename='cp_test',
                     continue_cp=True)
     for ind1, ind2 in zip(new_population, population):
-        nt.assert_equal(list(ind1), list(ind2))
+        assert list(ind1) == list(ind2)

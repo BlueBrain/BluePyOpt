@@ -2,17 +2,18 @@
 
 import json
 
-import nose.tools as nt
-from nose.plugins.attrib import attr
 
-import utils
+import pytest
+import numpy
+
+from . import utils
 from bluepyopt import ephys
 from bluepyopt.ephys.serializer import instantiator
 
 import bluepyopt.ephys.examples.simplecell
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_pprocessparam_instantiate():
     """ephys.parameters: Testing point process parameter"""
 
@@ -40,25 +41,25 @@ def test_pprocessparam_instantiate():
     simple_cell.params[expsyn_tau_param.name] = expsyn_tau_param
     simple_cell.instantiate(sim=sim)
 
-    nt.assert_equal(expsyn_mech.pprocesses[0].tau, 2)
+    assert expsyn_mech.pprocesses[0].tau == 2
 
     simple_cell.destroy(sim=sim)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_serialize():
     """ephys.parameters: Test serialize"""
     parameters = utils.make_parameters()
 
     for param in parameters:
         serialized = param.to_dict()
-        nt.ok_(isinstance(json.dumps(serialized), str))
+        assert isinstance(json.dumps(serialized), str)
         deserialized = instantiator(serialized)
-        nt.ok_(isinstance(deserialized, param.__class__))
-        nt.eq_(deserialized.name, param.__class__.__name__)
+        assert isinstance(deserialized, param.__class__)
+        assert deserialized.name == param.__class__.__name__
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_metaparameter():
     """ephys.parameters: Test MetaParameter"""
 
@@ -73,6 +74,6 @@ def test_metaparameter():
 
     meta_param = ephys.parameters.MetaParameter('Param A', scaler, 'A', -1)
 
-    nt.assert_equal(meta_param.attr_name, 'A')
-    nt.assert_equal(meta_param.value, -1)
-    nt.assert_equal(scaler.A, -1)
+    assert meta_param.attr_name == 'A'
+    assert meta_param.value == -1
+    assert scaler.A == -1

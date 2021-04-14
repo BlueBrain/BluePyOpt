@@ -1,23 +1,24 @@
 """Test bluepyopt.tools"""
 
-from nose.plugins.attrib import attr
-import nose.tools as nt
+import pytest
+import numpy
 
 
-@attr('unit')
+
+@pytest.mark.unit
 def test_load():
     """bluepyopt.tools: test import"""
 
     import bluepyopt.tools  # NOQA
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_uint32_seed():
     """bluepyopt.tools: test uint32_seed"""
 
     import bluepyopt.tools as bpoptools
 
-    nt.assert_equal(bpoptools.uint32_seed("test"), 640136438)
+    assert bpoptools.uint32_seed("test") == 640136438
 
     import random
     random.seed(1)
@@ -31,9 +32,9 @@ def test_uint32_seed():
         strings.append(string)
         hashes.append(bpoptools.uint32_seed(string))
 
-    nt.assert_equal(len(strings), len(set(strings)))
-    nt.assert_equal(len(hashes), len(set(hashes)))
+    assert len(strings) == len(set(strings))
+    assert len(hashes) == len(set(hashes))
 
     import numpy
     for hash_value in hashes:
-        nt.assert_equal(hash_value, numpy.uint32(hash_value))
+        assert hash_value == numpy.uint32(hash_value)

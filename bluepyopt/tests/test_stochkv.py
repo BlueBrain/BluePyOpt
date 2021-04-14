@@ -4,8 +4,9 @@ import os
 import sys
 import difflib
 
-import nose.tools as nt
-# from nose.plugins.attrib import attr
+
+# import pytest
+import numpy
 
 STOCHKV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                             '../../examples/stochkv'))
@@ -48,20 +49,16 @@ def test_run():
         py_response, hoc_response, different_seed_response, hoc_string = \
             stochkvcell.run_stochkv_model(deterministic=deterministic)
 
-        nt.assert_true(
-            py_response['Step.soma.v']['time'].equals(
-                hoc_response['Step.soma.v']['time']))
-        nt.assert_true(
-            py_response['Step.soma.v']['voltage'].equals(
-                hoc_response['Step.soma.v']['voltage']))
+        assert py_response['Step.soma.v']['time'].equals(
+                hoc_response['Step.soma.v']['time'])
+        assert py_response['Step.soma.v']['voltage'].equals(
+                hoc_response['Step.soma.v']['voltage'])
         if deterministic:
-            nt.assert_true(
-                py_response['Step.soma.v']['voltage'].equals(
-                    different_seed_response['Step.soma.v']['voltage']))
+            assert py_response['Step.soma.v']['voltage'].equals(
+                    different_seed_response['Step.soma.v']['voltage'])
         else:
-            nt.assert_false(
-                py_response['Step.soma.v']['voltage'].equals(
-                    different_seed_response['Step.soma.v']['voltage']))
+            assert not py_response['Step.soma.v']['voltage'].equals(
+                    different_seed_response['Step.soma.v']['voltage'])
 
         expected_hoc_filename = os.path.join(
             STOCHKV_PATH,
@@ -73,7 +70,7 @@ def test_run():
         with open(expected_hoc_filename) as expected_hoc_file:
             expected_hoc_string = expected_hoc_file.read()
 
-        nt.assert_true(compare_strings(expected_hoc_string, hoc_string))
+        assert compare_strings(expected_hoc_string, hoc_string)
 
 
 def test_run_stochkv3():
@@ -84,20 +81,16 @@ def test_run_stochkv3():
         py_response, hoc_response, different_seed_response, hoc_string = \
             stochkv3cell.run_stochkv3_model(deterministic=deterministic)
 
-        nt.assert_true(
-            py_response['Step.soma.v']['time'].equals(
-                hoc_response['Step.soma.v']['time']))
-        nt.assert_true(
-            py_response['Step.soma.v']['voltage'].equals(
-                hoc_response['Step.soma.v']['voltage']))
+        assert py_response['Step.soma.v']['time'].equals(
+                hoc_response['Step.soma.v']['time'])
+        assert py_response['Step.soma.v']['voltage'].equals(
+                hoc_response['Step.soma.v']['voltage'])
         if deterministic:
-            nt.assert_true(
-                py_response['Step.soma.v']['voltage'].equals(
-                    different_seed_response['Step.soma.v']['voltage']))
+            assert py_response['Step.soma.v']['voltage'].equals(
+                    different_seed_response['Step.soma.v']['voltage'])
         else:
-            nt.assert_false(
-                py_response['Step.soma.v']['voltage'].equals(
-                    different_seed_response['Step.soma.v']['voltage']))
+            assert not py_response['Step.soma.v']['voltage'].equals(
+                    different_seed_response['Step.soma.v']['voltage'])
 
         expected_hoc_filename = os.path.join(
             STOCHKV_PATH,
@@ -109,4 +102,4 @@ def test_run_stochkv3():
         with open(expected_hoc_filename) as expected_hoc_file:
             expected_hoc_string = expected_hoc_file.read()
 
-        nt.assert_true(compare_strings(expected_hoc_string, hoc_string))
+        assert compare_strings(expected_hoc_string, hoc_string)

@@ -4,8 +4,9 @@
 
 import os
 
-import nose.tools as nt
-from nose.plugins.attrib import attr
+
+import pytest
+import numpy
 
 from bluepyopt import ephys
 
@@ -17,7 +18,7 @@ TESTDATA_DIR = os.path.join(
 simple_morphology_path = os.path.join(TESTDATA_DIR, 'simple.swc')
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_CellEvaluator_init():
     """ephys.evaluators: Test CellEvaluator init"""
     sim = ephys.simulators.NrnSimulator()
@@ -32,15 +33,15 @@ def test_CellEvaluator_init():
         fitness_calculator=fitness_calc,
         sim=sim)
 
-    nt.assert_true(isinstance(evaluator, ephys.evaluators.CellEvaluator))
-    nt.assert_equal(
-        str(evaluator),
+    assert isinstance(evaluator, ephys.evaluators.CellEvaluator)
+    assert (
+        str(evaluator) ==
         'cell evaluator:\n  cell model:\n    test_model:\n  morphology:\n  '
         'mechanisms:\n  params:\n\n  fitness protocols:\n  '
         'fitness calculator:\n    objectives:\n\n')
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_CellEvaluator_evaluate():
     """ephys.evaluators: Test CellEvaluator evaluate"""
     sim = ephys.simulators.NrnSimulator()
@@ -119,11 +120,11 @@ def test_CellEvaluator_evaluate():
     score = evaluator.evaluate([1.0])
     expected_score = abs(mean - feature_value)
 
-    nt.assert_almost_equal(score, expected_score)
+    numpy.testing.assert_almost_equal(score, expected_score)
 
     score_dict = evaluator.objective_dict(score)
 
-    nt.assert_almost_equal(score_dict['singleton'], expected_score)
-    nt.assert_almost_equal(
+    numpy.testing.assert_almost_equal(score_dict['singleton'], expected_score)
+    numpy.testing.assert_almost_equal(
         feature_value, feature_value_eva['singleton']
     )

@@ -2,13 +2,14 @@
 
 import os
 
-import nose.tools as nt
-from nose.plugins.attrib import attr
+
+import pytest
+import numpy
 
 import bluepyopt.ephys as ephys
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_EFeatureObjective():
     """ephys.objectives: Testing EFeatureObjective"""
 
@@ -28,8 +29,8 @@ def test_EFeatureObjective():
         'singleton',
         features=[efeature])
 
-    nt.assert_equal(e_obj.name, 'singleton')
-    nt.assert_equal(e_obj.features, [efeature])
+    assert e_obj.name == 'singleton'
+    assert e_obj.features == [efeature]
 
     response = ephys.responses.TimeVoltageResponse('mock_response')
     testdata_dir = os.path.join(
@@ -41,12 +42,12 @@ def test_EFeatureObjective():
 
     efeature_value = efeature.calculate_feature(responses)
 
-    nt.assert_almost_equal(
+    numpy.testing.assert_almost_equal(
         e_obj.calculate_feature_scores(responses),
         [abs(efeature_value - mean)])
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_SingletonObjective():
     """ephys.objectives: Testing SingletonObjective"""
 
@@ -66,9 +67,9 @@ def test_SingletonObjective():
         'singleton',
         feature=efeature)
 
-    nt.assert_equal(s_obj.name, 'singleton')
-    nt.assert_equal(s_obj.features, [efeature])
-    nt.assert_equal(str(s_obj), '( %s )' % str(efeature))
+    assert s_obj.name == 'singleton'
+    assert s_obj.features == [efeature]
+    assert str(s_obj) == '( %s )' % str(efeature)
 
     response = ephys.responses.TimeVoltageResponse('mock_response')
     testdata_dir = os.path.join(
@@ -81,13 +82,13 @@ def test_SingletonObjective():
     efeature_value = efeature.calculate_feature(responses)
     efeature_value_obj = s_obj.calculate_value(responses)
 
-    nt.assert_almost_equal(
+    numpy.testing.assert_almost_equal(
         s_obj.calculate_score(responses),
         abs(efeature_value - mean))
-    nt.assert_almost_equal(efeature_value_obj, efeature_value)
+    numpy.testing.assert_almost_equal(efeature_value_obj, efeature_value)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_MaxObjective():
     """ephys.objectives: Testing MaxObjective"""
 
@@ -115,8 +116,8 @@ def test_MaxObjective():
         'max',
         features=[efeature1, efeature2])
 
-    nt.assert_equal(max_obj.name, 'max')
-    nt.assert_equal(max_obj.features, [efeature1, efeature2])
+    assert max_obj.name == 'max'
+    assert max_obj.features == [efeature1, efeature2]
 
     response = ephys.responses.TimeVoltageResponse('mock_response')
     testdata_dir = os.path.join(
@@ -129,12 +130,12 @@ def test_MaxObjective():
     efeature_value1 = efeature1.calculate_feature(responses)
     efeature_value2 = efeature2.calculate_feature(responses)
 
-    nt.assert_almost_equal(
+    numpy.testing.assert_almost_equal(
         max_obj.calculate_score(responses),
         max(abs(efeature_value1 - mean), abs(efeature_value2 - mean)))
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_WeightedSumObjective():
     """ephys.objectives: Testing WeightedSumObjective"""
 
@@ -158,9 +159,9 @@ def test_WeightedSumObjective():
         features=[efeature],
         weights=[weight])
 
-    nt.assert_equal(w_obj.name, 'weighted')
-    nt.assert_equal(w_obj.features, [efeature])
-    nt.assert_equal(w_obj.weights, [weight])
+    assert w_obj.name == 'weighted'
+    assert w_obj.features == [efeature]
+    assert w_obj.weights == [weight]
 
     response = ephys.responses.TimeVoltageResponse('mock_response')
     testdata_dir = os.path.join(
@@ -172,11 +173,11 @@ def test_WeightedSumObjective():
 
     efeature_value = efeature.calculate_feature(responses)
 
-    nt.assert_almost_equal(
+    numpy.testing.assert_almost_equal(
         w_obj.calculate_score(responses),
         abs(efeature_value - mean) * weight)
 
-    nt.assert_raises(Exception, ephys.objectives.WeightedSumObjective,
+    pytest.raises(Exception, ephys.objectives.WeightedSumObjective,
                      'weighted',
                      features=[efeature],
                      weights=[1, 2])

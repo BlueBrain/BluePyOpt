@@ -22,19 +22,20 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 # pylint:disable=W0612
 
 
-import nose.tools as nt
-from nose.plugins.attrib import attr
+
+import pytest
+import numpy
 
 import bluepyopt.ephys as ephys
-import testmodels.dummycells
+from .testmodels import dummycells
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_distloc_exception():
     """ephys.protocols: test if protocol raise dist loc exception"""
 
     nrn_sim = ephys.simulators.NrnSimulator()
-    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    dummy_cell = dummycells.DummyCellModel1()
     # icell = dummy_cell.instantiate(sim=nrn_sim)
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma_loc',
@@ -74,8 +75,8 @@ def test_distloc_exception():
         param_values={},
         sim=nrn_sim)
 
-    nt.assert_not_equal(responses['soma.v'], None)
-    nt.assert_equal(responses['dend.v'], None)
+    assert responses['soma.v'] != None
+    assert responses['dend.v'] == None
 
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
@@ -101,12 +102,12 @@ def run_NrnSimulatorException(
     raise ephys.simulators.NrnSimulatorException('mock', None)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_sweepprotocol_init():
     """ephys.protocols: Test SweepProtocol init"""
 
     nrn_sim = ephys.simulators.NrnSimulator()
-    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    dummy_cell = dummycells.DummyCellModel1()
     # icell = dummy_cell.instantiate(sim=nrn_sim)
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma_loc',
@@ -131,23 +132,23 @@ def test_sweepprotocol_init():
         stimuli=[stim],
         recordings=[rec_soma])
 
-    nt.assert_true(isinstance(protocol, ephys.protocols.SweepProtocol))
-    nt.assert_equal(protocol.total_duration, 50)
-    nt.assert_equal(
-        protocol.subprotocols(), {'prot': protocol})
+    assert isinstance(protocol, ephys.protocols.SweepProtocol)
+    assert protocol.total_duration == 50
+    assert (
+        protocol.subprotocols() == {'prot': protocol})
 
-    nt.assert_true('somatic[0](0.5)' in str(protocol))
+    assert 'somatic[0](0.5)' in str(protocol)
 
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_sequenceprotocol_init():
     """ephys.protocols: Test SequenceProtocol init"""
 
     nrn_sim = ephys.simulators.NrnSimulator()
-    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    dummy_cell = dummycells.DummyCellModel1()
     # icell = dummy_cell.instantiate(sim=nrn_sim)
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma_loc',
@@ -176,21 +177,21 @@ def test_sequenceprotocol_init():
         name='seq_prot',
         protocols=[sweep_protocol])
 
-    nt.assert_true(isinstance(seq_protocol, ephys.protocols.SequenceProtocol))
-    nt.assert_equal(
-        seq_protocol.subprotocols(), {
+    assert isinstance(seq_protocol, ephys.protocols.SequenceProtocol)
+    assert (
+        seq_protocol.subprotocols() == {
             'seq_prot': seq_protocol, 'sweep_prot': sweep_protocol})
 
     sweep_protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_sequenceprotocol_run():
     """ephys.protocols: Test SequenceProtocol run"""
 
     nrn_sim = ephys.simulators.NrnSimulator()
-    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    dummy_cell = dummycells.DummyCellModel1()
     # icell = dummy_cell.instantiate(sim=nrn_sim)
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma_loc',
@@ -224,18 +225,18 @@ def test_sequenceprotocol_run():
         param_values={},
         sim=nrn_sim)
 
-    nt.assert_true(responses is not None)
+    assert responses is not None
 
     sweep_protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_sequenceprotocol_overwrite():
     """ephys.protocols: Test SequenceProtocol overwriting keys"""
 
     nrn_sim = ephys.simulators.NrnSimulator()
-    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    dummy_cell = dummycells.DummyCellModel1()
 
     sweep_protocols = []
     for x in [.2, .5]:
@@ -266,7 +267,7 @@ def test_sequenceprotocol_overwrite():
         name='seq_prot',
         protocols=sweep_protocols)
 
-    nt.assert_raises(Exception, seq_protocol.run,
+    pytest.raises(Exception, seq_protocol.run,
                      cell_model=dummy_cell,
                      param_values={},
                      sim=nrn_sim)
@@ -276,7 +277,7 @@ def test_sequenceprotocol_overwrite():
     dummy_cell.destroy(sim=nrn_sim)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_stepprotocol_init():
     """ephys.protocols: Test StepProtocol init"""
 
@@ -310,16 +311,16 @@ def test_stepprotocol_init():
         holding_stimulus=hold_stim,
         recordings=[rec_soma])
 
-    nt.assert_equal(step_protocol.step_delay, 5.0)
-    nt.assert_equal(step_protocol.step_duration, 50)
+    assert step_protocol.step_delay == 5.0
+    assert step_protocol.step_duration == 50
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_sweepprotocol_run_unisolated():
     """ephys.protocols: Test SweepProtocol unisolated run"""
 
     nrn_sim = ephys.simulators.NrnSimulator()
-    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    dummy_cell = dummycells.DummyCellModel1()
     # icell = dummy_cell.instantiate(sim=nrn_sim)
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma_loc',
@@ -358,20 +359,20 @@ def test_sweepprotocol_run_unisolated():
         sim=nrn_sim,
         isolate=False)
 
-    nt.assert_true('soma.v' in responses)
-    nt.assert_true('unknown.v' in responses)
-    nt.assert_equal(responses['unknown.v'], None)
+    assert 'soma.v' in responses
+    assert 'unknown.v' in responses
+    assert responses['unknown.v'] == None
 
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_nrnsimulator_exception():
     """ephys.protocols: test if protocol raise nrn sim exception"""
 
     nrn_sim = ephys.simulators.NrnSimulator()
-    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    dummy_cell = dummycells.DummyCellModel1()
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma_loc',
         seclist_name='somatic',
@@ -403,7 +404,7 @@ def test_nrnsimulator_exception():
         sim=nrn_sim,
         isolate=False)
 
-    nt.assert_equal(responses['soma.v'], None)
+    assert responses['soma.v'] == None
 
     nrn_sim.run = run_NrnSimulatorException
 
@@ -413,7 +414,7 @@ def test_nrnsimulator_exception():
         sim=nrn_sim,
         isolate=False)
 
-    nt.assert_equal(responses['soma.v'], None)
+    assert responses['soma.v'] == None
 
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)

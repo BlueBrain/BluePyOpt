@@ -5,10 +5,11 @@ import random
 import json
 import difflib
 
-import nose.tools as nt
-from nose.plugins.attrib import attr
 
-import utils
+import pytest
+import numpy
+
+from . import utils
 from bluepyopt import ephys
 import bluepyopt.ephys.examples.simplecell
 simplecell = bluepyopt.ephys.examples.simplecell.SimpleCell()
@@ -20,17 +21,17 @@ simple_cell.freeze(simplecell.default_param_values)
 sim = simplecell.nrn_sim
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_mechanism_serialize():
     """ephys.mechanisms: Testing serialize"""
     mech = utils.make_mech()
     serialized = mech.to_dict()
-    nt.assert_true(isinstance(json.dumps(serialized), str))
+    assert isinstance(json.dumps(serialized), str)
     deserialized = instantiator(serialized)
-    nt.assert_true(isinstance(deserialized, ephys.mechanisms.NrnMODMechanism))
+    assert isinstance(deserialized, ephys.mechanisms.NrnMODMechanism)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_nrnmod_instantiate():
     """ephys.mechanisms: Testing insert mechanism"""
 
@@ -39,7 +40,7 @@ def test_nrnmod_instantiate():
         suffix='pas',
         locations=[simplecell.somatic_loc])
 
-    nt.assert_equal(str(test_mech), "test.pas: pas at ['somatic']")
+    assert str(test_mech) == "test.pas: pas at ['somatic']"
 
     simple_cell.instantiate(sim=sim)
 
@@ -48,7 +49,7 @@ def test_nrnmod_instantiate():
 
     simple_cell.destroy(sim=sim)
 
-    nt.assert_raises(TypeError, ephys.mechanisms.NrnMODMechanism,
+    pytest.raises(TypeError, ephys.mechanisms.NrnMODMechanism,
                      'test.pas',
                      suffix='pas',
                      prefix='pas',
@@ -59,10 +60,10 @@ def test_nrnmod_instantiate():
         prefix='pas',
         locations=[simplecell.somatic_loc])
 
-    nt.assert_equal(test_mech.suffix, 'pas')
+    assert test_mech.suffix == 'pas'
 
     test_mech.prefix = 'pas2'
-    nt.assert_equal(test_mech.suffix, 'pas2')
+    assert test_mech.suffix == 'pas2'
 
     test_mech = ephys.mechanisms.NrnMODMechanism(
         'unknown',
@@ -71,7 +72,7 @@ def test_nrnmod_instantiate():
 
     simple_cell.instantiate(sim=sim)
 
-    nt.assert_raises(
+    pytest.raises(
         ValueError,
         test_mech.instantiate,
         sim=sim,
@@ -93,7 +94,7 @@ def compare_strings(s1, s2):
         return True
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_nrnmod_reinitrng_block():
     """ephys.mechanisms: Testing reinitrng_block"""
 
@@ -105,7 +106,7 @@ def test_nrnmod_reinitrng_block():
     block = test_mech.generate_reinitrng_hoc_block()
     expected_block = '    forsec somatic { deterministic_Stoch = 1 }\n'
 
-    nt.assert_true(compare_strings(block, expected_block))
+    assert compare_strings(block, expected_block)
 
     test_mech = ephys.mechanisms.NrnMODMechanism(
         'stoch',
@@ -130,10 +131,10 @@ def test_nrnmod_reinitrng_block():
     }
 """
 
-    nt.assert_true(compare_strings(block, expected_block))
+    assert compare_strings(block, expected_block)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_nrnmod_determinism():
     """ephys.mechanisms: Testing determinism"""
 
@@ -145,7 +146,7 @@ def test_nrnmod_determinism():
 
     simple_cell.instantiate(sim=sim)
 
-    nt.assert_raises(
+    pytest.raises(
         TypeError,
         test_mech.instantiate,
         sim=sim,
@@ -155,7 +156,7 @@ def test_nrnmod_determinism():
     simple_cell.destroy(sim=sim)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_pprocess_instantiate():
     """ephys.mechanisms: Testing insert point process"""
 
@@ -164,22 +165,22 @@ def test_pprocess_instantiate():
         suffix='ExpSyn',
         locations=[simplecell.somacenter_loc])
 
-    nt.assert_equal(
-        str(test_pprocess),
+    assert (
+        str(test_pprocess) ==
         "expsyn: ExpSyn at ['somatic[0](0.5)']")
 
     simple_cell.instantiate(sim=sim)
 
-    nt.assert_equal(test_pprocess.pprocesses, None)
+    assert test_pprocess.pprocesses == None
 
     test_pprocess.instantiate(sim=sim, icell=simple_cell.icell)
-    nt.assert_equal(len(test_pprocess.pprocesses), 1)
+    assert len(test_pprocess.pprocesses) == 1
     pprocess = test_pprocess.pprocesses[0]
 
-    nt.assert_true(hasattr(pprocess, 'tau'))
+    assert hasattr(pprocess, 'tau')
     test_pprocess.destroy(sim=sim)
 
-    nt.assert_equal(test_pprocess.pprocesses, None)
+    assert test_pprocess.pprocesses == None
 
     simple_cell.destroy(sim=sim)
 
@@ -190,7 +191,7 @@ def test_pprocess_instantiate():
 
     simple_cell.instantiate(sim=sim)
 
-    nt.assert_raises(
+    pytest.raises(
         AttributeError,
         test_pprocess.instantiate,
         sim=sim,
@@ -200,7 +201,7 @@ def test_pprocess_instantiate():
     simple_cell.destroy(sim=sim)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_string_hash_functions():
     """ephys.mechanisms: Testing string hash function"""
 
@@ -222,5 +223,5 @@ def test_string_hash_functions():
         ephys.mechanisms.NrnMODMechanism.hash_hoc
         (test_string, simplecell.nrn_sim) for test_string in test_strings]
 
-    nt.assert_equal(hashes_py, hashes_hoc)
-    nt.assert_equal(hashes_py[:2], [0.0, 97.0])
+    assert hashes_py == hashes_hoc
+    assert hashes_py[:2] == [0.0, 97.0]

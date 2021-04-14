@@ -1,16 +1,17 @@
 """bluepyopt.optimisations tests"""
 
-import nose.tools as nt
+
 
 import bluepyopt.optimisations
 import bluepyopt.ephys.examples.simplecell
 
-from nose.plugins.attrib import attr
+import pytest
+import numpy
 
 import deap.tools
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_DEAPOptimisation_constructor():
     "deapext.optimisation: Testing constructor DEAPOptimisation"
 
@@ -18,21 +19,19 @@ def test_DEAPOptimisation_constructor():
     optimisation = bluepyopt.deapext.optimisations.DEAPOptimisation(
         simplecell.cell_evaluator, map_function=map)
 
-    nt.assert_is_instance(
-        optimisation,
+    assert isinstance(optimisation,
         bluepyopt.deapext.optimisations.DEAPOptimisation)
-    nt.assert_is_instance(
-        optimisation.evaluator,
+    assert isinstance(optimisation.evaluator,
         bluepyopt.evaluators.Evaluator)
 
-    nt.assert_raises(
+    pytest.raises(
         ValueError,
         bluepyopt.deapext.optimisations.DEAPOptimisation,
         simplecell.cell_evaluator,
         selector_name='wrong')
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_IBEADEAPOptimisation_constructor():
     "deapext.optimisation: Testing constructor IBEADEAPOptimisation"
 
@@ -40,12 +39,11 @@ def test_IBEADEAPOptimisation_constructor():
     optimisation = bluepyopt.deapext.optimisations.IBEADEAPOptimisation(
         simplecell.cell_evaluator, map_function=map)
 
-    nt.assert_is_instance(
-        optimisation,
+    assert isinstance(optimisation,
         bluepyopt.deapext.optimisations.IBEADEAPOptimisation)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_DEAPOptimisation_run():
     "deapext.optimisation: Testing DEAPOptimisation run"
 
@@ -56,14 +54,14 @@ def test_DEAPOptimisation_run():
     pop, hof, log, hist = optimisation.run(max_ngen=1)
 
     ind = [0.06007731830843009, 0.06508319290092013]
-    nt.assert_equal(len(pop), 1)
-    nt.assert_almost_equal(pop[0], ind)
-    nt.assert_almost_equal(hof[0], ind)
-    nt.assert_equal(log[0]['nevals'], 1)
-    nt.assert_almost_equal(hist.genealogy_history[1], ind)
+    assert len(pop) == 1
+    numpy.testing.assert_almost_equal(pop[0], ind)
+    numpy.testing.assert_almost_equal(hof[0], ind)
+    assert log[0]['nevals'] == 1
+    numpy.testing.assert_almost_equal(hist.genealogy_history[1], ind)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_DEAPOptimisation_run_from_parents():
     "deapext.optimisation: Testing DEAPOptimisation run using prior parents"
 
@@ -75,11 +73,11 @@ def test_DEAPOptimisation_run_from_parents():
     pop, hof, log, hist = optimisation.run(max_ngen=0,
                                            parent_population=parent_population)
 
-    nt.assert_equal(len(pop), 1)
-    nt.assert_almost_equal(pop[0], parent_population[0])
+    assert len(pop) == 1
+    numpy.testing.assert_almost_equal(pop[0], parent_population[0])
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_selectorname():
     "deapext.optimisation: Testing selector_name argument"
 
@@ -88,7 +86,7 @@ def test_selectorname():
     # Test default value
     ibea_optimisation = bluepyopt.optimisations.DEAPOptimisation(
         simplecell.cell_evaluator)
-    nt.assert_equal(ibea_optimisation.selector_name, 'IBEA')
+    assert ibea_optimisation.selector_name == 'IBEA'
 
     simplecell = bluepyopt.ephys.examples.simplecell.SimpleCell()
 
@@ -96,8 +94,8 @@ def test_selectorname():
     nsga2_optimisation = bluepyopt.optimisations.DEAPOptimisation(
         simplecell.cell_evaluator, selector_name='NSGA2')
 
-    nt.assert_equal(
-        nsga2_optimisation.toolbox.select.func,
+    assert (
+        nsga2_optimisation.toolbox.select.func ==
         deap.tools.emo.selNSGA2)
 
     simplecell = bluepyopt.ephys.examples.simplecell.SimpleCell()
@@ -106,6 +104,6 @@ def test_selectorname():
     ibea_optimisation = bluepyopt.optimisations.DEAPOptimisation(
         simplecell.cell_evaluator, selector_name='IBEA')
 
-    nt.assert_equal(
-        ibea_optimisation.toolbox.select.func,
+    assert (
+        ibea_optimisation.toolbox.select.func ==
         bluepyopt.deapext.tools.selIBEA)

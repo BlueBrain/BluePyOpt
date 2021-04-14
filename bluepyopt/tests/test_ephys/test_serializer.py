@@ -1,8 +1,9 @@
 """Test for ephys.serializer"""
 
 import json
-import nose.tools as nt
-from nose.plugins.attrib import attr
+
+import pytest
+import numpy
 
 import bluepyopt.ephys as ephys
 
@@ -33,26 +34,26 @@ class NestedClassforTesting(ephys.serializer.DictMixin):
         self.dicts = dicts
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_serializer():
     """ephys.serializer: test serialization of test class"""
     tc = ClassforTesting('some string', False, 1.0, [1, 2, 3], {'0': 0})
     serialized = tc.to_dict()
-    nt.ok_(isinstance(serialized, dict))
+    assert isinstance(serialized, dict)
     json.dumps(serialized)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_roundtrip_serializer():
     """ephys.serializer: test round trip of serialization of test class"""
 
     tc = ClassforTesting('some string', False, 1.0, [1, 2, 3], {'0': 0})
     serialized = tc.to_dict()
     instantiated = ephys.serializer.instantiator(serialized)
-    nt.ok_(isinstance(instantiated, ClassforTesting))
+    assert isinstance(instantiated, ClassforTesting)
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_nested_serializer():
     """ephys.serializer: test a nested serialization of test class"""
 
@@ -64,13 +65,13 @@ def test_nested_serializer():
     json.dumps(serialized, indent=2)
 
     instantiated = ephys.serializer.instantiator(serialized)
-    nt.ok_(isinstance(instantiated, NestedClassforTesting))
-    nt.ok_(isinstance(instantiated.lists[0], ClassforTesting))
-    nt.ok_(isinstance(instantiated.dicts[0], ClassforTesting))
+    assert isinstance(instantiated, NestedClassforTesting)
+    assert isinstance(instantiated.lists[0], ClassforTesting)
+    assert isinstance(instantiated.dicts[0], ClassforTesting)
 
 
-@attr('unit')
-@nt.raises(Exception)
+@pytest.mark.unit
+@pytest.mark.xfail(raises=Exception)
 def test_non_instantiable():
     """ephys.serializer: test non instantiable class"""
     ephys.serializer.instantiator(

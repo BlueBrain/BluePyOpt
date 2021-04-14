@@ -11,8 +11,9 @@ if sys.version_info[0] < 3:
 else:
     from io import StringIO
 
-import nose.tools as nt
-from nose.plugins.attrib import attr
+
+import pytest
+import numpy
 
 L5PC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '../../examples/l5pc'))
@@ -88,8 +89,7 @@ class TestL5PCModel(object):
 
         import l5pc_model  # NOQA
         self.l5pc_cell = l5pc_model.create()
-        nt.assert_is_instance(
-            self.l5pc_cell,
+        assert isinstance(self.l5pc_cell,
             bluepyopt.ephys.models.CellModel)
         self.nrn = ephys.simulators.NrnSimulator()
 
@@ -114,11 +114,10 @@ class TestL5PCEvaluator(object):
 
         self.l5pc_evaluator = l5pc_evaluator.create()
 
-        nt.assert_is_instance(
-            self.l5pc_evaluator,
+        assert isinstance(self.l5pc_evaluator,
             bluepyopt.ephys.evaluators.CellEvaluator)
 
-    @attr('slow')
+    @pytest.mark.slow
     def test_eval(self):
         """L5PC: test evaluation of l5pc evaluator"""
 
@@ -133,11 +132,9 @@ class TestL5PCEvaluator(object):
         # dump_to_json(expected_results, 'expected_results.json')
 
         try:
-            nt.assert_count_equal(
-                result,
-                expected_results['TestL5PCEvaluator.test_eval'])
+            assert collections.Counter(result) == collections.Counter(expected_results['TestL5PCEvaluator.test_eval'])
         except AttributeError:
-            nt.assert_items_equal(
+            assert_items_equal(
                 result,
                 expected_results['TestL5PCEvaluator.test_eval'])
 
@@ -158,7 +155,7 @@ def stdout_redirector(stream):
         sys.stdout = old_stdout
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_exec():
     """L5PC Notebook: test execution"""
     import numpy
@@ -178,10 +175,9 @@ def test_exec():
                     exec(compile(l5pc_file.read(), 'L5PC.py', 'exec'))  # NOQA
         stdout = output.getvalue()
         # first and last values of optimal individual
-        nt.assert_true('0.001017834439738432' in stdout)
-        nt.assert_true('202.18814057682334' in stdout)
-        nt.assert_true(
-            "'gamma_CaDynamics_E2.somatic': 0.03229357096515606" in stdout)
+        assert '0.001017834439738432' in stdout
+        assert '202.18814057682334' in stdout
+        assert "'gamma_CaDynamics_E2.somatic': 0.03229357096515606" in stdout
     finally:
         os.chdir(old_cwd)
         output.close()
