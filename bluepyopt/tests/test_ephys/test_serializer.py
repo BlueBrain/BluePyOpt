@@ -71,8 +71,8 @@ def test_nested_serializer():
 
 
 @pytest.mark.unit
-@pytest.mark.xfail(raises=Exception)
 def test_non_instantiable():
     """ephys.serializer: test non instantiable class"""
-    ephys.serializer.instantiator(
-        {'some': 'fake', 'class': ephys.serializer.SENTINAL, })
+    with pytest.raises(Exception):
+        ephys.serializer.instantiator(
+            {'some': 'fake', 'class': ephys.serializer.SENTINAL, })
