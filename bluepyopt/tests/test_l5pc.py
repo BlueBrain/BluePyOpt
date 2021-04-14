@@ -81,10 +81,6 @@ class TestL5PCModel(object):
 
     """Test L5PC model"""
 
-    def __init__(self):
-        self.l5pc_cell = None
-        self.nrn = None
-
     def setup(self):
         """Set up class"""
         sys.path.insert(0, L5PC_PATH)
@@ -109,9 +105,6 @@ class TestL5PCModel(object):
 class TestL5PCEvaluator(object):
 
     """Test L5PC evaluator"""
-
-    def __init__(self):
-        self.l5pc_evaluator = None
 
     def setup(self):
         """Set up class"""

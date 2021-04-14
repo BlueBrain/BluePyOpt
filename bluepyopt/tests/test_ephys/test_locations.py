@@ -43,11 +43,6 @@ class TestNrnSectionCompLocation(object):
 
     """Test class for NrnSectionCompLocation"""
 
-    def __init__(self):
-        """Constructor"""
-        self.loc = None
-        self.sim = None
-
     def setup(self):
         """Setup"""
         self.loc = ephys.locations.NrnSectionCompLocation(
@@ -88,11 +83,6 @@ class TestNrnSectionCompLocation(object):
 class TestNrnSeclistCompLocation(object):
 
     """Test class for NrnSectionCompLocation"""
-
-    def __init__(self):
-        """Constructor"""
-        self.loc = None
-        self.sim = None
 
     def setup(self):
         """Setup"""
@@ -142,11 +132,6 @@ class TestNrnSeclistCompLocation(object):
 class TestNrnSomaDistanceCompLocation(object):
 
     """Test class for NrnSomaDistanceCompLocation"""
-
-    def __init__(self):
-        """Constructor"""
-        self.loc = None
-        self.sim = None
 
     def setup(self):
         """Setup"""
