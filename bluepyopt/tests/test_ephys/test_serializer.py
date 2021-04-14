@@ -7,7 +7,7 @@ from nose.plugins.attrib import attr
 import bluepyopt.ephys as ephys
 
 
-class TestClass(ephys.serializer.DictMixin):
+class ClassforTesting(ephys.serializer.DictMixin):
 
     """Test class for serializer"""
     SERIALIZED_FIELDS = ('string', 'boolean', 'float_', 'list_', 'dict_')
@@ -20,7 +20,7 @@ class TestClass(ephys.serializer.DictMixin):
         self.dict_ = dict_
 
 
-class NestedTestClass(ephys.serializer.DictMixin):
+class NestedClassforTesting(ephys.serializer.DictMixin):
 
     """Nested test class for serializer"""
 
@@ -36,7 +36,7 @@ class NestedTestClass(ephys.serializer.DictMixin):
 @attr('unit')
 def test_serializer():
     """ephys.serializer: test serialization of test class"""
-    tc = TestClass('some string', False, 1.0, [1, 2, 3], {'0': 0})
+    tc = ClassforTesting('some string', False, 1.0, [1, 2, 3], {'0': 0})
     serialized = tc.to_dict()
     nt.ok_(isinstance(serialized, dict))
     json.dumps(serialized)
@@ -46,27 +46,27 @@ def test_serializer():
 def test_roundtrip_serializer():
     """ephys.serializer: test round trip of serialization of test class"""
 
-    tc = TestClass('some string', False, 1.0, [1, 2, 3], {'0': 0})
+    tc = ClassforTesting('some string', False, 1.0, [1, 2, 3], {'0': 0})
     serialized = tc.to_dict()
     instantiated = ephys.serializer.instantiator(serialized)
-    nt.ok_(isinstance(instantiated, TestClass))
+    nt.ok_(isinstance(instantiated, ClassforTesting))
 
 
 @attr('unit')
 def test_nested_serializer():
     """ephys.serializer: test a nested serialization of test class"""
 
-    tc = TestClass('some string', False, 1.0, [1, 2, 3], {'0': 0})
-    ntc = NestedTestClass(
+    tc = ClassforTesting('some string', False, 1.0, [1, 2, 3], {'0': 0})
+    ntc = NestedClassforTesting(
         test=tc, tuples=(tc,),
         lists=[tc] * 3, dicts={0: tc})
     serialized = ntc.to_dict()
     json.dumps(serialized, indent=2)
 
     instantiated = ephys.serializer.instantiator(serialized)
-    nt.ok_(isinstance(instantiated, NestedTestClass))
-    nt.ok_(isinstance(instantiated.lists[0], TestClass))
-    nt.ok_(isinstance(instantiated.dicts[0], TestClass))
+    nt.ok_(isinstance(instantiated, NestedClassforTesting))
+    nt.ok_(isinstance(instantiated.lists[0], ClassforTesting))
+    nt.ok_(isinstance(instantiated.dicts[0], ClassforTesting))
 
 
 @attr('unit')
