@@ -82,7 +82,7 @@ def test_nrnsimulator_cvode_minstep():
     cvode_minstep = 0.012
     params = {'gnabar_hh': 0.10299326453483033,
               'gkbar_hh': 0.027124836082684685}
-    simplecell = examples.simplecell.Simplecell()
+    simplecell = examples.simplecell.SimpleCell()
     evaluator = simplecell.cell_evaluator
     evaluator.cell_model.unfreeze(params.keys())
     evaluator.sim = ephys.simulators.NrnSimulator(cvode_minstep=cvode_minstep)
