@@ -10,7 +10,8 @@ from nose.plugins.attrib import attr
 
 import utils
 from bluepyopt import ephys
-import bluepyopt.ephys.examples.simplecell as simplecell
+import bluepyopt.ephys.examples.simplecell
+simplecell = bluepyopt.ephys.examples.simplecell.SimpleCell()
 
 from bluepyopt.ephys.serializer import instantiator
 
