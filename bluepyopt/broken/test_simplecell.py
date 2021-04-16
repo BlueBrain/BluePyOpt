@@ -3,9 +3,9 @@
 import sys
 import os
 
-SIMPLECELL_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../../examples/simplecell")
-)
+SIMPLECELL_PATH = os.path.abspath(os.path.join(
+    os.path.dirname(__file__),
+    '../../examples/simplecell'))
 
 # sys.path.insert(0, SIMPLECELL_PATH)
 
@@ -26,7 +26,7 @@ class TestSimpleCellClass(object):
         self.old_stdout = sys.stdout
 
         os.chdir(SIMPLECELL_PATH)
-        sys.stdout = open(os.devnull, "w")
+        sys.stdout = open(os.devnull, 'w')
 
     @staticmethod
     def test_exec():
@@ -35,10 +35,10 @@ class TestSimpleCellClass(object):
         # Probably because multiprocessing doesn't work correctly during
         # import
         if sys.version_info[0] < 3:
-            execfile("simplecell.py")  # NOQA
+            execfile('simplecell.py')  # NOQA
         else:
-            with open("simplecell.py") as sc_file:
-                exec(compile(sc_file.read(), "simplecell.py", "exec"))  # NOQA
+            with open('simplecell.py') as sc_file:
+                exec(compile(sc_file.read(), 'simplecell.py', 'exec'))  # NOQA
 
     def teardown(self):
         """Tear down"""

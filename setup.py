@@ -22,22 +22,42 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
 import setuptools
 import versioneer
+#version=versioneer.get_version(),
+#cmdclass=versioneer.get_cmdclass(),
 
 setuptools.setup(
     name="bluepyopt",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
     install_requires=[
-        'numpy>=1.6',
-        'pandas>=0.18',
-        'deap',
-        'efel>=2.13',
-        'scoop>=0.7',
-        'ipyparallel',
-        'pickleshare>=0.7.3',
-        'Jinja2>=2.8',
-        'future',
-	'Pebble>=4.3.10'],
+        "numpy>=1.6",
+        "pandas>=0.18",
+        "deap",
+        "pickleshare>=0.7.3",
+        "Jinja2>=2.8",
+        "future",
+		"Pebble>=4.3.10",
+	    "scipy",
+	    "numpy",
+	    "cython",
+	    "seaborn",
+	    "sklearn",
+	    "frozendict",
+        "efel"],
+
+	extras_require={'neo': ['neo[neomatlabio]>=0.5.1'],
+					'sciunit':['sciunit==0.2.3'],
+					'numba':['numba==0.45.1'],
+					'dask':['dask==2.5.2'],
+					'streamlit':['streamlit'],
+					'tqdm':['tqdm==4.48.2'],
+			        'neuronunit': ['neuronunit @ git+https://github.com/russelljjarvis/neuronunit@optimization'],
+			        'jithub': ['jithub @ git+https://github.com/russelljjarvis/jit_hub@neuronunit'],
+			        'sciunit': ['sciunit @ git+https://github.com/russelljjarvis/sciunit@dev'],
+					'allensdk':['allensdk==0.16.3'],
+					'pynwb':['pynwb']},
+
+
+
+
     packages=setuptools.find_packages(
         exclude=(
             'examples',

@@ -1,0 +1,69 @@
+defaults: &defaults
+  working_directory: ~/markovmodel/PyEMMA
+  docker:
+    - image: continuumio/miniconda3
+
+inst_conda_bld: &inst_conda_bld
+  - run: conda config --add channels conda-forge
+  - run: conda config --set always_yes true
+  - run: conda config --set quiet true
+  - run: conda install conda-build
+
+version: 2
+
+jobs:
+  build:
+    <<: *defaults
+    parallelism: 1
+    steps:
+      - checkout
+      - run: git fetch --unshallow || true
+      - run: apt-get install -y cpp gcc
+      - run: apt-get install -y libx11-6 python-dev git build-essential
+      - run: apt-get install -y autoconf automake gcc g++ make gfortran
+      - run: apt-get install -y python-tables
+      - run: apt-get install -y libhdf5-serial-dev
+
+      - run: conda config --add channels conda-forge
+      - run: conda config --set always_yes true
+      - run: conda config --set quiet true
+      - run: conda install conda-build
+      - run: conda install scipy;
+      - run: conda install numpy;
+      - run: conda install numba;
+      - run: conda install dask;
+      - run: pip install tables
+      - run: pip install pip --upgrade; pip install -r requirements.txt;
+      - run: pip install -e .
+      - run: git clone -b neuronunit https://github.com/russelljjarvis/jit_hub.git
+
+      - run: cd jit_hub; pip install -e .; cd ..;
+      - run: git clone -b optimization https://github.com/russelljjarvis/neuronunit
+<<<<<<< HEAD
+      - run: cd neuronunit; pip install -e .; cd ..;
+
+      #- run: pip install ipfx
+      - run: pip install efel
+      #- run: git clone https://github.com/russelljjarvis/eFEL
+      #- run: cd eFEL; python
+
+=======
+      - run: cd jit_hub; pip install -e .; cd ..;
+      - run: pip install efel
+>>>>>>> 938c5c225d1efef3357ef78b0071a29ea77a0f3c
+      - run: pip install cython
+      - run: pip install streamlit;
+      - run: pip install seaborn;
+      - run: pip install sklearn
+      - run: pip install allensdk==0.16.3
+      - run: pip install frozendict
+      - run: pip install nose
+      - run: rm -rf /opt/conda/lib/python3.8/site-packages/sciunit
+      - run: git clone -b dev https://github.com/russelljjarvis/sciunit.git
+      - run: cd sciunit; pip install -e .; cd ..;
+      - run: cd bluepyopt/tests; python rheobase_dtc_test.py
+      - run: cd bluepyopt/tests; python adexp_opt.py
+      - run: cd bluepyopt/tests; python test_evaluators.py
+
+      # causes time out
+      #- run: cd bluepyopt/tests; python izhi_opt.py

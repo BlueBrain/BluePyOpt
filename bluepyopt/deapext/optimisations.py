@@ -101,7 +101,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
                  cxpb=1.0,
                  map_function=None,
                  hof=None,
-                 selector_name=None):
+                 selector_name=None,
+                 neuronunit=False,
+                 ):
         """Constructor
 
         Args:
@@ -110,7 +112,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             offspring_size (int): Number of offspring individuals in each
                 generation
             eta (float): Parameter that controls how far the crossover and
-                mutation operator disturbe the original individuals
+                mutation operator perturb the original individuals
             mutpb (float): Mutation probability
             cxpb (float): Crossover probability
             map_function (function): Function used to map (parallelise) the
@@ -129,7 +131,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         self.cxpb = cxpb
         self.mutpb = mutpb
         self.map_function = map_function
-
+        self.neuronunit = neuronunit
         self.selector_name = selector_name
         if self.selector_name is None:
             self.selector_name = 'IBEA'
@@ -302,7 +304,12 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         stats.register("std", numpy.std)
         stats.register("min", numpy.min)
         stats.register("max", numpy.max)
-
+        if self.neuronunit:
+            # if neuronunit overwrite path of optimization algorithms
+            # to get some reduced model relevant customizations.
+            from neuronunit.optimization import algorithms
+        else:
+            from bluepyopt.deapext import algorithms
         pop, hof, log, history = algorithms.eaAlphaMuPlusLambdaCheckpoint(
             pop,
             self.toolbox,
