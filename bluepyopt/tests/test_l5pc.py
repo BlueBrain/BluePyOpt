@@ -3,7 +3,6 @@
 import json
 import os
 import sys
-import collections
 
 from contextlib import contextmanager
 if sys.version_info[0] < 3:
@@ -119,7 +118,6 @@ class TestL5PCEvaluator(object):
     @pytest.mark.slow
     def test_eval(self):
         """L5PC: test evaluation of l5pc evaluator"""
-
         result = self.l5pc_evaluator.evaluate_with_dicts(
             param_dict=release_parameters)
 
@@ -130,8 +128,7 @@ class TestL5PCEvaluator(object):
         # expected_results['TestL5PCEvaluator.test_eval'] = result
         # dump_to_json(expected_results, 'expected_results.json')
 
-        assert collections.Counter(result) == collections.Counter(
-            expected_results['TestL5PCEvaluator.test_eval'])
+        assert result == expected_results['TestL5PCEvaluator.test_eval']
 
     def teardown(self):
         """Teardown"""
