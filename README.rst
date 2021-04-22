@@ -154,7 +154,7 @@ model with 2 HH channels can be found at
 https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/simplecell.ipynb
 
 
-.. image:: examples/simplecell/figures/landscape_example.png
+.. image:: |landscape_example|
 
 
 **Figure**: The solution space of a single compartmental model with two parameters: the maximal conductance of Na and K ion channels. The color represents how well the model fits two objectives: when injected with two different currents, the model has to fire 1 and 4 action potential respectively during the stimuli. Dark blue is the best fitness. The blue circles represent solutions with a perfect score.
