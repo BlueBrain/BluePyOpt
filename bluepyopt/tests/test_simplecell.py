@@ -14,12 +14,6 @@ class TestSimpleCellClass(object):
 
     """Simple cell example test class"""
 
-    def __init__(self):
-        """Constructor"""
-
-        self.old_cwd = None
-        self.old_stdout = None
-
     def setup(self):
         """Setup"""
         self.old_cwd = os.getcwd()
