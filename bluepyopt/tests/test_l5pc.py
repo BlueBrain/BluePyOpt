@@ -128,8 +128,8 @@ class TestL5PCEvaluator(object):
         # expected_results['TestL5PCEvaluator.test_eval'] = result
         # dump_to_json(expected_results, 'expected_results.json')
 
-        assert result.keys(
-        ) == expected_results['TestL5PCEvaluator.test_eval'].keys()
+        assert set(result.keys(
+        )) == set(expected_results['TestL5PCEvaluator.test_eval'].keys())
 
     def teardown(self):
         """Teardown"""
