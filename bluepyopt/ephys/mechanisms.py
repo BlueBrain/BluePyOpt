@@ -38,6 +38,7 @@ logger = logging.getLogger(__name__)
 class Mechanism(base.BaseEPhys):
 
     """Base parameter class"""
+
     pass
 
 
@@ -46,24 +47,25 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
     """Neuron mechanism"""
 
     SERIALIZED_FIELDS = (
-        'name',
-        'comment',
-        'mod_path',
-        'suffix',
-        'locations',
-        'preloaded',
+        "name",
+        "comment",
+        "mod_path",
+        "suffix",
+        "locations",
+        "preloaded",
     )
 
     def __init__(
-            self,
-            name,
-            mod_path=None,
-            suffix=None,
-            locations=None,
-            preloaded=True,
-            deterministic=True,
-            prefix=None,
-            comment=''):
+        self,
+        name,
+        mod_path=None,
+        suffix=None,
+        locations=None,
+        preloaded=True,
+        deterministic=True,
+        prefix=None,
+        comment="",
+    ):
         """Constructor
 
         Args:
@@ -87,9 +89,11 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
         self.deterministic = deterministic
 
         if prefix is not None and suffix is not None:
-            raise TypeError('NrnMODMechanism: it is not allowed to set both '
-                            'prefix and suffix in constructor: %s %s' %
-                            (self.prefix, self.suffix))
+            raise TypeError(
+                "NrnMODMechanism: it is not allowed to set both "
+                "prefix and suffix in constructor: %s %s"
+                % (self.prefix, self.suffix)
+            )
         elif prefix is not None:
             self.suffix = prefix
 
@@ -99,49 +103,51 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
         for location in self.locations:
             isec_list = location.instantiate(sim=sim, icell=icell)
             for isec in isec_list:
+
                 try:
                     isec.insert(self.suffix)
                 except ValueError as e:
-                    raise ValueError(str(e) + ': ' + self.suffix)
+                    raise ValueError(str(e) + ": " + self.suffix)
                 self.instantiate_determinism(
-                    self.deterministic,
-                    icell,
-                    isec,
-                    sim)
+                    self.deterministic, icell, isec, sim
+                )
 
         logger.debug(
-            'Inserted %s in %s', self.suffix, [
-                str(location) for location in self.locations])
+            "Inserted %s in %s",
+            self.suffix,
+            [str(location) for location in self.locations],
+        )
 
     def instantiate_determinism(self, deterministic, icell, isec, sim):
         """Instantiate enable/disable determinism"""
 
-        if 'Stoch' in self.suffix:
+        if "Stoch" in self.suffix:
             setattr(
                 isec,
-                'deterministic_%s' %
-                (self.suffix),
-                1 if deterministic else 0)
+                "deterministic_%s" % (self.suffix),
+                1 if deterministic else 0,
+            )
 
             if not deterministic:
                 # Set the seeds
-                short_secname = sim.neuron.h.secname(sec=isec).split('.')[-1]
+                short_secname = sim.neuron.h.secname(sec=isec).split(".")[-1]
                 for iseg in isec:
-                    seg_name = '%s.%.19g' % (short_secname, iseg.x)
-                    getattr(sim.neuron.h,
-                            "setdata_%s" % self.suffix)(iseg.x, sec=isec)
+                    seg_name = "%s.%.19g" % (short_secname, iseg.x)
+                    getattr(sim.neuron.h, "setdata_%s" % self.suffix)(
+                        iseg.x, sec=isec
+                    )
                     seed_id1 = icell.gid
                     seed_id2 = self.hash_py(seg_name)
-                    getattr(
-                        sim.neuron.h,
-                        "setRNG_%s" % self.suffix)(seed_id1, seed_id2)
+                    getattr(sim.neuron.h, "setRNG_%s" % self.suffix)(
+                        seed_id1, seed_id2
+                    )
         else:
             if not deterministic:
                 # can't do this for non-Stoch channels
                 raise TypeError(
-                    'Deterministic can only be set to False for '
-                    'Stoch channel, not %s' %
-                    self.suffix)
+                    "Deterministic can only be set to False for "
+                    "Stoch channel, not %s" % self.suffix
+                )
 
     def destroy(self, sim=None):
         """Destroy mechanism instantiation"""
@@ -152,15 +158,17 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
         """String representation"""
 
         return "%s: %s at %s" % (
-            self.name, self.suffix,
-            [str(location) for location in self.locations])
+            self.name,
+            self.suffix,
+            [str(location) for location in self.locations],
+        )
 
     @staticmethod
     def hash_hoc(string, sim):
         """Calculate hash value of string in Python"""
 
         # Load hash function in hoc, only do this once
-        if not hasattr(sim.neuron.h, 'hash_str'):
+        if not hasattr(sim.neuron.h, "hash_str"):
             sim.neuron.h(NrnMODMechanism.hash_hoc_string)
 
         return sim.neuron.h.hash_str(string)
@@ -179,25 +187,31 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
     def generate_reinitrng_hoc_block(self):
         """"Create re_init_rng code blocks for this channel"""
 
-        reinitrng_hoc_block = ''
+        reinitrng_hoc_block = ""
 
-        if 'Stoch' in self.suffix:
+        if "Stoch" in self.suffix:
             # TODO this is dangerous, implicitely assumes type of location
             for location in self.locations:
                 if self.deterministic:
-                    reinitrng_hoc_block += \
-                        '    forsec %(seclist_name)s { ' \
-                        'deterministic_%(suffix)s = 1 }\n' % {
-                            'seclist_name': location.seclist_name,
-                            'suffix': self.suffix}
+                    reinitrng_hoc_block += (
+                        "    forsec %(seclist_name)s { "
+                        "deterministic_%(suffix)s = 1 }\n"
+                        % {
+                            "seclist_name": location.seclist_name,
+                            "suffix": self.suffix,
+                        }
+                    )
                 else:
-                    reinitrng_hoc_block += \
-                        '    forsec %(seclist_name)s {%(mech_reinitrng)s' \
-                        '    }\n' % {
-                            'seclist_name': location.seclist_name,
-                            'mech_reinitrng':
-                            self.mech_reinitrng_block_template % {
-                                'suffix': self.suffix}}
+                    reinitrng_hoc_block += (
+                        "    forsec %(seclist_name)s {%(mech_reinitrng)s"
+                        "    }\n"
+                        % {
+                            "seclist_name": location.seclist_name,
+                            "mech_reinitrng":
+                            self.mech_reinitrng_block_template
+                            % {"suffix": self.suffix},
+                        }
+                    )
 
         return reinitrng_hoc_block
 
@@ -213,8 +227,7 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
 
         self.suffix = value
 
-    hash_hoc_string = \
-        """
+    hash_hoc_string = """
 func hash_str() {localobj sf strdef right
   sf = new StringFunctions()
 
@@ -271,13 +284,14 @@ class NrnMODPointProcessMechanism(Mechanism):
     """Neuron mechanism"""
 
     def __init__(
-            self,
-            name,
-            mod_path=None,
-            suffix=None,
-            locations=None,
-            preloaded=True,
-            comment=''):
+        self,
+        name,
+        mod_path=None,
+        suffix=None,
+        locations=None,
+        preloaded=True,
+        comment="",
+    ):
         """Constructor
 
         Args:
@@ -309,11 +323,13 @@ class NrnMODPointProcessMechanism(Mechanism):
                 iclass = getattr(sim.neuron.h, self.suffix)
                 self.pprocesses.append(iclass(icomp.x, sec=icomp.sec))
             except AttributeError as e:
-                raise AttributeError(str(e) + ': ' + self.suffix)
+                raise AttributeError(str(e) + ": " + self.suffix)
 
         logger.debug(
-            'Inserted %s at %s ', self.suffix, [
-                str(location) for location in self.locations])
+            "Inserted %s at %s ",
+            self.suffix,
+            [str(location) for location in self.locations],
+        )
 
     def destroy(self, sim=None):
         """Destroy mechanism instantiation"""
@@ -324,5 +340,7 @@ class NrnMODPointProcessMechanism(Mechanism):
         """String representation"""
 
         return "%s: %s at %s" % (
-            self.name, self.suffix,
-            [str(location) for location in self.locations])
+            self.name,
+            self.suffix,
+            [str(location) for location in self.locations],
+        )

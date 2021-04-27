@@ -1,5 +1,5 @@
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -29,11 +29,12 @@ import bluepyopt.ephys as ephys
 
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
-
 import random
+
 
 def multi_locations(sectionlist):
     """Define mechanisms"""
@@ -44,31 +45,32 @@ def multi_locations(sectionlist):
         ]
     elif sectionlist == "somadend":
         seclist_locs = [
+            ephys.locations.NrnSeclistLocation("basal", seclist_name="basal"),
             ephys.locations.NrnSeclistLocation(
-                "basal", seclist_name="basal"),
-            ephys.locations.NrnSeclistLocation(
-                "somatic", seclist_name="somatic")
+                "somatic", seclist_name="somatic"
+            ),
         ]
     elif sectionlist == "somaxon":
         seclist_locs = [
+            ephys.locations.NrnSeclistLocation("axonal", seclist_name="axonal"),
             ephys.locations.NrnSeclistLocation(
-                "axonal", seclist_name="axonal"),
-            ephys.locations.NrnSeclistLocation(
-                "somatic", seclist_name="somatic")
+                "somatic", seclist_name="somatic"
+            ),
         ]
     elif sectionlist == "allact":
         seclist_locs = [
+            ephys.locations.NrnSeclistLocation("basal", seclist_name="basal"),
             ephys.locations.NrnSeclistLocation(
-                "basal", seclist_name="basal"),
-            ephys.locations.NrnSeclistLocation(
-                "somatic", seclist_name="somatic"),
-            ephys.locations.NrnSeclistLocation(
-                "axonal", seclist_name="axonal")
+                "somatic", seclist_name="somatic"
+            ),
+            ephys.locations.NrnSeclistLocation("axonal", seclist_name="axonal"),
         ]
     else:
-        seclist_locs = [ephys.locations.NrnSeclistLocation(
-            sectionlist,
-            seclist_name=sectionlist)]
+        seclist_locs = [
+            ephys.locations.NrnSeclistLocation(
+                sectionlist, seclist_name=sectionlist
+            )
+        ]
 
     return seclist_locs
 
@@ -76,23 +78,28 @@ def multi_locations(sectionlist):
 def define_mechanisms(params_filename):
     """Define mechanisms"""
 
-    with open(os.path.join(os.path.dirname(__file__), '..', params_filename)) as params_file:
+    with open(
+        os.path.join(os.path.dirname(__file__), "..", params_filename)
+    ) as params_file:
         mech_definitions = json.load(
-            params_file,
-            object_pairs_hook=collections.OrderedDict)["mechanisms"]
+            params_file, object_pairs_hook=collections.OrderedDict
+        )["mechanisms"]
 
     mechanisms_list = []
-    for sectionlist, channels in mech_definitions.iteritems():
+    for sectionlist, channels in mech_definitions.items():
 
         seclist_locs = multi_locations(sectionlist)
 
         for channel in channels["mech"]:
-            mechanisms_list.append(ephys.mechanisms.NrnMODMechanism(
-                name='%s.%s' % (channel, sectionlist),
-                mod_path=None,
-                prefix=channel,
-                locations=seclist_locs,
-                preloaded=True))
+            mechanisms_list.append(
+                ephys.mechanisms.NrnMODMechanism(
+                    name="%s.%s" % (channel, sectionlist),
+                    mod_path=None,
+                    prefix=channel,
+                    locations=seclist_locs,
+                    preloaded=True,
+                )
+            )
 
     return mechanisms_list
 
@@ -102,28 +109,32 @@ def define_parameters(params_filename):
 
     parameters = []
 
-    with open(os.path.join(os.path.dirname(__file__), '..', params_filename)) as params_file:
+    with open(
+        os.path.join(os.path.dirname(__file__), "..", params_filename)
+    ) as params_file:
         definitions = json.load(
-            params_file,
-            object_pairs_hook=collections.OrderedDict)
+            params_file, object_pairs_hook=collections.OrderedDict
+        )
 
     # set distributions
     distributions = collections.OrderedDict()
     distributions["uniform"] = ephys.parameterscalers.NrnSegmentLinearScaler()
 
     distributions_definitions = definitions["distributions"]
-    for distribution, definition in distributions_definitions.iteritems():
-        distributions[distribution] = \
-            ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
-                distribution=definition["fun"])
+    for distribution, definition in distributions_definitions.items():
+        distributions[
+            distribution
+        ] = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
+            distribution=definition["fun"]
+        )
 
     params_definitions = definitions["parameters"]
 
     if "__comment" in params_definitions:
         del params_definitions["__comment"]
 
-    for sectionlist, params in params_definitions.iteritems():
-        if sectionlist == 'global':
+    for sectionlist, params in params_definitions.items():
+        if sectionlist == "global":
             seclist_locs = None
             is_global = True
         else:
@@ -151,7 +162,9 @@ def define_parameters(params_filename):
                         param_name=param_name,
                         frozen=is_frozen,
                         bounds=bounds,
-                        value=value))
+                        value=value,
+                    )
+                )
             else:
                 if "dist" in param_config:
                     dist = distributions[param_config["dist"]]
@@ -161,28 +174,35 @@ def define_parameters(params_filename):
                     use_range = False
 
                 if use_range:
-                    parameters.append(ephys.parameters.NrnRangeParameter(
-                        name='%s.%s' % (param_name, sectionlist),
-                        param_name=param_name,
-                        value_scaler=dist,
-                        value=value,
-                        bounds=bounds,
-                        frozen=is_frozen,
-                        locations=seclist_locs))
+                    parameters.append(
+                        ephys.parameters.NrnRangeParameter(
+                            name="%s.%s" % (param_name, sectionlist),
+                            param_name=param_name,
+                            value_scaler=dist,
+                            value=value,
+                            bounds=bounds,
+                            frozen=is_frozen,
+                            locations=seclist_locs,
+                        )
+                    )
                 else:
-                    parameters.append(ephys.parameters.NrnSectionParameter(
-                        name='%s.%s' % (param_name, sectionlist),
-                        param_name=param_name,
-                        value_scaler=dist,
-                        value=value,
-                        bounds=bounds,
-                        frozen=is_frozen,
-                        locations=seclist_locs))
+                    parameters.append(
+                        ephys.parameters.NrnSectionParameter(
+                            name="%s.%s" % (param_name, sectionlist),
+                            param_name=param_name,
+                            value_scaler=dist,
+                            value=value,
+                            bounds=bounds,
+                            frozen=is_frozen,
+                            locations=seclist_locs,
+                        )
+                    )
 
     return parameters
 
 
 from bluepyopt.ephys.morphologies import NrnFileMorphology
+
 
 def define_morphology(morphology_filename, do_set_nseg=1e9):
     """Define morphology"""
@@ -191,21 +211,27 @@ def define_morphology(morphology_filename, do_set_nseg=1e9):
     return ephys.morphologies.NrnFileMorphology(
         os.path.join(morphology_filename),
         do_replace_axon=True,
-        do_set_nseg=do_set_nseg)
+        do_set_nseg=do_set_nseg,
+    )
 
 
 def create(recipe, etype, altmorph=None):
     """Create cell template"""
 
     if altmorph is None:
-        morph_path = os.path.join(os.path.join(recipe[etype]['morph_path'], recipe[etype]['morphology']))
+        morph_path = os.path.join(
+            os.path.join(
+                recipe[etype]["morph_path"], recipe[etype]["morphology"]
+            )
+        )
     else:
         morph_path = altmorph
 
     cell = ephys.models.CellModel(
         etype,
-        morph=define_morphology(morph_path, do_set_nseg=40.),
-        mechs=define_mechanisms(recipe[etype]['params']),
-        params=define_parameters(recipe[etype]['params']))
+        morph=define_morphology(morph_path, do_set_nseg=40.0),
+        mechs=define_mechanisms(recipe[etype]["params"]),
+        params=define_parameters(recipe[etype]["params"]),
+    )
 
     return cell

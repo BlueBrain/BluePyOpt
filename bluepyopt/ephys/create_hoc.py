@@ -1,4 +1,4 @@
-'''create a hoc file from a set of BluePyOpt.ephys parameters'''
+"""create a hoc file from a set of BluePyOpt.ephys parameters"""
 
 # pylint: disable=R0914
 
@@ -12,25 +12,30 @@ import jinja2
 import bluepyopt
 from . import mechanisms
 
-from bluepyopt.ephys.parameters import (NrnGlobalParameter,
-                                        NrnSectionParameter,
-                                        NrnRangeParameter,
-                                        MetaParameter)
+from bluepyopt.ephys.parameters import (
+    NrnGlobalParameter,
+    NrnSectionParameter,
+    NrnRangeParameter,
+    MetaParameter,
+)
 
-from bluepyopt.ephys.parameterscalers import (NrnSegmentSomaDistanceScaler,
-                                              NrnSegmentLinearScaler,
-                                              FLOAT_FORMAT,
-                                              format_float)
+from bluepyopt.ephys.parameterscalers import (
+    NrnSegmentSomaDistanceScaler,
+    NrnSegmentLinearScaler,
+    FLOAT_FORMAT,
+    format_float,
+)
 
-Location = namedtuple('Location', 'name, value')
-Range = namedtuple('Range', 'location, param_name, value')
+Location = namedtuple("Location", "name, value")
+Range = namedtuple("Range", "location, param_name, value")
 DEFAULT_LOCATION_ORDER = [
-    'all',
-    'apical',
-    'axonal',
-    'basal',
-    'somatic',
-    'myelinated']
+    "all",
+    "apical",
+    "axonal",
+    "basal",
+    "somatic",
+    "myelinated",
+]
 
 
 def _generate_channels_by_location(mechs, location_order):
@@ -47,7 +52,7 @@ def _generate_channels_by_location(mechs, location_order):
 def _generate_reinitrng(mechs):
     """Create re_init_rng function"""
 
-    reinitrng_hoc_blocks = ''
+    reinitrng_hoc_blocks = ""
 
     for mech in mechs:
         reinitrng_hoc_blocks += mech.generate_reinitrng_hoc_block()
@@ -55,7 +60,8 @@ def _generate_reinitrng(mechs):
     reinitrng_content = mechanisms.NrnMODMechanism.hash_hoc_string
 
     reinitrng_content += mechanisms.NrnMODMechanism.reinitrng_hoc_string % {
-        'reinitrng_hoc_blocks': reinitrng_hoc_blocks}
+        "reinitrng_hoc_blocks": reinitrng_hoc_blocks
+    }
 
     return reinitrng_content
 
@@ -71,7 +77,8 @@ def _generate_parameters(parameters):
             pass
         else:
             assert isinstance(
-                param.locations, (tuple, list)), 'Must have locations list'
+                param.locations, (tuple, list)
+            ), "Must have locations list"
             for location in param.locations:
                 param_locations[location.seclist_name].append(param)
 
@@ -90,40 +97,44 @@ def _generate_parameters(parameters):
         for param in param_locations[loc]:
             if isinstance(param, NrnRangeParameter):
                 if isinstance(
-                        param.value_scaler,
-                        NrnSegmentSomaDistanceScaler):
+                    param.value_scaler, NrnSegmentSomaDistanceScaler
+                ):
                     value = param.value_scaler.inst_distribution
-                    value = re.sub(r'math\.', '', value)
-                    value = re.sub('{distance}', FLOAT_FORMAT, value)
-                    value = re.sub('{value}', format_float(param.value), value)
+                    value = re.sub(r"math\.", "", value)
+                    value = re.sub("{distance}", FLOAT_FORMAT, value)
+                    value = re.sub("{value}", format_float(param.value), value)
                     range_params.append(Range(loc, param.param_name, value))
                 elif isinstance(param.value_scaler, NrnSegmentLinearScaler):
                     value = param.value_scale_func(param.value)
                     section_params[loc].append(
-                        Location(param.param_name, format_float(value)))
+                        Location(param.param_name, format_float(value))
+                    )
             elif isinstance(param, NrnSectionParameter):
                 value = param.value_scale_func(param.value)
                 section_params[loc].append(
-                    Location(param.param_name, format_float(value)))
+                    Location(param.param_name, format_float(value))
+                )
 
-    ordered_section_params = [(loc, section_params[loc])
-                              for loc in location_order]
+    ordered_section_params = [
+        (loc, section_params[loc]) for loc in location_order
+    ]
 
     return global_params, ordered_section_params, range_params, location_order
 
 
 def create_hoc(
-        mechs,
-        parameters,
-        morphology=None,
-        ignored_globals=(),
-        replace_axon=None,
-        template_name='CCell',
-        template_filename='cell_template.jinja2',
-        disable_banner=None,
-        template_dir=None,
-        custom_jinja_params=None,):
-    '''return a string containing the hoc template
+    mechs,
+    parameters,
+    morphology=None,
+    ignored_globals=(),
+    replace_axon=None,
+    template_name="CCell",
+    template_filename="cell_template.jinja2",
+    disable_banner=None,
+    template_dir=None,
+    custom_jinja_params=None,
+):
+    """return a string containing the hoc template
 
     Args:
         mechs (): All the mechs for the hoc template
@@ -139,33 +150,39 @@ def create_hoc(
         template_dir (str): dir name of the jinja2 template
         custom_jinja_params (dict): dict of additional jinja2 params in case
         of a custom template
-    '''
+    """
 
     if template_dir is None:
         template_dir = os.path.abspath(
-            os.path.join(
-                os.path.dirname(__file__),
-                'templates'))
+            os.path.join(os.path.dirname(__file__), "templates")
+        )
 
     template_path = os.path.join(template_dir, template_filename)
     with open(template_path) as template_file:
         template = template_file.read()
         template = jinja2.Template(template)
 
-    global_params, section_params, range_params, location_order = \
-        _generate_parameters(parameters)
+    (
+        global_params,
+        section_params,
+        range_params,
+        location_order,
+    ) = _generate_parameters(parameters)
     channels = _generate_channels_by_location(mechs, location_order)
 
     ignored_global_params = {}
     for ignored_global in ignored_globals:
         if ignored_global in global_params:
-            ignored_global_params[
-                ignored_global] = global_params[ignored_global]
+            ignored_global_params[ignored_global] = global_params[
+                ignored_global
+            ]
             del global_params[ignored_global]
 
     if not disable_banner:
-        banner = 'Created by BluePyOpt(%s) at %s' % (
-            bluepyopt.__version__, datetime.now())
+        banner = "Created by BluePyOpt(%s) at %s" % (
+            bluepyopt.__version__,
+            datetime.now(),
+        )
     else:
         banner = None
 
@@ -174,14 +191,16 @@ def create_hoc(
     if custom_jinja_params is None:
         custom_jinja_params = {}
 
-    return template.render(template_name=template_name,
-                           banner=banner,
-                           channels=channels,
-                           morphology=morphology,
-                           section_params=section_params,
-                           range_params=range_params,
-                           global_params=global_params,
-                           re_init_rng=re_init_rng,
-                           replace_axon=replace_axon,
-                           ignored_global_params=ignored_global_params,
-                           **custom_jinja_params)
+    return template.render(
+        template_name=template_name,
+        banner=banner,
+        channels=channels,
+        morphology=morphology,
+        section_params=section_params,
+        range_params=range_params,
+        global_params=global_params,
+        re_init_rng=re_init_rng,
+        replace_axon=replace_axon,
+        ignored_global_params=ignored_global_params,
+        **custom_jinja_params
+    )

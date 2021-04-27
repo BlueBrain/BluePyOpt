@@ -22,7 +22,8 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint: disable=W0611
 
 from ._version import get_versions
-__version__ = get_versions()['version']
+
+__version__ = get_versions()["version"]
 del get_versions
 
 from . import tools  # NOQA
@@ -31,12 +32,14 @@ from .api import *  # NOQA
 import bluepyopt.optimisations
 import bluepyopt.stoppingCriteria
 import bluepyopt.deapext.optimisations
+import bluepyopt.deapext.optimisationsCMA
 
 # Add some backward compatibility for the time when DEAPoptimisation not in
 # deapext yet
 # TODO deprecate this
-bluepyopt.optimisations.DEAPOptimisation = \
+bluepyopt.optimisations.DEAPOptimisation = (
     bluepyopt.deapext.optimisations.DEAPOptimisation
+)
 
 import bluepyopt.evaluators
 import bluepyopt.objectives

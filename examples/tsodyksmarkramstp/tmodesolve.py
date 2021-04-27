@@ -53,18 +53,18 @@ def solve_TM(t_stims, USE, Trec, Tfac, ASE):
     Ampls = np.zeros_like(t_stims)
     R[0] = 1
     U[0] = USE
-    Ampls[0] = ASE*U[0]*R[0]
-    R[0] = R[0] - R[0]*U[0]
-    U[0] = U[0] + USE*(1-U[0])
+    Ampls[0] = ASE * U[0] * R[0]
+    R[0] = R[0] - R[0] * U[0]
+    U[0] = U[0] + USE * (1 - U[0])
     last_stim = t_stims[0]
 
     for i in range(1, len(t_stims)):
         delta_t = t_stims[i] - last_stim
-        R[i] = 1 + (R[i-1] - 1)*np.exp(-delta_t/Trec)
-        U[i] = USE + (U[i-1] - USE)*np.exp(-delta_t/Tfac)
-        Ampls[i] = ASE*U[i]*R[i]
-        R[i] = R[i] - R[i]*U[i]
-        U[i] = U[i] + USE*(1-U[i])
+        R[i] = 1 + (R[i - 1] - 1) * np.exp(-delta_t / Trec)
+        U[i] = USE + (U[i - 1] - USE) * np.exp(-delta_t / Tfac)
+        Ampls[i] = ASE * U[i] * R[i]
+        R[i] = R[i] - R[i] * U[i]
+        U[i] = U[i] + USE * (1 - U[i])
         last_stim = t_stims[i]
 
     tm_statevars = {"R": R, "U": U}

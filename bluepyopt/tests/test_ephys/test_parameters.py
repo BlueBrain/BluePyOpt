@@ -12,7 +12,7 @@ from bluepyopt.ephys.serializer import instantiator
 import bluepyopt.ephys.examples.simplecell as simplecell
 
 
-@attr('unit')
+@attr("unit")
 def test_pprocessparam_instantiate():
     """ephys.parameters: Testing point process parameter"""
 
@@ -20,19 +20,16 @@ def test_pprocessparam_instantiate():
     sim = simplecell.nrn_sim
 
     expsyn_mech = ephys.mechanisms.NrnMODPointProcessMechanism(
-        name='expsyn',
-        suffix='ExpSyn',
-        locations=[simplecell.somacenter_loc])
+        name="expsyn", suffix="ExpSyn", locations=[simplecell.somacenter_loc]
+    )
 
     expsyn_loc = ephys.locations.NrnPointProcessLocation(
-        'expsyn_loc',
-        pprocess_mech=expsyn_mech)
+        "expsyn_loc", pprocess_mech=expsyn_mech
+    )
 
     expsyn_tau_param = ephys.parameters.NrnPointProcessParameter(
-        name='expsyn_tau',
-        param_name='tau',
-        value=2,
-        locations=[expsyn_loc])
+        name="expsyn_tau", param_name="tau", value=2, locations=[expsyn_loc]
+    )
 
     simple_cell.mechanisms.append(expsyn_mech)
     simple_cell.params[expsyn_tau_param.name] = expsyn_tau_param
@@ -43,7 +40,7 @@ def test_pprocessparam_instantiate():
     simple_cell.destroy(sim=sim)
 
 
-@attr('unit')
+@attr("unit")
 def test_serialize():
     """ephys.parameters: Test serialize"""
     parameters = utils.make_parameters()
@@ -56,21 +53,22 @@ def test_serialize():
         nt.eq_(deserialized.name, param.__class__.__name__)
 
 
-@attr('unit')
+@attr("unit")
 def test_metaparameter():
     """ephys.parameters: Test MetaParameter"""
 
     dist = "({A} + {B} * math.exp({distance} * {C}) * {value}"
 
     scaler = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
-        distribution=dist, dist_param_names=['A', 'B', 'C'])
+        distribution=dist, dist_param_names=["A", "B", "C"]
+    )
 
     scaler.A = -0.9
     scaler.B = 2
     scaler.C = 0.003
 
-    meta_param = ephys.parameters.MetaParameter('Param A', scaler, 'A', -1)
+    meta_param = ephys.parameters.MetaParameter("Param A", scaler, "A", -1)
 
-    nt.assert_equal(meta_param.attr_name, 'A')
+    nt.assert_equal(meta_param.attr_name, "A")
     nt.assert_equal(meta_param.value, -1)
     nt.assert_equal(scaler.A, -1)

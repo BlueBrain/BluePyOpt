@@ -24,20 +24,22 @@ def make_mock_population(features_count=5, population_count=5):
 
     # create individuals w/ a random weight values, and an ibea_fitness
     # according to their position
-    return [Individual(np.random.normal(MU, SIGMA, features_count), bool(
-        i % 2), i) for i in range(population_count)]
+    return [
+        Individual(np.random.normal(MU, SIGMA, features_count), bool(i % 2), i)
+        for i in range(population_count)
+    ]
 
 
 def make_population(features_count=5, population_count=5):
-    '''create population w/ DEAP Individuals
-    '''
+    """create population w/ DEAP Individuals"""
 
     creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0))
     creator.create("Individual", list, fitness=creator.FitnessMin)
 
     random.seed(0)
 
-    population = [creator.Individual(range(i * features_count,
-                                           (i + 1) * features_count))
-                  for i in range(population_count)]
+    population = [
+        creator.Individual(range(i * features_count, (i + 1) * features_count))
+        for i in range(population_count)
+    ]
     return population

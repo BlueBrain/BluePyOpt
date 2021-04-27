@@ -24,7 +24,14 @@ class Parameter(object):
 
     """Base parameter class"""
 
-    def __init__(self, name, value=None, frozen=False, bounds=None):
+    def __init__(
+        self,
+        name,
+        value=None,
+        frozen=False,
+        bounds=None,
+        param_dependancies=None,
+    ):
         """Constructor"""
 
         self.name = name
@@ -33,6 +40,10 @@ class Parameter(object):
         self._value = value
         self.check_bounds()
         self.frozen = frozen
+
+        self.param_dependancies = param_dependancies
+        if param_dependancies is None:
+            self.param_dependancies = []
 
     @property
     def lower_bound(self):
@@ -57,6 +68,7 @@ class Parameter(object):
 
     def freeze(self, value):
         """Freeze parameter to certain value"""
+
         self.value = value
         self.frozen = True
 
@@ -70,8 +82,9 @@ class Parameter(object):
         """Set parameter value"""
         if self.frozen:
             raise Exception(
-                'Parameter: parameter %s is frozen, unable to change value' %
-                self.name)
+                "Parameter: parameter %s is frozen, unable to change value"
+                % self.name
+            )
         else:
             self._value = value
             self.check_bounds()
@@ -81,38 +94,43 @@ class Parameter(object):
         if self.bounds and self._value is not None:
             if not self.lower_bound <= self._value <= self.upper_bound:
                 raise ValueError(
-                    'Parameter %s has value %s outside of bounds [%s, %s]' %
-                    (self.name, self._value, str(self.lower_bound),
-                     str(self.upper_bound)))
+                    "Parameter %s has value %s outside of bounds [%s, %s]"
+                    % (
+                        self.name,
+                        self._value,
+                        str(self.lower_bound),
+                        str(self.upper_bound),
+                    )
+                )
 
     def __str__(self):
         """String representation"""
-        return '%s: value = %s' % (
-            self.name, self.value if self.frozen else self.bounds)
+        return "%s: value = %s" % (
+            self.name,
+            self.value if self.frozen else self.bounds,
+        )
 
 
 class MetaListEqualParameter(Parameter):
 
     """Metaparameter that makes sure list of parameter values are all equal"""
 
-    def __init__(self, name, value=None, frozen=False,
-                 bounds=None, sub_parameters=None):
+    def __init__(
+        self, name, value=None, frozen=False, bounds=None, sub_parameters=None
+    ):
         """Constructor"""
 
         if sub_parameters is None:
             raise ValueError(
-                'MetaListEqualParameter: impossible to have None as '
-                'sub_parameters attribute')
+                "MetaListEqualParameter: impossible to have None as "
+                "sub_parameters attribute"
+            )
         else:
             self.sub_parameters = sub_parameters
 
-        super(
-            MetaListEqualParameter,
-            self).__init__(
-            name,
-            value=value,
-            frozen=frozen,
-            bounds=bounds)
+        super(MetaListEqualParameter, self).__init__(
+            name, value=value, frozen=frozen, bounds=bounds
+        )
 
         if value is not None:
             for sub_parameter in self.sub_parameters:
@@ -153,10 +171,8 @@ class MetaListEqualParameter(Parameter):
     def __str__(self):
         """String representation"""
 
-        return '%s (sub_params: %s): value = %s' % (self.name, ",".join(
-            str(sub_param)
-            for sub_param in
-            self.sub_parameters),
-            self.value
-            if self.frozen else
-            self.bounds)
+        return "%s (sub_params: %s): value = %s" % (
+            self.name,
+            ",".join(str(sub_param) for sub_param in self.sub_parameters),
+            self.value if self.frozen else self.bounds,
+        )

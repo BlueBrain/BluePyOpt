@@ -30,7 +30,9 @@ from bluepyopt.ephys.serializer import DictMixin
 class Location(BaseEPhys):
 
     """Location"""
+
     pass
+
 
 # TODO make all these locations accept a cell name
 # TODO instantiate should get the entire simulation environment
@@ -43,11 +45,7 @@ def _nth_isectionlist(isectionlist, index):
 
     Sectionlists don't support direct indexing
     """
-    isection = next(
-        itertools.islice(
-            isectionlist,
-            index,
-            index + 1))
+    isection = next(itertools.islice(isectionlist, index, index + 1))
     return isection
 
 
@@ -56,20 +54,16 @@ class NrnSeclistCompLocation(Location, DictMixin):
     """Compartment in a sectionlist"""
 
     SERIALIZED_FIELDS = (
-        'name',
-        'comment',
-        'seclist_name',
-        'sec_index',
-        'comp_x',
+        "name",
+        "comment",
+        "seclist_name",
+        "sec_index",
+        "comp_x",
     )
 
     def __init__(
-            self,
-            name,
-            seclist_name=None,
-            sec_index=None,
-            comp_x=None,
-            comment=''):
+        self, name, seclist_name=None, sec_index=None, comp_x=None, comment=""
+    ):
         """Constructor
 
         Args:
@@ -91,9 +85,9 @@ class NrnSeclistCompLocation(Location, DictMixin):
         iseclist_size = len([x for x in iseclist])
         if self.sec_index >= iseclist_size:
             raise Exception(
-                'NrnSeclistCompLocation: section index %d falls out of '
-                'SectionList size of %d' %
-                (self.sec_index, iseclist_size))
+                "NrnSeclistCompLocation: section index %d falls out of "
+                "SectionList size of %d" % (self.sec_index, iseclist_size)
+            )
         isection = _nth_isectionlist(iseclist, self.sec_index)
         icomp = isection(self.comp_x)
 
@@ -106,7 +100,7 @@ class NrnSeclistCompLocation(Location, DictMixin):
     def __str__(self):
         """String representation"""
 
-        return '%s[%s](%s)' % (self.seclist_name, self.sec_index, self.comp_x)
+        return "%s[%s](%s)" % (self.seclist_name, self.sec_index, self.comp_x)
 
 
 class NrnSectionCompLocation(Location, DictMixin):
@@ -114,19 +108,14 @@ class NrnSectionCompLocation(Location, DictMixin):
     """Compartment in a section"""
 
     SERIALIZED_FIELDS = (
-        'name',
-        'comment',
-        'seclist_name',
-        'sec_index',
-        'comp_x',
+        "name",
+        "comment",
+        "seclist_name",
+        "sec_index",
+        "comp_x",
     )
 
-    def __init__(
-            self,
-            name,
-            sec_name=None,
-            comp_x=None,
-            comment=''):
+    def __init__(self, name, sec_name=None, comp_x=None, comment=""):
         """Constructor
 
         Args:
@@ -144,24 +133,20 @@ class NrnSectionCompLocation(Location, DictMixin):
 
         # Dont see any other way but to use eval, apart from parsing the
         # sec_name string which can be complicated
-        isection = eval('icell.%s' % self.sec_name)  # pylint: disable=W0123
+        isection = eval("icell.%s" % self.sec_name)  # pylint: disable=W0123
 
         icomp = isection(self.comp_x)
         return icomp
 
     def __str__(self):
-        return '%s(%s)' % (self.sec_name, self.comp_x)
+        return "%s(%s)" % (self.sec_name, self.comp_x)
 
 
 class NrnPointProcessLocation(Location):
 
     """Point process location"""
 
-    def __init__(
-            self,
-            name,
-            pprocess_mech,
-            comment=''):
+    def __init__(self, name, pprocess_mech, comment=""):
         """Constructor
 
         Args:
@@ -180,20 +165,20 @@ class NrnPointProcessLocation(Location):
     def __str__(self):
         """String representation"""
 
-        return '%s' % (self.pprocess_mech.name)
+        return "%s" % (self.pprocess_mech.name)
 
 
 class NrnSeclistLocation(Location, DictMixin):
 
     """Section in a sectionlist"""
 
-    SERIALIZED_FIELDS = ('name', 'comment', 'seclist_name', )
+    SERIALIZED_FIELDS = (
+        "name",
+        "comment",
+        "seclist_name",
+    )
 
-    def __init__(
-            self,
-            name,
-            seclist_name=None,
-            comment=''):
+    def __init__(self, name, seclist_name=None, comment=""):
         """Constructor
 
         Args:
@@ -214,21 +199,21 @@ class NrnSeclistLocation(Location, DictMixin):
     def __str__(self):
         """String representation"""
 
-        return '%s' % (self.seclist_name)
+        return "%s" % (self.seclist_name)
 
 
 class NrnSeclistSecLocation(Location, DictMixin):
 
     """Section in a sectionlist"""
 
-    SERIALIZED_FIELDS = ('name', 'comment', 'seclist_name', 'sec_index', )
+    SERIALIZED_FIELDS = (
+        "name",
+        "comment",
+        "seclist_name",
+        "sec_index",
+    )
 
-    def __init__(
-            self,
-            name,
-            seclist_name=None,
-            sec_index=None,
-            comment=''):
+    def __init__(self, name, seclist_name=None, sec_index=None, comment=""):
         """Constructor
 
         Args:
@@ -251,21 +236,23 @@ class NrnSeclistSecLocation(Location, DictMixin):
     def __str__(self):
         """String representation"""
 
-        return '%s[%s]' % (self.seclist_name, self.sec_index)
+        return "%s[%s]" % (self.seclist_name, self.sec_index)
 
 
 class NrnSomaDistanceCompLocation(Location, DictMixin):
 
     """Compartment at distance from soma"""
 
-    SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'seclist_name', )
+    SERIALIZED_FIELDS = (
+        "name",
+        "comment",
+        "soma_distance",
+        "seclist_name",
+    )
 
     def __init__(
-            self,
-            name,
-            soma_distance=None,
-            seclist_name=None,
-            comment=''):
+        self, name, soma_distance=None, seclist_name=None, comment=""
+    ):
         """Constructor
 
         Args:
@@ -301,8 +288,9 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
             max_distance = max(start_distance, end_distance)
 
             if min_distance <= self.soma_distance <= end_distance:
-                comp_x = float(self.soma_distance - min_distance) / \
-                    (max_distance - min_distance)
+                comp_x = float(self.soma_distance - min_distance) / (
+                    max_distance - min_distance
+                )
 
                 comp_diam = isec(comp_x).diam
 
@@ -311,16 +299,18 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
 
         if icomp is None:
             raise EPhysLocInstantiateException(
-                'No comp found at %s distance from soma' %
-                self.soma_distance)
+                "No comp found at %s distance from soma" % self.soma_distance
+            )
 
         return icomp
 
     def __str__(self):
         """String representation"""
 
-        return '%f micron from soma in %s' % (
-            self.soma_distance, self.seclist_name)
+        return "%f micron from soma in %s" % (
+            self.soma_distance,
+            self.seclist_name,
+        )
 
 
 class EPhysLocInstantiateException(Exception):

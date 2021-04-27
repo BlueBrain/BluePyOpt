@@ -1,7 +1,7 @@
 """Parameter scaler classes"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -27,7 +27,7 @@ from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
 
-FLOAT_FORMAT = '%.17g'
+FLOAT_FORMAT = "%.17g"
 
 
 def format_float(value):
@@ -41,13 +41,15 @@ class MissingFormatDict(dict):
 
     def __missing__(self, key):  # pylint: disable=R0201
         """Return string with format key for missing keys"""
-        return '{' + key + '}'
+        return "{" + key + "}"
 
 
 class ParameterScaler(BaseEPhys):
 
     """Parameter scalers"""
+
     pass
+
 
 # TODO get rid of the 'segment' here
 
@@ -55,14 +57,15 @@ class ParameterScaler(BaseEPhys):
 class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
 
     """Linear scaler"""
-    SERIALIZED_FIELDS = ('name', 'comment', 'multiplier', 'offset', )
 
-    def __init__(
-            self,
-            name=None,
-            multiplier=1.0,
-            offset=0.0,
-            comment=''):
+    SERIALIZED_FIELDS = (
+        "name",
+        "comment",
+        "multiplier",
+        "offset",
+    )
+
+    def __init__(self, name=None, multiplier=1.0, offset=0.0, comment=""):
         """Constructor
 
         Args:
@@ -75,28 +78,35 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
         self.multiplier = multiplier
         self.offset = offset
 
-    def scale(self, value, segment=None, sim=None):  # pylint: disable=W0613
+    def scale(self, values, segment=None, sim=None):  # pylint: disable=W0613
         """Scale a value based on a segment"""
 
-        return self.multiplier * value + self.offset
+        return self.multiplier * values["value"] + self.offset
 
     def __str__(self):
         """String representation"""
 
-        return '%s * value + %s' % (self.multiplier, self.offset)
+        return "%s * value + %s" % (self.multiplier, self.offset)
 
 
 class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
 
     """Scaler based on distance from soma"""
-    SERIALIZED_FIELDS = ('name', 'comment', 'distribution', )
+
+    SERIALIZED_FIELDS = (
+        "name",
+        "comment",
+        "distribution",
+    )
 
     def __init__(
-            self,
-            name=None,
-            distribution=None,
-            comment='',
-            dist_param_names=None):
+        self,
+        name=None,
+        distribution=None,
+        comment="",
+        dist_param_names=None,
+        soma_ref_location=0.5,
+    ):
         """Constructor
 
         Args:
@@ -110,20 +120,28 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
                 object.
                 The distribution string should contain these names, and they
                 will be replaced by values of the corresponding attributes
+            soma_ref_location (float): location along the soma used as origin
+                from which to compute the distances. Expressed as a fraction
+                (between 0.0 and 1.0).
         """
 
         super(NrnSegmentSomaDistanceScaler, self).__init__(name, comment)
         self.distribution = distribution
 
         self.dist_param_names = dist_param_names
+        self.soma_ref_location = soma_ref_location
+
+        if not (0.0 <= self.soma_ref_location <= 1.0):
+            raise ValueError("soma_ref_location must be between 0 and 1.")
 
         if self.dist_param_names is not None:
             for dist_param_name in self.dist_param_names:
                 if dist_param_name not in self.distribution:
                     raise ValueError(
                         'NrnSegmentSomaDistanceScaler: "{%s}" '
-                        'missing from distribution string "%s"' %
-                        (dist_param_name, distribution))
+                        'missing from distribution string "%s"'
+                        % (dist_param_name, distribution)
+                    )
                 setattr(self, dist_param_name, None)
 
     @property
@@ -136,23 +154,26 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
             for dist_param_name in self.dist_param_names:
                 dist_param_value = getattr(self, dist_param_name)
                 if dist_param_value is None:
-                    raise ValueError('NrnSegmentSomaDistanceScaler: %s '
-                                     'was uninitialised' % dist_param_name)
+                    raise ValueError(
+                        "NrnSegmentSomaDistanceScaler: %s "
+                        "was uninitialised" % dist_param_name
+                    )
                 dist_dict[dist_param_name] = dist_param_value
 
         # Use this special formatting to bypass missing keys
         return string.Formatter().vformat(self.distribution, (), dist_dict)
 
-    def eval_dist(self, value, distance):
+    def eval_dist(self, values, distance):
         """Create the final dist string"""
 
         scale_dict = {}
-        scale_dict['distance'] = format_float(distance)
-        scale_dict['value'] = format_float(value)
+        for k, v in values.items():
+            scale_dict[k] = format_float(v)
+        scale_dict["distance"] = format_float(distance)
 
         return self.inst_distribution.format(**scale_dict)
 
-    def scale(self, value, segment, sim=None):
+    def scale(self, values, segment, sim=None):
         """Scale a value based on a segment"""
 
         # TODO soma needs other addressing scheme
@@ -160,7 +181,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
         soma = segment.sec.cell().soma[0]
 
         # Initialise origin
-        sim.neuron.h.distance(0, 0.5, sec=soma)
+        sim.neuron.h.distance(0, self.soma_ref_location, sec=soma)
 
         distance = sim.neuron.h.distance(1, segment.x, sec=segment.sec)
 
@@ -169,7 +190,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
 
         # This eval is unsafe (but is it ever dangerous ?)
         # pylint: disable=W0123
-        return eval(self.eval_dist(value, distance))
+        return eval(self.eval_dist(values, distance))
 
     def __str__(self):
         """String representation"""

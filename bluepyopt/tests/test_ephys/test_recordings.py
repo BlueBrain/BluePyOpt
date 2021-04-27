@@ -28,7 +28,7 @@ from nose.plugins.attrib import attr
 import bluepyopt.ephys as ephys
 
 
-@attr('unit')
+@attr("unit")
 def test_comprecording_init():
     """ephys.recordings: Test CompRecording init"""
 
@@ -38,7 +38,7 @@ def test_comprecording_init():
 
     nt.assert_equal(recording.response, None)
 
-    '''
+    """
     nrn_sim = ephys.simulators.NrnSimulator()
     dummy_cell = testmodels.dummycells.DummyCellModel1()
     # icell = dummy_cell.instantiate(sim=nrn_sim)
@@ -74,4 +74,4 @@ def test_comprecording_init():
 
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
-    '''
+    """

@@ -20,14 +20,18 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 """
 
 # pylint: disable=W0511
+import LFPy
+import numpy as np
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
 class Stimulus(object):
 
     """Stimulus protocol"""
+
     pass
 
 
@@ -35,10 +39,7 @@ class NrnCurrentPlayStimulus(Stimulus):
 
     """Current stimulus based on current amplitude and time series"""
 
-    def __init__(self,
-                 time_points=None,
-                 current_points=None,
-                 location=None):
+    def __init__(self, time_points=None, current_points=None, location=None):
         """Constructor
 
         Args:
@@ -60,12 +61,9 @@ class NrnCurrentPlayStimulus(Stimulus):
         """Run stimulus"""
 
         icomp = self.location.instantiate(sim=sim, icell=icell)
-        logger.debug(
-            'Adding current play stimulus to %s', str(self.location))
+        logger.debug("Adding current play stimulus to %s", str(self.location))
 
-        self.iclamp = sim.neuron.h.IClamp(
-            icomp.x,
-            sec=icomp.sec)
+        self.iclamp = sim.neuron.h.IClamp(icomp.x, sec=icomp.sec)
         self.current_vec = sim.neuron.h.Vector(self.current_points)
         self.time_vec = sim.neuron.h.Vector(self.time_points)
         self.iclamp.dur = self.total_duration
@@ -74,7 +72,8 @@ class NrnCurrentPlayStimulus(Stimulus):
             self.iclamp._ref_amp,  # pylint:disable=W0212
             self.time_vec,
             1,
-            sec=icomp.sec)
+            sec=icomp.sec,
+        )
 
     def destroy(self, sim=None):
         """Destroy stimulus"""
@@ -93,14 +92,16 @@ class NrnNetStimStimulus(Stimulus):
 
     """Current stimulus based on current amplitude and time series"""
 
-    def __init__(self,
-                 locations=None,
-                 total_duration=None,
-                 interval=None,
-                 number=None,
-                 start=None,
-                 noise=0,
-                 weight=1):
+    def __init__(
+        self,
+        locations=None,
+        total_duration=None,
+        interval=None,
+        number=None,
+        start=None,
+        noise=0,
+        weight=1,
+    ):
         """Constructor
 
         Args:
@@ -115,7 +116,8 @@ class NrnNetStimStimulus(Stimulus):
         super(NrnNetStimStimulus, self).__init__()
         if total_duration is None:
             raise ValueError(
-                'NrnNetStimStimulus: Need to specify a total duration')
+                "NrnNetStimStimulus: Need to specify a total duration"
+            )
         else:
             self.total_duration = total_duration
 
@@ -151,10 +153,12 @@ class NrnNetStimStimulus(Stimulus):
     def __str__(self):
         """String representation"""
 
-        return "Netstim at %s" % ','.join(
-            location
-            for location in self.locations) \
-            if self.locations is not None else "Netstim"
+        return (
+            "Netstim at %s" % ",".join(location for location in self.locations)
+            if self.locations is not None
+            else "Netstim"
+        )
+
 
 # TODO Add 'current' to the name
 
@@ -163,12 +167,14 @@ class NrnSquarePulse(Stimulus):
 
     """Square pulse current clamp injection"""
 
-    def __init__(self,
-                 step_amplitude=None,
-                 step_delay=None,
-                 step_duration=None,
-                 total_duration=None,
-                 location=None):
+    def __init__(
+        self,
+        step_amplitude=None,
+        step_delay=None,
+        step_duration=None,
+        total_duration=None,
+        location=None,
+    ):
         """Constructor
 
         Args:
@@ -192,16 +198,15 @@ class NrnSquarePulse(Stimulus):
 
         icomp = self.location.instantiate(sim=sim, icell=icell)
         logger.debug(
-            'Adding square step stimulus to %s with delay %f, '
-            'duration %f, and amplitude %f',
+            "Adding square step stimulus to %s with delay %f, "
+            "duration %f, and amplitude %f",
             str(self.location),
             self.step_delay,
             self.step_duration,
-            self.step_amplitude)
+            self.step_amplitude,
+        )
 
-        self.iclamp = sim.neuron.h.IClamp(
-            icomp.x,
-            sec=icomp.sec)
+        self.iclamp = sim.neuron.h.IClamp(icomp.x, sec=icomp.sec)
         self.iclamp.dur = self.step_duration
         self.iclamp.amp = self.step_amplitude
         self.iclamp.delay = self.step_delay
@@ -219,20 +224,23 @@ class NrnSquarePulse(Stimulus):
             self.step_delay,
             self.step_duration,
             self.total_duration,
-            self.location)
+            self.location,
+        )
 
 
 class NrnRampPulse(Stimulus):
 
     """Ramp current clamp injection"""
 
-    def __init__(self,
-                 ramp_amplitude_start=None,
-                 ramp_amplitude_end=None,
-                 ramp_delay=None,
-                 ramp_duration=None,
-                 total_duration=None,
-                 location=None):
+    def __init__(
+        self,
+        ramp_amplitude_start=None,
+        ramp_amplitude_end=None,
+        ramp_delay=None,
+        ramp_duration=None,
+        total_duration=None,
+        location=None,
+    ):
         """Constructor
 
         Args:
@@ -259,13 +267,13 @@ class NrnRampPulse(Stimulus):
 
         icomp = self.location.instantiate(sim=sim, icell=icell)
         logger.debug(
-            'Adding ramp stimulus to %s with delay %f, '
-            'duration %f, amplitude at start %f and end %f',
+            "Adding ramp stimulus to %s with delay %f, "
+            "duration %f, amplitude at start %f and end %f",
             str(self.location),
             self.ramp_delay,
             self.ramp_duration,
             self.ramp_amplitude_start,
-            self.ramp_amplitude_end
+            self.ramp_amplitude_end,
         )
 
         # create vector to store the times at which stim amp changes
@@ -297,9 +305,7 @@ class NrnRampPulse(Stimulus):
         amps.append(0.0)
 
         # create a current clamp
-        self.iclamp = sim.neuron.h.IClamp(
-            icomp.x,
-            sec=icomp.sec)
+        self.iclamp = sim.neuron.h.IClamp(icomp.x, sec=icomp.sec)
         self.iclamp.dur = self.total_duration
 
         # play the above current amplitudes into the current clamp
@@ -319,11 +325,103 @@ class NrnRampPulse(Stimulus):
     def __str__(self):
         """String representation"""
 
-        return "Ramp pulse amp_start %f amp_end %f delay %f duration %f " \
-            "totdur %f at %s" % (
+        return (
+            "Ramp pulse amp_start %f amp_end %f delay %f duration %f "
+            "totdur %f at %s"
+            % (
                 self.ramp_amplitude_start,
                 self.ramp_amplitude_end,
                 self.ramp_delay,
                 self.ramp_duration,
                 self.total_duration,
-                self.location)
+                self.location,
+            )
+        )
+
+
+class LFPySquarePulse(Stimulus):
+
+    """Square pulse current clamp injection"""
+
+    def __init__(
+        self,
+        step_amplitude=None,
+        step_delay=None,
+        step_duration=None,
+        total_duration=None,
+        location=None,
+    ):
+        """Constructor
+
+        Args:
+            step_amplitude (float): amplitude (nA)
+            step_delay (float): delay (ms)
+            step_duration (float): duration (ms)
+            total_duration (float): total duration (ms)
+            location (Location): stimulus Location
+        """
+
+        super(LFPySquarePulse, self).__init__()
+        self.step_amplitude = step_amplitude
+        self.step_delay = step_delay
+        self.step_duration = step_duration
+        self.location = location
+        self.total_duration = total_duration
+        self.iclamp = None
+
+    def instantiate(self, sim=None, icell=None, LFPyCell=None):
+        """Run stimulus"""
+        from .locations import NrnSomaDistanceCompLocation
+
+        if hasattr(self.location, "sec_index"):
+            sec_index = self.location.sec_index
+        elif isinstance(self.location, NrnSomaDistanceCompLocation):
+            # compute sec_index closest to soma_distance
+            cell_seg_locs = np.array(
+                [LFPyCell.xmid, LFPyCell.ymid, LFPyCell.zmid]
+            ).T
+            soma_loc = LFPyCell.somapos
+            dist_from_soma = np.array(
+                [np.linalg.norm(loc - soma_loc) for loc in cell_seg_locs]
+            )
+            sec_index = np.argmin(
+                np.abs(dist_from_soma - self.location.soma_distance)
+            )
+        else:
+            raise NotImplementedError(
+                f"{type(self.location)} is currently not implemented "
+                "with the LFPy backend"
+            )
+
+        self.iclamp = LFPy.StimIntElectrode(
+            cell=LFPyCell,
+            idx=sec_index,
+            pptype="IClamp",
+            amp=self.step_amplitude,
+            delay=self.step_delay,
+            dur=self.step_duration,
+        )
+        logger.debug(
+            "Adding square step stimulus to %s with delay %f, "
+            "duration %f, and amplitude %f",
+            str(self.location),
+            self.step_delay,
+            self.step_duration,
+            self.step_amplitude,
+        )
+
+    def destroy(self, sim=None):
+        """Destroy stimulus"""
+
+        self.iclamp = None
+
+    def __str__(self):
+        """String representation"""
+
+        return "Square pulse amp %f delay %f duration %f totdur %f at %s" % (
+            self.step_amplitude,
+            self.step_delay,
+            self.step_duration,
+            self.total_duration,
+            self.location,
+        )

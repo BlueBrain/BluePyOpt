@@ -26,7 +26,7 @@ from nose.plugins.attrib import attr
 import bluepyopt
 
 
-@attr('unit')
+@attr("unit")
 def test_evaluator_init():
     """bluepyopt.evaluators: test Evaluator init"""
 

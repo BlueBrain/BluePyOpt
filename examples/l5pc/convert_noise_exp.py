@@ -10,7 +10,7 @@ voltages = []
 
 for i in range(436, 447):
     # header, voltage = igorpy.read('exp_data/X_NoiseSpiking_ch1_%d.ibw' % i)
-    header, current = igorpy.read('exp_data/X_NoiseSpiking_ch0_%d.ibw' % i)
+    header, current = igorpy.read("exp_data/X_NoiseSpiking_ch0_%d.ibw" % i)
     # axes[i - 436].plot(voltage)
 # header, voltage = igorpy.read('exp_data/X_APThreshold_ch1_262.ibw')
 # header, current = igorpy.read('exp_data/X_APThreshold_ch0_262.ibw')
@@ -21,7 +21,7 @@ current *= 1e9
 
 time = numpy.arange(len(current)) * header.dx * 1000
 
-numpy.savetxt('exp_data/noise_i.txt', numpy.vstack((time, current)).T)
+numpy.savetxt("exp_data/noise_i.txt", numpy.vstack((time, current)).T)
 
 # import matplotlib.pyplot as plt
 

@@ -70,7 +70,7 @@ class SingletonObjective(EFeatureObjective):
     def __str__(self):
         """String representation"""
 
-        return '( %s )' % self.features[0]
+        return "( %s )" % self.features[0]
 
 
 class MaxObjective(EFeatureObjective):
@@ -99,8 +99,9 @@ class WeightedSumObjective(EFeatureObjective):
         super(WeightedSumObjective, self).__init__(name, features)
         if len(weights) != len(features):
             raise Exception(
-                'WeightedSumObjective: number of weights must be equal to '
-                'number of features')
+                "WeightedSumObjective: number of weights must be equal to "
+                "number of features"
+            )
         self.weights = weights
 
     def calculate_score(self, responses):

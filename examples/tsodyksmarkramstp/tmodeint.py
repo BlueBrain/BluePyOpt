@@ -32,8 +32,20 @@ except NameError:
     xrange = range
 
 
-def integrate(sampstim, nsamples, dt, vRest, Trec, Tfac,
-              ASE, USE, Rinput, Tmem, Tinac, latency):
+def integrate(
+    sampstim,
+    nsamples,
+    dt,
+    vRest,
+    Trec,
+    Tfac,
+    ASE,
+    USE,
+    Rinput,
+    Tmem,
+    Tinac,
+    latency,
+):
     """Integrate Tsodyks-Markram model and produce corresponding voltage trace.
 
     Parameters
@@ -86,17 +98,28 @@ def integrate(sampstim, nsamples, dt, vRest, Trec, Tfac,
     U[0] = USE
     # Integrate TM model ODE
     for i in xrange(1, nsamples):
-        R[i] = R[i - 1] + dt * (1 - R[i - 1] - E[i - 1]) * \
-            1e3 / Trec - U[i - 1] * R[i - 1] * AP[i - 1]
-        E[i] = E[i - 1] - dt * E[i - 1] * 1e3 / Tinac + U[i - 1] * \
-            R[i - 1] * AP[i - 1]
-        U[i] = U[i - 1] - dt * (U[i - 1] - USE) * 1e3 / \
-            Tfac + USE * (1 - U[i - 1]) * AP[i - 1]
-        P[i] = P[i - 1] + dt * (Rinput * ASE / 10 **
-                                6 * E[i - 1] - P[i - 1]) * 1e3 / Tmem
+        R[i] = (
+            R[i - 1]
+            + dt * (1 - R[i - 1] - E[i - 1]) * 1e3 / Trec
+            - U[i - 1] * R[i - 1] * AP[i - 1]
+        )
+        E[i] = (
+            E[i - 1]
+            - dt * E[i - 1] * 1e3 / Tinac
+            + U[i - 1] * R[i - 1] * AP[i - 1]
+        )
+        U[i] = (
+            U[i - 1]
+            - dt * (U[i - 1] - USE) * 1e3 / Tfac
+            + USE * (1 - U[i - 1]) * AP[i - 1]
+        )
+        P[i] = (
+            P[i - 1]
+            + dt * (Rinput * ASE / 10 ** 6 * E[i - 1] - P[i - 1]) * 1e3 / Tmem
+        )
     # Update state
     P = P + vRest
-    E = E * ASE / 10**12
+    E = E * ASE / 10 ** 12
     I = 1 - R - E  # NOQA
-    tm_statevar = {'recovered': R, 'effective': E, 'used': U, 'inactive': I}
+    tm_statevar = {"recovered": R, "effective": E, "used": U, "inactive": I}
     return P, tm_statevar
