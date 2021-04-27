@@ -180,13 +180,13 @@ class LFPySimulator(object):
         electrode=None,
         cvode_active=True,
         random123_globalindex=None,
-        electrode_mapping=None,
     ):
         """Constructor"""
 
         self.LFPyCellModel = LFPyCellModel
         self.electrode = electrode
-        self.electrode_mapping = electrode_mapping
+
+        self.lfpyelectrode = None
 
         if platform.system() == "Windows":
             # hoc.so does not exist on NEURON Windows
@@ -241,6 +241,7 @@ class LFPySimulator(object):
         random123_globalindex=None
     ):
         """Run protocol"""
+        import LFPy
 
         self.LFPyCellModel.LFPyCell.tstart = 0.0
         self.LFPyCellModel.LFPyCell.tstop = tstop
@@ -252,11 +253,14 @@ class LFPySimulator(object):
             rng = self.neuron.h.Random()
             rng.Random123_globalindex(random123_globalindex)
 
-        # if self.electrode.mapping is not None:
-        #     print("Using existing mapping")
+        if self.electrode is not None:
+            self.lfpyelectrode = LFPy.RecExtElectrode(self.LFPyCellModel.LFPyCell, probe=self.electrode)
+            probes = [self.lfpyelectrode],
+        else:
+            probes = None
 
         sim_params = {
-            "electrode": self.electrode,
+            "probes": probes,
             "rec_vmem": False,
             "rec_imem": False,
             "rec_ipas": False,
@@ -268,7 +272,6 @@ class LFPySimulator(object):
             "to_memory": True,
             "to_file": False,
             "file_name": None,
-            "dotprodcoeffs": self.electrode_mapping,
         }
 
         try:
