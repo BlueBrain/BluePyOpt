@@ -130,6 +130,7 @@ class LFPRecording(Recording):
         self.cell = None
         self.tvector = None
         self.time = None
+        self.sim = None
 
         self.instantiated = False
 
@@ -141,7 +142,7 @@ class LFPRecording(Recording):
             return None
         self.tvector = self.cell.tvec
         return responses.TimeLFPResponse(
-            self.name, self.tvector, self.electrode.LFP
+            self.name, self.tvector, self.sim.lfpyelectrode.data
         )
 
     def instantiate(self, sim=None, icell=None, LFPyCell=None):
@@ -158,9 +159,7 @@ class LFPRecording(Recording):
         ), "LFPRecording is only available for LFPCellModel"
         self.cell = LFPyCell
         self.tvector = None
-        # self.tvector.record(sim.neuron.h._ref_t)  # pylint: disable=W0212
-
-        self.electrode = sim.electrode
+        self.sim = sim
 
         self.instantiated = True
 

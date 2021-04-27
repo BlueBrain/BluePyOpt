@@ -377,9 +377,7 @@ class LFPySquarePulse(Stimulus):
             sec_index = self.location.sec_index
         elif isinstance(self.location, NrnSomaDistanceCompLocation):
             # compute sec_index closest to soma_distance
-            cell_seg_locs = np.array(
-                [LFPyCell.xmid, LFPyCell.ymid, LFPyCell.zmid]
-            ).T
+            cell_seg_locs = np.array([LFPyCell.x, LFPyCell.y, LFPyCell.z]).T
             soma_loc = LFPyCell.somapos
             dist_from_soma = np.array(
                 [np.linalg.norm(loc - soma_loc) for loc in cell_seg_locs]
