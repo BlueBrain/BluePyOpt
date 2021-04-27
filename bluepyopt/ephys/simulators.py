@@ -255,7 +255,7 @@ class LFPySimulator(object):
 
         if self.electrode is not None:
             self.lfpyelectrode = LFPy.RecExtElectrode(self.LFPyCellModel.LFPyCell, probe=self.electrode)
-            probes = [self.lfpyelectrode],
+            probes = [self.lfpyelectrode]
         else:
             probes = None
 
