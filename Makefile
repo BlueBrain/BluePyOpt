@@ -67,7 +67,7 @@ clean:
 	rm -rf examples/l5pc/L5PC.py
 	rm -rf examples/l5pc/x86_64
 	rm -rf examples/stochkv/x86_64
-	rm -rf .coverage
+	rm -rf .coverage*
 	find . -name "*.pyc" -exec rm -rf {} \;
 l5pc_start: install
 	cd examples/l5pc && \
