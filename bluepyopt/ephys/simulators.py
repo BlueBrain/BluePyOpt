@@ -238,7 +238,7 @@ class LFPySimulator(object):
         tstop=None,
         dt=None,
         cvode_active=None,
-        random123_globalindex=None,
+        random123_globalindex=None
     ):
         """Run protocol"""
         import LFPy
