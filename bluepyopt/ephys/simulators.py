@@ -266,7 +266,7 @@ class LFPySimulator(object):
             "rec_ipas": False,
             "rec_icap": False,
             "rec_current_dipole_moment": False,
-            "rec_variables": None,
+            "rec_variables": [],
             "variable_dt": self.cvode_active,
             "atol": 0.001,
             "to_memory": True,
