@@ -109,7 +109,6 @@ class CompRecording(Recording):
         return "%s: %s at %s" % (self.name, self.variable, self.location)
 
 
-# TODO add compensation for stimuli
 class LFPRecording(Recording):
 
     """Electrode sesponse to stimulus"""

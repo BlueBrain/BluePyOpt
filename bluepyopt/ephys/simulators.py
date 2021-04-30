@@ -238,7 +238,7 @@ class LFPySimulator(object):
         tstop=None,
         dt=None,
         cvode_active=None,
-        random123_globalindex=None
+        random123_globalindex=None,
     ):
         """Run protocol"""
         import LFPy
@@ -266,7 +266,7 @@ class LFPySimulator(object):
             "rec_ipas": False,
             "rec_icap": False,
             "rec_current_dipole_moment": False,
-            "rec_variables": [],
+            "rec_variables": None,
             "variable_dt": self.cvode_active,
             "atol": 0.001,
             "to_memory": True,
