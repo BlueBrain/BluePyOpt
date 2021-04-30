@@ -398,6 +398,7 @@ class LFPySquarePulse(Stimulus):
             amp=self.step_amplitude,
             delay=self.step_delay,
             dur=self.step_duration,
+            record_current=True
         )
         logger.debug(
             "Adding square step stimulus to %s with delay %f, "

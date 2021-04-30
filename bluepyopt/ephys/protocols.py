@@ -271,11 +271,10 @@ class SweepProtocol(Protocol):
 
         for recording in self.recordings:
             try:
-                if isinstance(recording, recordings.LFPRecording):
-                    recording.instantiate(
-                        sim=sim, icell=icell, LFPyCell=LFPyCell
-                    )
-                else:
+                # try to instantiate as an LFPy recording
+                try:
+                    recording.instantiate(sim=sim, icell=icell, LFPyCell=LFPyCell)
+                except Exception as e:
                     recording.instantiate(sim=sim, icell=icell)
             except locations.EPhysLocInstantiateException:
                 logger.debug(
