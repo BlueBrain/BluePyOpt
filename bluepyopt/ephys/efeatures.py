@@ -451,21 +451,12 @@ class extraFELFeature(EFeature, DictMixin):
 
         ewf = _get_waveforms(response_filter, peak_times, self.ms_cut)
         mean_wf = np.mean(ewf, axis=0)
-        if self.upsample is not None:
-            if verbose:
-                print("upsample")
-            assert self.upsample > 0
-            self.upsample = int(self.upsample)
-            mean_wf_up = _upsample_wf(mean_wf, self.upsample)
-            fs_up = self.upsample * self.fs
-        else:
-            mean_wf_up = mean_wf
-            fs_up = self.fs
 
-        amplitudes = np.max(np.abs(mean_wf_up), axis=1)
+        amplitudes = np.max(np.abs(mean_wf), axis=1)
         values = calculate_features(
-            mean_wf_up,
-            fs_up * 1000,
+            mean_wf,
+            self.fs * 1000,
+            upsample=self.upsample,
             feature_names=[self.extrafel_feature_name]
         )
 
@@ -612,15 +603,6 @@ def _filter_response(response, fcut=[0.5, 6000], order=2, filt_type="lfilter"):
     response_new["voltage"] = filtered
 
     return response_new
-
-
-def _upsample_wf(waveforms, upsample):
-    from scipy.signal import resample_poly
-
-    ndim = len(waveforms.shape)
-    waveforms_up = resample_poly(waveforms, up=upsample, down=1, axis=ndim - 1)
-
-    return waveforms_up
 
 
 def _get_waveforms(response, peak_times, snippet_len_ms):
