@@ -19,6 +19,7 @@ all_1D_features = [
 def calculate_features(
     waveforms,
     sampling_frequency,
+    upsample=None,
     feature_names=None,
     recovery_slope_window=0.7
 ):
@@ -49,6 +50,11 @@ def calculate_features(
     else:
         for name in feature_names:
             assert name in all_1D_features, f"{name} not in {all_1D_features}"
+
+    if upsample is not None:
+        assert upsample > 0
+        waveforms = _upsample_wf(waveforms, int(upsample))
+        sampling_frequency = upsample * sampling_frequency
 
     if "peak_to_valley" in feature_names:
         metrics["peak_to_valley"] = peak_to_valley(
@@ -331,7 +337,7 @@ def recovery_slope(waveforms, sampling_frequency, window):
     time = np.arange(0, waveforms.shape[1]) * (1 / sampling_frequency)  # in s
 
     for i in range(waveforms.shape[0]):
-        if peak_idx[i] == 0:
+        if peak_idx[i] == 0 or peak_idx[i] == waveforms.shape[1]:
             continue
         max_idx = int(peak_idx[i] + ((window / 1000) * sampling_frequency))
         max_idx = np.min([max_idx, waveforms.shape[1]])
@@ -457,3 +463,12 @@ def _get_trough_and_peak_idx(waveform, after_max_trough=False):
         peak_idx = np.argmax(waveform, axis=1)
 
     return trough_idx, peak_idx
+
+
+def _upsample_wf(waveforms, upsample):
+    from scipy.signal import resample_poly
+
+    ndim = len(waveforms.shape)
+    waveforms_up = resample_poly(waveforms, up=upsample, down=1, axis=ndim - 1)
+
+    return waveforms_up
