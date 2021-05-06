@@ -31,6 +31,21 @@ from scipy.spatial import distance
 logger = logging.getLogger(__name__)
 
 
+def masked_cosine_distance(exp, model):
+    
+    exp_mask = np.isfinite(exp)
+    model_mask = np.isfinite(model)
+    valid_mask = exp_mask & model_mask
+    
+    score = distance.cosine(
+        exp[valid_mask], model[valid_mask]
+    )
+
+    score *= sum(exp_mask) / len(valid_mask)
+
+    return score
+
+
 class EFeature(BaseEPhys):
 
     """EPhys feature"""
@@ -217,7 +232,7 @@ class eFELFeature(EFeature, DictMixin):
                 score = min(score, self.max_score)
 
             efel.reset()
-
+        
         logger.debug("Calculated score for %s: %f", self.name, score)
 
         return score
@@ -488,7 +503,7 @@ class extraFELFeature(EFeature, DictMixin):
 
     def calculate_score(self, responses, trace_check=False):
         """Calculate the score"""
-
+        
         if (
             responses[self.recording_names[""].replace("soma.v", "MEA.LFP")]
             is None
@@ -511,22 +526,13 @@ class extraFELFeature(EFeature, DictMixin):
                 )
                 score = self.max_score
         else:
-            non_nan_idxs_mean = set(np.where(np.isfinite(self.exp_mean))[0])
-            non_nan_idxs_feat = set(np.where(np.isfinite(feature_value))[0])
-            non_nan_idxs = np.array(
-                list(non_nan_idxs_mean.intersection(non_nan_idxs_feat))
+            score = masked_cosine_distance(
+                    np.asarray(self.exp_mean),
+                    np.asarray(feature_value)
             )
-            if len(non_nan_idxs) > 0:
-                score = distance.cosine(
-                    feature_value[non_nan_idxs], self.exp_mean[non_nan_idxs]
-                )
-                # scale by number of non nan idxs in the mean
-                # if the feature_value has less nan values, it is penalized
-                score *= len(non_nan_idxs_mean) / len(non_nan_idxs)
-                if np.isnan(score):
-                    score = self.max_score
-            else:
-                score = self.max_score
+
+        if np.isnan(score):
+            score =  self.max_score
 
         if self.force_max_score:
             score = min(score, self.max_score)
