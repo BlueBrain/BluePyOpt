@@ -172,9 +172,16 @@ class SweepProtocol(Protocol):
                 LFPyCell = cell_model.LFPyCell
             else:
                 LFPyCell = None
+
             self.instantiate(
                 sim=sim, icell=cell_model.icell, LFPyCell=LFPyCell
             )
+
+            if hasattr(sim, "electrode"):
+                if any(["LFP" in rec.name for rec in self.recordings]):
+                    sim.effective_probe = sim.electrode
+                else:
+                    sim.effective_probe = None
 
             try:
                 sim.run(self.total_duration, cvode_active=self.cvode_active)
