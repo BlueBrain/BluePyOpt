@@ -65,7 +65,7 @@ class TsodyksMarkramEvaluator(bpop.evaluators.Evaluator):
                        for name, minval, maxval in self.params]
         # Objectives
         self.objectives = [bpop.objectives.Objective('interval_%d' % (i,))
-                           for i in xrange(len(self.split_idx))]
+                           for i in xrange(len(list(self.split_idx)))]
 
     def generate_model(self, individual):
         """Calls numerical integrator `tmodeint.py` and returns voltage trace based on the input parameters"""
