@@ -2,7 +2,8 @@ include versioneer.py
 include bluepyopt/_version.py
 include bluepyopt/ephys/templates/cell_template.jinja2
 
-include LICENSE.txt
+include.txt
 include AUTHORS.txt
-include LGPL.txt
+include COPYING
+include COPYING.lesser
 recursive-include bluepyopt/tests *
