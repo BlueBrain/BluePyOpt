@@ -135,11 +135,11 @@ class CMA_SO(cma.Strategy):
             (
                 numpy.linalg.norm(self.ps)
                 / sqrt(1.0 - (1.0 - self.cs) **
-                    (2.0 * (self.update_count + 1.0)))
+                (2.0 * (self.update_count + 1.0)))
                 / self.chiN
                 < (1.4 + 2.0 / (self.dim + 1.0))
             )
-        )
+        )  # noqa
 
         self.update_count += 1
 

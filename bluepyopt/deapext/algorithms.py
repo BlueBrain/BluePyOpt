@@ -112,11 +112,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         terminator (multiprocessing.Event): exit loop when is set.
             Not taken into account if None.
     """
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 7e9c3ea (Added rules)
     if cp_filename:
         cp_filename_tmp = cp_filename + '.tmp'
 
@@ -147,13 +143,11 @@ def eaAlphaMuPlusLambdaCheckpoint(
         history = deap.tools.History()
 
         invalid_count = _evaluate_invalid_fitness(toolbox, population)
-        
+
         utils.update_history_and_hof(halloffame, history, population)
-        utils.record_stats(stats,
-                           logbook,
-                           start_gen,
-                           population,
-                           invalid_count)
+        utils.record_stats(
+            stats, logbook, start_gen, population, invalid_count
+        )
 
     stopping_criteria = [MaxNGen(ngen)]
         

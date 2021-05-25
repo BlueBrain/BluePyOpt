@@ -160,14 +160,14 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
         # Number of parameters
         IND_SIZE = len(self.evaluator.params)
-        
         if IND_SIZE == 0:
             raise Exception(
                 "Length of evaluator.params is zero. At least one "
-                "non-fix parameter is neededto run an optimization."
+                "non-fix parameter is needed to run an optimization."
             )
 
         # Bounds for the parameters
+
         LOWER = []
         UPPER = []
 

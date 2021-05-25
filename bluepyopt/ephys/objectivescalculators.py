@@ -19,7 +19,10 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+<<<<<<< HEAD
 from . import objectives
+=======
+>>>>>>> 923c7e5 (Rebase CMA on master)
 
 class ObjectivesCalculator(object):
 
@@ -36,8 +39,9 @@ class ObjectivesCalculator(object):
 
         self.objectives = objectives
 
-    def calculate_scores(self, responses, cell_model=None, param_dict=None):
+    def calculate_scores(self, responses):
         """Calculator the score for every objective"""
+<<<<<<< HEAD
         
         scores = {}
         
@@ -58,6 +62,11 @@ class ObjectivesCalculator(object):
             cell_model.unfreeze(param_dict.keys())
         
         return scores
+=======
+
+        return {objective.name: objective.calculate_score(responses)
+                for objective in self.objectives}
+>>>>>>> 923c7e5 (Rebase CMA on master)
 
     def calculate_values(self, responses):
         """Calculator the value of each objective"""
@@ -66,7 +75,10 @@ class ObjectivesCalculator(object):
                 for objective in self.objectives}
 
     def __str__(self):
+<<<<<<< HEAD
         
+=======
+>>>>>>> 923c7e5 (Rebase CMA on master)
         return 'objectives:\n  %s' % '\n  '.join(
             [str(obj) for obj in self.objectives]) \
             if self.objectives is not None else 'objectives:\n'
