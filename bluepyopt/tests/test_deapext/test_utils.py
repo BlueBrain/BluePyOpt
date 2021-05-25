@@ -4,7 +4,7 @@ import multiprocessing
 import time
 
 import bluepyopt.deapext.utils as utils
-import nose.tools as nt
+import pytest
 
 
 def flag(event):
@@ -16,16 +16,17 @@ def flag(event):
 def catch_event(event):
     """Verify that run_next_gen changes when event is caught."""
     # None case
-    nt.assert_true(utils.run_next_gen(True, None))
+    assert utils.run_next_gen(True, None)
 
     # event is not set case
-    nt.assert_true(utils.run_next_gen(True, event))
+    assert utils.run_next_gen(True, event)
 
     # event is set by another process case
     time.sleep(2)
-    nt.assert_equal(utils.run_next_gen(True, event), False)
+    assert not(utils.run_next_gen(True, event))
 
 
+@pytest.mark.unit
 def test_run_next_gen_condition():
     """deapext.utils: Testing run_next_gen."""
     event = multiprocessing.Event()

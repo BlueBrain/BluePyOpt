@@ -33,7 +33,6 @@ import bluepyopt.deapext.algorithms
 import bluepyopt.stoppingCriteria
 import bluepyopt.deapext.optimisations
 import bluepyopt.deapext.optimisationsCMA
-import bluepyopt.deapext.hype
 
 # Add some backward compatibility for the time when DEAPoptimisation not in
 # deapext yet

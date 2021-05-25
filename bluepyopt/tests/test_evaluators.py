@@ -21,14 +21,15 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
 # pylint:disable=W0612
 
-import nose.tools as nt
-from nose.plugins.attrib import attr
+
+import pytest
+import numpy
 import bluepyopt
 
 
-@attr('unit')
+@pytest.mark.unit
 def test_evaluator_init():
     """bluepyopt.evaluators: test Evaluator init"""
 
     evaluator = bluepyopt.evaluators.Evaluator()
-    nt.assert_is_instance(evaluator, bluepyopt.evaluators.Evaluator)
+    assert isinstance(evaluator, bluepyopt.evaluators.Evaluator)

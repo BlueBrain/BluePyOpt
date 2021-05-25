@@ -267,6 +267,7 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
             seclist_name=None,
             comment=''):
         """Constructor
+
         Args:
             name (str): name of this object
             soma_distance (float): distance from soma to this compartment
