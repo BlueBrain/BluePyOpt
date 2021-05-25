@@ -59,7 +59,7 @@ class TsodyksMarkramEvaluator(bpop.evaluators.Evaluator):
         psp_start = np.searchsorted(t, tstim+offset)
         psp_stop = psp_start + window_samples
         psp_stop[-1] += 2*window_samples  # Extend last psp window (RTR case)
-        self.split_idx = zip(psp_start, psp_stop)
+        self.split_idx = list(zip(psp_start, psp_stop))
         # Parameters to be optimized
         self.params = [bpop.parameters.Parameter(name, bounds=(minval, maxval))
                        for name, minval, maxval in self.params]

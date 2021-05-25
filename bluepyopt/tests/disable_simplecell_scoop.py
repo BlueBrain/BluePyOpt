@@ -11,7 +11,7 @@ should match the precomputed output
 '''
 
 import os
-import nose.tools as nt
+
 import subprocess
 
 import bluepyopt as nrp
@@ -31,7 +31,7 @@ def disabled_scoop():
     for line in output.split('\n'):
         if line.startswith('BEST'):
             break
-    nt.eq_(line, 'BEST: [0.11268238279399023, 0.038129859413828474]')
+    assert line == 'BEST: [0.11268238279399023, 0.038129859413828474]'
 
 
 # The rest defines the optimization we run with scoop

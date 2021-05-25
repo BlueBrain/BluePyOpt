@@ -24,6 +24,8 @@ import numpy
 import pickle
 import random
 import functools
+import shutil
+import os
 
 import deap.tools
 
@@ -91,11 +93,9 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self.hof = hof
         if self.hof is None:
             self.hof = deap.tools.HallOfFame(10)
-        
-        if offspring_size < 2:
-            raise Exception("offspring_size has to be at least 2.")
+
         self.offspring_size = offspring_size
-        
+
         self.fitness_reduce = fitness_reduce
         self.centroids = centroids
         self.sigma = sigma
@@ -251,6 +251,9 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 Not taken into account if None.
         """
 
+        if cp_filename:
+            cp_filename_tmp = cp_filename + '.tmp'
+
         stats = self.get_stats()
 
         if continue_cp:
@@ -345,8 +348,10 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                     np_rndstate=numpy.random.get_state(),
                     CMA_es=CMA_es,
                 )
-                pickle.dump(cp, open(cp_filename, "wb"))
-                logger.debug("Wrote checkpoint to %s", cp_filename)
+                pickle.dump(cp, open(cp_filename_tmp, "wb"))
+                if os.path.isfile(cp_filename_tmp):
+                    shutil.copy(cp_filename_tmp, cp_filename)
+                    logger.debug('Wrote checkpoint to %s', cp_filename)
 
                 CMA_es.map_function = temp_mf
 

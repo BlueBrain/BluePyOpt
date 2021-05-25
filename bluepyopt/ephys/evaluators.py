@@ -116,10 +116,8 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
     def objective_list(self, objective_dict):
         """Convert objective_dict in objective_list"""
         objective_list = []
-        objective_names = [
-            objective.name for objective in self.fitness_calculator.objectives
-        ]
-
+        objective_names = [objective.name
+                           for objective in self.fitness_calculator.objectives]
         for objective_name in objective_names:
             objective_list.append(objective_dict[objective_name])
 
@@ -202,14 +200,10 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
             param_dict)
 
         if target == 'scores':
-            return self.fitness_calculator.calculate_scores(
-                responses, self.cell_model, param_dict
-            )
+            return self.fitness_calculator.calculate_scores(responses)
 
         elif target == 'values':
-            return self.fitness_calculator.calculate_values(
-                responses, self.cell_model, param_dict
-            )
+            return self.fitness_calculator.calculate_values(responses)
 
     def evaluate_with_lists(self, param_list=None, target='scores'):
         """Run evaluation with lists as input and outputs"""
