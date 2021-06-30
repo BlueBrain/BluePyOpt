@@ -268,6 +268,7 @@ class extraFELFeature(EFeature, DictMixin):
         somatic_recording_name=None,
         fcut=None,
         fs=None,
+        filt_type=None,
         ms_cut=None,
         upsample=None,
         skip_first_spike=True,
@@ -323,6 +324,7 @@ class extraFELFeature(EFeature, DictMixin):
         self.extrafel_feature_name = extrafel_feature_name
         self.fcut = fcut
         self.fs = fs
+        self.filt_type = filt_type
         self.ms_cut = ms_cut
         self.upsample = upsample
         self.skip_first_spike = skip_first_spike
@@ -443,7 +445,7 @@ class extraFELFeature(EFeature, DictMixin):
         if self.fcut is not None:
             if verbose:
                 print("filter enabled")
-            response_filter = _filter_response(response_interp, fcut=self.fcut)
+            response_filter = _filter_response(response_interp, fcut=self.fcut, filt_type=self.filt_type)
         else:
             if verbose:
                 print("filter disabled")
@@ -482,7 +484,7 @@ class extraFELFeature(EFeature, DictMixin):
         )
 
         if return_waveforms:
-            return feature_value, mean_wf_up
+            return feature_value, mean_wf
         else:
             return feature_value
 
