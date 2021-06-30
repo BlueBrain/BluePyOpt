@@ -185,6 +185,7 @@ class LFPySimulator(object):
 
         self.LFPyCellModel = LFPyCellModel
         self.electrode = electrode
+        self.effective_electrode = electrode
 
         self.lfpyelectrode = None
 
@@ -253,7 +254,7 @@ class LFPySimulator(object):
             rng = self.neuron.h.Random()
             rng.Random123_globalindex(random123_globalindex)
 
-        if self.electrode is not None:
+        if self.effective_electrode is not None:
             self.lfpyelectrode = LFPy.RecExtElectrode(self.LFPyCellModel.LFPyCell, probe=self.electrode)
             probes = [self.lfpyelectrode]
         else:

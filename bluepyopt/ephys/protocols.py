@@ -144,7 +144,6 @@ class SweepProtocol(Protocol):
                 protocol
             cvode_active (bool): whether to use variable time step
         """
-
         super(SweepProtocol, self).__init__(name)
         self.stimuli = stimuli
         self.recordings = recordings
@@ -163,7 +162,6 @@ class SweepProtocol(Protocol):
 
     def _run_func(self, cell_model, param_values, sim=None):
         """Run protocols"""
-
         try:
             cell_model.freeze(param_values)
             cell_model.instantiate(sim=sim)
@@ -172,10 +170,16 @@ class SweepProtocol(Protocol):
                 LFPyCell = cell_model.LFPyCell
             else:
                 LFPyCell = None
+
             self.instantiate(
                 sim=sim, icell=cell_model.icell, LFPyCell=LFPyCell
             )
 
+            if hasattr(sim, "electrode"):
+                if any(["LFP" in rec.name for rec in self.recordings]):
+                    sim.effective_electrode = sim.electrode
+                else:
+                    sim.effective_electrode = None
             try:
                 sim.run(self.total_duration, cvode_active=self.cvode_active)
             except (RuntimeError, simulators.NrnSimulatorException):
