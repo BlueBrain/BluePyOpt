@@ -219,7 +219,7 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
         distribution=None,
         comment="",
         dist_param_names=None,
-        ref_sec="soma[0]",
+        ref_section="soma[0]",
         ref_location=0,
     ):
         """Constructor
@@ -235,7 +235,7 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
                 object.
                 The distribution string should contain these names, and they
                 will be replaced by values of the corresponding attributes
-            ref_sec (str): string with name of reference section to compute distance (e.g. "soma[0]", "dend[2]")
+            ref_section (str): string with name of reference section to compute distance (e.g. "soma[0]", "dend[2]")
             ref_location (float): location along the soma used as origin
                 from which to compute the distances. Expressed as a fraction
                 (between 0.0 and 1.0).
@@ -246,7 +246,7 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
 
         self.dist_param_names = dist_param_names
         self.ref_location = ref_location
-        self.ref_sec = ref_sec
+        self.ref_section = ref_section
 
         if not (0.0 <= self.ref_location <= 1.0):
             raise ValueError("ref_location must be between 0 and 1.")
@@ -297,11 +297,11 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
         # find section
         target_sec = None
         for sec in segment.sec.cell().allsec():
-            if self.ref_sec in sec.name():
+            if self.ref_section in sec.name():
                 target_sec = sec
                 break
         if target_sec is None:
-            raise Exception(f"Could not find section {self.ref_sec} in section list")
+            raise Exception(f"Could not find section {self.ref_section} in section list")
 
         # Initialise origin
         sim.neuron.h.distance(0, self.ref_location, sec=target_sec)
