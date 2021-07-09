@@ -296,10 +296,11 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
         # TODO soma needs other addressing scheme
         # find section
         target_sec = None
-        for sec in segment.sec.cell().allsec():
+        for sec in sim.neuron.h.allsec():
             if self.ref_section in sec.name():
                 target_sec = sec
                 break
+
         if target_sec is None:
             raise Exception(f"Could not find section {self.ref_section} in section list")
 
