@@ -23,6 +23,11 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 import setuptools
 import versioneer
 
+
+EXTRA_SCOOP = [
+    'scoop>=0.7',
+]
+
 setuptools.setup(
     name="bluepyopt",
     version=versioneer.get_version(),
@@ -32,12 +37,16 @@ setuptools.setup(
         'pandas>=0.18',
         'deap',
         'efel>=2.13',
-        'scoop>=0.7',
         'ipyparallel',
         'pickleshare>=0.7.3',
         'Jinja2>=2.8',
         'future',
-	'Pebble>=4.3.10'],
+        'Pebble>=4.3.10'
+        ],
+    extras_require={
+        'all': EXTRA_SCOOP,
+        'scoop': EXTRA_SCOOP,
+        },
     packages=setuptools.find_packages(
         exclude=(
             'examples',
