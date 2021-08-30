@@ -103,6 +103,7 @@ We are providing support using a chat channel on `Gitter <https://gitter.im/Blue
 
 News
 ====
+- 2021/08/30: BluePyOpt dropped Python 2.7 support.
 - 2017/01/04: BluePyOpt is now considered compatible with Python 3.6+.
 - 2016/11/10: BluePyOpt now supports NEURON point processes. This means we can fit parameters of Adex/GIF/Izhikevich models, and also synapse models.
 - 2016/06/14: Started a wiki: https://github.com/BlueBrain/BluePyOpt/wiki
