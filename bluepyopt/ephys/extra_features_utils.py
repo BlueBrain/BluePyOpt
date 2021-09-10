@@ -111,7 +111,8 @@ def calculate_features(
 
 
 def peak_to_valley(waveforms, sampling_frequency):
-    """Time between trough and peak
+    """
+    Time between trough and peak. If the peak precedes the trough, peak_to_valley is negative.
 
     Parameters
     ----------
@@ -133,7 +134,8 @@ def peak_to_valley(waveforms, sampling_frequency):
 
 
 def peak_trough_ratio(waveforms):
-    """Ratio peak heigth and trough depth
+    """
+    Normalized ratio peak height and trough depth
 
     Assumes baseline is 0
 
@@ -155,14 +157,14 @@ def peak_trough_ratio(waveforms):
     for i in range(waveforms.shape[0]):
         if peak_idx[i] == 0 and trough_idx[i] == 0:
             continue
-        ptratio[i] = waveforms[i, peak_idx[i]] / waveforms[i, trough_idx[i]]
+        ptratio[i] = np.abs(waveforms[i, peak_idx[i]] / waveforms[i, trough_idx[i]])
 
     return ptratio
 
 
 def halfwidth(waveforms, sampling_frequency, return_idx=False):
     """
-    Width of waveform at its half of amplitude
+    Width of waveform at its half of amplitude. If the peak precedes the trough, halfwidth is negative.
 
     Computes the width of the waveform peak at half it's height
 
@@ -307,7 +309,7 @@ def recovery_slope(waveforms, sampling_frequency, window):
     """
     Return the recovery slope of input waveforms. After repolarization,
     the neuron hyperpolarizes untill it peaks. The recovery slope is the
-    slope of the actiopotential after the peak, returning to the baseline
+    slope of the action potential after the peak, returning to the baseline
     in dV/dT. The slope is computed within a user-defined window after
     the peak.
 
@@ -321,7 +323,7 @@ def recovery_slope(waveforms, sampling_frequency, window):
     sampling_frequency  : float
         rate at which the waveforms are sampled (Hz)
     window : float
-        length after peak wherein to compyte recovery slope (ms)
+        length after peak wherein to compute recovery slope (ms)
 
 
     Returns
