@@ -1,7 +1,7 @@
 {
   "name": "BluePyOpt",
   "description": "The Blue Brain Python Optimisation Library (BluePyOpt) is an extensible framework for data-driven model parameter optimisation that wraps and standardises several existing open-source tools.",
-  "version": "1.7.0",
+  "version": "1.9.50",
   "scripts": {
     "build_doc": "echo 'bluepyopt.readthedocs.io'"
   },
@@ -11,6 +11,6 @@
     "issuesurl": "https://github.com/BlueBrain/BluePyOpt/issues"
   },
   "author": "Werner Van Geit (werner.vangeit@epfl.ch)",
-  "contributors": ["Guiseppe Chindemi", "Jean-Denis Courcol", "Michael Gevaert", "Christian Roessert", "Werner Van Geit"],
+  "contributors": ["Guiseppe Chindemi", "Jean-Denis Courcol", "Tanguy Damart", "Michael Gevaert", "Elisabetta Iavarone", "Christian Roessert", "Anil Tuncel", "Werner Van Geit"],
   "license": "LGPL/BSD"
 }

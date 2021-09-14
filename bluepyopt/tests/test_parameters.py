@@ -1,7 +1,7 @@
 """bluepyopt.parameters tests"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -21,129 +21,124 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint:disable=W0612
 
-import nose.tools as nt
-from nose.plugins.attrib import attr
+
+import pytest
 
 import bluepyopt
 
 
-@attr("unit")
+@pytest.mark.unit
 def test_parameters_init():
     """bluepyopt.parameters: test Parameter init"""
 
-    param = bluepyopt.parameters.Parameter(name="test")
-    nt.assert_is_instance(param, bluepyopt.parameters.Parameter)
-    nt.assert_equal(param.name, "test")
+    param = bluepyopt.parameters.Parameter(name='test')
+    assert isinstance(param, bluepyopt.parameters.Parameter)
+    assert param.name == 'test'
 
 
-@attr("unit")
+@pytest.mark.unit
 def test_parameters_fields():
     """bluepyopt.parameters: test Parameter fields"""
 
-    param = bluepyopt.parameters.Parameter(name="test")
+    param = bluepyopt.parameters.Parameter(name='test')
 
-    nt.assert_equal(param.lower_bound, None)
-    nt.assert_equal(param.upper_bound, None)
+    assert param.lower_bound is None
+    assert param.upper_bound is None
 
     param.freeze(5)
-    nt.assert_raises(Exception, setattr, param, "value", 5)
+    pytest.raises(Exception, setattr, param, "value", 5)
 
-    param = bluepyopt.parameters.Parameter(name="test", bounds=[2, 5])
-    nt.assert_raises(ValueError, param.freeze, 1)
+    param = bluepyopt.parameters.Parameter(name='test', bounds=[2, 5])
+    pytest.raises(ValueError, param.freeze, 1)
 
 
-@attr("unit")
+@pytest.mark.unit
 def test_parameters_str():
     """bluepyopt.parameters: test Parameter str conversion"""
 
-    param = bluepyopt.parameters.Parameter(name="test")
+    param = bluepyopt.parameters.Parameter(name='test')
 
-    nt.assert_equal(str(param), "test: value = None")
+    assert str(param) == 'test: value = None'
 
     param.freeze(5.5)
 
-    nt.assert_equal(str(param), "test: value = 5.5")
+    assert str(param) == 'test: value = 5.5'
 
 
-@attr("unit")
+@pytest.mark.unit
 def test_MetaListEqualParameter_init():
     """bluepyopt.parameters: test MetaListEqualParameter init"""
 
     sub_params = [
-        bluepyopt.parameters.Parameter(name="sub1", value=1),
-        bluepyopt.parameters.Parameter(name="sub2", value=2),
-    ]
+        bluepyopt.parameters.Parameter(
+            name='sub1', value=1), bluepyopt.parameters.Parameter(
+            name='sub2', value=2)]
 
-    nt.assert_equal(sub_params[0].value, 1)
-    nt.assert_equal(sub_params[1].value, 2)
+    assert sub_params[0].value == 1
+    assert sub_params[1].value == 2
 
     param = bluepyopt.parameters.MetaListEqualParameter(
-        name="param", value=0, frozen=True, sub_parameters=sub_params
-    )
-    nt.assert_is_instance(param, bluepyopt.parameters.Parameter)
-    nt.assert_is_instance(param, bluepyopt.parameters.MetaListEqualParameter)
+        name='param', value=0, frozen=True, sub_parameters=sub_params)
+    assert isinstance(param, bluepyopt.parameters.Parameter)
+    assert isinstance(param, bluepyopt.parameters.MetaListEqualParameter)
 
-    nt.assert_equal(param.name, "param")
-    nt.assert_equal(param.sub_parameters[0].name, "sub1")
-    nt.assert_equal(param.sub_parameters[1].name, "sub2")
+    assert param.name == 'param'
+    assert param.sub_parameters[0].name == 'sub1'
+    assert param.sub_parameters[1].name == 'sub2'
 
-    nt.assert_equal(param.value, 0)
-    nt.assert_equal(sub_params[0].value, 0)
-    nt.assert_equal(sub_params[1].value, 0)
+    assert param.value == 0
+    assert sub_params[0].value == 0
+    assert sub_params[1].value == 0
 
 
-@attr("unit")
+@pytest.mark.unit
 def test_MetaListEqualParameter_freeze_unfreeze():
     """bluepyopt.parameters: test MetaListEqualParameter freeze and unfreeze"""
 
     sub_params = [
-        bluepyopt.parameters.Parameter(name="sub1", value=1),
-        bluepyopt.parameters.Parameter(name="sub2", value=2),
-    ]
+        bluepyopt.parameters.Parameter(
+            name='sub1', value=1), bluepyopt.parameters.Parameter(
+            name='sub2', value=2)]
 
     param = bluepyopt.parameters.MetaListEqualParameter(
-        name="param", sub_parameters=sub_params
-    )
+        name='param', sub_parameters=sub_params)
 
-    nt.assert_equal(param.value, None)
-    nt.assert_equal(sub_params[0].value, 1)
-    nt.assert_equal(sub_params[1].value, 2)
+    assert param.value is None
+    assert sub_params[0].value == 1
+    assert sub_params[1].value == 2
 
     param.freeze(0)
 
-    nt.assert_equal(param.value, 0)
-    nt.assert_equal(sub_params[0].value, 0)
-    nt.assert_equal(sub_params[1].value, 0)
+    assert param.value == 0
+    assert sub_params[0].value == 0
+    assert sub_params[1].value == 0
 
     param.unfreeze()
 
     sub_params[0].freeze(1)
-    nt.assert_raises(Exception, param.freeze, 0)
+    pytest.raises(Exception, param.freeze, 0)
 
 
-@attr("unit")
+@pytest.mark.unit
 def test_MetaListEqualParamete_str():
     """bluepyopt.parameters: test MetaListEqualParamete str conversion"""
 
     sub_params = [
-        bluepyopt.parameters.Parameter(name="sub1", value=1),
-        bluepyopt.parameters.Parameter(name="sub2", value=2),
-    ]
+        bluepyopt.parameters.Parameter(
+            name='sub1', value=1), bluepyopt.parameters.Parameter(
+            name='sub2', value=2)]
 
     param = bluepyopt.parameters.MetaListEqualParameter(
-        name="param", sub_parameters=sub_params
-    )
+        name='param', sub_parameters=sub_params)
 
-    nt.assert_equal(
-        str(param),
-        "param (sub_params: sub1: value = None,sub2: value = None): "
-        "value = None",
-    )
+    assert (
+        str(param)
+        == 'param (sub_params: sub1: value = None,sub2: value = None): '
+        'value = None')
 
     param.freeze(5.5)
 
-    nt.assert_equal(
-        str(param),
-        "param (sub_params: sub1: value = 5.5,sub2: value = 5.5): "
-        "value = 5.5",
-    )
+    assert (
+        str(param)
+        == 'param (sub_params: sub1: value = 5.5,sub2: value = 5.5): '
+        'value = 5.5')

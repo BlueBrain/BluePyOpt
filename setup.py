@@ -2,7 +2,7 @@
 """BluePyOpt  setup """
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -23,6 +23,11 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 import setuptools
 import versioneer
 
+
+EXTRA_SCOOP = [
+    'scoop>=0.7',
+]
+
 setuptools.setup(
     name="bluepyopt",
     version=versioneer.get_version(),
@@ -32,13 +37,16 @@ setuptools.setup(
         'pandas>=0.18',
         'deap',
         'efel>=2.13',
-        'scoop>=0.7',
         'ipyparallel',
         'pickleshare>=0.7.3',
         'Jinja2>=2.8',
         'future',
-	    'Pebble>=4.3.10',
-        'LFPy'],
+        'Pebble>=4.3.10'
+        ],
+    extras_require={
+        'all': EXTRA_SCOOP,
+        'scoop': EXTRA_SCOOP,
+        },
     packages=setuptools.find_packages(
         exclude=(
             'examples',
@@ -65,8 +73,7 @@ setuptools.setup(
         'Environment :: Console',
         'License :: OSI Approved :: GNU Lesser General Public '
         'License v3 (LGPLv3)',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3 :: Only',
         'Operating System :: POSIX',
         'Topic :: Scientific/Engineering',
         'Topic :: Utilities'],

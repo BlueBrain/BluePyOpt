@@ -1,7 +1,7 @@
 """Protocol classes"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -25,13 +25,11 @@ import collections
 
 # TODO: maybe find a better name ? -> sweep ?
 import logging
-
 logger = logging.getLogger(__name__)
 
 from . import models
 from . import locations
 from . import simulators
-from . import recordings
 
 
 class Protocol(object):
@@ -64,8 +62,12 @@ class SequenceProtocol(Protocol):
         self.protocols = protocols
 
     def run(
-        self, cell_model, param_values, sim=None, isolate=None, timeout=None
-    ):
+            self,
+            cell_model,
+            param_values,
+            sim=None,
+            isolate=None,
+            timeout=None):
         """Instantiate protocol"""
 
         responses = collections.OrderedDict({})
@@ -79,28 +81,24 @@ class SequenceProtocol(Protocol):
                     param_values=param_values,
                     sim=sim,
                     isolate=isolate,
-                    timeout=timeout,
-                )
+                    timeout=timeout)
             except TypeError as e:
                 if "unexpected keyword" in str(e):
                     response = protocol.run(
                         cell_model=cell_model,
                         param_values=param_values,
                         sim=sim,
-                        isolate=isolate,
-                    )
+                        isolate=isolate)
                 else:
                     raise
 
-            key_intersect = set(response.keys()).intersection(
-                set(responses.keys())
-            )
+            key_intersect = set(
+                response.keys()).intersection(set(responses.keys()))
             if len(key_intersect) != 0:
                 raise Exception(
-                    "SequenceProtocol: one of the protocols (%s) is trying to "
-                    "add already existing keys to the response: %s"
-                    % (protocol.name, key_intersect)
-                )
+                    'SequenceProtocol: one of the protocols (%s) is trying to '
+                    'add already existing keys to the response: %s' %
+                    (protocol.name, key_intersect))
 
             responses.update(response)
 
@@ -119,11 +117,11 @@ class SequenceProtocol(Protocol):
     def __str__(self):
         """String representation"""
 
-        content = "Sequence protocol %s:\n" % self.name
+        content = 'Sequence protocol %s:\n' % self.name
 
-        content += "%d subprotocols:\n" % len(self.protocols)
+        content += '%d subprotocols:\n' % len(self.protocols)
         for protocol in self.protocols:
-            content += "%s\n" % str(protocol)
+            content += '%s\n' % str(protocol)
 
         return content
 
@@ -133,8 +131,11 @@ class SweepProtocol(Protocol):
     """Sweep protocol"""
 
     def __init__(
-        self, name=None, stimuli=None, recordings=None, cvode_active=None
-    ):
+            self,
+            name=None,
+            stimuli=None,
+            recordings=None,
+            cvode_active=None):
         """Constructor
 
         Args:
@@ -144,6 +145,7 @@ class SweepProtocol(Protocol):
                 protocol
             cvode_active (bool): whether to use variable time step
         """
+
         super(SweepProtocol, self).__init__(name)
         self.stimuli = stimuli
         self.recordings = recordings
@@ -162,6 +164,7 @@ class SweepProtocol(Protocol):
 
     def _run_func(self, cell_model, param_values, sim=None):
         """Run protocols"""
+
         try:
             cell_model.freeze(param_values)
             cell_model.instantiate(sim=sim)
@@ -184,18 +187,15 @@ class SweepProtocol(Protocol):
                 sim.run(self.total_duration, cvode_active=self.cvode_active)
             except (RuntimeError, simulators.NrnSimulatorException):
                 logger.debug(
-                    "SweepProtocol: Running of parameter set {%s} generated "
-                    "an exception, returning None in responses",
-                    str(param_values),
-                )
-                responses = {
-                    recording.name: None for recording in self.recordings
-                }
+                    'SweepProtocol: Running of parameter set {%s} generated '
+                    'an exception, returning None in responses',
+                    str(param_values))
+                responses = {recording.name:
+                             None for recording in self.recordings}
             else:
                 responses = {
                     recording.name: recording.response
-                    for recording in self.recordings
-                }
+                    for recording in self.recordings}
 
             self.destroy(sim=sim)
 
@@ -207,28 +207,29 @@ class SweepProtocol(Protocol):
         except BaseException:
             import sys
             import traceback
-
             raise Exception(
-                "".join(traceback.format_exception(*sys.exc_info()))
-            )
+                "".join(
+                    traceback.format_exception(*sys.exc_info())))
 
     def run(
-        self, cell_model, param_values, sim=None, isolate=None, timeout=None
-    ):
+            self,
+            cell_model,
+            param_values,
+            sim=None,
+            isolate=None,
+            timeout=None):
         """Instantiate protocol"""
 
         if isolate is None:
             isolate = True
 
         if isolate:
-
             def _reduce_method(meth):
                 """Overwrite reduce"""
                 return (getattr, (meth.__self__, meth.__func__.__name__))
 
             import copyreg
             import types
-
             copyreg.pickle(types.MethodType, _reduce_method)
             import pebble
             from concurrent.futures import TimeoutError
@@ -237,31 +238,24 @@ class SweepProtocol(Protocol):
                 if timeout < 0:
                     raise ValueError("timeout should be > 0")
 
-            with pebble.ProcessPool(max_tasks=1) as pool:
-                tasks = pool.schedule(
-                    self._run_func,
-                    kwargs={
-                        "cell_model": cell_model,
-                        "param_values": param_values,
-                        "sim": sim,
-                    },
-                    timeout=timeout,
-                )
+            with pebble.ProcessPool(max_workers=1, max_tasks=1) as pool:
+                tasks = pool.schedule(self._run_func, kwargs={
+                    'cell_model': cell_model,
+                    'param_values': param_values,
+                    'sim': sim},
+                    timeout=timeout)
                 try:
                     responses = tasks.result()
                 except TimeoutError:
-                    logger.debug(
-                        "SweepProtocol: task took longer than "
-                        "timeout, will return empty response "
-                        "for this recording"
-                    )
-                    responses = {
-                        recording.name: None for recording in self.recordings
-                    }
+                    logger.debug('SweepProtocol: task took longer than '
+                                 'timeout, will return empty response '
+                                 'for this recording')
+                    responses = {recording.name:
+                                 None for recording in self.recordings}
         else:
-            responses = self._run_func(
-                cell_model=cell_model, param_values=param_values, sim=sim
-            )
+            responses = self._run_func(cell_model=cell_model,
+                                       param_values=param_values,
+                                       sim=sim)
         return responses
 
     def instantiate(self, sim=None, icell=None, LFPyCell=None):
@@ -282,10 +276,9 @@ class SweepProtocol(Protocol):
                     recording.instantiate(sim=sim, icell=icell)
             except locations.EPhysLocInstantiateException:
                 logger.debug(
-                    "SweepProtocol: Instantiating recording generated "
-                    "location exception, will return empty response for "
-                    "this recording"
-                )
+                    'SweepProtocol: Instantiating recording generated '
+                    'location exception, will return empty response for '
+                    'this recording')
 
     def destroy(self, sim=None):
         """Destroy protocol"""
@@ -299,15 +292,15 @@ class SweepProtocol(Protocol):
     def __str__(self):
         """String representation"""
 
-        content = "%s:\n" % self.name
+        content = '%s:\n' % self.name
 
-        content += "  stimuli:\n"
+        content += '  stimuli:\n'
         for stimulus in self.stimuli:
-            content += "    %s\n" % str(stimulus)
+            content += '    %s\n' % str(stimulus)
 
-        content += "  recordings:\n"
+        content += '  recordings:\n'
         for recording in self.recordings:
-            content += "    %s\n" % str(recording)
+            content += '    %s\n' % str(recording)
 
         return content
 
@@ -317,13 +310,12 @@ class StepProtocol(SweepProtocol):
     """Protocol consisting of step and holding current"""
 
     def __init__(
-        self,
-        name=None,
-        step_stimulus=None,
-        holding_stimulus=None,
-        recordings=None,
-        cvode_active=None,
-    ):
+            self,
+            name=None,
+            step_stimulus=None,
+            holding_stimulus=None,
+            recordings=None,
+            cvode_active=None):
         """Constructor
 
         Args:
@@ -336,12 +328,12 @@ class StepProtocol(SweepProtocol):
 
         super(StepProtocol, self).__init__(
             name,
-            stimuli=[step_stimulus, holding_stimulus]
-            if holding_stimulus is not None
-            else [step_stimulus],
+            stimuli=[
+                step_stimulus,
+                holding_stimulus]
+            if holding_stimulus is not None else [step_stimulus],
             recordings=recordings,
-            cvode_active=cvode_active,
-        )
+            cvode_active=cvode_active)
 
         self.step_stimulus = step_stimulus
         self.holding_stimulus = holding_stimulus

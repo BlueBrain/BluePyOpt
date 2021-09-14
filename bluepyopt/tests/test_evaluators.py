@@ -1,7 +1,7 @@
 """bluepyopt.evaluators tests"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -21,14 +21,15 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint:disable=W0612
 
-import nose.tools as nt
-from nose.plugins.attrib import attr
+
+import pytest
+import numpy
 import bluepyopt
 
 
-@attr("unit")
+@pytest.mark.unit
 def test_evaluator_init():
     """bluepyopt.evaluators: test Evaluator init"""
 
     evaluator = bluepyopt.evaluators.Evaluator()
-    nt.assert_is_instance(evaluator, bluepyopt.evaluators.Evaluator)
+    assert isinstance(evaluator, bluepyopt.evaluators.Evaluator)

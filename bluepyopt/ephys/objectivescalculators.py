@@ -1,7 +1,7 @@
 """Score calculator classes"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -40,6 +40,12 @@ class ObjectivesCalculator(object):
             objective.name: objective.calculate_score(responses)
             for objective in self.objectives
         }
+
+    def calculate_values(self, responses):
+        """Calculator the value of each objective"""
+
+        return {objective.name: objective.calculate_value(responses)
+                for objective in self.objectives}
 
     def __str__(self):
         return (
