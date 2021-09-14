@@ -153,7 +153,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
         # Number of objectives
         OBJ_SIZE = len(self.evaluator.objectives)
-
+        if OBJ_SIZE == 0:
+            raise Exception("The evaluator does not have any objectives")
+        
         # Set random seed
         random.seed(self.seed)
 
@@ -164,7 +166,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
         # Number of parameters
         IND_SIZE = len(self.evaluator.params)
-
+        if IND_SIZE == 0:
+            raise Exception("The evaluator does not have any parameters")
+        
         # Bounds for the parameters
         LOWER = []
         UPPER = []
