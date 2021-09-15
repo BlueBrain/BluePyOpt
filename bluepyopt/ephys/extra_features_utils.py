@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.stats import linregress
 
 all_1D_features = [
     "peak_to_valley",
@@ -297,10 +296,11 @@ def repolarization_slope(waveforms, sampling_frequency, return_idx=False):
 
         if return_to_base_idx[i] - trough_idx[i] < 3:
             continue
-        rslope[i] = linregress(
+        slope = _get_slope(
             time[trough_idx[i]:return_to_base_idx[i]],
-            waveforms[i, trough_idx[i]:return_to_base_idx[i]],
-        )[0]
+            waveforms[i, trough_idx[i]:return_to_base_idx[i]]
+        )
+        rslope[i] = slope[0]
 
     if not return_idx:
         return rslope
@@ -444,6 +444,8 @@ def _get_slope(x, y):
     """
     Retrun the slope of x and y data, using scipy.signal.linregress
     """
+    from scipy.stats import linregress
+
     slope = linregress(x, y)
     return slope
 
