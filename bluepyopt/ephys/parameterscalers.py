@@ -77,7 +77,6 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
 
     def scale(self, value, segment=None, sim=None):  # pylint: disable=W0613
         """Scale a value based on a segment"""
-
         return self.multiplier * value + self.offset
 
     def __str__(self):
