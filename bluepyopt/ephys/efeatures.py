@@ -248,21 +248,10 @@ class eFELFeature(EFeature, DictMixin):
 class extraFELFeature(EFeature, DictMixin):
     """extraFEL feature"""
 
-    SERIALIZED_FIELDS = (
-        "name",
-        "extrafel_feature_name",
-        "recording_names",
-        "somatic_recording_name",
-        "fcut",
-        "fs",
-        "channel_id",
-        "stim_start",
-        "stim_end",
-        "exp_mean",
-        "exp_std",
-        "threshold",
-        "comment",
-    )
+    SERIALIZED_FIELDS = ('name', 'extrafel_feature_name', 'recording_names',
+                         'somatic_recording_name', 'fcut', 'fs',
+                         'channel_ids', 'stim_start', 'stim_end',
+                         'exp_mean', 'exp_std', 'threshold', 'comment')
 
     def __init__(
             self,
@@ -277,15 +266,13 @@ class extraFELFeature(EFeature, DictMixin):
             upsample=None,
             skip_first_spike=True,
             skip_last_spike=True,
-            channel_id=None,
-            channel_locations=None,
-            detect_threshold=None,
+            channel_ids=None,
             stim_start=None,
             stim_end=None,
             exp_mean=None,
             exp_std=None,
             threshold=None,
-            comment="",
+            comment='',
             interp_step=None,
             double_settings=None,
             int_settings=None,
@@ -308,6 +295,24 @@ class extraFELFeature(EFeature, DictMixin):
                 filter is used. If None, traces are note filtered
             fs (float): sampling frequency to resample extracellular traces
                 (in kHz)
+            filt_type (str): type of the bandpass filter used
+                (default 'filtfilt')
+            ms_cut (float, list, or None): cut in ms before and after the
+                intra peak. If scalar, the cut is symmetrical
+            upsample (int, or None): upsample factor for average waveform
+                before computing features
+            skip_first_spike (bool): if True, the first spike is skipped
+                before computing the average waveform
+                (to avoid artifacts)
+            skip_last_spike (bool): if True, the last spike is skipped
+                before computing the average waveform
+                (to avoid artifacts)
+            channel_ids (int, np.array, or None): if None, all channels are
+                used to compute the feature and calculate the score
+                (using the cosine_dist). If int, a single channel is used and
+                the score is the normalised deviation form the exp value.
+                If list/array, the cosine distance is computed over a subset
+                of channels
             stim_start (float): stimulation start time (ms)
             stim_end (float): stimulation end time (ms)
             exp_mean (float): experimental mean of this eFeature
@@ -333,9 +338,7 @@ class extraFELFeature(EFeature, DictMixin):
         self.upsample = upsample
         self.skip_first_spike = skip_first_spike
         self.skip_last_spike = skip_last_spike
-        self.detect_threshold = detect_threshold
-        self.channel_id = channel_id
-        self.channel_locations = channel_locations
+        self.channel_ids = channel_ids
         self.exp_mean = exp_mean
         self.exp_std = exp_std
         self.stim_start = stim_start
@@ -417,7 +420,6 @@ class extraFELFeature(EFeature, DictMixin):
             responses,
             raise_warnings=False,
             return_waveforms=False,
-            detect_threshold=None,
             verbose=False,
     ):
         """Calculate feature value"""
@@ -468,20 +470,10 @@ class extraFELFeature(EFeature, DictMixin):
             feature_names=[self.extrafel_feature_name]
         )
 
-        if detect_threshold is not None:
-            assert (0 <= detect_threshold < 1), "'detect_threshold should " \
-                                                "be between 0 and 1"
-            self.detect_threshold = detect_threshold
-
         feature_value = values[self.extrafel_feature_name]
 
-        if self.detect_threshold is not None:
-            nan_idxs = amplitudes < (self.detect_threshold *
-                                     np.max(amplitudes))
-            feature_value[nan_idxs] = np.nan
-
-        if self.channel_id is not None:
-            feature_value = feature_value[self.channel_id]
+        if self.channel_ids is not None:
+            feature_value = feature_value[self.channel_ids]
 
         logger.debug(
             "Calculated value for %s: %s", self.name, str(feature_value)
