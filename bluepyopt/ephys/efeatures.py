@@ -449,7 +449,9 @@ class extraFELFeature(EFeature, DictMixin):
         if self.fcut is not None:
             if verbose:
                 print("filter enabled")
-            response_filter = _filter_response(response_interp, fcut=self.fcut, filt_type=self.filt_type)
+            response_filter = _filter_response(response_interp,
+                                               fcut=self.fcut,
+                                               filt_type=self.filt_type)
         else:
             if verbose:
                 print("filter disabled")
@@ -496,7 +498,8 @@ class extraFELFeature(EFeature, DictMixin):
         """Calculate the score"""
 
         if (
-                responses[self.recording_names[""].replace("soma.v", "MEA.LFP")]
+                responses[self.recording_names[""].replace("soma.v",
+                                                           "MEA.LFP")]
                 is None
                 or responses[self.recording_names[""]] is None
         ):
@@ -652,9 +655,8 @@ def _get_waveforms(response, peak_times, snippet_len_ms):
             if snippet_range[1] >= num_frames:
                 snippet_buffer[1] -= snippet_range[1] - num_frames
                 snippet_range[1] -= snippet_range[1] - num_frames
-            snippet_chunk[:, snippet_buffer[0]:snippet_buffer[1]] = traces[
-                                                                    :, snippet_range[0]:snippet_range[1]
-                                                                    ]
+            snippet_chunk[:, snippet_buffer[0]:snippet_buffer[1]] = \
+                traces[:, snippet_range[0]:snippet_range[1]]
         waveforms[i] = snippet_chunk
 
     return waveforms

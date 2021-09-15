@@ -249,7 +249,8 @@ class LFPySimulator(object):
             rng.Random123_globalindex(random123_globalindex)
 
         if self.effective_electrode is not None:
-            self.lfpyelectrode = LFPy.RecExtElectrode(self.LFPyCellModel.LFPyCell, probe=self.electrode)
+            self.lfpyelectrode = LFPy.RecExtElectrode(
+                self.LFPyCellModel.LFPyCell, probe=self.electrode)
             probes = [self.lfpyelectrode]
         else:
             probes = None

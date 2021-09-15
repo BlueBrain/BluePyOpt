@@ -52,7 +52,7 @@ def get_hyped(pop):
     points = numpy.delete(points, to_remove, axis=1)
     lbounds = numpy.delete(lbounds, to_remove)
     ubounds = numpy.delete(ubounds, to_remove)
-    
+
     if not len(lbounds):
         logger.warning("No dimension along which to compute the hypervolume.")
         return [0. for ind in pop]

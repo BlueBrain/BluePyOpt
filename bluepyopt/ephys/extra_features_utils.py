@@ -112,7 +112,8 @@ def calculate_features(
 
 def peak_to_valley(waveforms, sampling_frequency):
     """
-    Time between trough and peak. If the peak precedes the trough, peak_to_valley is negative.
+    Time between trough and peak. If the peak precedes the trough,
+    peak_to_valley is negative.
 
     Parameters
     ----------
@@ -157,14 +158,16 @@ def peak_trough_ratio(waveforms):
     for i in range(waveforms.shape[0]):
         if peak_idx[i] == 0 and trough_idx[i] == 0:
             continue
-        ptratio[i] = np.abs(waveforms[i, peak_idx[i]] / waveforms[i, trough_idx[i]])
+        ptratio[i] = np.abs(waveforms[i, peak_idx[i]] /
+                            waveforms[i, trough_idx[i]])
 
     return ptratio
 
 
 def halfwidth(waveforms, sampling_frequency, return_idx=False):
     """
-    Width of waveform at its half of amplitude. If the peak precedes the trough, halfwidth is negative.
+    Width of waveform at its half of amplitude. If the peak precedes the trough,
+    halfwidth is negative.
 
     Computes the width of the waveform peak at half it's height
 

@@ -106,9 +106,9 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
                 from soma. string can contain `distance` and/or `value` as
                 placeholders for the distance to the soma and parameter value
                 respectivily
-            dist_param_names (list): list of names of parameters that parametrise
-                the distribution. These names will become attributes of this
-                object.
+            dist_param_names (list): list of names of parameters that
+                parametrise the distribution. These names will become
+                attributes of this object.
                 The distribution string should contain these names, and they
                 will be replaced by values of the corresponding attributes
             soma_ref_location (float): location along the soma used as origin
@@ -216,12 +216,13 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
                 from soma. string can contain `distance` and/or `value` as
                 placeholders for the distance to the soma and parameter value
                 respectivily
-            dist_param_names (list): list of names of parameters that parametrise
-                the distribution. These names will become attributes of this
-                object.
+            dist_param_names (list): list of names of parameters that
+                parametrise the distribution. These names will become
+                attributes of this object.
                 The distribution string should contain these names, and they
                 will be replaced by values of the corresponding attributes
-            ref_section (str): string with name of reference section to compute distance (e.g. "soma[0]", "dend[2]")
+            ref_section (str): string with name of reference section to
+                compute distance (e.g. "soma[0]", "dend[2]")
             ref_location (float): location along the soma used as origin
                 from which to compute the distances. Expressed as a fraction
                 (between 0.0 and 1.0).
@@ -292,7 +293,8 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
                 break
 
         if target_sec is None:
-            raise Exception(f"Could not find section {self.ref_section} in section list")
+            raise Exception(f"Could not find section {self.ref_section} "
+                            f"in section list")
 
         # Initialise origin
         sim.neuron.h.distance(0, self.ref_location, sec=target_sec)

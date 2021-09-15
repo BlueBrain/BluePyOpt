@@ -42,8 +42,9 @@ class NrnFileMorphology(Morphology, DictMixin):
 
     """Morphology loaded from a file"""
     SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg',
-                         'replace_axon_hoc', 'nseg_frequency', 'morph_modifiers',
-                         'morph_modifiers_hoc', 'morph_modifiers_kwargs')
+                         'replace_axon_hoc', 'nseg_frequency',
+                         'morph_modifiers', 'morph_modifiers_hoc',
+                         'morph_modifiers_kwargs')
 
     def __init__(
             self,
@@ -154,7 +155,8 @@ class NrnFileMorphology(Morphology, DictMixin):
 
         if self.morph_modifiers is not None:
             for morph_modifier in self.morph_modifiers:
-                morph_modifier(sim=sim, icell=icell, **self.morph_modifiers_kwargs)
+                morph_modifier(sim=sim, icell=icell,
+                               **self.morph_modifiers_kwargs)
 
     def destroy(self, sim=None):
         """Destroy morphology instantiation"""
