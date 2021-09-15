@@ -20,7 +20,6 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 """
 
 # pylint: disable=W0511
-import LFPy
 import numpy as np
 
 import logging
@@ -371,6 +370,7 @@ class LFPySquarePulse(Stimulus):
 
     def instantiate(self, sim=None, icell=None, LFPyCell=None):
         """Run stimulus"""
+        import LFPy
         from .locations import NrnSomaDistanceCompLocation
 
         if hasattr(self.location, "sec_index"):

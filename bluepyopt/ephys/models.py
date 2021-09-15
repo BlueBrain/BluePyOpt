@@ -31,8 +31,6 @@ import os
 import collections
 import string
 
-import LFPy
-
 from . import create_hoc
 from . import morphologies
 
@@ -658,6 +656,7 @@ class LFPyCellModel(Model):
 
     def instantiate(self, sim=None):
         """Instantiate model in simulator"""
+        import LFPy
 
         # TODO replace this with the real template name
         if not hasattr(sim.neuron.h, self.name):

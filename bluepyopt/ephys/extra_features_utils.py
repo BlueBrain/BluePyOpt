@@ -166,8 +166,8 @@ def peak_trough_ratio(waveforms):
 
 def halfwidth(waveforms, sampling_frequency, return_idx=False):
     """
-    Width of waveform at its half of amplitude. If the peak precedes the trough,
-    halfwidth is negative.
+    Width of waveform at its half of amplitude.
+    If the peak precedes the trough, halfwidth is negative.
 
     Computes the width of the waveform peak at half it's height
 

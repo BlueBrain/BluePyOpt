@@ -469,17 +469,15 @@ class extraFELFeature(EFeature, DictMixin):
         )
 
         if detect_threshold is not None:
-            assert (
-                    0 <= detect_threshold < 1
-            ), "'detect_threshold should be between 0 and 1"
+            assert (0 <= detect_threshold < 1), "'detect_threshold should " \
+                                                "be between 0 and 1"
             self.detect_threshold = detect_threshold
 
         feature_value = values[self.extrafel_feature_name]
 
         if self.detect_threshold is not None:
-            nan_idxs = amplitudes < \
-                       (self.detect_threshold * np.max(amplitudes))
-            # raise Exception
+            nan_idxs = amplitudes < (self.detect_threshold *
+                                     np.max(amplitudes))
             feature_value[nan_idxs] = np.nan
 
         if self.channel_id is not None:
@@ -541,15 +539,13 @@ class extraFELFeature(EFeature, DictMixin):
         return (
                 "%s for %s with stim start %s and end %s, "
                 "exp mean %s and std %s and AP threshold override %s"
-                % (
-                    self.extrafel_feature_name,
-                    self.recording_names,
-                    self.stim_start,
-                    self.stim_end,
-                    self.exp_mean,
-                    self.exp_std,
-                    self.threshold,
-                )
+                % (self.extrafel_feature_name,
+                   self.recording_names,
+                   self.stim_start,
+                   self.stim_end,
+                   self.exp_mean,
+                   self.exp_std,
+                   self.threshold)
         )
 
 
