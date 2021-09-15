@@ -536,8 +536,7 @@ class extraFELFeature(EFeature, DictMixin):
     def __str__(self):
         """String representation"""
 
-        return (
-                "%s for %s with stim start %s and end %s, "
+        return ("%s for %s with stim start %s and end %s, "
                 "exp mean %s and std %s and AP threshold override %s"
                 % (self.extrafel_feature_name,
                    self.recording_names,
@@ -546,7 +545,7 @@ class extraFELFeature(EFeature, DictMixin):
                    self.exp_mean,
                    self.exp_std,
                    self.threshold)
-        )
+                )
 
 
 def _interpolate_response(response, fs=20.0):
