@@ -26,12 +26,12 @@ import logging
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 from .extra_features_utils import *
-from scipy.spatial import distance
 
 logger = logging.getLogger(__name__)
 
 
 def masked_cosine_distance(exp, model):
+    from scipy.spatial import distance
 
     exp_mask = np.isfinite(exp)
     model_mask = np.isfinite(model)
