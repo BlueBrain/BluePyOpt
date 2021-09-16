@@ -46,7 +46,6 @@ class NrnSimulator(object):
         self.cvode_minstep_value = cvode_minstep
 
         self.cvode_active = cvode_active
-
         self.random123_globalindex = random123_globalindex
 
     @property
