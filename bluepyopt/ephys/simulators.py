@@ -47,8 +47,6 @@ class NrnSimulator(object):
 
         self.cvode_active = cvode_active
 
-
-
         self.random123_globalindex = random123_globalindex
 
     @property
