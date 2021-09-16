@@ -274,7 +274,7 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
         scale_dict['value'] = format_float(value)
 
         return self.inst_distribution.format(**scale_dict)
-    
+
     def scale(self, value, segment, sim=None):
         """Scale a value based on a segment"""
 

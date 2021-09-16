@@ -30,6 +30,13 @@ class NrnSimulator(object):
             self.disable_banner = True
             self.banner_disabled = False
 
+        if mechs_folders is not None:
+            if not isinstance(mechs_folders, list):
+                mechs_folders = [mechs_folders]
+            self.mechs_folders = mechs_folders
+        else:
+            self.mechs_folders = mechs_folders
+
         self.neuron.h.load_file('stdrun.hoc')
 
         self.dt = dt if dt is not None else self.neuron.h.dt
@@ -40,17 +47,7 @@ class NrnSimulator(object):
 
         self.cvode_active = cvode_active
 
-        if mechs_folders is not None:
-            if not isinstance(mechs_folders, list):
-                mechs_folders = [mechs_folders]
-            self.mechs_folders = mechs_folders
-        else:
-            self.mechs_folders = mechs_folders
 
-        if self.mechs_folders is not None:
-            import neuron
-            for mech_folder in self.mechs_folders:
-                neuron.load_mechanisms(str(mech_folder))
 
         self.random123_globalindex = random123_globalindex
 
@@ -205,8 +202,6 @@ class LFPySimulator(object):
             self.disable_banner = True
             self.banner_disabled = False
 
-        self.cvode_active = cvode_active
-
         if mechs_folders is not None:
             if not isinstance(mechs_folders, list):
                 mechs_folders = [mechs_folders]
@@ -214,10 +209,9 @@ class LFPySimulator(object):
         else:
             self.mechs_folders = mechs_folders
 
-        if self.mechs_folders is not None:
-            import neuron
-            for mech_folder in self.mechs_folders:
-                neuron.load_mechanisms(str(mech_folder))
+        self.neuron.h.load_file('stdrun.hoc')
+
+        self.cvode_active = cvode_active
 
         self.random123_globalindex = random123_globalindex
 
@@ -262,8 +256,7 @@ class LFPySimulator(object):
             tstop=None,
             dt=None,
             cvode_active=None,
-            random123_globalindex=None
-            ):
+            random123_globalindex=None):
         """Run protocol"""
         import LFPy
         # import neuron mechanisms
@@ -271,6 +264,20 @@ class LFPySimulator(object):
 
         self.LFPyCellModel.LFPyCell.tstart = 0.0
         self.LFPyCellModel.LFPyCell.tstop = tstop
+
+        if dt is not None:
+            self.LFPyCellModel.LFPyCell.dt = dt
+
+        if cvode_active and dt is not None:
+            raise ValueError(
+                'NrnSimulator: Impossible to combine the dt argument when '
+                'cvode_active is True in the NrnSimulator run method')
+
+        if cvode_active is None:
+            cvode_active = self.cvode_active
+
+        if cvode_active is not None:
+            self.cvode_active = cvode_active
 
         if random123_globalindex is None:
             random123_globalindex = self.random123_globalindex
