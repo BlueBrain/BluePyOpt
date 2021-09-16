@@ -266,16 +266,15 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
         # Use this special formatting to bypass missing keys
         return string.Formatter().vformat(self.distribution, (), dist_dict)
 
-    def eval_dist(self, values, distance):
+    def eval_dist(self, value, distance):
         """Create the final dist string"""
 
         scale_dict = {}
-        for k, v in values.items():
-            scale_dict[k] = format_float(v)
-        scale_dict["distance"] = format_float(distance)
+        scale_dict['distance'] = format_float(distance)
+        scale_dict['value'] = format_float(value)
 
         return self.inst_distribution.format(**scale_dict)
-
+    
     def scale(self, value, segment, sim=None):
         """Scale a value based on a segment"""
 
