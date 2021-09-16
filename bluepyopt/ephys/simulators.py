@@ -17,7 +17,7 @@ class NrnSimulator(object):
     """Neuron simulator"""
 
     def __init__(self, dt=None, cvode_active=True, cvode_minstep=None,
-                 random123_globalindex=None):
+                 random123_globalindex=None, mechs_folders=None):
         """Constructor"""
 
         if platform.system() == 'Windows':
@@ -39,6 +39,18 @@ class NrnSimulator(object):
         self.cvode_minstep_value = cvode_minstep
 
         self.cvode_active = cvode_active
+
+        if mechs_folders is not None:
+            if not isinstance(mechs_folders, list):
+                mechs_folders = [mechs_folders]
+            self.mechs_folders = mechs_folders
+        else:
+            self.mechs_folders = mechs_folders
+
+        if self.mechs_folders is not None:
+            import neuron
+            for mech_folder in self.mechs_folders:
+                neuron.load_mechanisms(str(mech_folder))
 
         self.random123_globalindex = random123_globalindex
 
@@ -89,6 +101,11 @@ class NrnSimulator(object):
             self.banner_disabled = True
 
         import neuron  # NOQA
+
+        if self.mechs_folders is not None:
+            import neuron
+            for mech_folder in self.mechs_folders:
+                neuron.load_mechanisms(str(mech_folder))
 
         return neuron
 
@@ -168,13 +185,8 @@ class LFPySimulator(object):
 
     """Neuron simulator"""
 
-    def __init__(
-        self,
-        LFPyCellModel,
-        electrode=None,
-        cvode_active=True,
-        random123_globalindex=None,
-    ):
+    def __init__(self, LFPyCellModel, electrode=None, cvode_active=True,
+                 random123_globalindex=None, mechs_folders=None):
         """Constructor"""
 
         self.LFPyCellModel = LFPyCellModel
@@ -194,6 +206,18 @@ class LFPySimulator(object):
             self.banner_disabled = False
 
         self.cvode_active = cvode_active
+
+        if mechs_folders is not None:
+            if not isinstance(mechs_folders, list):
+                mechs_folders = [mechs_folders]
+            self.mechs_folders = mechs_folders
+        else:
+            self.mechs_folders = mechs_folders
+
+        if self.mechs_folders is not None:
+            import neuron
+            for mech_folder in self.mechs_folders:
+                neuron.load_mechanisms(str(mech_folder))
 
         self.random123_globalindex = random123_globalindex
 
@@ -226,17 +250,24 @@ class LFPySimulator(object):
 
         import neuron  # NOQA
 
+        if self.mechs_folders is not None:
+            import neuron
+            for mech_folder in self.mechs_folders:
+                neuron.load_mechanisms(str(mech_folder))
+
         return neuron
 
     def run(
-        self,
-        tstop=None,
-        dt=None,
-        cvode_active=None,
-        random123_globalindex=None
-    ):
+            self,
+            tstop=None,
+            dt=None,
+            cvode_active=None,
+            random123_globalindex=None
+            ):
         """Run protocol"""
         import LFPy
+        # import neuron mechanisms
+        _ = self.neuron
 
         self.LFPyCellModel.LFPyCell.tstart = 0.0
         self.LFPyCellModel.LFPyCell.tstop = tstop
