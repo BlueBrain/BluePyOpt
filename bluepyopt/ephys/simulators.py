@@ -99,7 +99,7 @@ class NrnSimulator(object):
         if self.mechs_folders is not None:
             import neuron
             for mech_folder in self.mechs_folders:
-                neuron.load_mechanisms(str(mech_folder))
+                neuron.load_mechanisms(str(mech_folder), warn_if_already_loaded=False)
 
         return neuron
 
@@ -244,7 +244,7 @@ class LFPySimulator(object):
         if self.mechs_folders is not None:
             import neuron
             for mech_folder in self.mechs_folders:
-                neuron.load_mechanisms(str(mech_folder))
+                neuron.load_mechanisms(str(mech_folder), warn_if_already_loaded=False)
 
         return neuron
 
