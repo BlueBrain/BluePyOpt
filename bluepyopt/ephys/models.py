@@ -246,7 +246,8 @@ class CellModel(Model):
 
         if self.params is not None:
             for param in self.params.values():
-                param.instantiate(sim=sim, icell=self.icell)
+                param.instantiate(sim=sim, icell=self.icell,
+                                  params=self.params)
 
     def destroy(self, sim=None):  # pylint: disable=W0613
         """Destroy instantiated model in simulator"""
@@ -688,7 +689,8 @@ class LFPyCellModel(Model):
 
         if self.params is not None:
             for param in self.params.values():
-                param.instantiate(sim=sim, icell=self.icell)
+                param.instantiate(sim=sim, icell=self.icell,
+                                  params=self.params)
 
     def destroy(self, sim=None):  # pylint: disable=W0613
         """Destroy instantiated model in simulator"""
