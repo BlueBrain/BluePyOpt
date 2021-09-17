@@ -77,7 +77,11 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
 
     def scale(self, values, segment=None, sim=None):  # pylint: disable=W0613
         """Scale a value based on a segment"""
-        return self.multiplier * values["value"] + self.offset
+        if isinstance(values, dict):
+            value = values["value"]
+        else:
+            value = values
+        return self.multiplier * value + self.offset
 
     def __str__(self):
         """String representation"""
@@ -216,7 +220,8 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
         return self.distribution
 
 
-class NrnSegmentSomaDistanceScaler(NrnSegmentSectionDistanceScaler, ParameterScaler, DictMixin):
+class NrnSegmentSomaDistanceScaler(NrnSegmentSectionDistanceScaler,
+                                   ParameterScaler, DictMixin):
 
     """Scaler based on distance from soma"""
     SERIALIZED_FIELDS = ('name', 'comment', 'distribution', )

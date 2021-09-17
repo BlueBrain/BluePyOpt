@@ -57,7 +57,3 @@ def test_serialize():
         deserialized = instantiator(serialized)
         assert isinstance(deserialized, ps.__class__)
         assert deserialized.name == ps.__class__.__name__
-
-
-if __name__ == "__main__":
-    test_NrnSegmentSomaDistanceScaler_dist_params()
