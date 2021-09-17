@@ -1,19 +1,15 @@
 """Parameter classes"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
-
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
-
  This library is free software; you can redistribute it and/or modify it under
  the terms of the GNU Lesser General Public License version 3.0 as published
  by the Free Software Foundation.
-
  This library is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  details.
-
  You should have received a copy of the GNU Lesser General Public License
  along with this library; if not, write to the Free Software Foundation, Inc.,
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -29,19 +25,20 @@ from . import parameterscalers
 
 logger = logging.getLogger(__name__)
 
+# TODO location and stimulus parameters should also be optimisable
+
 
 class NrnParameter(bluepyopt.parameters.Parameter):
 
     """Abstract Parameter class for Neuron object parameters"""
 
     def __init__(
-        self,
-        name,
-        value=None,
-        frozen=False,
-        bounds=None,
-        param_dependancies=None,
-    ):
+            self,
+            name,
+            value=None,
+            frozen=False,
+            bounds=None,
+            param_dependancies=None):
         """Contructor"""
 
         super(NrnParameter, self).__init__(
@@ -49,8 +46,7 @@ class NrnParameter(bluepyopt.parameters.Parameter):
             value=value,
             frozen=frozen,
             bounds=bounds,
-            param_dependancies=param_dependancies,
-        )
+            param_dependancies=param_dependancies)
 
     def instantiate(self, sim=None, icell=None, params=None):
         """Instantiate the parameter in the simulator"""
@@ -66,19 +62,20 @@ class MetaParameter(NrnParameter):
     """Parameter class that controls attributes of other objects"""
 
     def __init__(
-        self,
-        name,
-        obj=None,
-        attr_name=None,
-        value=None,
-        frozen=False,
-        bounds=None,
-    ):
+            self,
+            name,
+            obj=None,
+            attr_name=None,
+            value=None,
+            frozen=False,
+            bounds=None):
         """Constructor"""
 
         super(MetaParameter, self).__init__(
-            name, value=value, frozen=frozen, bounds=bounds
-        )
+            name,
+            value=value,
+            frozen=frozen,
+            bounds=bounds)
 
         self.obj = obj
         self.attr_name = attr_name
@@ -93,12 +90,10 @@ class MetaParameter(NrnParameter):
 
     def __str__(self):
         """String representation"""
-        return "%s: %s.%s = %s" % (
-            self.name,
-            self.obj.name,
-            self.attr_name,
-            self.value,
-        )
+        return '%s: %s.%s = %s' % (self.name,
+                                   self.obj.name,
+                                   self.attr_name,
+                                   self.value)
 
 
 class NrnMetaListEqualParameter(bluepyopt.parameters.MetaListEqualParameter):
@@ -110,7 +105,7 @@ class NrnMetaListEqualParameter(bluepyopt.parameters.MetaListEqualParameter):
         for sub_parameter in self.sub_parameters:
             sub_parameter.instantiate(sim=sim, icell=icell)
 
-        logger.debug("Set %s to %s", self.name, str(self.value))
+        logger.debug('Set %s to %s', self.name, str(self.value))
 
     def destroy(self, sim=None):
         """Remove parameter from the simulator"""
@@ -121,20 +116,16 @@ class NrnMetaListEqualParameter(bluepyopt.parameters.MetaListEqualParameter):
 class NrnGlobalParameter(NrnParameter, DictMixin):
 
     """Parameter set in the global namespace of neuron"""
-
-    SERIALIZED_FIELDS = (
-        "name",
-        "value",
-        "frozen",
-        "bounds",
-        "param_name",
-    )
+    SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',)
 
     def __init__(
-        self, name, value=None, frozen=False, bounds=None, param_name=None
-    ):
+            self,
+            name,
+            value=None,
+            frozen=False,
+            bounds=None,
+            param_name=None):
         """Contructor
-
         Args:
             name (str): name of this object
             value (float): Value for the parameter, required if Frozen=True
@@ -146,8 +137,10 @@ class NrnGlobalParameter(NrnParameter, DictMixin):
         """
 
         super(NrnGlobalParameter, self).__init__(
-            name, value=value, frozen=frozen, bounds=bounds
-        )
+            name,
+            value=value,
+            frozen=frozen,
+            bounds=bounds)
 
         self.param_name = param_name
 
@@ -156,44 +149,32 @@ class NrnGlobalParameter(NrnParameter, DictMixin):
 
         setattr(sim.neuron.h, self.param_name, self.value)
 
-        logger.debug("Set %s to %s", self.param_name, str(self.value))
+        logger.debug('Set %s to %s', self.param_name, str(self.value))
 
     def __str__(self):
         """String representation"""
-        return "%s: %s = %s" % (
-            self.name,
-            self.param_name,
-            self.value if self.frozen else self.bounds,
-        )
+        return '%s: %s = %s' % (self.name,
+                                self.param_name,
+                                self.value if self.frozen else self.bounds)
 
 
 class NrnSectionParameter(NrnParameter, DictMixin):
 
     """Parameter of a section"""
-
-    SERIALIZED_FIELDS = (
-        "name",
-        "value",
-        "frozen",
-        "bounds",
-        "param_name",
-        "value_scaler",
-        "locations",
-    )
+    SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',
+                         'value_scaler', 'locations', )
 
     def __init__(
-        self,
-        name,
-        value=None,
-        frozen=False,
-        bounds=None,
-        param_name=None,
-        value_scaler=None,
-        locations=None,
-        param_dependancies=None,
-    ):
+            self,
+            name,
+            value=None,
+            frozen=False,
+            bounds=None,
+            param_name=None,
+            value_scaler=None,
+            locations=None,
+            param_dependancies=None):
         """Contructor
-
         Args:
             name (str): name of the Parameter
             value (float): Value for the parameter, required if Frozen=True
@@ -212,8 +193,7 @@ class NrnSectionParameter(NrnParameter, DictMixin):
             value=value,
             frozen=frozen,
             bounds=bounds,
-            param_dependancies=param_dependancies,
-        )
+            param_dependancies=param_dependancies)
 
         self.locations = locations
         self.param_name = param_name
@@ -229,8 +209,8 @@ class NrnSectionParameter(NrnParameter, DictMixin):
         if self.value is None:
             raise Exception(
                 'NrnSectionParameter: impossible to instantiate parameter "%s"'
-                " without value" % self.name
-            )
+                ' without value' %
+                self.name)
 
         _values = {"value": self.value}
         for param in self.param_dependancies:
@@ -239,50 +219,38 @@ class NrnSectionParameter(NrnParameter, DictMixin):
         for location in self.locations:
             iseclist = location.instantiate(sim=sim, icell=icell)
             for section in iseclist:
-                setattr(
-                    section,
-                    self.param_name,
-                    self.value_scale_func(_values, section, sim=sim),
-                )
+                setattr(section, self.param_name,
+                        self.value_scale_func(_values, section, sim=sim))
             logger.debug(
-                "Set %s in %s to %s", self.param_name, location, self.value
-            )
+                'Set %s in %s to %s',
+                self.param_name,
+                location,
+                self.value)
 
     def __str__(self):
         """String representation"""
-        return "%s: %s %s = %s" % (
-            self.name,
-            [str(location) for location in self.locations],
-            self.param_name,
-            self.value if self.frozen else self.bounds,
-        )
+        return '%s: %s %s = %s' % (self.name,
+                                   [str(location)
+                                    for location in self.locations],
+                                   self.param_name,
+                                   self.value if self.frozen else self.bounds)
 
 
 class NrnPointProcessParameter(NrnParameter, DictMixin):
 
     """Parameter of a section"""
-
-    SERIALIZED_FIELDS = (
-        "name",
-        "value",
-        "frozen",
-        "bounds",
-        "param_name",
-        "value_scaler",
-        "locations",
-    )
+    SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',
+                         'value_scaler', 'locations', )
 
     def __init__(
-        self,
-        name,
-        value=None,
-        frozen=False,
-        bounds=None,
-        locations=None,
-        param_name=None,
-    ):
+            self,
+            name,
+            value=None,
+            frozen=False,
+            bounds=None,
+            locations=None,
+            param_name=None):
         """Constructor
-
         Args:
             name (str): name of the Parameter
             value (float): Value for the parameter, required if Frozen=True
@@ -296,37 +264,35 @@ class NrnPointProcessParameter(NrnParameter, DictMixin):
         """
 
         super(NrnPointProcessParameter, self).__init__(
-            name, value=value, frozen=frozen, bounds=bounds
-        )
+            name,
+            value=value,
+            frozen=frozen,
+            bounds=bounds)
 
         self.locations = locations
         self.param_name = param_name
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None, params=None):
         """Instantiate"""
         if self.value is None:
             raise Exception(
                 'NrnSectionParameter: impossible to instantiate parameter "%s"'
-                " without value" % self.name
-            )
+                ' without value' %
+                self.name)
 
         for location in self.locations:
             for pprocess in location.instantiate(sim=sim, icell=icell):
                 setattr(pprocess, self.param_name, self.value)
                 logger.debug(
-                    "Set %s to %s for point process",
+                    'Set %s to %s for point process',
                     self.param_name,
-                    self.value,
-                )
+                    self.value)
 
     def __str__(self):
         """String representation"""
-        return "%s: %s = %s" % (
-            self.name,
-            self.param_name,
-            self.value if self.frozen else self.bounds,
-        )
-
+        return '%s: %s = %s' % (self.name,
+                                self.param_name,
+                                self.value if self.frozen else self.bounds)
 
 # TODO change mech_suffix and mech_param to param_name, and maybe add
 # NrnRangeMechParameter
@@ -335,30 +301,20 @@ class NrnPointProcessParameter(NrnParameter, DictMixin):
 class NrnRangeParameter(NrnParameter, DictMixin):
 
     """Parameter that has a range over a section"""
-
-    SERIALIZED_FIELDS = (
-        "name",
-        "value",
-        "frozen",
-        "bounds",
-        "param_name",
-        "value_scaler",
-        "locations",
-    )
+    SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',
+                         'value_scaler', 'locations', )
 
     def __init__(
-        self,
-        name,
-        value=None,
-        frozen=False,
-        bounds=None,
-        param_name=None,
-        value_scaler=None,
-        locations=None,
-        param_dependancies=None,
-    ):
+            self,
+            name,
+            value=None,
+            frozen=False,
+            bounds=None,
+            param_name=None,
+            value_scaler=None,
+            locations=None,
+            param_dependancies=None):
         """Contructor
-
         Args:
             name (str): name of the Parameter
             value (float): Value for the parameter, required if Frozen=True
@@ -377,8 +333,7 @@ class NrnRangeParameter(NrnParameter, DictMixin):
             value=value,
             frozen=frozen,
             bounds=bounds,
-            param_dependancies=param_dependancies,
-        )
+            param_dependancies=param_dependancies)
 
         self.locations = locations
         self.param_name = param_name
@@ -393,8 +348,7 @@ class NrnRangeParameter(NrnParameter, DictMixin):
         if self.value is None:
             raise Exception(
                 'NrnRangeParameter: impossible to instantiate parameter "%s" '
-                "without value" % self.name
-            )
+                'without value' % self.name)
 
         _values = {"value": self.value}
         for param in self.param_dependancies:
@@ -403,24 +357,19 @@ class NrnRangeParameter(NrnParameter, DictMixin):
         for location in self.locations:
             for isection in location.instantiate(sim=sim, icell=icell):
                 for seg in isection:
-                    setattr(
-                        seg,
-                        "%s" % self.param_name,
-                        self.value_scale_func(_values, seg, sim=sim),
-                    )
+                    setattr(seg, '%s' % self.param_name,
+                            self.value_scale_func(_values, seg, sim=sim))
         logger.debug(
-            "Set %s in %s to %s with scaler %s",
-            self.param_name,
-            [str(location) for location in self.locations],
+            'Set %s in %s to %s with scaler %s', self.param_name,
+            [str(location)
+             for location in self.locations],
             self.value,
-            self.value_scaler,
-        )
+            self.value_scaler)
 
     def __str__(self):
         """String representation"""
-        return "%s: %s %s = %s" % (
-            self.name,
-            [str(location) for location in self.locations],
-            self.param_name,
-            self.value if self.frozen else self.bounds,
-        )
+        return '%s: %s %s = %s' % (self.name,
+                                   [str(location)
+                                    for location in self.locations],
+                                   self.param_name,
+                                   self.value if self.frozen else self.bounds)

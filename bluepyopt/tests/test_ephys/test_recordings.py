@@ -1,7 +1,7 @@
 """bluepyopt.ephys.simulators tests"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -22,25 +22,24 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 # pylint:disable=W0612
 
 
-import nose.tools as nt
-from nose.plugins.attrib import attr
+import pytest
 
 import bluepyopt.ephys as ephys
 
 
-@attr("unit")
+@pytest.mark.unit
 def test_comprecording_init():
     """ephys.recordings: Test CompRecording init"""
 
     recording = ephys.recordings.CompRecording()
 
-    nt.assert_true(isinstance(recording, ephys.recordings.CompRecording))
+    assert isinstance(recording, ephys.recordings.CompRecording)
 
-    nt.assert_equal(recording.response, None)
+    assert recording.response is None
 
-    """
+    '''
     nrn_sim = ephys.simulators.NrnSimulator()
-    dummy_cell = testmodels.dummycells.DummyCellModel1()
+    dummy_cell = dummycells.DummyCellModel1()
     # icell = dummy_cell.instantiate(sim=nrn_sim)
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma_loc',
@@ -65,13 +64,13 @@ def test_comprecording_init():
         stimuli=[stim],
         recordings=[rec_soma])
 
-    nt.assert_true(isinstance(protocol, ephys.protocols.SweepProtocol))
-    nt.assert_equal(protocol.total_duration, 50)
-    nt.assert_equal(
+    assert_true(isinstance(protocol, ephys.protocols.SweepProtocol))
+    assert_equal(protocol.total_duration, 50)
+    assert_equal(
         protocol.subprotocols(), {'prot': protocol})
 
-    nt.assert_true('somatic[0](0.5)' in str(protocol))
+    assert_true('somatic[0](0.5)' in str(protocol))
 
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
-    """
+    '''

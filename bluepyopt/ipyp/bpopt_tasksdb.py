@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 

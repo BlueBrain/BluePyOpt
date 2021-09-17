@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.stats import linregress
 
 all_1D_features = [
     "peak_to_valley",
@@ -112,7 +111,8 @@ def calculate_features(
 
 def peak_to_valley(waveforms, sampling_frequency):
     """
-    Time between trough and peak. If the peak precedes the trough, peak_to_valley is negative.
+    Time between trough and peak. If the peak precedes the trough,
+    peak_to_valley is negative.
 
     Parameters
     ----------
@@ -157,14 +157,16 @@ def peak_trough_ratio(waveforms):
     for i in range(waveforms.shape[0]):
         if peak_idx[i] == 0 and trough_idx[i] == 0:
             continue
-        ptratio[i] = np.abs(waveforms[i, peak_idx[i]] / waveforms[i, trough_idx[i]])
+        ptratio[i] = np.abs(waveforms[i, peak_idx[i]] /
+                            waveforms[i, trough_idx[i]])
 
     return ptratio
 
 
 def halfwidth(waveforms, sampling_frequency, return_idx=False):
     """
-    Width of waveform at its half of amplitude. If the peak precedes the trough, halfwidth is negative.
+    Width of waveform at its half of amplitude.
+    If the peak precedes the trough, halfwidth is negative.
 
     Computes the width of the waveform peak at half it's height
 
@@ -294,10 +296,11 @@ def repolarization_slope(waveforms, sampling_frequency, return_idx=False):
 
         if return_to_base_idx[i] - trough_idx[i] < 3:
             continue
-        rslope[i] = linregress(
+        slope = _get_slope(
             time[trough_idx[i]:return_to_base_idx[i]],
-            waveforms[i, trough_idx[i]:return_to_base_idx[i]],
-        )[0]
+            waveforms[i, trough_idx[i]:return_to_base_idx[i]]
+        )
+        rslope[i] = slope[0]
 
     if not return_idx:
         return rslope
@@ -441,6 +444,8 @@ def _get_slope(x, y):
     """
     Retrun the slope of x and y data, using scipy.signal.linregress
     """
+    from scipy.stats import linregress
+
     slope = linregress(x, y)
     return slope
 

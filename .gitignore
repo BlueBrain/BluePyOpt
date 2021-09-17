@@ -10,3 +10,4 @@ x86_64
 /.python-version
 /cov_reports
 .coverage
+coverage.xml

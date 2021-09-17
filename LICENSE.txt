@@ -1,12 +1,12 @@
 BluePyOpt - Bluebrain Python Optimisation Library
 
 BluePyOpt is licensed under the LGPL, unless noted otherwise, e.g., for external 
-dependencies. See file LGPL.txt for the full license. 
+dependencies. See files COPYING and COPYING.lesser for the full license. 
 Examples and test are BSD-licensed.
 External dependencies are either LGPL or BSD-licensed. 
 See file ACKNOWLEDGEMENTS.txt and AUTHORS.txt for further details.
 
-Copyright (C) 2005-2015, Blue Brain Project/EPFL. 
+Copyright (c) Blue Brain Project/EPFL 2016-2021.
 
 This program is free software: you can redistribute it and/or modify it under 
 the terms of the GNU Lesser General Public License as published by the 

@@ -20,7 +20,6 @@ import bluepyopt.ephys
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('.'))
-# sys.path.append('sphinxext')
 
 # -- General configuration -----------------------------------------------------
 
@@ -49,7 +48,6 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'bluepyopt'
-copyright = u'2016, BBP, EPFL'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -103,8 +101,13 @@ tolerate_sphinx_warnings = True
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'sphinx_rtd_theme'
-# html_theme = 'haiku-bbp'
+html_theme = 'sphinx-bluebrain-theme'
+html_title = 'BluepyOpt'
+html_show_sourcelink = False
+html_theme_options = {
+    "repo_url": "https://github.com/BlueBrain/BluePyOpt/",
+    "repo_name": "BlueBrain/BluePyOpt"
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

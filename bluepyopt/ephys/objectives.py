@@ -1,7 +1,7 @@
 """Objective classes"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -47,6 +47,15 @@ class EFeatureObjective(bluepyopt.objectives.Objective):
 
         return scores
 
+    def calculate_feature_values(self, responses):
+        """Calculate the value of an individual features"""
+
+        values = []
+        for feature in self.features:
+            values.append(feature.calculate_feature(responses))
+
+        return values
+
 
 class SingletonObjective(EFeatureObjective):
 
@@ -67,10 +76,41 @@ class SingletonObjective(EFeatureObjective):
 
         return self.calculate_feature_scores(responses)[0]
 
+    def calculate_value(self, responses):
+        """Objective value"""
+
+        return self.calculate_feature_values(responses)[0]
+
     def __str__(self):
         """String representation"""
 
         return "( %s )" % self.features[0]
+
+
+class SingletonWeightObjective(EFeatureObjective):
+
+    """Single EPhys feature"""
+
+    def __init__(self, name, feature, weight):
+        """Constructor
+        Args:
+            name (str): name of this object
+            features (EFeature): single eFeature inside this objective
+            weight (float): weight to scale to the efeature with
+        """
+
+        super(SingletonWeightObjective, self).__init__(name, [feature])
+        self.weight = weight
+
+    def calculate_score(self, responses):
+        """Objective score"""
+
+        return self.calculate_feature_scores(responses)[0] * self.weight
+
+    def __str__(self):
+        """String representation"""
+
+        return '( %s ), weight:%f' % (self.features[0], self.weight)
 
 
 class MaxObjective(EFeatureObjective):

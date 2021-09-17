@@ -1,7 +1,7 @@
 """eFeature classes"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -26,17 +26,17 @@ import logging
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 from .extra_features_utils import *
-from scipy.spatial import distance
 
 logger = logging.getLogger(__name__)
 
 
 def masked_cosine_distance(exp, model):
-    
+    from scipy.spatial import distance
+
     exp_mask = np.isfinite(exp)
     model_mask = np.isfinite(model)
     valid_mask = exp_mask & model_mask
-    
+
     score = distance.cosine(
         exp[valid_mask], model[valid_mask]
     )
@@ -49,7 +49,6 @@ def masked_cosine_distance(exp, model):
 class EFeature(BaseEPhys):
 
     """EPhys feature"""
-
     pass
 
 
@@ -57,35 +56,28 @@ class eFELFeature(EFeature, DictMixin):
 
     """eFEL feature"""
 
-    SERIALIZED_FIELDS = (
-        "name",
-        "efel_feature_name",
-        "recording_names",
-        "stim_start",
-        "stim_end",
-        "exp_mean",
-        "exp_std",
-        "threshold",
-        "comment",
-    )
+    SERIALIZED_FIELDS = ('name', 'efel_feature_name', 'recording_names',
+                         'stim_start', 'stim_end', 'exp_mean',
+                         'exp_std', 'threshold', 'comment')
 
     def __init__(
-        self,
-        name,
-        efel_feature_name=None,
-        recording_names=None,
-        stim_start=None,
-        stim_end=None,
-        exp_mean=None,
-        exp_std=None,
-        threshold=None,
-        stimulus_current=None,
-        comment="",
-        interp_step=None,
-        double_settings=None,
-        int_settings=None,
-        force_max_score=False,
-        max_score=250,
+            self,
+            name,
+            efel_feature_name=None,
+            recording_names=None,
+            stim_start=None,
+            stim_end=None,
+            exp_mean=None,
+            exp_std=None,
+            threshold=None,
+            stimulus_current=None,
+            comment='',
+            interp_step=None,
+            double_settings=None,
+            int_settings=None,
+            string_settings=None,
+            force_max_score=False,
+            max_score=250
     ):
         """Constructor
 
@@ -106,6 +98,8 @@ class eFELFeature(EFeature, DictMixin):
                 should be set before extracting the features
             int_settings(dict): dictionary with efel int settings that
                 should be set before extracting the features
+            string_settings(dict): dictionary with efel string settings that
+                should be set before extracting the features
         """
 
         super(eFELFeature, self).__init__(name, comment)
@@ -121,6 +115,7 @@ class eFELFeature(EFeature, DictMixin):
         self.stimulus_current = stimulus_current
         self.double_settings = double_settings
         self.int_settings = int_settings
+        self.string_settings = string_settings
         self.force_max_score = force_max_score
         self.max_score = max_score
 
@@ -128,33 +123,30 @@ class eFELFeature(EFeature, DictMixin):
         """Construct trace that can be passed to eFEL"""
 
         trace = {}
-        if "" not in self.recording_names:
-            raise Exception("eFELFeature: '' needs to be in recording_names")
+        if '' not in self.recording_names:
+            raise Exception(
+                'eFELFeature: \'\' needs to be in recording_names')
         for location_name, recording_name in self.recording_names.items():
-            if location_name == "":
-                postfix = ""
+            if location_name == '':
+                postfix = ''
             else:
-                postfix = ";%s" % location_name
+                postfix = ';%s' % location_name
 
             if recording_name not in responses:
                 logger.debug(
                     "Recording named %s not found in responses %s",
                     recording_name,
-                    str(responses),
-                )
+                    str(responses))
                 return None
 
-            if (
-                responses[self.recording_names[""]] is None
-                or responses[recording_name] is None
-            ):
+            if responses[self.recording_names['']] is None or \
+                    responses[recording_name] is None:
                 return None
-
-            trace["T%s" % postfix] = responses[
-                self.recording_names[""]]["time"]
-            trace["V%s" % postfix] = responses[recording_name]["voltage"]
-            trace["stim_start%s" % postfix] = [self.stim_start]
-            trace["stim_end%s" % postfix] = [self.stim_end]
+            trace['T%s' % postfix] = \
+                responses[self.recording_names['']]['time']
+            trace['V%s' % postfix] = responses[recording_name]['voltage']
+            trace['stim_start%s' % postfix] = [self.stim_start]
+            trace['stim_end%s' % postfix] = [self.stim_end]
 
         return trace
 
@@ -162,17 +154,16 @@ class eFELFeature(EFeature, DictMixin):
         """Set up efel before extracting the feature"""
 
         import efel
-
         efel.reset()
 
         if self.threshold is not None:
             efel.setThreshold(self.threshold)
 
         if self.stimulus_current is not None:
-            efel.setDoubleSetting("stimulus_current", self.stimulus_current)
+            efel.setDoubleSetting('stimulus_current', self.stimulus_current)
 
         if self.interp_step is not None:
-            efel.setDoubleSetting("interp_step", self.interp_step)
+            efel.setDoubleSetting('interp_step', self.interp_step)
 
         if self.double_settings is not None:
             for setting_name, setting_value in self.double_settings.items():
@@ -181,6 +172,10 @@ class eFELFeature(EFeature, DictMixin):
         if self.int_settings is not None:
             for setting_name, setting_value in self.int_settings.items():
                 efel.setIntSetting(setting_name, setting_value)
+
+        if self.string_settings is not None:
+            for setting_name, setting_value in self.string_settings.items():
+                efel.setStrSetting(setting_name, setting_value)
 
     def calculate_feature(self, responses, raise_warnings=False):
         """Calculate feature value"""
@@ -193,24 +188,24 @@ class eFELFeature(EFeature, DictMixin):
             self._setup_efel()
 
             import efel
-
             values = efel.getMeanFeatureValues(
                 [efel_trace],
                 [self.efel_feature_name],
-                raise_warnings=raise_warnings,
-            )
+                raise_warnings=raise_warnings)
             feature_value = values[0][self.efel_feature_name]
 
             efel.reset()
 
         logger.debug(
-            "Calculated value for %s: %s", self.name, str(feature_value)
-        )
+            'Calculated value for %s: %s',
+            self.name,
+            str(feature_value))
 
         return feature_value
 
     def calculate_score(self, responses, trace_check=False):
         """Calculate the score"""
+
         efel_trace = self._construct_efel_trace(responses)
 
         if efel_trace is None:
@@ -219,89 +214,70 @@ class eFELFeature(EFeature, DictMixin):
             self._setup_efel()
 
             import efel
-
             score = efel.getDistance(
                 efel_trace,
                 self.efel_feature_name,
                 self.exp_mean,
                 self.exp_std,
                 trace_check=trace_check,
-                error_dist=self.max_score,
+                error_dist=self.max_score
             )
             if self.force_max_score:
                 score = min(score, self.max_score)
 
             efel.reset()
-        
-        logger.debug("Calculated score for %s: %f", self.name, score)
+
+        logger.debug('Calculated score for %s: %f', self.name, score)
 
         return score
 
     def __str__(self):
         """String representation"""
 
-        return (
-            "%s for %s with stim start %s and end %s, "
-            "exp mean %s and std %s and AP threshold override %s"
-            % (
-                self.efel_feature_name,
-                self.recording_names,
-                self.stim_start,
-                self.stim_end,
-                self.exp_mean,
-                self.exp_std,
-                self.threshold,
-            )
-        )
+        return "%s for %s with stim start %s and end %s, " \
+            "exp mean %s and std %s and AP threshold override %s" % \
+            (self.efel_feature_name,
+             self.recording_names,
+             self.stim_start,
+             self.stim_end,
+             self.exp_mean,
+             self.exp_std,
+             self.threshold)
 
 
 class extraFELFeature(EFeature, DictMixin):
-
     """extraFEL feature"""
 
-    SERIALIZED_FIELDS = (
-        "name",
-        "extrafel_feature_name",
-        "recording_names",
-        "somatic_recording_name",
-        "fcut",
-        "fs",
-        "channel_id",
-        "stim_start",
-        "stim_end",
-        "exp_mean",
-        "exp_std",
-        "threshold",
-        "comment",
-    )
+    SERIALIZED_FIELDS = ('name', 'extrafel_feature_name', 'recording_names',
+                         'somatic_recording_name', 'fcut', 'fs',
+                         'channel_ids', 'stim_start', 'stim_end',
+                         'exp_mean', 'exp_std', 'threshold', 'comment')
 
     def __init__(
-        self,
-        name,
-        extrafel_feature_name=None,
-        recording_names=None,
-        somatic_recording_name=None,
-        fcut=None,
-        fs=None,
-        filt_type=None,
-        ms_cut=None,
-        upsample=None,
-        skip_first_spike=True,
-        skip_last_spike=True,
-        channel_id=None,
-        channel_locations=None,
-        detect_threshold=None,
-        stim_start=None,
-        stim_end=None,
-        exp_mean=None,
-        exp_std=None,
-        threshold=None,
-        comment="",
-        interp_step=None,
-        double_settings=None,
-        int_settings=None,
-        force_max_score=False,
-        max_score=250,
+            self,
+            name,
+            extrafel_feature_name=None,
+            recording_names=None,
+            somatic_recording_name=None,
+            fcut=None,
+            fs=None,
+            filt_type=None,
+            ms_cut=None,
+            upsample=None,
+            skip_first_spike=True,
+            skip_last_spike=True,
+            channel_ids=None,
+            stim_start=None,
+            stim_end=None,
+            exp_mean=None,
+            exp_std=None,
+            threshold=None,
+            comment='',
+            interp_step=None,
+            double_settings=None,
+            int_settings=None,
+            force_max_score=False,
+            max_score=250,
     ):
         """Constructor
 
@@ -319,6 +295,24 @@ class extraFELFeature(EFeature, DictMixin):
                 filter is used. If None, traces are note filtered
             fs (float): sampling frequency to resample extracellular traces
                 (in kHz)
+            filt_type (str): type of the bandpass filter used
+                (default 'filtfilt')
+            ms_cut (float, list, or None): cut in ms before and after the
+                intra peak. If scalar, the cut is symmetrical
+            upsample (int, or None): upsample factor for average waveform
+                before computing features
+            skip_first_spike (bool): if True, the first spike is skipped
+                before computing the average waveform
+                (to avoid artifacts)
+            skip_last_spike (bool): if True, the last spike is skipped
+                before computing the average waveform
+                (to avoid artifacts)
+            channel_ids (int, np.array, or None): if None, all channels are
+                used to compute the feature and calculate the score
+                (using the cosine_dist). If int, a single channel is used and
+                the score is the normalised deviation form the exp value.
+                If list/array, the cosine distance is computed over a subset
+                of channels
             stim_start (float): stimulation start time (ms)
             stim_end (float): stimulation end time (ms)
             exp_mean (float): experimental mean of this eFeature
@@ -344,9 +338,7 @@ class extraFELFeature(EFeature, DictMixin):
         self.upsample = upsample
         self.skip_first_spike = skip_first_spike
         self.skip_last_spike = skip_last_spike
-        self.detect_threshold = detect_threshold
-        self.channel_id = channel_id
-        self.channel_locations = channel_locations
+        self.channel_ids = channel_ids
         self.exp_mean = exp_mean
         self.exp_std = exp_std
         self.stim_start = stim_start
@@ -424,12 +416,11 @@ class extraFELFeature(EFeature, DictMixin):
         return peak_times
 
     def calculate_feature(
-        self,
-        responses,
-        raise_warnings=False,
-        return_waveforms=False,
-        detect_threshold=None,
-        verbose=False,
+            self,
+            responses,
+            raise_warnings=False,
+            return_waveforms=False,
+            verbose=False,
     ):
         """Calculate feature value"""
         peak_times = self._get_peak_times(
@@ -448,7 +439,7 @@ class extraFELFeature(EFeature, DictMixin):
             return None
 
         if np.std(np.diff(response["time"])) > 0.001 * np.mean(
-            np.diff(response["time"])
+                np.diff(response["time"])
         ):
             assert self.fs is not None
             if verbose:
@@ -460,7 +451,9 @@ class extraFELFeature(EFeature, DictMixin):
         if self.fcut is not None:
             if verbose:
                 print("filter enabled")
-            response_filter = _filter_response(response_interp, fcut=self.fcut, filt_type=self.filt_type)
+            response_filter = _filter_response(response_interp,
+                                               fcut=self.fcut,
+                                               filt_type=self.filt_type)
         else:
             if verbose:
                 print("filter disabled")
@@ -477,22 +470,10 @@ class extraFELFeature(EFeature, DictMixin):
             feature_names=[self.extrafel_feature_name]
         )
 
-        if detect_threshold is not None:
-            assert (
-                0 <= detect_threshold < 1
-            ), "'detect_threshold should be between 0 and 1"
-            self.detect_threshold = detect_threshold
-
         feature_value = values[self.extrafel_feature_name]
 
-        if self.detect_threshold is not None:
-            nan_idxs = amplitudes < \
-                (self.detect_threshold * np.max(amplitudes))
-            # raise Exception
-            feature_value[nan_idxs] = np.nan
-
-        if self.channel_id is not None:
-            feature_value = feature_value[self.channel_id]
+        if self.channel_ids is not None:
+            feature_value = feature_value[self.channel_ids]
 
         logger.debug(
             "Calculated value for %s: %s", self.name, str(feature_value)
@@ -505,11 +486,12 @@ class extraFELFeature(EFeature, DictMixin):
 
     def calculate_score(self, responses, trace_check=False):
         """Calculate the score"""
-        
+
         if (
-            responses[self.recording_names[""].replace("soma.v", "MEA.LFP")]
-            is None
-            or responses[self.recording_names[""]] is None
+                responses[self.recording_names[""].replace("soma.v",
+                                                           "MEA.LFP")]
+                is None
+                or responses[self.recording_names[""]] is None
         ):
             return self.max_score
 
@@ -529,12 +511,12 @@ class extraFELFeature(EFeature, DictMixin):
                 score = self.max_score
         else:
             score = masked_cosine_distance(
-                    np.asarray(self.exp_mean),
-                    np.asarray(feature_value)
+                np.asarray(self.exp_mean),
+                np.asarray(feature_value)
             )
 
         if np.isnan(score):
-            score =  self.max_score
+            score = self.max_score
 
         if self.force_max_score:
             score = min(score, self.max_score)
@@ -546,19 +528,16 @@ class extraFELFeature(EFeature, DictMixin):
     def __str__(self):
         """String representation"""
 
-        return (
-            "%s for %s with stim start %s and end %s, "
-            "exp mean %s and std %s and AP threshold override %s"
-            % (
-                self.extrafel_feature_name,
-                self.recording_names,
-                self.stim_start,
-                self.stim_end,
-                self.exp_mean,
-                self.exp_std,
-                self.threshold,
-            )
-        )
+        return ("%s for %s with stim start %s and end %s, "
+                "exp mean %s and std %s and AP threshold override %s"
+                % (self.extrafel_feature_name,
+                   self.recording_names,
+                   self.stim_start,
+                   self.stim_end,
+                   self.exp_mean,
+                   self.exp_std,
+                   self.threshold)
+                )
 
 
 def _interpolate_response(response, fs=20.0):
@@ -663,9 +642,8 @@ def _get_waveforms(response, peak_times, snippet_len_ms):
             if snippet_range[1] >= num_frames:
                 snippet_buffer[1] -= snippet_range[1] - num_frames
                 snippet_range[1] -= snippet_range[1] - num_frames
-            snippet_chunk[:, snippet_buffer[0]:snippet_buffer[1]] = traces[
-                :, snippet_range[0]:snippet_range[1]
-            ]
+            snippet_chunk[:, snippet_buffer[0]:snippet_buffer[1]] = \
+                traces[:, snippet_range[0]:snippet_range[1]]
         waveforms[i] = snippet_chunk
 
     return waveforms

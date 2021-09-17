@@ -1,7 +1,7 @@
 """Tests of the main bluepyopt module"""
 
 """
-Copyright (c) 2016, EPFL/Blue Brain Project
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -21,10 +21,11 @@ Copyright (c) 2016, EPFL/Blue Brain Project
 
 # pylint:disable=W0612
 
-from nose.plugins.attrib import attr
+import pytest
+import numpy
 
 
-@attr("unit")
+@pytest.mark.unit
 def test_import():
     """bluepyopt: test importing bluepyopt"""
     import bluepyopt  # NOQA
