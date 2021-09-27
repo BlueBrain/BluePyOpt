@@ -348,7 +348,8 @@ def compile_mech_folder(mech_folder):
     compile_folder = None
 
     if not is_compiled(mech_folder):
-        if any(p.is_file() and p.suffix == ".mod" for p in mech_folder.iterdir()):
+        if any(p.is_file() and p.suffix == ".mod"
+               for p in mech_folder.iterdir()):
             compile_folder = mech_folder
         else:
             for p in mech_folder.iterdir():
@@ -360,5 +361,5 @@ def compile_mech_folder(mech_folder):
             os.chdir(mech_folder)
             os.system(f'nrnivmodl {str(compile_folder)}')
             os.chdir(current_dir)
-        except:
+        except Exception as e:
             os.chdir(current_dir)
