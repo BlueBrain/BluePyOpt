@@ -497,9 +497,9 @@ class extraFELFeature(EFeature, DictMixin):
 
         feature_value = self.calculate_feature(responses)
 
-        if len(feature_value) == 1:
+        if np.isscalar(feature_value):
             # scalar feature
-            if not np.isfinite(feature_value):
+            if np.isfinite(feature_value):
                 score = np.abs((feature_value - self.exp_mean)) / self.exp_std
             else:
                 score = self.max_score

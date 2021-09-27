@@ -99,6 +99,7 @@ class NrnSimulator(object):
         if self.mechs_folders is not None:
             import neuron
             for mech_folder in self.mechs_folders:
+                compile_mech_folder(mech_folder)
                 neuron.load_mechanisms(str(mech_folder),
                                        warn_if_already_loaded=False)
 
@@ -245,6 +246,7 @@ class LFPySimulator(object):
         if self.mechs_folders is not None:
             import neuron
             for mech_folder in self.mechs_folders:
+                compile_mech_folder(mech_folder)
                 neuron.load_mechanisms(str(mech_folder),
                                        warn_if_already_loaded=False)
 
@@ -323,3 +325,41 @@ class LFPySimulatorException(Exception):
 
         super(LFPySimulatorException, self).__init__(message)
         self.original = original
+
+
+def is_compiled(mech_folder):
+    from pathlib import Path
+
+    mech_folder = Path(mech_folder)
+    compiled = False
+    for p in mech_folder.iterdir():
+        if p.is_dir() and p.name == "x86_64":
+            compiled = True
+            break
+    return compiled
+
+
+def compile_mech_folder(mech_folder):
+    from pathlib import Path
+    import os
+
+    current_dir = os.getcwd()
+    mech_folder = Path(mech_folder)
+    compile_folder = None
+
+    if not is_compiled(mech_folder):
+        if any(p.is_file() and p.suffix == ".mod"
+               for p in mech_folder.iterdir()):
+            compile_folder = mech_folder
+        else:
+            for p in mech_folder.iterdir():
+                if p.is_dir():
+                    if any(pmod.suffix == '.mod' for pmod in p.iterdir()):
+                        compile_folder = p.name
+        try:
+            print(f"Compiling {str(compile_folder)}")
+            os.chdir(mech_folder)
+            os.system(f'nrnivmodl {str(compile_folder)}')
+            os.chdir(current_dir)
+        except Exception as e:
+            os.chdir(current_dir)
