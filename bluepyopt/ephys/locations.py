@@ -292,7 +292,7 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
             min_distance = min(start_distance, end_distance)
             max_distance = max(start_distance, end_distance)
 
-            if min_distance <= self.soma_distance <= end_distance:
+            if min_distance <= self.soma_distance <= max_distance:
                 comp_x = float(self.soma_distance - min_distance) / \
                     (max_distance - min_distance)
 
