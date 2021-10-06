@@ -297,6 +297,10 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         stats.register("min", numpy.min)
         stats.register("max", numpy.max)
 
+        param_names = []
+        if hasattr(self.evaluator, "param_names"):
+            param_names = self.evaluator.param_names
+
         pop, hof, log, history = algorithms.eaAlphaMuPlusLambdaCheckpoint(
             pop,
             self.toolbox,
@@ -309,7 +313,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             cp_frequency=cp_frequency,
             continue_cp=continue_cp,
             cp_filename=cp_filename,
-            terminator=terminator)
+            terminator=terminator,
+            param_names=param_names)
 
         # Update hall of fame
         self.hof = hof
