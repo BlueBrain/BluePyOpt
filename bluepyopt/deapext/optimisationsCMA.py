@@ -297,6 +297,10 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
 
         pop = CMA_es.get_population(self.to_space)
 
+        param_names = []
+        if hasattr(self.evaluator, "param_names"):
+            param_names = self.evaluator.param_names
+
         # Run until a termination criteria is met
         while utils.run_next_gen(CMA_es.active, terminator):
             logger.info("Generation {}".format(gen))
@@ -347,6 +351,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                     rndstate=random.getstate(),
                     np_rndstate=numpy.random.get_state(),
                     CMA_es=CMA_es,
+                    param_names=param_names,
                 )
                 pickle.dump(cp, open(cp_filename_tmp, "wb"))
                 if os.path.isfile(cp_filename_tmp):

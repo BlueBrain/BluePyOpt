@@ -94,7 +94,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cp_frequency=1,
         cp_filename=None,
         continue_cp=False,
-        terminator=None):
+        terminator=None,
+        param_names=None):
     r"""This is the :math:`(~\alpha,\mu~,~\lambda)` evolutionary algorithm
 
     Args:
@@ -111,7 +112,11 @@ def eaAlphaMuPlusLambdaCheckpoint(
         continue_cp(bool): whether to continue
         terminator (multiprocessing.Event): exit loop when is set.
             Not taken into account if None.
+        param_names(list): names of the parameters optimized by the evaluator
     """
+
+    if param_names is None:
+        param_names = []
 
     if cp_filename:
         cp_filename_tmp = cp_filename + '.tmp'
@@ -177,7 +182,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       halloffame=halloffame,
                       history=history,
                       logbook=logbook,
-                      rndstate=random.getstate())
+                      rndstate=random.getstate(),
+                      param_names=param_names)
             pickle.dump(cp, open(cp_filename_tmp, "wb"))
             if os.path.isfile(cp_filename_tmp):
                 shutil.copy(cp_filename_tmp, cp_filename)
