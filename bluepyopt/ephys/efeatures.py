@@ -506,7 +506,7 @@ class extraFELFeature(EFeature, DictMixin):
             if not np.isfinite(score):
                 logger.debug(
                     f"Found score nan value {self.extrafel_feature_name} "
-                    f"- std: {self.exp_std} - channel: {self.channel_id}"
+                    f"- std: {self.exp_std} - channel: {self.channel_ids}"
                 )
                 score = self.max_score
         else:
