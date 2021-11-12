@@ -2,6 +2,8 @@ import numpy
 
 
 def hypesub_(la, A, actDim, bounds, pvec, alpha, k):
+    """HypE algorithm sub function"""
+
     h = numpy.zeros(la)
     i = numpy.argsort(A[:, actDim - 1])
     S = A[i]
@@ -20,7 +22,7 @@ def hypesub_(la, A, actDim, bounds, pvec, alpha, k):
             if alpha[i - 1] >= 0:
                 h[pvec[0:i]] += extrusion * alpha[i - 1]
         elif extrusion > 0.0:
-            h += extrusion * hypesub(
+            h += extrusion * hypesub_(
                 la, S[0:i, :], actDim - 1, bounds, pvec[0:i], alpha, k
             )
 

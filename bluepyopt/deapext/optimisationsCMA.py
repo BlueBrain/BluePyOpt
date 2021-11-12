@@ -39,6 +39,9 @@ logger = logging.getLogger("__main__")
 
 
 def _ind_convert_space(ind, convert_fcn):
+    """util function to pass the individual from normalized to real space and
+    inversely"""
+
     return [f(x) for f, x in zip(convert_fcn, ind)]
 
 
@@ -64,6 +67,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
 
         Args:
             evaluator (Evaluator): Evaluator object
+            use_scoop (bool): use scoop map for parallel computation
             seed (float): Random number generator seed
             offspring_size (int): Number of offspring individuals in each
                 generation
@@ -281,6 +285,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 fitness = self.toolbox.map(self.toolbox.evaluate, to_evaluate)
                 fitness = list(map(list, fitness))
                 CMA_es.set_fitness_parents(fitness)
+
             gen = 1
 
         pop = CMA_es.get_population(self.to_space)
@@ -340,7 +345,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 if os.path.isfile(cp_filename_tmp):
                     shutil.copy(cp_filename_tmp, cp_filename)
                     logger.debug("Wrote checkpoint to %s", cp_filename)
-
+                pickle.dump(cp, open(f"{gen}.pkl", "wb"))
                 CMA_es.map_function = temp_mf
 
             gen += 1
