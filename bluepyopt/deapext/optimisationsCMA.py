@@ -345,7 +345,6 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 if os.path.isfile(cp_filename_tmp):
                     shutil.copy(cp_filename_tmp, cp_filename)
                     logger.debug("Wrote checkpoint to %s", cp_filename)
-                pickle.dump(cp, open(f"{gen}.pkl", "wb"))
                 CMA_es.map_function = temp_mf
 
             gen += 1
