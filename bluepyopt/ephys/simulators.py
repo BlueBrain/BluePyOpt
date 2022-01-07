@@ -17,8 +17,22 @@ class NrnSimulator(object):
     """Neuron simulator"""
 
     def __init__(self, dt=None, cvode_active=True, cvode_minstep=None,
-                 random123_globalindex=None):
-        """Constructor"""
+                 random123_globalindex=None, mechanisms_directory=None):
+        """Constructor
+
+        Args:
+            dt (float): the integration time step used by neuron.
+            cvode_active (bool): should neuron use the variable time step
+                integration method
+            cvode_minstep (float): the minimum time step allowed for a cvode
+                step. Default is 0.0.
+            random123_globalindex (int): used to set the global index used by
+                all instances of the Random123 instances of Random
+            mechanisms_directory (str): path to the parent directory of the
+                directory containing the mod files. If the mod files are in
+                "./data/mechanisms", then mechanisms_directory should be
+                "./data/".
+        """
 
         if platform.system() == 'Windows':
             # hoc.so does not exist on NEURON Windows
@@ -30,6 +44,7 @@ class NrnSimulator(object):
             self.disable_banner = True
             self.banner_disabled = False
 
+        self.mechanisms_directory = mechanisms_directory
         self.neuron.h.load_file('stdrun.hoc')
 
         self.dt = dt if dt is not None else self.neuron.h.dt
@@ -89,6 +104,11 @@ class NrnSimulator(object):
             self.banner_disabled = True
 
         import neuron  # NOQA
+
+        if self.mechanisms_directory is not None:
+            neuron.load_mechanisms(
+                self.mechanisms_directory, warn_if_already_loaded=False
+            )
 
         return neuron
 
