@@ -115,7 +115,7 @@ News
 Requirements
 ============
 
-* `Python 2.7+ <https://www.python.org/download/releases/2.7/>`_ or `Python 3.6+ <https://www.python.org/downloads/release/python-360/>`_
+* `Python 3.6+ <https://www.python.org/downloads/release/python-360/>`_
 * `Pip <https://pip.pypa.io>`_ (installed by default in newer versions of Python)
 * `Neuron 7.4+ <http://neuron.yale.edu/>`_ (compiled with Python support)
 * `eFEL eFeature Extraction Library <https://github.com/BlueBrain/eFEL>`_ (automatically installed by pip)
