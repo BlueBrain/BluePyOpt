@@ -1,7 +1,7 @@
 """Multi Objective CMA-es class"""
 
 """
-Copyright (c) 2016-2020, EPFL/Blue Brain Project
+Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -37,23 +37,36 @@ from . import hype
 logger = logging.getLogger("__main__")
 
 
-def get_hyped(pop):
+def get_hyped(pop, ubound_score=250., threshold_improvement=240.):
+    """Compute the hypervolume contribution of each individual.
+    The fitness space is first bounded and all dimension who do not show
+    improvement are ignored.
+    """
+
     # Cap the obj at 250
     points = numpy.array([ind.fitness.values for ind in pop])
-    points[points > 250.0] = 250.0
+    points[points > ubound_score] = ubound_score
     lbounds = numpy.min(points, axis=0)
     ubounds = numpy.max(points, axis=0)
 
     # Remove the dimensions that do not show any improvement
     to_remove = []
-    for i, (lb, ub) in enumerate(zip(lbounds, ubounds)):
-        if lb >= 240:
+    for i, lb in enumerate(lbounds):
+        if lb >= threshold_improvement:
             to_remove.append(i)
     points = numpy.delete(points, to_remove, axis=1)
     lbounds = numpy.delete(lbounds, to_remove)
     ubounds = numpy.delete(ubounds, to_remove)
 
+    if not len(lbounds):
+        logger.warning("No dimension along which to compute the hypervolume.")
+        return [0.] * len(pop)
+
     # Rescale the objective space
+    # Note: 2 here is a magic number used to make the hypercube larger than it
+    # really is. It makes sure that the individual always have a non-zero
+    # hyper-volume contribution and improves the results while avoiding an
+    # edge case.
     points = (points - lbounds) / numpy.max(ubounds.flatten())
     ubounds = numpy.max(points, axis=0) + 2.0
 
@@ -83,13 +96,19 @@ class CMA_MO(cma.StrategyMultiObjective):
         Args:
             centroid (list): initial guess used as the starting point of
             the CMA-ES
+            offspring_size (int): number of offspring individuals in each
+                 generation
             sigma (float): initial standard deviation of the distribution
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
+            RandIndCreator (fcn): function creating a random individual.
             weight_hv (float): between 0 and 1. Weight given to the
                 hypervolume contribution when computing the score of an
                 individual in MO-CMA. The weight of the fitness contribution
                 is computed as 1 - weight_hv.
+            map_function (map): function used to map (parallelize) the
+                 evaluation function calls
+            use_scoop (bool): use scoop map for parallel computation
         """
 
         if offspring_size is None:
@@ -104,7 +123,9 @@ class CMA_MO(cma.StrategyMultiObjective):
                 from itertools import cycle
 
                 generator = cycle(centroids)
-                starters = [copy.deepcopy(next(generator)) for i in range(lambda_)]
+                starters = [
+                    copy.deepcopy(next(generator)) for i in range(lambda_)
+                ]
             else:
                 starters = centroids
 
@@ -128,7 +149,7 @@ class CMA_MO(cma.StrategyMultiObjective):
         if self.use_scoop:
             if self.map_function:
                 raise Exception(
-                    "Impossible to use scoop is providing self defined map "
+                    "Impossible to use scoop and provide self defined map "
                     "function: %s" % self.map_function
                 )
             from scoop import futures
@@ -147,19 +168,19 @@ class CMA_MO(cma.StrategyMultiObjective):
     def _select(self, candidates):
         """Select the best candidates of the population
 
-        The quality of an individual is based on a mixture of
-        absolute fitness and hyper-volume contribution.
-        """
+         Fill the next population (chosen) with the Pareto fronts until there
+         is not enough space. When an entire front does not fit in the space
+         left we rely on a mixture of hypervolume and fitness. The respective
+         weights of hypervolume and fitness are "hv" and "1-hv". The remaining
+         fronts are explicitly not chosen"""
 
         if self.weight_hv == 0.0:
             fit = [numpy.sum(ind.fitness.values) for ind in candidates]
-            idx_fit = list(numpy.argsort(fit))
-            idx_scores = idx_fit[:]
+            idx_scores = list(numpy.argsort(fit))
 
         elif self.weight_hv == 1.0:
             hv = get_hyped(candidates)
-            idx_hv = list(numpy.argsort(hv))[::-1]
-            idx_scores = idx_hv[:]
+            idx_scores = list(numpy.argsort(hv))[::-1]
 
         else:
             hv = get_hyped(candidates)
@@ -221,6 +242,6 @@ class CMA_MO(cma.StrategyMultiObjective):
             if c.criteria_met:
                 logger.info(
                     "CMA stopped because of termination criteria: " +
-                    "" + " ".join(c.name)
+                    " ".join(c.name)
                 )
                 self.active = False

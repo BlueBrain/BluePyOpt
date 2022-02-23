@@ -259,7 +259,6 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
     """Compartment at distance from soma"""
 
     SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'seclist_name', )
-    max_diam = 0.0
 
     def __init__(
             self,
@@ -299,7 +298,7 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
 
                 comp_diam = isec(comp_x).diam
 
-                if comp_diam > self.max_diam:
+                if comp_diam > 0.0:
                     icomp = isec(comp_x)
 
         if icomp is None:

@@ -6,10 +6,12 @@ import time
 import bluepyopt.deapext.utils as utils
 import pytest
 
+
 def flag(event):
     """Send a multiprocessing event."""
     time.sleep(1)
     event.set()
+
 
 def catch_event(event):
     """Verify that run_next_gen changes when event is caught."""
@@ -23,11 +25,8 @@ def catch_event(event):
     time.sleep(2)
     assert not(utils.run_next_gen(True, event))
 
-<<<<<<< HEAD
-=======
 
 @pytest.mark.unit
->>>>>>> 923c7e5 (Rebase CMA on master)
 def test_run_next_gen_condition():
     """deapext.utils: Testing run_next_gen."""
     event = multiprocessing.Event()

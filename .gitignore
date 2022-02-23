@@ -11,3 +11,4 @@ x86_64
 /cov_reports
 .coverage
 coverage.xml
+.idea/

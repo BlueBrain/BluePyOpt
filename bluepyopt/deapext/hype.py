@@ -1,5 +1,5 @@
 """
-Copyright (c) 2016-2020, EPFL/Blue Brain Project
+Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -16,12 +16,13 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
  along with this library; if not, write to the Free Software Foundation, Inc.,
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-
 import numpy
 
 
-def hypesub_(L, A, actDim, bounds, pvec, alpha, k):
-    h = numpy.zeros(L)
+def hypesub(la, A, actDim, bounds, pvec, alpha, k):
+    """HypE algorithm sub function"""
+
+    h = numpy.zeros(la)
     i = numpy.argsort(A[:, actDim - 1])
     S = A[i]
     pvec = pvec[i]
@@ -39,8 +40,8 @@ def hypesub_(L, A, actDim, bounds, pvec, alpha, k):
             if alpha[i - 1] >= 0:
                 h[pvec[0:i]] += extrusion * alpha[i - 1]
         elif extrusion > 0.0:
-            h += extrusion * hypesub_(
-                L, S[0:i, :], actDim - 1, bounds, pvec[0:i], alpha, k
+            h += extrusion * hypesub(
+                la, S[0:i, :], actDim - 1, bounds, pvec[0:i], alpha, k
             )
 
     return h
@@ -70,7 +71,7 @@ def hypeIndicatorExact(points, bounds, k):
         alpha.append(numpy.prod((k - j) / (Ps - j) / i))
     alpha = numpy.asarray(alpha)
 
-    return hypesub_(points.shape[0], points, actDim, bounds, pvec, alpha, k)
+    return hypesub(points.shape[0], points, actDim, bounds, pvec, alpha, k)
 
 
 def hypeIndicatorSampled(points, bounds, k, nrOfSamples):

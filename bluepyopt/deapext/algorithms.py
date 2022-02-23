@@ -1,7 +1,7 @@
 """Optimisation class"""
 
 """
-Copyright (c) 2016-2020, EPFL/Blue Brain Project
+Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -155,7 +155,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         )
 
     stopping_criteria = [MaxNGen(ngen)]
-        
+
     # Begin the generational process
     gen = start_gen + 1
     stopping_params = {"gen": gen}
@@ -169,7 +169,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         invalid_count = _evaluate_invalid_fitness(toolbox, offspring)
         utils.update_history_and_hof(halloffame, history, population)
         utils.record_stats(stats, logbook, gen, population, invalid_count)
-        
+
         # Select the next generation parents
         parents = toolbox.select(population, mu)
 

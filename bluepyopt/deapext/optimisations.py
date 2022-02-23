@@ -1,7 +1,7 @@
 """Optimisation class"""
 
 """
-Copyright (c) 2016-2020, EPFL/Blue Brain Project
+Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -107,6 +107,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
         Args:
             evaluator (Evaluator): Evaluator object
+            use_scoop (bool): use scoop map for parallel computation
             seed (float): Random number generator seed
             offspring_size (int): Number of offspring individuals in each
                 generation

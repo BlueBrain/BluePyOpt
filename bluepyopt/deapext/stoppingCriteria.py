@@ -1,7 +1,7 @@
 """StoppingCriteria class"""
 
 """
-Copyright (c) 2016-2021, EPFL/Blue Brain Project
+Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -78,8 +78,9 @@ class Stagnation(bluepyopt.stoppingCriteria.StoppingCriteria):
         self.best.append(fitness[0])
         self.median.append(fitness[int(round(len(fitness) / 2.0))])
         self.stagnation_iter = int(
-            numpy.ceil(0.2 * ngen + 120 + 30.0 * self.problem_size
-                / self.lambda_)
+            numpy.ceil(
+                0.2 * ngen + 120 + 30.0 * self.problem_size / self.lambda_
+            )
         )
 
         cbest = len(self.best) > self.stagnation_iter
@@ -103,8 +104,9 @@ class TolHistFun(bluepyopt.stoppingCriteria.StoppingCriteria):
         """Constructor"""
         super(TolHistFun, self).__init__()
         self.tolhistfun = 10 ** -12
-        self.mins = deque(maxlen=10 + int(numpy.ceil(30.0 * problem_size
-                                        / lambda_)))
+        self.mins = deque(
+            maxlen=10 + int(numpy.ceil(30.0 * problem_size / lambda_))
+        )
 
     def check(self, kwargs):
         """Check if the range of the best values is smaller than
