@@ -63,11 +63,17 @@ class CMA_SO(cma.Strategy):
         """Constructor
 
         Args:
-            centroid (list): initial guess used as the starting point of
-            the CMA-ES
-            sigma (float): initial standard deviation of the distribution
-            max_ngen (int): total number of generation to run
-            IndCreator (fcn): function returning an individual of the pop
+             centroid (list): initial guess used as the starting point of
+             the CMA-ES
+             offspring_size (int): number of offspring individuals in each
+                 generation
+             sigma (float): initial standard deviation of the distribution
+             max_ngen (int): total number of generation to run
+             IndCreator (fcn): function returning an individual of the pop
+             RandIndCreator (fcn): function creating a random individual.
+             map_function (map): function used to map (parallelize) the
+                 evaluation function calls
+             use_scoop (bool): use scoop map for parallel computation
         """
 
         if offspring_size is None:

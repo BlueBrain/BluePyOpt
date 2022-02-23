@@ -19,10 +19,6 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-<<<<<<< HEAD
-from . import objectives
-=======
->>>>>>> 923c7e5 (Rebase CMA on master)
 
 class ObjectivesCalculator(object):
 
@@ -41,32 +37,9 @@ class ObjectivesCalculator(object):
 
     def calculate_scores(self, responses):
         """Calculator the score for every objective"""
-<<<<<<< HEAD
-        
-        scores = {}
-        
-        if param_dict and cell_model:
-            cell_model.freeze(param_dict)
-        
-        for objective in self.objectives:
-            
-            if issubclass(type(objective), objectives.EFeatureObjective):
-                scores[objective.name] = objective.calculate_score(responses)
-            elif issubclass(type(objective), objectives.RuleObjective):
-                if param_dict and cell_model:
-                    scores[objective.name] = objective.calculate_score(cell_model)
-            else:
-                raise Exception('Unknown objective class: {}'.format(type(objective)))
-        
-        if param_dict and cell_model:
-            cell_model.unfreeze(param_dict.keys())
-        
-        return scores
-=======
 
         return {objective.name: objective.calculate_score(responses)
                 for objective in self.objectives}
->>>>>>> 923c7e5 (Rebase CMA on master)
 
     def calculate_values(self, responses):
         """Calculator the value of each objective"""
@@ -75,10 +48,6 @@ class ObjectivesCalculator(object):
                 for objective in self.objectives}
 
     def __str__(self):
-<<<<<<< HEAD
-        
-=======
->>>>>>> 923c7e5 (Rebase CMA on master)
         return 'objectives:\n  %s' % '\n  '.join(
             [str(obj) for obj in self.objectives]) \
             if self.objectives is not None else 'objectives:\n'
