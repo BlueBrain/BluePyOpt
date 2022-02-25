@@ -1,13 +1,6 @@
 """Utils function"""
 
 """
-<<<<<<< HEAD
-Copyright (c) 2016, EPFL/Blue Brain Project
- This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
- This library is free software; you can redistribute it and/or modify it under
- the terms of the GNU Lesser General Public License version 3.0 as published
- by the Free Software Foundation.
-=======
 Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
@@ -16,15 +9,10 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
  the terms of the GNU Lesser General Public License version 3.0 as published
  by the Free Software Foundation.
 
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
  This library is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  details.
-<<<<<<< HEAD
-=======
-
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
  You should have received a copy of the GNU Lesser General Public License
  along with this library; if not, write to the Free Software Foundation, Inc.,
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -137,29 +125,17 @@ def uniform(lower_list, upper_list, dimensions):
     """Uniformly pick an individual"""
     if hasattr(lower_list, "__iter__"):
         return [
-<<<<<<< HEAD
-            random.uniform(lower, upper)
-            for lower, upper in zip(lower_list, upper_list)
-        ]
-    else:
-        return [
-            random.uniform(lower_list, upper_list) for _ in range(dimensions)
-        ]
-=======
             random.uniform(lower, upper) for lower, upper in
             zip(lower_list, upper_list)
         ]
     else:
         return [random.uniform(lower_list, upper_list) for _ in
                 range(dimensions)]
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
 
 def reduce_method(meth):
     """Overwrite reduce"""
     return (getattr, (meth.__self__, meth.__func__.__name__))
-<<<<<<< HEAD
-=======
 
 
 def run_next_gen(criteria, terminator):
@@ -167,4 +143,3 @@ def run_next_gen(criteria, terminator):
     if terminator is None:
         return criteria
     return criteria and not terminator.is_set()
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4

@@ -1,11 +1,7 @@
 """Multi Objective CMA-es class"""
 
 """
-<<<<<<< HEAD
-Copyright (c) 2016, EPFL/Blue Brain Project
-=======
 Copyright (c) 2016-2020, EPFL/Blue Brain Project
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -38,11 +34,7 @@ from .stoppingCriteria import MaxNGen
 from . import utils
 from . import hype
 
-<<<<<<< HEAD
-logger = logging.getLogger(__name__)
-=======
 logger = logging.getLogger("__main__")
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
 
 def get_hyped(pop, ubound_score=250., threshold_improvement=240.):
@@ -51,11 +43,7 @@ def get_hyped(pop, ubound_score=250., threshold_improvement=240.):
     improvement are ignored.
     """
 
-<<<<<<< HEAD
-    # Cap the obj
-=======
     # Cap the obj at 250
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
     points = numpy.array([ind.fitness.values for ind in pop])
     points[points > ubound_score] = ubound_score
     lbounds = numpy.min(points, axis=0)
@@ -105,31 +93,18 @@ class CMA_MO(cma.StrategyMultiObjective):
             centroid (list): initial guess used as the starting point of
             the CMA-ES
             offspring_size (int): number of offspring individuals in each
-<<<<<<< HEAD
-                generation
-=======
                  generation
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
             sigma (float): initial standard deviation of the distribution
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
             RandIndCreator (fcn): function creating a random individual.
             weight_hv (float): between 0 and 1. Weight given to the
-<<<<<<< HEAD
-                hyper-volume contribution when computing the score of an
-                individual in MO-CMA. The weight of the fitness contribution
-                is computed as 1 - weight_hv.
-            map_function (map): function used to map (parallelize) the
-                evaluation function calls
-            use_scoop (bool): use scoop map for parallel computation
-=======
                 hypervolume contribution when computing the score of an
                 individual in MO-CMA. The weight of the fitness contribution
                 is computed as 1 - weight_hv.
             map_function (map): function used to map (parallelize) the
                  evaluation function calls
              use_scoop (bool): use scoop map for parallel computation
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
         """
 
         if offspring_size is None:
@@ -144,13 +119,9 @@ class CMA_MO(cma.StrategyMultiObjective):
                 from itertools import cycle
 
                 generator = cycle(centroids)
-<<<<<<< HEAD
-                starters = [next(generator) for i in range(lambda_)]
-=======
                 starters = [
                     copy.deepcopy(next(generator)) for i in range(lambda_)
                 ]
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
             else:
                 starters = centroids
 
@@ -193,19 +164,11 @@ class CMA_MO(cma.StrategyMultiObjective):
     def _select(self, candidates):
         """Select the best candidates of the population
 
-<<<<<<< HEAD
-        Fill the next population (chosen) with the Pareto fronts until there is
-        not enough space. When an entire front does not fit in the space left
-        we rely on a mixture of hypervolume and fitness. The respective weights
-        of hypervolume and fitness are "hv" and "1-hv". The remaining fronts
-        are explicitly not chosen"""
-=======
          Fill the next population (chosen) with the Pareto fronts until there
          is not enough space. When an entire front does not fit in the space
          left we rely on a mixture of hypervolume and fitness. The respective
          weights of hypervolume and fitness are "hv" and "1-hv". The remaining
          fronts are explicitly not chosen"""
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
         if self.weight_hv == 0.0:
             fit = [numpy.sum(ind.fitness.values) for ind in candidates]
@@ -230,11 +193,7 @@ class CMA_MO(cma.StrategyMultiObjective):
                 scores.append(score)
             idx_scores = list(numpy.argsort(scores))
 
-<<<<<<< HEAD
-        chosen = [candidates[i] for i in idx_scores[:self.mu]]
-=======
         chosen = [candidates[i] for i in idx_scores[: self.mu]]
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
         not_chosen = [candidates[i] for i in idx_scores[self.mu:]]
         return chosen, not_chosen
 
@@ -280,12 +239,7 @@ class CMA_MO(cma.StrategyMultiObjective):
         for c in self.stopping_conditions:
             if c.criteria_met:
                 logger.info(
-<<<<<<< HEAD
-                    "CMA stopped because of termination criteria: "
-                    + " ".join(c.name)
-=======
                     "CMA stopped because of termination criteria: " +
                     "" + " ".join(c.name)
->>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
                 )
                 self.active = False
