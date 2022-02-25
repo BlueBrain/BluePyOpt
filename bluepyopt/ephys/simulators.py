@@ -188,12 +188,12 @@ class LFPySimulator(object):
     """LFPy simulator"""
 
     def __init__(self, LFPyCellModel, electrode=None, cvode_active=True,
-                 cvode_minstep=None,  random123_globalindex=None, 
+                 cvode_minstep=None, random123_globalindex=None,
                  mechanisms_directory=None):
         """Constructor
 
         Args:
-            LFPyCellModel (LFPy.Cell): 
+            LFPyCellModel (LFPy.Cell):
             electrode (LFPy.recording_electrode)
             cvode_active (bool): should neuron use the variable time step
                 integration method
