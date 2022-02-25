@@ -181,6 +181,22 @@ def test_CellModel_destroy():
 
 
 @pytest.mark.unit
+def test_lfpycellmodel():
+    """ephys.models: Test LFPyCellModel class"""
+    model = ephys.models.LFPyCellModel('test_lfpy_model', morph=test_morph, mechs=[],
+                                       v_init=-80)
+
+    assert (
+        str(model)
+        == 'test_lfpy_model:\n  morphology:\n    %s\n  mechanisms:\n  params:\n' %
+        simple_morphology_path)
+
+    model.instantiate(sim=sim)
+    model.destroy(sim=sim)
+    assert isinstance(model, ephys.models.LFPyCellModel)
+
+
+@pytest.mark.unit
 def test_metaparameter():
     """ephys.models: Test model with MetaParameter"""
 
