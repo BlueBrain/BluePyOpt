@@ -22,6 +22,7 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 # pylint: disable=R0914
 
 import logging
+import numpy as np
 
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
@@ -422,6 +423,8 @@ class extraFELFeature(EFeature, DictMixin):
             return_waveforms=False,
             verbose=False,
     ):
+        from .extra_features_utils import calculate_features
+
         """Calculate feature value"""
         peak_times = self._get_peak_times(
             responses, raise_warnings=raise_warnings
@@ -462,7 +465,6 @@ class extraFELFeature(EFeature, DictMixin):
         ewf = _get_waveforms(response_filter, peak_times, self.ms_cut)
         mean_wf = np.mean(ewf, axis=0)
 
-        amplitudes = np.max(np.abs(mean_wf), axis=1)
         values = calculate_features(
             mean_wf,
             self.fs * 1000,
