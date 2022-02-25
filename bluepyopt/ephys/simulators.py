@@ -193,8 +193,9 @@ class LFPySimulator(object):
         """Constructor
 
         Args:
-            LFPyCellModel (LFPy.Cell):
-            electrode (LFPy.recording_electrode)
+            LFPyCellModel (LFPyCellModel): the LFPy cell model
+            electrode (MEAutility.MEA): the MEAutility probe used to compute
+                extracellular signals
             cvode_active (bool): should neuron use the variable time step
                 integration method
             cvode_minstep (float): the minimum time step allowed for a cvode
