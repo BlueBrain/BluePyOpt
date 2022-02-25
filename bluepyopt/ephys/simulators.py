@@ -242,9 +242,7 @@ class LFPySimulator(object):
             self.banner_disabled = True
 
         import neuron  # NOQA
-
         if self.mechs_folders is not None:
-            import neuron
             for mech_folder in self.mechs_folders:
                 compile_mech_folder(mech_folder)
                 neuron.load_mechanisms(str(mech_folder),

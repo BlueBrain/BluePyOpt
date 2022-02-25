@@ -200,7 +200,6 @@ class CellModel(Model):
                ''' % dict(template_name=template_name, objref_str=objref_str,
                           newseclist_str=newseclist_str,
                           create_str=create_str)
-
         return template
 
     @staticmethod

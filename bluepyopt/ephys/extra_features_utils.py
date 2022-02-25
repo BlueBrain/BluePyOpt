@@ -250,7 +250,7 @@ def repolarization_slope(waveforms, sampling_frequency, return_idx=False):
     """
     Return slope of repolarization period between trough and baseline
 
-    After reaching it's maxumum polarization, the neuron potential will
+    After reaching its maxumum polarization, the neuron potential will
     recover. The repolarization slope is defined as the dV/dT of the action
     potential between trough and baseline.
 
@@ -311,7 +311,7 @@ def repolarization_slope(waveforms, sampling_frequency, return_idx=False):
 def recovery_slope(waveforms, sampling_frequency, window):
     """
     Return the recovery slope of input waveforms. After repolarization,
-    the neuron hyperpolarizes untill it peaks. The recovery slope is the
+    the neuron hyperpolarizes until it peaks. The recovery slope is the
     slope of the action potential after the peak, returning to the baseline
     in dV/dT. The slope is computed within a user-defined window after
     the peak.
@@ -331,7 +331,6 @@ def recovery_slope(waveforms, sampling_frequency, window):
 
     Returns
     -------
-
     np.ndarray
         Recovery slope of the waveforms
     """
@@ -363,11 +362,15 @@ def peak_image(waveforms, sign="negative"):
 
     Parameters
     ----------
-    waveforms
-    sign
+    waveforms  : numpy.ndarray (num_waveforms x num_samples)
+        waveforms to compute features for
+    sign : str
+        "pos" | "neg"
 
     Returns
     -------
+    np.ndarray
+        Peak images for the waveforms
 
     """
     assert len(waveforms) > 1
@@ -393,11 +396,17 @@ def relative_amplitude(waveforms, sign="negative"):
 
     Parameters
     ----------
-    waveforms
-    sign
+    waveforms  : numpy.ndarray (num_waveforms x num_samples)
+        waveforms to compute features for
+    fs : float
+        Sampling rate in Hz
+    sign : str
+        "positive" | "negative"
 
     Returns
     -------
+    np.ndarray
+        Relative amplitudes for the waveforms
 
     """
     assert len(waveforms) > 1
@@ -415,15 +424,21 @@ def relative_amplitude(waveforms, sign="negative"):
 
 def peak_time_diff(waveforms, fs, sign="negative"):
     """
+    Peak time differences with respect to channel with largest amplitude.
 
     Parameters
     ----------
-    waveforms
-    fs
-    sign
+    waveforms  : numpy.ndarray (num_waveforms x num_samples)
+        waveforms to compute features for
+    fs : float
+        Sampling rate in Hz
+    sign : str
+        "positive" | "negative"
 
     Returns
     -------
+    np.ndarray
+        Peak time differences for the waveforms
 
     """
     assert len(waveforms) > 1
