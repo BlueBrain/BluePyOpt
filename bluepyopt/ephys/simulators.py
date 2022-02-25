@@ -185,11 +185,27 @@ class NrnSimulatorException(Exception):
 
 class LFPySimulator(object):
 
-    """Neuron simulator"""
+    """LFPy simulator"""
 
     def __init__(self, LFPyCellModel, electrode=None, cvode_active=True,
-                 random123_globalindex=None, mechs_folders=None):
-        """Constructor"""
+                 cvode_minstep=None,  random123_globalindex=None, 
+                 mechanisms_directory=None):
+        """Constructor
+
+        Args:
+            LFPyCellModel (LFPy.Cell): 
+            electrode (LFPy.recording_electrode)
+            cvode_active (bool): should neuron use the variable time step
+                integration method
+            cvode_minstep (float): the minimum time step allowed for a cvode
+                step. Default is 0.0.
+            random123_globalindex (int): used to set the global index used by
+                all instances of the Random123 instances of Random
+            mechanisms_directory (str): path to the parent directory of the
+                directory containing the mod files. If the mod files are in
+                "./data/mechanisms", then mechanisms_directory should be
+                "./data/".
+        """
 
         self.LFPyCellModel = LFPyCellModel
         self.electrode = electrode
@@ -207,16 +223,11 @@ class LFPySimulator(object):
             self.disable_banner = True
             self.banner_disabled = False
 
-        if mechs_folders is not None:
-            if not isinstance(mechs_folders, list):
-                mechs_folders = [mechs_folders]
-            self.mechs_folders = mechs_folders
-        else:
-            self.mechs_folders = mechs_folders
-
+        self.mechanisms_directory = mechanisms_directory
         self.neuron.h.load_file('stdrun.hoc')
 
         self.cvode_active = cvode_active
+        self.cvode_minstep_value = cvode_minstep
 
         self.random123_globalindex = random123_globalindex
 
@@ -248,11 +259,10 @@ class LFPySimulator(object):
             self.banner_disabled = True
 
         import neuron  # NOQA
-        if self.mechs_folders is not None:
-            for mech_folder in self.mechs_folders:
-                compile_mech_folder(mech_folder)
-                neuron.load_mechanisms(str(mech_folder),
-                                       warn_if_already_loaded=False)
+        if self.mechanisms_directory is not None:
+            neuron.load_mechanisms(
+                self.mechanisms_directory, warn_if_already_loaded=False
+            )
 
         return neuron
 
@@ -329,41 +339,3 @@ class LFPySimulatorException(Exception):
 
         super(LFPySimulatorException, self).__init__(message)
         self.original = original
-
-
-def is_compiled(mech_folder):
-    from pathlib import Path
-
-    mech_folder = Path(mech_folder)
-    compiled = False
-    for p in mech_folder.iterdir():
-        if p.is_dir() and p.name == "x86_64":
-            compiled = True
-            break
-    return compiled
-
-
-def compile_mech_folder(mech_folder):
-    from pathlib import Path
-    import os
-
-    current_dir = os.getcwd()
-    mech_folder = Path(mech_folder)
-    compile_folder = None
-
-    if not is_compiled(mech_folder):
-        if any(p.is_file() and p.suffix == ".mod"
-               for p in mech_folder.iterdir()):
-            compile_folder = mech_folder
-        else:
-            for p in mech_folder.iterdir():
-                if p.is_dir():
-                    if any(pmod.suffix == '.mod' for pmod in p.iterdir()):
-                        compile_folder = p.name
-        try:
-            print(f"Compiling {str(compile_folder)}")
-            os.chdir(mech_folder)
-            os.system(f'nrnivmodl {str(compile_folder)}')
-            os.chdir(current_dir)
-        except Exception as e:
-            os.chdir(current_dir)
