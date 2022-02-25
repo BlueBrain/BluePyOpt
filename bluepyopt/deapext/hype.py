@@ -1,7 +1,32 @@
+<<<<<<< HEAD
 import numpy
 
 
 def hypesub_(la, A, actDim, bounds, pvec, alpha, k):
+=======
+"""
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
+
+ This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
+
+ This library is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Lesser General Public License version 3.0 as published
+ by the Free Software Foundation.
+
+ This library is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this library; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+import numpy
+
+
+def hypesub(la, A, actDim, bounds, pvec, alpha, k):
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
     """HypE algorithm sub function"""
 
     h = numpy.zeros(la)
@@ -22,7 +47,11 @@ def hypesub_(la, A, actDim, bounds, pvec, alpha, k):
             if alpha[i - 1] >= 0:
                 h[pvec[0:i]] += extrusion * alpha[i - 1]
         elif extrusion > 0.0:
+<<<<<<< HEAD
             h += extrusion * hypesub_(
+=======
+            h += extrusion * hypesub(
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
                 la, S[0:i, :], actDim - 1, bounds, pvec[0:i], alpha, k
             )
 
@@ -53,7 +82,11 @@ def hypeIndicatorExact(points, bounds, k):
         alpha.append(numpy.prod((k - j) / (Ps - j) / i))
     alpha = numpy.asarray(alpha)
 
+<<<<<<< HEAD
     return hypesub_(points.shape[0], points, actDim, bounds, pvec, alpha, k)
+=======
+    return hypesub(points.shape[0], points, actDim, bounds, pvec, alpha, k)
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
 
 def hypeIndicatorSampled(points, bounds, k, nrOfSamples):

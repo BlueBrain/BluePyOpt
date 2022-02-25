@@ -1,7 +1,11 @@
 """Single Objective CMA-es class"""
 
 """
+<<<<<<< HEAD
 Copyright (c) 2016, EPFL/Blue Brain Project
+=======
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -43,7 +47,11 @@ from .stoppingCriteria import (
 
 from . import utils
 
+<<<<<<< HEAD
 logger = logging.getLogger(__name__)
+=======
+logger = logging.getLogger("__main__")
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
 
 class CMA_SO(cma.Strategy):
@@ -63,6 +71,7 @@ class CMA_SO(cma.Strategy):
         """Constructor
 
         Args:
+<<<<<<< HEAD
             centroid (list): initial guess used as the starting point of
             the CMA-ES
             offspring_size (int): number of offspring individuals in each
@@ -74,6 +83,19 @@ class CMA_SO(cma.Strategy):
             map_function (map): function used to map (parallelize) the
                 evaluation function calls
             use_scoop (bool): use scoop map for parallel computation
+=======
+             centroid (list): initial guess used as the starting point of
+             the CMA-ES
+             offspring_size (int): number of offspring individuals in each
+                 generation
+             sigma (float): initial standard deviation of the distribution
+             max_ngen (int): total number of generation to run
+             IndCreator (fcn): function returning an individual of the pop
+             RandIndCreator (fcn): function creating a random individual.
+             map_function (map): function used to map (parallelize) the
+                 evaluation function calls
+             use_scoop (bool): use scoop map for parallel computation
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
         """
 
         if offspring_size is None:
@@ -122,9 +144,14 @@ class CMA_SO(cma.Strategy):
         """Update the current covariance matrix strategy from the
         population"""
 
+<<<<<<< HEAD
         population.sort(
             key=lambda ind: ind.fitness.weighted_reduce, reverse=True
         )
+=======
+        population.sort(key=lambda ind: ind.fitness.weighted_reduce,
+                        reverse=True)
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
         old_centroid = self.centroid
         self.centroid = numpy.dot(self.weights, population[0:self.mu])
@@ -141,9 +168,14 @@ class CMA_SO(cma.Strategy):
         hsig = float(
             (
                 numpy.linalg.norm(self.ps)
+<<<<<<< HEAD
                 / sqrt(
                     1.0 - (1.0 - self.cs) ** (2.0 * (self.update_count + 1.0))
                 )
+=======
+                / sqrt(1.0 - (1.0 - self.cs) **
+                (2.0 * (self.update_count + 1.0)))
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
                 / self.chiN
                 < (1.4 + 2.0 / (self.dim + 1.0))
             )
@@ -153,7 +185,11 @@ class CMA_SO(cma.Strategy):
 
         self.pc = (1 - self.cc) * self.pc + hsig * sqrt(
             self.cc * (2 - self.cc) * self.mueff
+<<<<<<< HEAD
         ) / self.sigma * c_diff  # noqa
+=======
+        ) / self.sigma * c_diff
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
         # Update covariance matrix
         artmp = population[0:self.mu] - old_centroid
@@ -166,6 +202,7 @@ class CMA_SO(cma.Strategy):
             )
             * self.C
             + self.ccov1 * numpy.outer(self.pc, self.pc)
+<<<<<<< HEAD
             + self.ccovmu
             * numpy.dot((self.weights * artmp.T), artmp)
             / self.sigma ** 2
@@ -176,6 +213,16 @@ class CMA_SO(cma.Strategy):
             * self.cs
             / self.damps
         )  # noqa
+=======
+            + self.ccovmu * numpy.dot((self.weights * artmp.T), artmp)
+            / self.sigma ** 2
+        )
+
+        self.sigma *= numpy.exp(
+            (numpy.linalg.norm(self.ps) / self.chiN - 1.0) * self.cs
+            / self.damps
+        )
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
         self.diagD, self.B = numpy.linalg.eigh(self.C)
         indx = numpy.argsort(self.diagD)
@@ -223,7 +270,12 @@ class CMA_SO(cma.Strategy):
         for c in self.stopping_conditions:
             if c.criteria_met:
                 logger.info(
+<<<<<<< HEAD
                     "CMA stopped because of termination criteria: "
                     + " ".join(c.name)
+=======
+                    "CMA stopped because of termination criteria: " +
+                    "" + " ".join(c.name)
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
                 )
                 self.active = False

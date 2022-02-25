@@ -33,6 +33,7 @@ import deap.tools
 
 from . import algorithms
 from . import tools
+from . import utils
 
 import bluepyopt.optimisations
 
@@ -160,6 +161,11 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
 
         # Number of parameters
         IND_SIZE = len(self.evaluator.params)
+        if IND_SIZE == 0:
+            raise Exception(
+                "Length of evaluator.params is zero. At least one "
+                "non-fix parameter is needed to run an optimization."
+            )
 
         # Bounds for the parameters
 
@@ -170,19 +176,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             LOWER.append(parameter.lower_bound)
             UPPER.append(parameter.upper_bound)
 
-        # Define a function that will uniformly pick an individual
-        def uniform(lower_list, upper_list, dimensions):
-            """Fill array """
-
-            if hasattr(lower_list, '__iter__'):
-                return [random.uniform(lower, upper) for lower, upper in
-                        zip(lower_list, upper_list)]
-            else:
-                return [random.uniform(lower_list, upper_list)
-                        for _ in range(dimensions)]
-
         # Register the 'uniform' function
-        self.toolbox.register("uniformparams", uniform, LOWER, UPPER, IND_SIZE)
+        self.toolbox.register("uniformparams", utils.uniform, LOWER, UPPER,
+                              IND_SIZE)
 
         # Register the individual format
         # An indiviual is create by WSListIndividual and parameters
@@ -234,12 +230,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             raise ValueError('DEAPOptimisation: Constructor selector_name '
                              'argument only accepts "IBEA" or "NSGA2"')
 
-        def _reduce_method(meth):
-            """Overwrite reduce"""
-            return (getattr, (meth.__self__, meth.__func__.__name__))
         import copyreg
         import types
-        copyreg.pickle(types.MethodType, _reduce_method)
+        copyreg.pickle(types.MethodType, utils.reduce_method)
 
         if self.use_scoop:
             if self.map_function:
@@ -260,7 +253,8 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             continue_cp=False,
             cp_filename=None,
             cp_frequency=1,
-            parent_population=None):
+            parent_population=None,
+            terminator=None):
         """Run optimisation"""
         # Allow run function to override offspring_size
         # TODO probably in the future this should not be an object field
@@ -304,6 +298,10 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         stats.register("min", numpy.min)
         stats.register("max", numpy.max)
 
+        param_names = []
+        if hasattr(self.evaluator, "param_names"):
+            param_names = self.evaluator.param_names
+
         pop, hof, log, history = algorithms.eaAlphaMuPlusLambdaCheckpoint(
             pop,
             self.toolbox,
@@ -315,7 +313,9 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             halloffame=self.hof,
             cp_frequency=cp_frequency,
             continue_cp=continue_cp,
-            cp_filename=cp_filename)
+            cp_filename=cp_filename,
+            terminator=terminator,
+            param_names=param_names)
 
         # Update hall of fame
         self.hof = hof

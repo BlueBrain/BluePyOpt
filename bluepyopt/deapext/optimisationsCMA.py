@@ -1,7 +1,11 @@
 """CMA Optimisation class"""
 
 """
+<<<<<<< HEAD
 Copyright (c) 2016, EPFL/Blue Brain Project
+=======
+Copyright (c) 2016-2020, EPFL/Blue Brain Project
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -24,8 +28,13 @@ import numpy
 import pickle
 import random
 import functools
+<<<<<<< HEAD
 import os
 import shutil
+=======
+import shutil
+import os
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
 import deap.tools
 
@@ -98,8 +107,14 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         if self.hof is None:
             self.hof = deap.tools.HallOfFame(10)
 
+<<<<<<< HEAD
         self.fitness_reduce = fitness_reduce
         self.offspring_size = offspring_size
+=======
+        self.offspring_size = offspring_size
+
+        self.fitness_reduce = fitness_reduce
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
         self.centroids = centroids
         self.sigma = sigma
 
@@ -144,12 +159,24 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         for r, m in zip(bounds_radius, bounds_mean):
             self.to_norm.append(
                 functools.partial(
+<<<<<<< HEAD
                     lambda param, bm, br: (param - bm) / br, bm=m, br=r
                 )
             )
             self.to_space.append(
                 functools.partial(
                     lambda param, bm, br: (param * br) + bm, bm=m, br=r
+=======
+                    lambda param, bm, br: (param - bm) / br,
+                    bm=m,
+                    br=r)
+            )
+            self.to_space.append(
+                functools.partial(
+                    lambda param, bm, br: (param * br) + bm,
+                    bm=m,
+                    br=r
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
                 )
             )
 
@@ -179,7 +206,11 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             utils.uniform,
             self.lbounds,
             self.ubounds,
+<<<<<<< HEAD
             self.ind_size,
+=======
+            self.ind_size
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
         )
 
         # Register the individual format
@@ -233,25 +264,51 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             self.toolbox.register("map", self.map_function)
 
     def run(
+<<<<<<< HEAD
         self, max_ngen=0, cp_frequency=1, continue_cp=False, cp_filename=None
     ):
         """Run the optimizer until a stopping criteria is met.
+=======
+        self,
+        max_ngen=0,
+        cp_frequency=1,
+        continue_cp=False,
+        cp_filename=None,
+        terminator=None,
+    ):
+        """ Run the optimizer until a stopping criteria is met.
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
         Args:
             max_ngen(int): Total number of generation to run
             cp_frequency(int): generations between checkpoints
             continue_cp(bool): whether to continue
             cp_filename(string): path to checkpoint filename
+<<<<<<< HEAD
         """
 
         stats = self.get_stats()
         if cp_filename:
             cp_filename_tmp = str(cp_filename) + ".tmp"
+=======
+            terminator (multiprocessing.Event): exit loop when is set.
+                Not taken into account if None.
+        """
+
+        if cp_filename:
+            cp_filename_tmp = cp_filename + '.tmp'
+
+        stats = self.get_stats()
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
 
         if continue_cp:
 
             # A file name has been given, then load the data from the file
+<<<<<<< HEAD
             cp = pickle.load(open(cp_filename, "br"))
+=======
+            cp = pickle.load(open(cp_filename, "rb"))
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
             gen = cp["generation"]
             self.hof = cp["halloffame"]
             logbook = cp["logbook"]
@@ -290,8 +347,17 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
 
         pop = CMA_es.get_population(self.to_space)
 
+<<<<<<< HEAD
         # Run until a termination criteria is met
         while CMA_es.active:
+=======
+        param_names = []
+        if hasattr(self.evaluator, "param_names"):
+            param_names = self.evaluator.param_names
+
+        # Run until a termination criteria is met
+        while utils.run_next_gen(CMA_es.active, terminator):
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
             logger.info("Generation {}".format(gen))
 
             # Generate the new populations
@@ -299,9 +365,15 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 lbounds=self.lbounds, ubounds=self.ubounds
             )
             logger.debug(
+<<<<<<< HEAD
                 "Number of individuals outside of bounds: {} "
                 "({:.2f}%)".format(
                     n_out, 100.0 * n_out / len(CMA_es.population)
+=======
+                "Number of individuals outside of bounds: {} ({:.2f}%)".format(
+                    n_out,
+                    100.0 * n_out / len(CMA_es.population)
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
                 )
             )
 
@@ -340,11 +412,20 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                     rndstate=random.getstate(),
                     np_rndstate=numpy.random.get_state(),
                     CMA_es=CMA_es,
+<<<<<<< HEAD
+=======
+                    param_names=param_names,
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
                 )
                 pickle.dump(cp, open(cp_filename_tmp, "wb"))
                 if os.path.isfile(cp_filename_tmp):
                     shutil.copy(cp_filename_tmp, cp_filename)
+<<<<<<< HEAD
                     logger.debug("Wrote checkpoint to %s", cp_filename)
+=======
+                    logger.debug('Wrote checkpoint to %s', cp_filename)
+
+>>>>>>> 65a485566d27a5b0cb18f54337f710434c659fb4
                 CMA_es.map_function = temp_mf
 
             gen += 1
