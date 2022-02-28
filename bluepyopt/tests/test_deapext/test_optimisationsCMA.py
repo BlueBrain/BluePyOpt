@@ -33,7 +33,7 @@ def test_optimisationsCMA_SO_run():
     optimiser = bluepyopt.deapext.optimisationsCMA.DEAPOptimisationCMA
     optimisation = optimiser(evaluator=evaluator, centroids=[x])
     pop, hof, log, hist = optimisation.run(max_ngen=2)
-    
+
     assert abs(log.select("avg")[-1] - 53.3333) < 1e-4
     assert abs(log.select("std")[-1] - 83.7987) < 1e-4
     assert pop[0] == [0.10525059698894745, 0.01000000003249999]
