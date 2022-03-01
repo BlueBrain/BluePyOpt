@@ -196,7 +196,7 @@ class NrnSectionParameter(NrnParameter, DictMixin):
             value_scaler (float): value used to scale the parameter value
             locations (list of ephys.locations.Location): locations on which
                 to instantiate the parameter
-            param_dependancies (dict): dependencies needed to intantiate
+            param_dependancies (list): dependencies needed to intantiate
                 the parameter
         """
 
@@ -276,7 +276,7 @@ class NrnPointProcessParameter(NrnParameter, DictMixin):
             locations: an iterator of the point process locations you want to
                        set the parameters of
             param_name (str): name of parameter used within the point process
-            param_dependancies (dict): dependencies needed to intantiate
+            param_dependancies (list): dependencies needed to intantiate
                 the parameter
         """
 
@@ -345,7 +345,7 @@ class NrnRangeParameter(NrnParameter, DictMixin):
             value_scaler (float): value used to scale the parameter value
             locations (list of ephys.locations.Location): locations on which
                 to instantiate the parameter
-            param_dependancies (dict): dependencies needed to intantiate
+            param_dependancies (list): dependencies needed to intantiate
                 the parameter
         """
 
