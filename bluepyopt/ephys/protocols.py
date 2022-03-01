@@ -27,6 +27,7 @@ import collections
 import logging
 logger = logging.getLogger(__name__)
 
+from . import models
 from . import locations
 from . import simulators
 
@@ -168,7 +169,20 @@ class SweepProtocol(Protocol):
             cell_model.freeze(param_values)
             cell_model.instantiate(sim=sim)
 
-            self.instantiate(sim=sim, icell=cell_model.icell)
+            if isinstance(cell_model, models.LFPyCellModel):
+                LFPyCell = cell_model.LFPyCell
+            else:
+                LFPyCell = None
+
+            self.instantiate(
+                sim=sim, icell=cell_model.icell, LFPyCell=LFPyCell
+            )
+
+            if hasattr(sim, "electrode"):
+                if any(["LFP" in rec.name for rec in self.recordings]):
+                    sim.effective_electrode = sim.electrode
+                else:
+                    sim.effective_electrode = None
 
             try:
                 sim.run(self.total_duration, cvode_active=self.cvode_active)
@@ -245,15 +259,23 @@ class SweepProtocol(Protocol):
                                        sim=sim)
         return responses
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, icell=None, LFPyCell=None):
         """Instantiate"""
 
         for stimulus in self.stimuli:
-            stimulus.instantiate(sim=sim, icell=icell)
+            if LFPyCell is not None:
+                stimulus.instantiate(sim=sim, icell=icell, LFPyCell=LFPyCell)
+            else:
+                stimulus.instantiate(sim=sim, icell=icell)
 
         for recording in self.recordings:
             try:
-                recording.instantiate(sim=sim, icell=icell)
+                # try to instantiate as an LFPy recording
+                try:
+                    recording.instantiate(sim=sim, icell=icell,
+                                          LFPyCell=LFPyCell)
+                except Exception as e:
+                    recording.instantiate(sim=sim, icell=icell)
             except locations.EPhysLocInstantiateException:
                 logger.debug(
                     'SweepProtocol: Instantiating recording generated '
