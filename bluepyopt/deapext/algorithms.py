@@ -1,7 +1,7 @@
 """Optimisation class"""
 
 """
-Copyright (c) 2016-2020, EPFL/Blue Brain Project
+Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -32,6 +32,7 @@ import deap.tools
 import pickle
 
 from .stoppingCriteria import MaxNGen
+from . import utils
 
 logger = logging.getLogger('__main__')
 
@@ -63,23 +64,6 @@ def _evaluate_invalid_fitness(toolbox, population):
     return len(invalid_ind)
 
 
-def _update_history_and_hof(halloffame, history, population):
-    '''Update the hall of fame with the generated individuals
-
-    Note: History and Hall-of-Fame behave like dictionaries
-    '''
-    if halloffame is not None:
-        halloffame.update(population)
-
-    history.update(population)
-
-
-def _record_stats(stats, logbook, gen, population, invalid_count):
-    '''Update the statistics with the new population'''
-    record = stats.compile(population) if stats is not None else {}
-    logbook.record(gen=gen, nevals=invalid_count, **record)
-
-
 def _get_offspring(parents, toolbox, cxpb, mutpb):
     '''return the offspring, use toolbox.variate if possible'''
     if hasattr(toolbox, 'variate'):
@@ -109,7 +93,9 @@ def eaAlphaMuPlusLambdaCheckpoint(
         halloffame=None,
         cp_frequency=1,
         cp_filename=None,
-        continue_cp=False):
+        continue_cp=False,
+        terminator=None,
+        param_names=None):
     r"""This is the :math:`(~\alpha,\mu~,~\lambda)` evolutionary algorithm
 
     Args:
@@ -124,7 +110,13 @@ def eaAlphaMuPlusLambdaCheckpoint(
         cp_frequency(int): generations between checkpoints
         cp_filename(string): path to checkpoint filename
         continue_cp(bool): whether to continue
+        terminator (multiprocessing.Event): exit loop when is set.
+            Not taken into account if None.
+        param_names(list): names of the parameters optimized by the evaluator
     """
+
+    if param_names is None:
+        param_names = []
 
     if cp_filename:
         cp_filename_tmp = cp_filename + '.tmp'
@@ -156,22 +148,27 @@ def eaAlphaMuPlusLambdaCheckpoint(
         history = deap.tools.History()
 
         invalid_count = _evaluate_invalid_fitness(toolbox, population)
-        _update_history_and_hof(halloffame, history, population)
-        _record_stats(stats, logbook, start_gen, population, invalid_count)
+
+        utils.update_history_and_hof(halloffame, history, population)
+        utils.record_stats(
+            stats, logbook, start_gen, population, invalid_count
+        )
 
     stopping_criteria = [MaxNGen(ngen)]
 
     # Begin the generational process
     gen = start_gen + 1
     stopping_params = {"gen": gen}
-    while not(_check_stopping_criteria(stopping_criteria, stopping_params)):
+    while utils.run_next_gen(
+            not(_check_stopping_criteria(stopping_criteria, stopping_params)),
+            terminator):
         offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
         population = parents + offspring
 
         invalid_count = _evaluate_invalid_fitness(toolbox, offspring)
-        _update_history_and_hof(halloffame, history, population)
-        _record_stats(stats, logbook, gen, population, invalid_count)
+        utils.update_history_and_hof(halloffame, history, population)
+        utils.record_stats(stats, logbook, gen, population, invalid_count)
 
         # Select the next generation parents
         parents = toolbox.select(population, mu)
@@ -186,7 +183,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       halloffame=halloffame,
                       history=history,
                       logbook=logbook,
-                      rndstate=random.getstate())
+                      rndstate=random.getstate(),
+                      param_names=param_names)
             pickle.dump(cp, open(cp_filename_tmp, "wb"))
             if os.path.isfile(cp_filename_tmp):
                 shutil.copy(cp_filename_tmp, cp_filename)
