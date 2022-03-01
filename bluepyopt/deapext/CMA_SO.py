@@ -1,7 +1,7 @@
 """Single Objective CMA-es class"""
 
 """
-Copyright (c) 2016-2020, EPFL/Blue Brain Project
+Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -220,6 +220,6 @@ class CMA_SO(cma.Strategy):
             if c.criteria_met:
                 logger.info(
                     "CMA stopped because of termination criteria: " +
-                    "" + " ".join(c.name)
+                    " ".join(c.name)
                 )
                 self.active = False

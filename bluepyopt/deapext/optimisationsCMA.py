@@ -1,7 +1,7 @@
 """CMA Optimisation class"""
 
 """
-Copyright (c) 2016-2020, EPFL/Blue Brain Project
+Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -196,16 +196,12 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             ),
         )
 
-        # A Random Indiviual is create by ListIndividual and parameters are
+        # A Random Individual is created by ListIndividual and parameters are
         # initially picked by 'uniform'
         self.toolbox.register(
             "RandomInd",
             deap.tools.initIterate,
-            functools.partial(
-                utils.WSListIndividual,
-                obj_size=self.ind_size,
-                reduce_fcn=self.fitness_reduce,
-            ),
+            self.toolbox.Individual,
             self.toolbox.uniformparams,
         )
 

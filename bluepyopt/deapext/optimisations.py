@@ -1,7 +1,7 @@
 """Optimisation class"""
 
 """
-Copyright (c) 2016-2020, EPFL/Blue Brain Project
+Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
@@ -162,7 +162,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         # Number of parameters
         IND_SIZE = len(self.evaluator.params)
         if IND_SIZE == 0:
-            raise Exception(
+            raise ValueError(
                 "Length of evaluator.params is zero. At least one "
                 "non-fix parameter is needed to run an optimization."
             )

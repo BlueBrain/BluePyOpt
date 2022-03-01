@@ -1,7 +1,7 @@
 """StoppingCriteria class"""
 
 """
-Copyright (c) 2016-2021, EPFL/Blue Brain Project
+Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
  This file is part of BluePyOpt <https://github.com/BlueBrain/BluePyOpt>
 
