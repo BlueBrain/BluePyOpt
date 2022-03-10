@@ -10,6 +10,9 @@
      CCell("ignored", "path/to/morphology.swc")
 '''
 import sys
+import os
+import shutil
+from pprint import pprint
 
 import l5pc_model
 
@@ -39,7 +42,15 @@ def main():
         'gCa_LVAstbar_Ca_LVAst.somatic': 0.000333,
     }
     cell = l5pc_model.create()
-    print(cell.create_hoc(param_values, template='acc_template.jinja2'))
+    output = cell.create_hoc(param_values, template='acc/*_template.jinja2')
+    pprint(output)
+    if isinstance(output, dict):
+        output_dir = os.getcwd()
+        for comp, comp_rendered in output.items():
+            with open(os.path.join(output_dir, comp),'w') as f:
+                f.write(comp_rendered)
+        shutil.copy2(cell.morphology.morphology_path, output_dir)
+
 
 
 if __name__ == '__main__':

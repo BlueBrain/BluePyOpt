@@ -1,0 +1,6 @@
+(arbor-component
+  (meta-data (version "0.1-dev"))
+  (label-dict
+  {%- for loc, parameters in section_params %} {# could also use channels.keys() #}
+    (region-def "{{ loc }}" (tag {{ loop.index0 }}))
+  {%- endfor %}))

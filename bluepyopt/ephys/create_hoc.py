@@ -7,6 +7,7 @@ import re
 
 from collections import defaultdict, namedtuple, OrderedDict
 from datetime import datetime
+from glob import glob
 
 import numpy
 import jinja2
@@ -116,11 +117,11 @@ def _generate_parameters(parameters):
 
 _nrn2arb = dict(
     cm='membrane-capacitance',
-    ena='ion-reversal-potential-method \"na\"',
-    ek='ion-reversal-potential-method \"k\"',
+    ena='ion-reversal-potential \"na\"',
+    ek='ion-reversal-potential \"k\"',
     v_init='membrane-potential',
-    celsius='temperature-kelvin'
-    # TODO: Ra=?
+    celsius='temperature-kelvin',
+    Ra='axial-resistivity'
 )
 
 
@@ -143,12 +144,12 @@ def _nrn2arb_value(param):
 def _find_mech_and_split_param_name(param, mechs):
     mech_suffix_matches = numpy.where([param.name.endswith("_" + mech)
                                        for mech in mechs])[0]
-    if len(mech_suffix_matches) == 0:
+    if mech_suffix_matches.size == 0:
         return Location(name=_nrn2arb_name(param.name),
                         value=_nrn2arb_value(param)) # TODO: adapt for Range
-    elif len(mech_suffix_matches) == 1:
+    elif mech_suffix_matches.size == 1:
         mech = mechs[mech_suffix_matches[0]]
-        name = param.name.rstrip("_" + mech).replace(mech, '')
+        name = param.name[:-(len(mech)+1)].replace(mech, '')
         return MechLocation(name=_nrn2arb_name(name),
                             mech=mech, value=_nrn2arb_value(param)) # TODO: adapt for Range
     else:
@@ -206,9 +207,23 @@ def create_hoc(
                 'templates'))
 
     template_path = os.path.join(template_dir, template_filename)
-    with open(template_path) as template_file:
-        template = template_file.read()
-        template = jinja2.Template(template)
+    if os.path.exists(template_path):
+        template_paths = template_path
+    else:
+        template_paths = glob(template_path)
+
+    templates = dict()
+    for template_path in  template_paths:
+        with open(template_path) as template_file:
+            template = template_file.read()
+            name = os.path.basename(template_path)
+            if name.endswith('.jinja2'):
+                name = name[:-7]
+            if name.endswith('_template'):
+                name = name[:-9]
+            if '_' in name:
+                name = '.'.join(name.rsplit('_', 1))
+            templates[name] = jinja2.Template(template)
 
     global_params, section_params, range_params, location_order = \
         _generate_parameters(parameters)
@@ -232,19 +247,25 @@ def create_hoc(
     if custom_jinja_params is None:
         custom_jinja_params = {}
 
-    if template_filename == 'acc_template.jinja2':
+    if 'acc/' in template_filename :
+        custom_jinja_params['arb_cell'] = 'cell.json'
+        custom_jinja_params['arb_decor'] = 'decor.acc'
+        custom_jinja_params['arb_label_dict'] = 'label_dict.acc'
         global_params = _split_mech_from_non_mech_params_global(global_params, channels)
         section_params = _split_mech_from_non_mech_params_local(section_params, channels)
         # TODO: range_params = _split_mech_from_non_mech_params_local(range_params, channels)
-
-    return template.render(template_name=template_name,
-                           banner=banner,
-                           channels=channels,
-                           morphology=morphology,
-                           section_params=section_params,
-                           range_params=range_params,
-                           global_params=global_params,
-                           re_init_rng=re_init_rng,
-                           replace_axon=replace_axon,
-                           ignored_global_params=ignored_global_params,
-                           **custom_jinja_params)
+    
+    ret = { template_name + "_" + name: 
+                template.render(template_name=template_name,
+                                banner=banner,
+                                channels=channels,
+                                morphology=morphology,
+                                section_params=section_params,
+                                range_params=range_params,
+                                global_params=global_params,
+                                re_init_rng=re_init_rng,
+                                replace_axon=replace_axon,
+                                ignored_global_params=ignored_global_params,
+                                **custom_jinja_params) 
+            for name, template in templates.items()}
+    return list(ret.values())[0] if len(ret) == 1 else ret
