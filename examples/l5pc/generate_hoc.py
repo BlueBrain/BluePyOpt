@@ -39,7 +39,7 @@ def main():
         'gCa_LVAstbar_Ca_LVAst.somatic': 0.000333,
     }
     cell = l5pc_model.create()
-    print(cell.create_hoc(param_values))
+    print(cell.create_hoc(param_values, template='acc_template.jinja2'))
 
 
 if __name__ == '__main__':

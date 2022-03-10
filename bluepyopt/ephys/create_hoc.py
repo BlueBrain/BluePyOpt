@@ -8,6 +8,7 @@ import re
 from collections import defaultdict, namedtuple, OrderedDict
 from datetime import datetime
 
+import numpy
 import jinja2
 import bluepyopt
 from . import mechanisms
@@ -23,6 +24,7 @@ from bluepyopt.ephys.parameterscalers import (NrnSegmentSomaDistanceScaler,
                                               format_float)
 
 Location = namedtuple('Location', 'name, value')
+MechLocation = namedtuple('MechLocation', 'name, mech, value')
 Range = namedtuple('Range', 'location, param_name, value')
 DEFAULT_LOCATION_ORDER = [
     'all',
@@ -32,7 +34,7 @@ DEFAULT_LOCATION_ORDER = [
     'somatic',
     'myelinated']
 
-
+# location -> mechanism_name
 def _generate_channels_by_location(mechs, location_order):
     """Create a OrderedDictionary of all channel mechs for hoc template."""
     channels = OrderedDict((location, []) for location in location_order)
@@ -59,7 +61,7 @@ def _generate_reinitrng(mechs):
 
     return reinitrng_content
 
-
+# "list" of parameters -> global_params, ordered_section_params, range_params, location_order (loc -> [(param_name_mechanism, value),...]) - needs post-processing
 def _generate_parameters(parameters):
     """Create a list of parameters that need to be added to the hoc template"""
     param_locations = defaultdict(list)
@@ -110,6 +112,62 @@ def _generate_parameters(parameters):
                               for loc in location_order]
 
     return global_params, ordered_section_params, range_params, location_order
+
+
+_nrn2arb = dict(
+    cm='membrane-capacitance',
+    ena='ion-reversal-potential-method \"na\"',
+    ek='ion-reversal-potential-method \"k\"',
+    v_init='membrane-potential',
+    celsius='temperature-kelvin'
+    # TODO: Ra=?
+)
+
+
+def _nrn2arb_name(name):
+    return _nrn2arb.get(name, name)
+
+
+_nrn2arb_convert = dict(
+    celsius=lambda celsius: celsius + 273.15
+)
+
+
+def _nrn2arb_value(param):
+    if param.name in _nrn2arb_convert:
+        return _nrn2arb_convert[param.name](param.value)
+    else:
+        return param.value
+
+
+def _find_mech_and_split_param_name(param, mechs):
+    mech_suffix_matches = numpy.where([param.name.endswith("_" + mech)
+                                       for mech in mechs])[0]
+    if len(mech_suffix_matches) == 0:
+        return Location(name=_nrn2arb_name(param.name),
+                        value=_nrn2arb_value(param)) # TODO: adapt for Range
+    elif len(mech_suffix_matches) == 1:
+        mech = mechs[mech_suffix_matches[0]]
+        name = param.name.rstrip("_" + mech).replace(mech, '')
+        return MechLocation(name=_nrn2arb_name(name),
+                            mech=mech, value=_nrn2arb_value(param)) # TODO: adapt for Range
+    else:
+        raise RuntimeError("Parameter name %s matches multiple mechanisms %s " %
+                            (param.name, repr(mechs[mech_suffix_matches])))
+
+
+def _split_mech_from_non_mech_params_global(params, channels):
+    ret = [ _find_mech_and_split_param_name(Location(name=name, value=value), channels['all'])
+            for name, value in params.items() ]
+    return { param.name : param for param in ret }
+
+
+def _split_mech_from_non_mech_params_local(params, channels):
+    ret = []
+    for loc, params in params:
+        ret.append((loc, [_find_mech_and_split_param_name(param, channels[loc])
+                          for param in params]))
+    return ret
 
 
 def create_hoc(
@@ -173,6 +231,11 @@ def create_hoc(
 
     if custom_jinja_params is None:
         custom_jinja_params = {}
+
+    if template_filename == 'acc_template.jinja2':
+        global_params = _split_mech_from_non_mech_params_global(global_params, channels)
+        section_params = _split_mech_from_non_mech_params_local(section_params, channels)
+        # TODO: range_params = _split_mech_from_non_mech_params_local(range_params, channels)
 
     return template.render(template_name=template_name,
                            banner=banner,

@@ -1,0 +1,33 @@
+[
+    {
+        "param_name": "cm",
+        "sectionlist": "somatic",
+        "type": "section",
+        "dist_type": "uniform",
+        "value": 1
+    },
+    {
+        "param_name": "gnabar_hh",
+        "mech": "hh",
+        "bounds": [
+            0.05,
+            0.125
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gnabar",
+        "type": "range",
+        "sectionlist": "somatic"
+    },
+    {
+        "param_name": "gkbar_hh",
+        "mech": "hh",
+        "bounds": [
+            0.01,
+            0.075
+        ],
+        "dist_type": "uniform",
+        "mech_param": "gkbar",
+        "type": "range",
+        "sectionlist": "somatic"
+    }
+]
