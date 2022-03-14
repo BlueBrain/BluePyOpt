@@ -1,0 +1,22 @@
+(arbor-component
+  (meta-data (version "0.1-dev"))
+  (meta-data (info "test-decor"))
+  (decor
+    {%- for param_name, param in global_params.items() %}
+    {%- if param.mech is defined %}  
+    (default (density (mechanism "{{ param.mech }}" ("{{ param.name }}" {{ param.value }}))))
+    {%- else %}
+    (default ({{ param.name }} {{ param.value }}))
+    {%- endif %}
+    {%- endfor %}
+
+    {%- for loc, parameters in section_params %}
+    {%- for param in parameters %}
+    {%- if param.mech is defined %}  
+    (paint (region "{{ loc }}") (density (mechanism "{{ param.mech }}" ("{{ param.name }}" {{ param.value }}))))
+    {%- else %}
+    (paint (region "{{ loc }}") ({{ param.name }} {{ param.value }}))
+    {%- endif %}
+    {%- endfor %}
+
+    {%- endfor %}{# TODO: range params #}))

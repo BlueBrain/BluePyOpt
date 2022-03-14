@@ -280,11 +280,12 @@ class CellModel(Model):
                     'set before simulation' %
                     param_name)
 
-    def create_hoc(self, param_values,
-                   ignored_globals=(), template='cell_template.jinja2',
-                   disable_banner=False,
-                   template_dir=None):
-        """Create hoc code for this model"""
+    def _create_sim_desc(self, param_values,
+                        ignored_globals=(), template=None,
+                        disable_banner=False,
+                        template_dir=None,
+                        sim=None):
+        """Create simulator description for this model"""
 
         to_unfreeze = []
         for param in self.params.values():
@@ -315,19 +316,42 @@ class CellModel(Model):
                 replace_axon += '\n'
                 replace_axon += morph_modifier_hoc
 
-        ret = create_hoc.create_hoc(mechs=self.mechanisms,
-                                    parameters=self.params.values(),
-                                    morphology=morphology,
-                                    ignored_globals=ignored_globals,
-                                    replace_axon=replace_axon,
-                                    template_name=template_name,
-                                    template_filename=template,
-                                    template_dir=template_dir,
-                                    disable_banner=disable_banner)
+        ret = create_hoc._create_sim_desc(mechs=self.mechanisms,
+                                         parameters=self.params.values(),
+                                         morphology=morphology,
+                                         ignored_globals=ignored_globals,
+                                         replace_axon=replace_axon,
+                                         template_name=template_name,
+                                         template_filename=template,
+                                         template_dir=template_dir,
+                                         disable_banner=disable_banner,
+                                         sim=sim)
 
         self.unfreeze(to_unfreeze)
 
         return ret
+
+    def create_hoc(self, param_values,
+                   ignored_globals=(), template='cell_template.jinja2',
+                   disable_banner=False,
+                   template_dir=None):
+        """Create hoc code for this model"""
+        return self._create_sim_desc(param_values,
+                   ignored_globals, template,
+                   disable_banner,
+                   template_dir,
+                   sim='nrn')
+
+    def create_acc(self, param_values,
+                   ignored_globals=(), template='acc/*_template.jinja2',
+                   disable_banner=False,
+                   template_dir=None):
+        """Create hoc code for this model"""
+        return self._create_sim_desc(param_values,
+                   ignored_globals, template,
+                   disable_banner,
+                   template_dir,
+                   sim='arb')
 
     def __str__(self):
         """Return string representation"""

@@ -1,0 +1,13 @@
+{ 
+  "cell_model_name": "{{template_name}}",
+  {%- if banner %}
+  "produced_by": "{{banner}} (from {{ custom_param }})",
+  {%- endif %}
+  {%- if morphology %} {# feed morphology separately as a SWC/ASC file #}
+  "morphology": "{{morphology}}",
+  {%- else %}
+    execerror("Template {{template_name}} requires morphology name to instantiate")
+  {%- endif %}
+  "label_dict": "{{template_name}}_{{arb_label_dict}}",
+  "decor": "{{template_name}}_{{arb_decor}}"
+}

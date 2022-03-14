@@ -171,7 +171,7 @@ def _split_mech_from_non_mech_params_local(params, channels):
     return ret
 
 
-def create_hoc(
+def _create_sim_desc(
         mechs,
         parameters,
         morphology=None,
@@ -181,7 +181,8 @@ def create_hoc(
         template_filename='cell_template.jinja2',
         disable_banner=None,
         template_dir=None,
-        custom_jinja_params=None,):
+        custom_jinja_params=None,
+        sim=None):
     '''return a string containing the hoc template
 
     Args:
@@ -194,11 +195,14 @@ def create_hoc(
         This iterable contains parameter names that aren't checked
         replace_axon (str): String replacement for the 'replace_axon' command.
         Must include 'proc replace_axon(){ ... }
-        template (str): file name of the jinja2 template
+        template_filename (str): file name of the jinja2 template
         template_dir (str): dir name of the jinja2 template
         custom_jinja_params (dict): dict of additional jinja2 params in case
         of a custom template
+        sim (str): simulator to create description for (nrn or arb)
     '''
+
+    assert sim in ['nrn', 'arb']
 
     if template_dir is None:
         template_dir = os.path.abspath(
@@ -207,8 +211,8 @@ def create_hoc(
                 'templates'))
 
     template_path = os.path.join(template_dir, template_filename)
-    if os.path.exists(template_path):
-        template_paths = template_path
+    if sim == 'nrn':
+        template_paths = [template_path]
     else:
         template_paths = glob(template_path)
 
@@ -247,7 +251,7 @@ def create_hoc(
     if custom_jinja_params is None:
         custom_jinja_params = {}
 
-    if 'acc/' in template_filename :
+    if sim == 'arb':
         custom_jinja_params['arb_cell'] = 'cell.json'
         custom_jinja_params['arb_decor'] = 'decor.acc'
         custom_jinja_params['arb_label_dict'] = 'label_dict.acc'
@@ -268,4 +272,98 @@ def create_hoc(
                                 ignored_global_params=ignored_global_params,
                                 **custom_jinja_params) 
             for name, template in templates.items()}
-    return list(ret.values())[0] if len(ret) == 1 else ret
+    
+    if sim == 'nrn':
+        return list(ret.values())[0] 
+    else:
+        return ret
+
+
+def create_hoc(
+        mechs,
+        parameters,
+        morphology=None,
+        ignored_globals=(),
+        replace_axon=None,
+        template_name='CCell',
+        template_filename='cell_template.jinja2',
+        disable_banner=None,
+        template_dir=None,
+        custom_jinja_params=None,):
+    '''return a string containing the hoc template
+
+    Args:
+        mechs (): All the mechs for the hoc template
+        parameters (): All the parameters in the hoc template
+        morpholgy (str): Name of morphology
+        ignored_globals (iterable str): HOC coded is added for each
+        NrnGlobalParameter
+        that exists, to test that it matches the values set in the parameters.
+        This iterable contains parameter names that aren't checked
+        replace_axon (str): String replacement for the 'replace_axon' command.
+        Must include 'proc replace_axon(){ ... }
+        template_filename (str): file name of the jinja2 template
+        template_dir (str): dir name of the jinja2 template
+        custom_jinja_params (dict): dict of additional jinja2 params in case
+        of a custom template
+    '''
+    return _create_sim_desc(
+        mechs,
+        parameters,
+        morphology,
+        ignored_globals,
+        replace_axon,
+        template_name,
+        template_filename,
+        disable_banner,
+        template_dir,
+        custom_jinja_params,
+        sim="nrn")
+
+
+def create_acc(
+        mechs,
+        parameters,
+        morphology=None,
+        ignored_globals=(),
+        replace_axon=None,
+        template_name='CCell',
+        template_filename='acc/*_template.jinja2',
+        disable_banner=None,
+        template_dir=None,
+        custom_jinja_params=None,):
+    '''return a string containing the hoc template
+
+    Args:
+        mechs (): All the mechs for the hoc template
+        parameters (): All the parameters in the hoc template
+        morpholgy (str): Name of morphology
+        ignored_globals (iterable str): HOC coded is added for each
+        NrnGlobalParameter
+        that exists, to test that it matches the values set in the parameters.
+        This iterable contains parameter names that aren't checked
+        replace_axon (str): String replacement for the 'replace_axon' command.
+        Must include 'proc replace_axon(){ ... }
+        template_filename (str): file path of the cell.json , decor.acc and 
+        label_dict.acc jinja2 templates (with wildcards expanded by glob)
+        template_dir (str): dir name of the jinja2 template
+        custom_jinja_params (dict): dict of additional jinja2 params in case
+        of a custom template
+    '''
+    if morphology[-4:] not in ['.swc', '.asc']:
+        raise RuntimeError("Morphology file %s not supported in Arbor "
+                           " (only supported types are .swc and .asc)."
+                           % morphology )
+    
+    return _create_sim_desc(
+        mechs,
+        parameters,
+        morphology,
+        ignored_globals,
+        replace_axon,
+        template_name,
+        template_filename,
+        disable_banner,
+        template_dir,
+        custom_jinja_params,
+        sim="arb")

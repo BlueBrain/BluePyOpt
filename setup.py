@@ -83,5 +83,8 @@ setuptools.setup(
     package_data={
         'bluepyopt': [
             'ephys/templates/cell_template.jinja2',
+            'ephys/templates/acc/cell_json_template.jinja2',
+            'ephys/templates/acc/decor_acc_template.jinja2',
+            'ephys/templates/acc/label_dict_acc_template.jinja2',
             'ephys/examples/simplecell/simple.swc'],
     })
