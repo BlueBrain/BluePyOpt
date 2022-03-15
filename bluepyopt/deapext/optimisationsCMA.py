@@ -267,6 +267,9 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             numpy.random.set_state(cp["np_rndstate"])
             CMA_es = cp["CMA_es"]
             CMA_es.map_function = self.map_function
+            # here is to resume optimisation with larger number of generations
+            CMA_es.active = True
+            CMA_es.stopping_conditions[0].max_ngen = max_ngen
 
         else:
 
