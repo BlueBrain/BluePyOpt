@@ -112,12 +112,19 @@ class NrnSimulator(object):
 
         return neuron
 
+    def check_voltage_valid(self, icell, voltage_bound=200.):
+        """Raises exception if voltage at soma is out of bound"""
+
+        if icell and abs(icell.soma[0](0.5).v) > voltage_bound:
+            raise NrnSimulatorException('Membrane potential is out of bound')
+
     def run(
             self,
             tstop=None,
             dt=None,
             cvode_active=None,
-            random123_globalindex=None):
+            random123_globalindex=None,
+            icell=None):
         """Run protocol"""
 
         self.neuron.h.tstop = tstop
@@ -163,7 +170,10 @@ class NrnSimulator(object):
             rng.Random123_globalindex(random123_globalindex)
 
         try:
-            self.neuron.h.run()
+            self.neuron.h.finitialize()
+            while self.neuron.h.t < self.neuron.h.tstop:
+                self.neuron.h.fadvance()
+                self.check_voltage_valid(icell)
         except Exception as e:
             raise NrnSimulatorException('Neuron simulator error', e)
 
