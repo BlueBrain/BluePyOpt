@@ -250,7 +250,6 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             terminator (multiprocessing.Event): exit loop when is set.
                 Not taken into account if None.
         """
-
         if cp_filename:
             cp_filename_tmp = cp_filename + '.tmp'
 
