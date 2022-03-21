@@ -51,7 +51,7 @@ jobs:
           python-version: 3.6
       - name: Build a source tarball
         run:
-            python setup.py sdist
+            python setup.py sdist bdist_wheel
 
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@master
