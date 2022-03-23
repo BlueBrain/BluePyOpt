@@ -41,7 +41,9 @@ setuptools.setup(
         'pickleshare>=0.7.3',
         'Jinja2>=2.8',
         'future',
-        'Pebble>=4.3.10'
+        'Pebble>=4.3.10',
+        'pyneuroml>=0.5.20',
+        'libNeuroML>=0.3.1'
         ],
     extras_require={
         'all': EXTRA_SCOOP,
