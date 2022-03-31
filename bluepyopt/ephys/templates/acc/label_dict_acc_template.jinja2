@@ -2,5 +2,7 @@
   (meta-data (version "0.1-dev"))
   (label-dict
   {%- for loc, parameters in section_params %} {# could also use channels.keys() #}
-    (region-def "{{ loc }}" (tag {{ loop.index0 }}))
+    {%- if region_def[loc] is not none %}
+    {{ region_def[loc] }}
+    {%- endif %}
   {%- endfor %}))

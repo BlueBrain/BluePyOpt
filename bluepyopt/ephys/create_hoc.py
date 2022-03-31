@@ -25,7 +25,6 @@ from bluepyopt.ephys.parameterscalers import (NrnSegmentSomaDistanceScaler,
                                               format_float)
 
 Location = namedtuple('Location', 'name, value')
-MechLocation = namedtuple('MechLocation', 'name, mech, value')
 Range = namedtuple('Range', 'location, param_name, value')
 DEFAULT_LOCATION_ORDER = [
     'all',
@@ -115,7 +114,7 @@ def _generate_parameters(parameters):
     return global_params, ordered_section_params, range_params, location_order
 
 
-_nrn2arb = dict(
+_nrn2arb = dict( # TODO: add regions
     cm='membrane-capacitance',
     ena='ion-reversal-potential \"na\"',
     ek='ion-reversal-potential \"k\"',
@@ -141,33 +140,187 @@ def _nrn2arb_value(param):
         return param.value
 
 
+def _make_arb_global_param(loc, param):
+    return loc == 'all' and param.name in ['membrane-capacitance']
+
+
+def _arb_defined_region(region, expr):
+    return ('(region \"%s\")' % region, '(region-def \"%s\" %s)' % (region, expr))
+
+def _arb_tagged_region(region, tag):
+    return _arb_defined_region(region, '(tag %i)' % tag)
+
+
+_nrn2arb_region = {
+    'all': _arb_defined_region('all', '(all)'), # could use ('(all)', None) instead, then "all" undefined
+    'somatic': _arb_tagged_region('soma', 1),
+    'axonal': _arb_tagged_region('axon', 2),
+    'basal': _arb_tagged_region('dend', 3),     # SWC convetion: dend == basal dendrite, apic == apical dendrite
+    'apical': _arb_tagged_region('apic', 4),
+    'myelinated': (None, None),                 # myelinated is unsupported in Arbor
+}
+
+# # Generated with NMODL in arbor/mechanisms
+# import os, re, pprint
+
+# nmodl_pattern = '^\s*%s\s+((?:\w+\,\s*)*?\w+)\s*?$'
+# suffix_pattern = nmodl_pattern % 'SUFFIX'
+# globals_pattern = nmodl_pattern % 'GLOBAL'
+# ranges_pattern = nmodl_pattern % 'RANGE'
+
+# def process_nmodl(fd):
+#     # print(fd, flush=True)
+#     nrn = re.search(r'NEURON\s+{([^}]+)}', fd, flags=re.MULTILINE).group(1)
+#     suffix = re.search(suffix_pattern, nrn, flags=re.MULTILINE)
+#     suffix = suffix if suffix is None else suffix.group(1)
+#     globals = re.search(globals_pattern, nrn, flags=re.MULTILINE)
+#     globals = globals if globals is None else re.findall(r'\w+', globals.group(1))
+#     ranges = re.search(ranges_pattern, nrn, flags=re.MULTILINE)
+#     ranges = ranges if ranges is None else re.findall(r'\w+', ranges.group(1))
+#     return dict(globals=globals, ranges=ranges) # suffix skipped
+
+# mechs = dict()
+# for cat in ['allen', 'bbp', 'default']:
+#     mechs[cat] = dict()
+#     cat_dir = 'arbor/mechanisms/' + cat
+#     for f in os.listdir(cat_dir):
+#         with open(os.path.join(cat_dir,f)) as fd:
+#             print(f"Processing {f}", flush=True)
+#             mechs[cat][f[:-4]] = process_nmodl(fd.read())
+# pprint.pprint(mechs)
+
+
+_arb_mechs = dict(
+    allen={
+        'CaDynamics': {'globals': ['F'],
+                       'ranges': ['decay', 'gamma', 'minCai', 'depth']},
+        'Ca_HVA': {'globals': None, 'ranges': ['gbar']},
+        'Ca_LVA': {'globals': None, 'ranges': ['gbar']},
+        'Ih': {'globals': None, 'ranges': ['gbar']},
+        'Im': {'globals': None, 'ranges': ['gbar', 'g', 'ik']},
+        'Im_v2': {'globals': None, 'ranges': ['gbar', 'ik']},
+        'K_P': {'globals': None, 'ranges': ['gbar', 'g', 'ik']},
+        'K_T': {'globals': None, 'ranges': ['gbar']},
+        'Kd': {'globals': None, 'ranges': ['gbar', 'ik']},
+        'Kv2like': {'globals': None, 'ranges': ['gbar']},
+        'Kv3_1': {'globals': None, 'ranges': ['gbar', 'ik']},
+        'NaTa': {'globals': None, 'ranges': ['gbar', 'g', 'ina']},
+        'NaTs': {'globals': None, 'ranges': ['gbar', 'g', 'ina']},
+        'NaV': {'globals': None, 'ranges': ['gbar']},
+        'Nap': {'globals': None, 'ranges': ['gbar', 'g', 'ina']},
+        'SK': {'globals': None, 'ranges': ['gbar', 'ik']}},
+    bbp={
+        'CaDynamics_E2': {'globals': None,
+                        'ranges': ['decay',
+                                   'gamma',
+                                   'minCai',
+                                   'depth',
+                                   'initCai']},
+        'Ca_HVA': {'globals': None, 'ranges': ['gCa_HVAbar']},
+        'Ca_LVAst': {'globals': None, 'ranges': ['gCa_LVAstbar']},
+        'Ih': {'globals': None, 'ranges': ['gIhbar']},
+        'Im': {'globals': None, 'ranges': ['gImbar']},
+        'K_Pst': {'globals': None, 'ranges': ['gK_Pstbar']},
+        'K_Tst': {'globals': None, 'ranges': ['gK_Tstbar']},
+        'NaTa_t': {'globals': None, 'ranges': ['gNaTa_tbar']},
+        'NaTs2_t': {'globals': None, 'ranges': ['gNaTs2_tbar']},
+        'Nap_Et2': {'globals': None, 'ranges': ['gNap_Et2bar']},
+        'SK_E2': {'globals': None, 'ranges': ['gSK_E2bar']},
+        'SKv3_1': {'globals': None, 'ranges': ['gSKv3_1bar']}},
+    default={
+        'exp2syn': {'globals': None, 'ranges': ['tau1', 'tau2', 'e']},
+        'expsyn': {'globals': None, 'ranges': ['tau', 'e']},
+        'expsyn_stdp': {'globals': None,
+                        'ranges': ['tau',
+                                   'taupre',
+                                   'taupost',
+                                   'e',
+                                   'Apost',
+                                   'Apre',
+                                   'max_weight']},
+        'gj': {'globals': None, 'ranges': ['g']},
+        'hh': {'globals': None,
+               'ranges': ['gnabar', 'gkbar', 'gl', 'el', 'q10']},
+        'kamt': {'globals': ['minf', 'mtau', 'hinf', 'htau'],
+                 'ranges': ['gbar', 'q10']},
+        'kdrmt': {'globals': ['minf', 'mtau'],
+                  'ranges': ['gbar', 'q10', 'vhalfm']},
+        'nax': {'globals': None, 'ranges': ['gbar', 'sh']},
+        'nernst': {'globals': ['R', 'F'], 'ranges': ['coeff']},
+        'pas': {'globals': ['e'], 'ranges': ['g']}}
+)
+
 def _find_mech_and_split_param_name(param, mechs):
     mech_suffix_matches = numpy.where([param.name.endswith("_" + mech)
                                        for mech in mechs])[0]
     if mech_suffix_matches.size == 0:
-        return Location(name=_nrn2arb_name(param.name),
-                        value=_nrn2arb_value(param)) # TODO: adapt for Range
+        return None, Location(name=_nrn2arb_name(param.name),
+                              value=_nrn2arb_value(param)) # TODO: adapt for Range
     elif mech_suffix_matches.size == 1:
         mech = mechs[mech_suffix_matches[0]]
-        name = param.name[:-(len(mech)+1)].replace(mech, '')
-        return MechLocation(name=_nrn2arb_name(name),
-                            mech=mech, value=_nrn2arb_value(param)) # TODO: adapt for Range
+        name = param.name[:-(len(mech)+1)]
+        return mech, Location(name=_nrn2arb_name(name),
+                              value=_nrn2arb_value(param)) # TODO: adapt for Range
     else:
         raise RuntimeError("Parameter name %s matches multiple mechanisms %s " %
                             (param.name, repr(mechs[mech_suffix_matches])))
 
 
 def _split_mech_from_non_mech_params_global(params, channels):
-    ret = [ _find_mech_and_split_param_name(Location(name=name, value=value), channels['all'])
-            for name, value in params.items() ]
-    return { param.name : param for param in ret }
+    mech_params =  [_find_mech_and_split_param_name(Location(name=name, value=value), channels['all'])
+                    for name, value in params.items()]
+    mechs = {mech: [] for mech, _ in mech_params}
+    for mech, param in mech_params:
+        mechs[mech].append(param)
+    if len(mechs) > 0:
+        assert list(mechs.keys()) == [None]
+        return {param.name: param for param in mechs[None]} # FIXME: correct?
+    else:
+        return {}
 
 
 def _split_mech_from_non_mech_params_local(params, channels):
-    ret = []
+    local_params = []
+    global_params = {}
     for loc, params in params:
-        ret.append((loc, [_find_mech_and_split_param_name(param, channels[loc])
-                          for param in params]))
+        mech_params = [_find_mech_and_split_param_name(param, channels[loc]) for param in params]
+        mechs = {mech: [] for mech, _ in mech_params}
+        for mech, param in mech_params:
+            mechs[mech].append(param)
+        for i, param in enumerate(mechs.get(None,[])):
+            if _make_arb_global_param(loc, param):
+                global_params[param.name] = param
+                del mechs[None][i]
+        local_params.append((loc, list(mechs.items())))
+    return local_params, global_params
+
+
+def _arb_mech_translate(mech_name, mech_params):
+    arb_mech = None
+    for cat in ['bbp', 'default', 'allen']: # in order of precedence
+        if mech_name in _arb_mechs[cat]:
+            arb_mech = _arb_mechs[cat][mech_name]
+            break
+    if arb_mech is None: # not Arbor built-in
+        return (mech_name, mech_params)
+    else:
+        if arb_mech['globals'] is None:  # only Arbor range params
+            for param in mech_params:
+                assert param.name in arb_mech['ranges']
+            return (mech_name, mech_params)
+        else:
+            for param in mech_params:
+                assert param.name in arb_mech['globals'] or param.name in arb_mech['ranges']
+            mech_params_dict = dict(mech_params)
+            arb_mech_name = mech_name + '/' + ','.join([p + '=' + mech_params_dict[p] for p in arb_mech['globals']])
+            arb_mech_params  = [mech_param for mech_param in mech_params if mech_param.name not in arb_mech['globals']]
+            return (arb_mech_name, arb_mech_params)
+
+
+def _nrn_to_arb_mechs_local(params):
+    ret = []
+    for loc, mechs in params:
+        ret.append((loc, [_arb_mech_translate(*mech) for mech in mechs]))
     return ret
 
 
@@ -252,14 +405,20 @@ def _create_sim_desc(
         custom_jinja_params = {}
 
     if sim == 'arb':
-        custom_jinja_params['arb_cell'] = 'cell.json'
         custom_jinja_params['arb_decor'] = 'decor.acc'
         custom_jinja_params['arb_label_dict'] = 'label_dict.acc'
         global_params = _split_mech_from_non_mech_params_global(global_params, channels)
-        section_params = _split_mech_from_non_mech_params_local(section_params, channels)
+        section_params, additional_global_params = _split_mech_from_non_mech_params_local(section_params, channels)
+        global_params.update(additional_global_params)
+        # TODO: global translate?
+        section_params =  _nrn_to_arb_mechs_local(section_params)
+        # relabel locations
+        custom_jinja_params['region_ref'] = { bpo_loc: arb_ref_def[0] for bpo_loc, arb_ref_def in _nrn2arb_region.items()}
+        custom_jinja_params['region_def'] = { bpo_loc: arb_ref_def[1] for bpo_loc, arb_ref_def in _nrn2arb_region.items()}
+
         # TODO: range_params = _split_mech_from_non_mech_params_local(range_params, channels)
     
-    ret = { template_name + "_" + name: 
+    ret = {template_name + (name if name.startswith('.') else "_" + name):
                 template.render(template_name=template_name,
                                 banner=banner,
                                 channels=channels,
@@ -274,7 +433,7 @@ def _create_sim_desc(
             for name, template in templates.items()}
     
     if sim == 'nrn':
-        return list(ret.values())[0] 
+        return list(ret.values())[0]
     else:
         return ret
 
@@ -321,7 +480,7 @@ def create_hoc(
         sim="nrn")
 
 
-def create_acc(
+def create_acc( # FIXME: put into its own module (similarly tests)
         mechs,
         parameters,
         morphology=None,
