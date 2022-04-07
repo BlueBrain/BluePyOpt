@@ -13,6 +13,9 @@
       decor = arbor.load_component("test_acc/" + cell_json["decor"]).component'
  An Arbor cable cell is then created with
      cell = arbor.cable_cell(morpho, labels, decor)
+ The resulting cable cell can be output to ACC for visual inspection 
+ in the Arbor GUI (File > Cable cell > Load) using
+     arbor.write_component(cell, "simple_cell.acc")
 '''
 import os
 import argparse

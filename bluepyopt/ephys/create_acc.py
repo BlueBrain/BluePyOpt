@@ -14,10 +14,11 @@ from .create_hoc import Location, Range, _get_template_params
 
 
 # Define Neuron to Arbor variable conversions
-ArbVar = namedtuple('ArbVar', 'name, conv', defaults=[None,None])
+ArbVar = namedtuple('ArbVar', 'name, conv', 
+                    defaults=[None,None])
 
 _nrn2arb_var = dict(
-    cm=ArbVar(name='membrane-capacitance'),
+    cm=ArbVar(name='membrane-capacitance'), # conv=None implies identity
     ena=ArbVar(name='ion-reversal-potential \"na\"'),
     ek=ArbVar(name='ion-reversal-potential \"k\"'),
     v_init=ArbVar(name='membrane-potential'),
@@ -28,27 +29,33 @@ _nrn2arb_var = dict(
 
 
 def _nrn2arb_var_name(name):
+    """Neuron to Arbor variable renaming."""
     return _nrn2arb_var[name].name if name in _nrn2arb_var else name
 
 
 def _nrn2arb_var_value(param):
+    """Neuron to Arbor variable value conversion."""
     if param.name in _nrn2arb_var and _nrn2arb_var[param.name].conv is not None:
         return _nrn2arb_var[param.name].conv(param.value)
     else:
         return param.value
 
 
-def _make_arb_global_param(loc, param):
+def _arb_is_global_param(loc, param):
+    """Returns if location-specific variable is a global one in Arbor."""
     return loc == 'all' and param.name in ['membrane-capacitance']
 
-# Define region mapping (relabeling locations to SWC convention)
+
+# Define BluePyOpt to Arbor region mapping (relabeling locations to SWC convention)
 # Remarks:
-#  - using SWC convetion: dend == basal dendrite, apic == apical dendrite
+#  - using SWC convetion: 'dend' for basal dendrite, 'apic' for apical dendrite
 #  - myelinated is unsupported in Arbor
-#  - could use ('(all)', None) instead, then "all" undefined
 ArbRegion = namedtuple('ArbRegion', 'ref, defn')
 
-def _arb_defined_region(region, expr):
+def _make_region(region, expr=None):
+    """Create Arbor region with region name and defining expression 
+    (name for decor, defined in label_dict) or region expression only 
+    (for decor, no defined label in label_dict)."""
     if expr is not None:
         return ArbRegion(ref='(region \"%s\")' % region, 
                          defn='(region-def \"%s\" %s)' % (region, expr))
@@ -56,17 +63,19 @@ def _arb_defined_region(region, expr):
         return ArbRegion(ref=region, defn=expr)
 
 
-def _arb_tagged_region(region, tag):
-    return _arb_defined_region(region, '(tag %i)' % tag)
+def _make_tagged_region(region, tag):
+    return _make_region(region, '(tag %i)' % tag)
 
 
 _loc2arb_region = dict(
-    all=_arb_defined_region('all', '(all)'),
-    somatic=_arb_tagged_region('soma', 1),
-    axonal=_arb_tagged_region('axon', 2),
-    basal=_arb_tagged_region('dend', 3),
-    apical=_arb_tagged_region('apic', 4),
-    myelinated=_arb_defined_region(None, None),
+    # defining "all" region for convenience here, else use
+    # all=_arb_defined_region('(all)') to omit "all" in label_dict
+    all=_make_region('all', '(all)'), 
+    somatic=_make_tagged_region('soma', 1),
+    axonal=_make_tagged_region('axon', 2),
+    basal=_make_tagged_region('dend', 3),
+    apical=_make_tagged_region('apic', 4),
+    myelinated=_make_region(None),
 )
 
 # # Generated with NMODL in arbor/mechanisms
@@ -151,8 +160,9 @@ _arb_mechs = dict(
         'pas': {'globals': ['e'], 'ranges': ['g']}}
 )
 
-def _find_mech_and_split_param_name(param, mechs):
-    """TODO: doc"""
+
+def _find_mech_and_convert_param_name(param, mechs):
+    """Find a parameter's mechanism and convert parameter name to Arbor convention"""
     mech_suffix_matches = numpy.where([param.name.endswith("_" + mech)
                                        for mech in mechs])[0]
     if mech_suffix_matches.size == 0:
@@ -168,9 +178,9 @@ def _find_mech_and_split_param_name(param, mechs):
                             (param.name, repr(mechs[mech_suffix_matches])))
 
 
-def _split_mech_from_non_mech_params_global(params, channels):
-    """TODO: doc"""
-    mech_params =  [_find_mech_and_split_param_name(
+def _arb_convert_params_and_group_by_mech_global(params, channels):
+    """Group global parameters by mechanism and rename them to Arbor convention"""
+    mech_params =  [_find_mech_and_convert_param_name(
                         Location(name=name, value=value), channels['all'])
                     for name, value in params.items()]
     mechs = {mech: [] for mech, _ in mech_params}
@@ -178,31 +188,31 @@ def _split_mech_from_non_mech_params_global(params, channels):
         mechs[mech].append(param)
     if len(mechs) > 0:
         assert list(mechs.keys()) == [None]
-        return {param.name: param for param in mechs[None]} # correct?
+        return {param.name: param for param in mechs[None]}
     else:
         return {}
 
 
-def _split_mech_from_non_mech_params_local(params, channels):
-    """TODO: doc"""
+def _arb_convert_params_and_group_by_mech_local(params, channels):
+    """Group section parameters by mechanism and rename them to Arbor convention"""
     local_params = []
     global_params = {}
     for loc, params in params:
-        mech_params = [_find_mech_and_split_param_name(
+        mech_params = [_find_mech_and_convert_param_name(
                            param, channels[loc]) for param in params]
         mechs = {mech: [] for mech, _ in mech_params}
         for mech, param in mech_params:
             mechs[mech].append(param)
         for i, param in enumerate(mechs.get(None,[])):
-            if _make_arb_global_param(loc, param):
+            if _arb_is_global_param(loc, param):
                 global_params[param.name] = param
                 del mechs[None][i]
         local_params.append((loc, list(mechs.items())))
     return local_params, global_params
 
 
-def _arb_mech_translate(mech_name, mech_params):
-    """TODO: doc"""
+def _arb_nmodl_global_translate(mech_name, mech_params):
+    """Integrate NMODL GLOBAL parameters of Arbor-built-in mechanisms into mechanism name"""
     arb_mech = None
     for cat in ['bbp', 'default', 'allen']: # in order of precedence
         if mech_name in _arb_mechs[cat]:
@@ -227,14 +237,15 @@ def _arb_mech_translate(mech_name, mech_params):
             return (arb_mech_name, arb_mech_params)
 
 
-def _nrn_to_arb_mechs_local(params):
+def _arb_nmodl_global_translate_local(params):
     ret = []
     for loc, mechs in params:
-        ret.append((loc, [_arb_mech_translate(*mech) for mech in mechs]))
+        ret.append((loc, [_arb_nmodl_global_translate(*mech) for mech in mechs]))
     return ret
 
 
 def _read_templates(template_dir, template_filename):
+    """Expand Jinja2 template filepath with glob and return dict of target filename -> parsed template"""
     if template_dir is None:
         template_dir = os.path.abspath(
             os.path.join(
@@ -314,11 +325,12 @@ def create_acc(mechs,
     range_params = template_params['range_params']
  
     global_params = \
-        _split_mech_from_non_mech_params_global(global_params, channels)
+        _arb_convert_params_and_group_by_mech_global(global_params, channels)
     section_params, additional_global_params = \
-        _split_mech_from_non_mech_params_local(section_params, channels)
-    global_params.update(additional_global_params) # TODO: global translate?
-    section_params = _nrn_to_arb_mechs_local(section_params)
+        _arb_convert_params_and_group_by_mech_local(section_params, channels)
+    global_params.update(additional_global_params) 
+    # no nmodl translate on global_params as no mechs
+    section_params = _arb_nmodl_global_translate_local(section_params)
     # TODO: range_params = _split_mech_from_non_mech_params_local(range_params, channels)
 
     template_params['global_params'] = global_params

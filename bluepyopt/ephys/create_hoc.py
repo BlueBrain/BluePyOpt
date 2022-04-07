@@ -113,6 +113,7 @@ def _generate_parameters(parameters):
 
 
 def _read_template(template_dir, template_filename):
+    """Read Jinja2 hoc template to render"""
     if template_dir is None:
         template_dir = os.path.abspath(
             os.path.join(
