@@ -8,6 +8,6 @@
   {%- else %}
     execerror("Template {{template_name}} requires morphology name to instantiate")
   {%- endif %}
-  "label_dict": "{{template_name}}_{{arb_label_dict}}",
-  "decor": "{{template_name}}_{{arb_decor}}"
+  "label_dict": "{{filenames['label_dict.acc']}}",
+  "decor": "{{filenames['decor.acc']}}"
 }

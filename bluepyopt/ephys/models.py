@@ -31,7 +31,7 @@ import os
 import collections
 import string
 
-from . import create_hoc
+from . import create_hoc, create_acc
 from . import morphologies
 
 import logging
@@ -284,7 +284,7 @@ class CellModel(Model):
                         ignored_globals=(), template=None,
                         disable_banner=False,
                         template_dir=None,
-                        sim=None):
+                        sim_desc_creator=None):
         """Create simulator description for this model"""
 
         to_unfreeze = []
@@ -316,16 +316,15 @@ class CellModel(Model):
                 replace_axon += '\n'
                 replace_axon += morph_modifier_hoc
 
-        ret = create_hoc._create_sim_desc(mechs=self.mechanisms,
-                                         parameters=self.params.values(),
-                                         morphology=morphology,
-                                         ignored_globals=ignored_globals,
-                                         replace_axon=replace_axon,
-                                         template_name=template_name,
-                                         template_filename=template,
-                                         template_dir=template_dir,
-                                         disable_banner=disable_banner,
-                                         sim=sim)
+        ret = sim_desc_creator(mechs=self.mechanisms,
+                                 parameters=self.params.values(),
+                                 morphology=morphology,
+                                 ignored_globals=ignored_globals,
+                                 replace_axon=replace_axon,
+                                 template_name=template_name,
+                                 template_filename=template,
+                                 template_dir=template_dir,
+                                 disable_banner=disable_banner)
 
         self.unfreeze(to_unfreeze)
 
@@ -340,7 +339,7 @@ class CellModel(Model):
                    ignored_globals, template,
                    disable_banner,
                    template_dir,
-                   sim='nrn')
+                   sim_desc_creator=create_hoc.create_hoc)
 
     def create_acc(self, param_values,
                    ignored_globals=(), template='acc/*_template.jinja2',
@@ -351,7 +350,7 @@ class CellModel(Model):
                    ignored_globals, template,
                    disable_banner,
                    template_dir,
-                   sim='arb')
+                   sim_desc_creator=create_acc.create_acc) #FIXME
 
     def __str__(self):
         """Return string representation"""

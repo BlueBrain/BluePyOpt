@@ -12,10 +12,10 @@
     {%- for loc, mech_parameters in section_params %}
     {%- for mech, params in mech_parameters %}
     {%- if mech is not none %}
-    (paint {{region_ref[loc]}} (density (mechanism "{{ mech }}" {%- for param in params %} ("{{ param.name }}" {{ param.value }}){%- endfor %})))
+    (paint {{regions[loc].ref}} (density (mechanism "{{ mech }}" {%- for param in params %} ("{{ param.name }}" {{ param.value }}){%- endfor %})))
     {%- else %}
     {%- for param in params %}
-    (paint {{region_ref[loc]}} ({{ param.name }} {{ param.value }}))
+    (paint {{regions[loc].ref}} ({{ param.name }} {{ param.value }}))
     {%- endfor %}
     {%- endif %}
     {%- endfor %}
