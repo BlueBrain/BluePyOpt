@@ -317,14 +317,14 @@ class CellModel(Model):
                 replace_axon += morph_modifier_hoc
 
         ret = sim_desc_creator(mechs=self.mechanisms,
-                                 parameters=self.params.values(),
-                                 morphology=morphology,
-                                 ignored_globals=ignored_globals,
-                                 replace_axon=replace_axon,
-                                 template_name=template_name,
-                                 template_filename=template,
-                                 template_dir=template_dir,
-                                 disable_banner=disable_banner)
+                               parameters=self.params.values(),
+                               morphology=morphology,
+                               ignored_globals=ignored_globals,
+                               replace_axon=replace_axon,
+                               template_name=template_name,
+                               template_filename=template,
+                               template_dir=template_dir,
+                               disable_banner=disable_banner)
 
         self.unfreeze(to_unfreeze)
 
@@ -350,7 +350,7 @@ class CellModel(Model):
                    ignored_globals, template,
                    disable_banner,
                    template_dir,
-                   sim_desc_creator=create_acc.create_acc) #FIXME
+                   sim_desc_creator=create_acc.create_acc)
 
     def __str__(self):
         """Return string representation"""

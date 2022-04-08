@@ -18,8 +18,9 @@ ArbVar = namedtuple('ArbVar', 'name, conv',
                     defaults=[None,None])
 
 _nrn2arb_var = dict(
-    cm=ArbVar(name='membrane-capacitance'), # conv=None implies identity
-    ena=ArbVar(name='ion-reversal-potential \"na\"'),
+    cm=ArbVar(name='membrane-capacitance',
+              conv=lambda cm: cm/100.), # NEURON uses uF/cm^2, Arbor F/m^2
+    ena=ArbVar(name='ion-reversal-potential \"na\"'), # conv=None implies identity
     ek=ArbVar(name='ion-reversal-potential \"k\"'),
     v_init=ArbVar(name='membrane-potential'),
     celsius=ArbVar(name='temperature-kelvin', 
