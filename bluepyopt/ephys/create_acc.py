@@ -14,16 +14,16 @@ from .create_hoc import Location, Range, _get_template_params
 
 
 # Define Neuron to Arbor variable conversions
-ArbVar = namedtuple('ArbVar', 'name, conv', 
-                    defaults=[None,None])
+ArbVar = namedtuple('ArbVar', 'name, conv',
+                    defaults=[None, None])
 
 _nrn2arb_var = dict(
     cm=ArbVar(name='membrane-capacitance',
-              conv=lambda cm: cm/100.), # NEURON uses uF/cm^2, Arbor F/m^2
-    ena=ArbVar(name='ion-reversal-potential \"na\"'), # conv=None implies identity
+              conv=lambda cm: cm / 100.),  # NEURON uses uF/cm^2, Arbor F/m^2
+    ena=ArbVar(name='ion-reversal-potential \"na\"'),  # conv=None - identity
     ek=ArbVar(name='ion-reversal-potential \"k\"'),
     v_init=ArbVar(name='membrane-potential'),
-    celsius=ArbVar(name='temperature-kelvin', 
+    celsius=ArbVar(name='temperature-kelvin',
                    conv=lambda celsius: celsius + 273.15),
     Ra=ArbVar(name='axial-resistivity')
 )
@@ -36,7 +36,8 @@ def _nrn2arb_var_name(name):
 
 def _nrn2arb_var_value(param):
     """Neuron to Arbor variable value conversion."""
-    if param.name in _nrn2arb_var and _nrn2arb_var[param.name].conv is not None:
+    if param.name in _nrn2arb_var and \
+       _nrn2arb_var[param.name].conv is not None:
         return _nrn2arb_var[param.name].conv(param.value)
     else:
         return param.value
@@ -47,18 +48,20 @@ def _arb_is_global_param(loc, param):
     return loc == 'all' and param.name in ['membrane-capacitance']
 
 
-# Define BluePyOpt to Arbor region mapping (relabeling locations to SWC convention)
+# Define BluePyOpt to Arbor region mapping
+# (relabeling locations to SWC convention)
 # Remarks:
 #  - using SWC convetion: 'dend' for basal dendrite, 'apic' for apical dendrite
 #  - myelinated is unsupported in Arbor
 ArbRegion = namedtuple('ArbRegion', 'ref, defn')
 
+
 def _make_region(region, expr=None):
-    """Create Arbor region with region name and defining expression 
-    (name for decor, defined in label_dict) or region expression only 
+    """Create Arbor region with region name and defining expression
+    (name for decor, defined in label_dict) or region expression only
     (for decor, no defined label in label_dict)."""
     if expr is not None:
-        return ArbRegion(ref='(region \"%s\")' % region, 
+        return ArbRegion(ref='(region \"%s\")' % region,
                          defn='(region-def \"%s\" %s)' % (region, expr))
     else:
         return ArbRegion(ref=region, defn=expr)
@@ -71,7 +74,7 @@ def _make_tagged_region(region, tag):
 _loc2arb_region = dict(
     # defining "all" region for convenience here, else use
     # all=_arb_defined_region('(all)') to omit "all" in label_dict
-    all=_make_region('all', '(all)'), 
+    all=_make_region('all', '(all)'),
     somatic=_make_tagged_region('soma', 1),
     axonal=_make_tagged_region('axon', 2),
     basal=_make_tagged_region('dend', 3),
@@ -88,15 +91,20 @@ _loc2arb_region = dict(
 # ranges_pattern = nmodl_pattern % 'RANGE'
 
 # def process_nmodl(nmodl_str):
-#     # print(nmodl_str, flush=True)
-#     nrn = re.search(r'NEURON\s+{([^}]+)}', nmodl_str, flags=re.MULTILINE).group(1)
-#     suffix = re.search(suffix_pattern, nrn, flags=re.MULTILINE)
+#     nrn = re.search(r'NEURON\s+{([^}]+)}', nmodl_str,
+#                     flags=re.MULTILINE).group(1)
+#     suffix = re.search(suffix_pattern, nrn,
+#                        flags=re.MULTILINE)
 #     suffix = suffix if suffix is None else suffix.group(1)
-#     globals = re.search(globals_pattern, nrn, flags=re.MULTILINE)
-#     globals = globals if globals is None else re.findall(r'\w+', globals.group(1))
-#     ranges = re.search(ranges_pattern, nrn, flags=re.MULTILINE)
-#     ranges = ranges if ranges is None else re.findall(r'\w+', ranges.group(1))
-#     return dict(globals=globals, ranges=ranges) # suffix skipped
+#     globals = re.search(globals_pattern, nrn,
+#                         flags=re.MULTILINE)
+#     globals = globals if globals is None \
+#               else re.findall(r'\w+', globals.group(1))
+#     ranges = re.search(ranges_pattern, nrn,
+#                        flags=re.MULTILINE)
+#     ranges = ranges if ranges is None \
+#              else re.findall(r'\w+', ranges.group(1))
+#     return dict(globals=globals, ranges=ranges)  # suffix skipped
 
 # mechs = dict()
 # for cat in ['allen', 'bbp', 'default']:
@@ -130,8 +138,8 @@ _arb_mechs = dict(
         'SK': {'globals': None, 'ranges': ['gbar', 'ik']}},
     bbp={
         'CaDynamics_E2': {'globals': None,
-                        'ranges': ['decay', 'gamma', 'minCai',
-                                   'depth', 'initCai']},
+                          'ranges': ['decay', 'gamma', 'minCai',
+                                     'depth', 'initCai']},
         'Ca_HVA': {'globals': None, 'ranges': ['gCa_HVAbar']},
         'Ca_LVAst': {'globals': None, 'ranges': ['gCa_LVAstbar']},
         'Ih': {'globals': None, 'ranges': ['gIhbar']},
@@ -163,27 +171,27 @@ _arb_mechs = dict(
 
 
 def _find_mech_and_convert_param_name(param, mechs):
-    """Find a parameter's mechanism and convert parameter name to Arbor convention"""
+    """Find a parameter's mechanism and convert name to Arbor convention"""
     mech_suffix_matches = numpy.where([param.name.endswith("_" + mech)
                                        for mech in mechs])[0]
     if mech_suffix_matches.size == 0:
         return None, Location(name=_nrn2arb_var_name(param.name),
-                              value=_nrn2arb_var_value(param)) # TODO: adapt for Range
+                              value=_nrn2arb_var_value(param))  # TODO: Range
     elif mech_suffix_matches.size == 1:
         mech = mechs[mech_suffix_matches[0]]
-        name = param.name[:-(len(mech)+1)]
+        name = param.name[:-(len(mech) + 1)]
         return mech, Location(name=_nrn2arb_var_name(name),
-                              value=_nrn2arb_var_value(param)) # TODO: adapt for Range
+                              value=_nrn2arb_var_value(param))  # TODO: Range
     else:
-        raise RuntimeError("Parameter name %s matches multiple mechanisms %s " %
-                            (param.name, repr(mechs[mech_suffix_matches])))
+        raise RuntimeError("Parameter name %s matches multiple mechanisms %s "
+                           % (param.name, repr(mechs[mech_suffix_matches])))
 
 
 def _arb_convert_params_and_group_by_mech_global(params, channels):
-    """Group global parameters by mechanism and rename them to Arbor convention"""
-    mech_params =  [_find_mech_and_convert_param_name(
-                        Location(name=name, value=value), channels['all'])
-                    for name, value in params.items()]
+    """Group global params by mechanism, rename them to Arbor convention"""
+    mech_params = [_find_mech_and_convert_param_name(
+                   Location(name=name, value=value), channels['all'])
+                   for name, value in params.items()]
     mechs = {mech: [] for mech, _ in mech_params}
     for mech, param in mech_params:
         mechs[mech].append(param)
@@ -195,16 +203,16 @@ def _arb_convert_params_and_group_by_mech_global(params, channels):
 
 
 def _arb_convert_params_and_group_by_mech_local(params, channels):
-    """Group section parameters by mechanism and rename them to Arbor convention"""
+    """Group section params by mechanism, rename them to Arbor convention"""
     local_params = []
     global_params = {}
     for loc, params in params:
         mech_params = [_find_mech_and_convert_param_name(
-                           param, channels[loc]) for param in params]
+                       param, channels[loc]) for param in params]
         mechs = {mech: [] for mech, _ in mech_params}
         for mech, param in mech_params:
             mechs[mech].append(param)
-        for i, param in enumerate(mechs.get(None,[])):
+        for i, param in enumerate(mechs.get(None, [])):
             if _arb_is_global_param(loc, param):
                 global_params[param.name] = param
                 del mechs[None][i]
@@ -213,13 +221,14 @@ def _arb_convert_params_and_group_by_mech_local(params, channels):
 
 
 def _arb_nmodl_global_translate(mech_name, mech_params):
-    """Integrate NMODL GLOBAL parameters of Arbor-built-in mechanisms into mechanism name"""
+    """Integrate NMODL GLOBAL parameters of Arbor-built-in mechanisms
+     into mechanism name"""
     arb_mech = None
-    for cat in ['bbp', 'default', 'allen']: # in order of precedence
+    for cat in ['bbp', 'default', 'allen']:  # in order of precedence
         if mech_name in _arb_mechs[cat]:
             arb_mech = _arb_mechs[cat][mech_name]
             break
-    if arb_mech is None: # not Arbor built-in mech
+    if arb_mech is None:  # not Arbor built-in mech
         return (mech_name, mech_params)
     else:
         if arb_mech['globals'] is None:  # only Arbor range params
@@ -233,27 +242,29 @@ def _arb_nmodl_global_translate(mech_name, mech_params):
             mech_params_dict = dict(mech_params)
             arb_mech_name = mech_name + '/' + ','.join(
                 [p + '=' + mech_params_dict[p] for p in arb_mech['globals']])
-            arb_mech_params  = [mech_param for mech_param in mech_params 
-                if mech_param.name not in arb_mech['globals']]
+            arb_mech_params = [mech_param for mech_param in mech_params
+                               if mech_param.name not in arb_mech['globals']]
             return (arb_mech_name, arb_mech_params)
 
 
 def _arb_nmodl_global_translate_local(params):
     ret = []
     for loc, mechs in params:
-        ret.append((loc, [_arb_nmodl_global_translate(*mech) for mech in mechs]))
+        ret.append((loc, [_arb_nmodl_global_translate(*mech)
+                          for mech in mechs]))
     return ret
 
 
 def _read_templates(template_dir, template_filename):
-    """Expand Jinja2 template filepath with glob and return dict of target filename -> parsed template"""
+    """Expand Jinja2 template filepath with glob and
+     return dict of target filename -> parsed template"""
     if template_dir is None:
         template_dir = os.path.abspath(
             os.path.join(
                 os.path.dirname(__file__),
                 'templates'))
 
-    template_paths = glob(os.path.join(template_dir, 
+    template_paths = glob(os.path.join(template_dir,
                                        template_filename))
 
     templates = dict()
@@ -293,7 +304,7 @@ def create_acc(mechs,
         This iterable contains parameter names that aren't checked
         replace_axon (str): String replacement for the 'replace_axon' command.
         Must include 'proc replace_axon(){ ... }
-        template_filename (str): file path of the cell.json , decor.acc and 
+        template_filename (str): file path of the cell.json , decor.acc and
         label_dict.acc jinja2 templates (with wildcards expanded by glob)
         template_dir (str): dir name of the jinja2 templates
         custom_jinja_params (dict): dict of additional jinja2 params in case
@@ -316,23 +327,24 @@ def create_acc(mechs,
         custom_jinja_params = {}
 
     filenames = {
-        name: template_name + (name if name.startswith('.') else "_" + name) 
+        name: template_name + (name if name.startswith('.') else "_" + name)
         for name in templates.keys()}
-    
+
     # postprocess template parameters for Arbor
     global_params = template_params['global_params']
     section_params = template_params['section_params']
     channels = template_params['channels']
     range_params = template_params['range_params']
- 
+
     global_params = \
         _arb_convert_params_and_group_by_mech_global(global_params, channels)
     section_params, additional_global_params = \
         _arb_convert_params_and_group_by_mech_local(section_params, channels)
-    global_params.update(additional_global_params) 
+    global_params.update(additional_global_params)
     # no nmodl translate on global_params as no mechs
     section_params = _arb_nmodl_global_translate_local(section_params)
-    # TODO: range_params = _split_mech_from_non_mech_params_local(range_params, channels)
+    # TODO: range_params = _arb_convert_params_and_group_by_mech_local(
+    #                          range_params, channels)
 
     template_params['global_params'] = global_params
     template_params['section_params'] = section_params
@@ -340,10 +352,10 @@ def create_acc(mechs,
     template_params['range_params'] = range_params
 
     return {filenames[name]:
-                template.render(template_name=template_name,
-                                morphology=morphology,
-                                filenames=filenames,
-                                regions=_loc2arb_region,
-                                **template_params,
-                                **custom_jinja_params) 
+            template.render(template_name=template_name,
+                            morphology=morphology,
+                            filenames=filenames,
+                            regions=_loc2arb_region,
+                            **template_params,
+                            **custom_jinja_params)
             for name, template in templates.items()}

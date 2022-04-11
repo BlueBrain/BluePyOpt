@@ -25,8 +25,8 @@ def test_create_acc():
     mech = utils.make_mech()
     parameters = utils.make_parameters()
 
-    acc = create_acc.create_acc([mech, ], parameters,  
-                                morphology='CCell.swc', 
+    acc = create_acc.create_acc([mech, ], parameters,
+                                morphology='CCell.swc',
                                 template_name='CCell')
 
     cell_json = "CCell.json"
@@ -48,7 +48,7 @@ def test_create_acc():
     assert label_dict_acc in acc
     assert acc[label_dict_acc].startswith('(arbor-component')
     assert '(label-dict' in acc[label_dict_acc]
-    matches = re.findall(r'\(region-def "(?P<loc>\w+)" \(tag (?P<tag>\d+)\)\)', 
+    matches = re.findall(r'\(region-def "(?P<loc>\w+)" \(tag (?P<tag>\d+)\)\)',
                          acc[label_dict_acc])
     for pos, loc_tag in enumerate(DEFAULT_ARBOR_REGION_ORDER):
         assert matches[pos][0] == loc_tag[0]
@@ -90,7 +90,7 @@ def test_create_acc_filename():
     assert label_dict_acc in acc
     assert acc[label_dict_acc].startswith('(arbor-component')
     assert '(label-dict' in acc[label_dict_acc]
-    matches = re.findall(r'\(region-def "(?P<loc>\w+)" \(tag (?P<tag>\d+)\)\)', 
+    matches = re.findall(r'\(region-def "(?P<loc>\w+)" \(tag (?P<tag>\d+)\)\)',
                          acc[label_dict_acc])
     for pos, loc_tag in enumerate(DEFAULT_ARBOR_REGION_ORDER):
         assert matches[pos][0] == loc_tag[0]

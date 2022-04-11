@@ -281,10 +281,10 @@ class CellModel(Model):
                     param_name)
 
     def _create_sim_desc(self, param_values,
-                        ignored_globals=(), template=None,
-                        disable_banner=False,
-                        template_dir=None,
-                        sim_desc_creator=None):
+                         ignored_globals=(), template=None,
+                         disable_banner=False,
+                         template_dir=None,
+                         sim_desc_creator=None):
         """Create simulator description for this model"""
 
         to_unfreeze = []
@@ -336,10 +336,10 @@ class CellModel(Model):
                    template_dir=None):
         """Create hoc code for this model"""
         return self._create_sim_desc(param_values,
-                   ignored_globals, template,
-                   disable_banner,
-                   template_dir,
-                   sim_desc_creator=create_hoc.create_hoc)
+                                     ignored_globals, template,
+                                     disable_banner,
+                                     template_dir,
+                                     sim_desc_creator=create_hoc.create_hoc)
 
     def create_acc(self, param_values,
                    ignored_globals=(), template='acc/*_template.jinja2',
@@ -347,10 +347,10 @@ class CellModel(Model):
                    template_dir=None):
         """Create hoc code for this model"""
         return self._create_sim_desc(param_values,
-                   ignored_globals, template,
-                   disable_banner,
-                   template_dir,
-                   sim_desc_creator=create_acc.create_acc)
+                                     ignored_globals, template,
+                                     disable_banner,
+                                     template_dir,
+                                     sim_desc_creator=create_acc.create_acc)
 
     def __str__(self):
         """Return string representation"""

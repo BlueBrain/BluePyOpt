@@ -160,10 +160,10 @@ def _get_template_params(
     else:
         banner = None
 
-    return dict(global_params=global_params, 
+    return dict(global_params=global_params,
                 ignored_global_params=ignored_global_params,
-                section_params=section_params, 
-                range_params=range_params, 
+                section_params=section_params,
+                range_params=range_params,
                 location_order=location_order,
                 channels=channels,
                 banner=banner)
