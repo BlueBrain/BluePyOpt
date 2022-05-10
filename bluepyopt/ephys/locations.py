@@ -394,13 +394,15 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
 
 
 class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
-    """Location at a distance from soma up to the point furthest along trunk direction.
+    """Location at a distance from soma along a main direction.
 
-    This is most useful to follow the trunk of an apical dendrite without knowing the apical point.
+    This is most useful to follow the trunk of an apical dendrite
+    without knowing the apical point, but only that apical trunk goes along y.
     """
 
-    def set_sec_index(self, icell=None):
-        """Search for the point fursest away along trunk direction defined by first two points."""
+    def set_sec_index(self, icell=None, direction=[0.0, 1.0, 0.0]):
+        """Search for the point furthest away along given direction."""
+        sections = getattr(icell, self.seclist_name)
         points = np.array(
             [
                 [
@@ -408,17 +410,16 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
                     section.y3d(section.n3d() - 1),
                     section.z3d(section.n3d() - 1),
                 ]
-                for section in getattr(icell, self.seclist_name)
+                for section in sections
             ]
         )
-        self.sec_index = np.argmax(points.dot(points[1] - points[0]))
+        self.sec_index = np.argmax(points.dot(direction))
 
     def instantiate(self, sim=None, icell=None):
         """ """
         if self.sec_index is None:
             self.set_sec_index(icell=icell)
         return super().instantiate(sim=sim, icell=icell)
-
 
 
 class EPhysLocInstantiateException(Exception):
