@@ -85,6 +85,9 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
         self.preloaded = preloaded
         self.cell_model = None
         self.deterministic = deterministic
+        # If deterministic is False, it might get changed to True.
+        # Use this variable to change it back to False when needed.
+        self.always_deterministic = deterministic
 
         if prefix is not None and suffix is not None:
             raise TypeError('NrnMODMechanism: it is not allowed to set both '
@@ -123,18 +126,19 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
                 (self.suffix),
                 1 if deterministic else 0)
 
-            if not deterministic:
-                # Set the seeds
-                short_secname = sim.neuron.h.secname(sec=isec).split('.')[-1]
-                for iseg in isec:
-                    seg_name = '%s.%.19g' % (short_secname, iseg.x)
-                    getattr(sim.neuron.h,
-                            "setdata_%s" % self.suffix)(iseg.x, sec=isec)
-                    seed_id1 = icell.gid
-                    seed_id2 = self.hash_py(seg_name)
-                    getattr(
-                        sim.neuron.h,
-                        "setRNG_%s" % self.suffix)(seed_id1, seed_id2)
+            # Set the seeds even when deterministic,
+            # that way neuron's psection does not crash
+            # when encountering a stoch mech var that is not set (e.g. rng)
+            short_secname = sim.neuron.h.secname(sec=isec).split('.')[-1]
+            for iseg in isec:
+                seg_name = '%s.%.19g' % (short_secname, iseg.x)
+                getattr(sim.neuron.h,
+                        "setdata_%s" % self.suffix)(iseg.x, sec=isec)
+                seed_id1 = icell.gid
+                seed_id2 = self.hash_py(seg_name)
+                getattr(
+                    sim.neuron.h,
+                    "setRNG_%s" % self.suffix)(seed_id1, seed_id2)
         else:
             if not deterministic:
                 # can't do this for non-Stoch channels
@@ -142,6 +146,13 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
                     'Deterministic can only be set to False for '
                     'Stoch channel, not %s' %
                     self.suffix)
+
+    def set_stochasticity(self, allow_stochasticity):
+        """Set stochasticity if allowed, else force determinism"""
+        if allow_stochasticity and not self.always_deterministic:
+            self.deterministic = False
+        else:
+            self.deterministic = True
 
     def destroy(self, sim=None):
         """Destroy mechanism instantiation"""
