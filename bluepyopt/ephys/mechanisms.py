@@ -85,9 +85,6 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
         self.preloaded = preloaded
         self.cell_model = None
         self.deterministic = deterministic
-        # If deterministic is False, it might get changed to True.
-        # Use this variable to change it back to False when needed.
-        self.always_deterministic = deterministic
 
         if prefix is not None and suffix is not None:
             raise TypeError('NrnMODMechanism: it is not allowed to set both '
@@ -146,13 +143,6 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
                     'Deterministic can only be set to False for '
                     'Stoch channel, not %s' %
                     self.suffix)
-
-    def set_stochasticity(self, allow_stochasticity):
-        """Set stochasticity if allowed, else force determinism"""
-        if allow_stochasticity and not self.always_deterministic:
-            self.deterministic = False
-        else:
-            self.deterministic = True
 
     def destroy(self, sim=None):
         """Destroy mechanism instantiation"""
