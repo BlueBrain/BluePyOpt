@@ -396,8 +396,8 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
 class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
     """Location at a distance from soma along a main direction.
 
-    We search for the section that is the furthest away from some along 
-    a direction, and pick a location at a given distance from soma along 
+    We search for the section that is the furthest away from some along
+    a direction, and pick a location at a given distance from soma along
     the path to that section.
 
     This is most useful to follow the trunk of an apical dendrite
