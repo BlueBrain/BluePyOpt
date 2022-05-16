@@ -34,7 +34,7 @@ def main():
                         help='Output directory for JSON/ACC files')
     args = parser.parse_args()
 
-    cell = l5pc_model.create()
+    cell = l5pc_model.create(do_replace_axon=False)
 
     output = cell.create_acc(param_values, template='acc/*_template.jinja2')
 

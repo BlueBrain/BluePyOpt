@@ -127,22 +127,22 @@ def define_parameters():
     return parameters
 
 
-def define_morphology():
+def define_morphology(do_replace_axon):
     """Define morphology"""
 
     return ephys.morphologies.NrnFileMorphology(
         os.path.join(
             script_dir,
             'morphology/C060114A7.asc'),
-        do_replace_axon=True)
+        do_replace_axon=do_replace_axon)
 
 
-def create():
+def create(do_replace_axon=True):
     """Create cell model"""
 
     cell = ephys.models.CellModel(
         'l5pc',
-        morph=define_morphology(),
+        morph=define_morphology(do_replace_axon),
         mechs=define_mechanisms(),
         params=define_parameters())
 

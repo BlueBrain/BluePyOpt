@@ -1,4 +1,4 @@
-'''create a hoc file from a set of BluePyOpt.ephys parameters'''
+'''create JSON/ACC files for Arbor from a set of BluePyOpt.ephys parameters'''
 
 # pylint: disable=R0914
 
@@ -10,22 +10,26 @@ from glob import glob
 import numpy
 import jinja2
 
-from .create_hoc import Location, Range, _get_template_params
+from .create_hoc import Location, Range, _get_template_params, format_float
 
 
 # Define Neuron to Arbor variable conversions
-ArbVar = namedtuple('ArbVar', 'name, conv',
-                    defaults=[None, None])
+ArbVar = namedtuple('ArbVar', 'name, conv')
+
+
+def _make_var(name, conv=None):  # conv defaults to identity
+    return ArbVar(name=name, conv=conv)
+
 
 _nrn2arb_var = dict(
-    cm=ArbVar(name='membrane-capacitance',
-              conv=lambda cm: cm / 100.),  # NEURON uses uF/cm^2, Arbor F/m^2
-    ena=ArbVar(name='ion-reversal-potential \"na\"'),  # conv=None - identity
-    ek=ArbVar(name='ion-reversal-potential \"k\"'),
-    v_init=ArbVar(name='membrane-potential'),
-    celsius=ArbVar(name='temperature-kelvin',
-                   conv=lambda celsius: celsius + 273.15),
-    Ra=ArbVar(name='axial-resistivity')
+    cm=_make_var(name='membrane-capacitance',
+                 conv=lambda cm: cm / 100.),  # NEURON: uF/cm^2, Arbor: F/m^2
+    ena=_make_var(name='ion-reversal-potential \"na\"'),
+    ek=_make_var(name='ion-reversal-potential \"k\"'),
+    v_init=_make_var(name='membrane-potential'),
+    celsius=_make_var(name='temperature-kelvin',
+                      conv=lambda celsius: celsius + 273.15),
+    Ra=_make_var(name='axial-resistivity')
 )
 
 
@@ -38,7 +42,7 @@ def _nrn2arb_var_value(param):
     """Neuron to Arbor variable value conversion."""
     if param.name in _nrn2arb_var and \
        _nrn2arb_var[param.name].conv is not None:
-        return _nrn2arb_var[param.name].conv(param.value)
+        return format_float(_nrn2arb_var[param.name].conv(float(param.value)))
     else:
         return param.value
 
@@ -295,15 +299,12 @@ def create_acc(mechs,
     '''return a dict with strings containing the rendered JSON/ACC templates
 
     Args:
-        mechs (): All the mechs for the hoc template
-        parameters (): All the parameters in the hoc template
+        mechs (): All the mechs for the decor template
+        parameters (): All the parameters in the decor/label-dict template
         morpholgy (str): Name of morphology
-        ignored_globals (iterable str): HOC coded is added for each
-        NrnGlobalParameter
-        that exists, to test that it matches the values set in the parameters.
-        This iterable contains parameter names that aren't checked
+        ignored_globals (iterable str): Skipped NrnGlobalParameter in decor
         replace_axon (str): String replacement for the 'replace_axon' command.
-        Must include 'proc replace_axon(){ ... }
+        Only False is supported at the moment.
         template_filename (str): file path of the cell.json , decor.acc and
         label_dict.acc jinja2 templates (with wildcards expanded by glob)
         template_dir (str): dir name of the jinja2 templates
@@ -315,6 +316,10 @@ def create_acc(mechs,
         raise RuntimeError("Morphology file %s not supported in Arbor "
                            " (only supported types are .swc and .asc)."
                            % morphology)
+
+    if replace_axon is True:
+        raise RuntimeError("Axon replacement (replace_axon is True) is not "
+                           "supported in Arbor.")
 
     templates = _read_templates(template_dir, template_filename)
 

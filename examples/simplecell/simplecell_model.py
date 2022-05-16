@@ -20,130 +20,45 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 """
 # pylint: disable=R0914
 
-import os
-import json
-
 import bluepyopt.ephys as ephys
 
-script_dir = os.path.dirname(__file__)
-config_dir = os.path.join(script_dir, 'config')
 
-# TODO store definition dicts in json
-# TODO rename 'score' into 'objective'
-# TODO add functionality to read settings of every object from config format
+def create(do_replace_axon):
+    """Create cell model (identical to simplecell.ipynb)"""
 
+    morph = ephys.morphologies.NrnFileMorphology('simple.swc',
+                                                 do_replace_axon=do_replace_axon)
+    somatic_loc = ephys.locations.NrnSeclistLocation('somatic', seclist_name='somatic')
 
-def define_mechanisms():
-    """Define mechanisms"""
+    hh_mech = ephys.mechanisms.NrnMODMechanism(
+        name='hh',
+        suffix='hh',
+        locations=[somatic_loc])
 
-    mech_definitions = json.load(
-        open(
-            os.path.join(
-                config_dir,
-                'mechanisms.json')))
+    cm_param = ephys.parameters.NrnSectionParameter(
+        name='cm',
+        param_name='cm',
+        value=1.0,
+        locations=[somatic_loc],
+        frozen=True)
 
-    mechanisms = []
-    for sectionlist, channels in mech_definitions.items():
-        seclist_loc = ephys.locations.NrnSeclistLocation(
-            sectionlist,
-            seclist_name=sectionlist)
-        for channel in channels:
-            mechanisms.append(ephys.mechanisms.NrnMODMechanism(
-                name='%s.%s' % (channel, sectionlist),
-                mod_path=None,
-                suffix=channel,
-                locations=[seclist_loc],
-                preloaded=True))
-
-    return mechanisms
-
-
-def define_parameters():
-    """Define parameters"""
-
-    param_configs = json.load(open(os.path.join(config_dir, 'parameters.json')))
-    parameters = []
-
-    for param_config in param_configs:
-        if 'value' in param_config:
-            frozen = True
-            value = param_config['value']
-            bounds = None
-        elif 'bounds' in param_config:
-            frozen = False
-            bounds = param_config['bounds']
-            value = None
-        else:
-            raise Exception(
-                'Parameter config has to have bounds or value: %s'
-                % param_config)
-
-        if param_config['type'] == 'global':
-            parameters.append(
-                ephys.parameters.NrnGlobalParameter(
-                    name=param_config['param_name'],
-                    param_name=param_config['param_name'],
-                    frozen=frozen,
-                    bounds=bounds,
-                    value=value))
-        elif param_config['type'] in ['section', 'range']:
-            if param_config['dist_type'] == 'uniform':
-                scaler = ephys.parameterscalers.NrnSegmentLinearScaler()
-            elif param_config['dist_type'] == 'exp':
-                scaler = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
-                    distribution=param_config['dist'])
-            seclist_loc = ephys.locations.NrnSeclistLocation(
-                param_config['sectionlist'],
-                seclist_name=param_config['sectionlist'])
-
-            name = '%s.%s' % (param_config['param_name'],
-                              param_config['sectionlist'])
-
-            if param_config['type'] == 'section':
-                parameters.append(
-                    ephys.parameters.NrnSectionParameter(
-                        name=name,
-                        param_name=param_config['param_name'],
-                        value_scaler=scaler,
-                        value=value,
-                        frozen=frozen,
-                        bounds=bounds,
-                        locations=[seclist_loc]))
-            elif param_config['type'] == 'range':
-                parameters.append(
-                    ephys.parameters.NrnRangeParameter(
-                        name=name,
-                        param_name=param_config['param_name'],
-                        value_scaler=scaler,
-                        value=value,
-                        frozen=frozen,
-                        bounds=bounds,
-                        locations=[seclist_loc]))
-        else:
-            raise Exception(
-                'Param config type has to be global, section or range: %s' %
-                param_config)
-
-    return parameters
-
-
-def define_morphology():
-    """Define morphology"""
-
-    return ephys.morphologies.NrnFileMorphology(
-        os.path.join(
-            script_dir,
-            'simple.swc'),
-        do_replace_axon=False)
-
-
-def create():
-    """Create cell model"""
-
+    gnabar_param = ephys.parameters.NrnSectionParameter(                                    
+        name='gnabar_hh',
+        param_name='gnabar_hh',
+        locations=[somatic_loc],
+        bounds=[0.05, 0.125],
+        frozen=False)
+    gkbar_param = ephys.parameters.NrnSectionParameter(
+        name='gkbar_hh',
+        param_name='gkbar_hh',
+        bounds=[0.01, 0.075],
+        locations=[somatic_loc],
+        frozen=False)
+ 
     cell = ephys.models.CellModel(
         'simple_cell',
-        morph=define_morphology(),
-        mechs=define_mechanisms(),
-        params=define_parameters())
+        morph=morph,
+        mechs=[hh_mech],
+        params=[cm_param, gnabar_param, gkbar_param])
 
     return cell

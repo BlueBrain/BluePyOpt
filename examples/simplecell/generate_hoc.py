@@ -10,22 +10,19 @@
      CCell("ignored", "path/to/morphology.swc")
 '''
 import sys
-import os
-import shutil
-from pprint import pprint
 
 import simplecell_model
 
 
 param_values = {
-    'gnabar_hh.somatic': 0.10299326453483033, 
-    'gkbar_hh.somatic': 0.027124836082684685
+    'gnabar_hh': 0.10299326453483033, 
+    'gkbar_hh': 0.027124836082684685
 }
 
 
 def main():
     '''main'''
-    cell = simplecell_model.create()
+    cell = simplecell_model.create(do_replace_axon=True)
 
     output = cell.create_hoc(param_values, template='cell_template.jinja2')
     print(output)

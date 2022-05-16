@@ -21,7 +21,7 @@ DEFAULT_ARBOR_REGION_ORDER = [
 
 @pytest.mark.unit
 def test_create_acc():
-    """ephys.create_hoc: Test create_hoc"""
+    """ephys.create_acc: Test create_acc"""
     mech = utils.make_mech()
     parameters = utils.make_parameters()
 
@@ -57,7 +57,7 @@ def test_create_acc():
 
 @pytest.mark.unit
 def test_create_acc_filename():
-    """ephys.create_hoc: Test create_acc template_filename"""
+    """ephys.create_acc: Test create_acc template_filename"""
     mech = utils.make_mech()
     parameters = utils.make_parameters()
     custom_param_val = str(__file__)
@@ -99,3 +99,19 @@ def test_create_acc_filename():
     assert '(meta-data (info "test-decor"))' in acc[decor_acc]
     assert '(meta-data (info "test-label-dict"))' in acc[label_dict_acc]
     assert custom_param_val in cell_json_dict['produced_by']
+
+
+@pytest.mark.unit
+def test_create_acc_replace_axon():
+    """ephys.create_acc: Test create_acc for exception with axon replacement"""
+    mech = utils.make_mech()
+    parameters = utils.make_parameters()
+
+    with pytest.raises(Exception) as exception:
+        acc = create_acc.create_acc([mech, ], parameters,
+                                    morphology='CCell.swc',
+                                    template_name='CCell',
+                                    replace_axon=True)
+    assert exception.type == RuntimeError
+    assert str(exception.value) == \
+        "Axon replacement (replace_axon is True) is not supported in Arbor."
