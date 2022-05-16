@@ -134,7 +134,8 @@ class SweepProtocol(Protocol):
             name=None,
             stimuli=None,
             recordings=None,
-            cvode_active=None):
+            cvode_active=None,
+            deterministic=False):
         """Constructor
 
         Args:
@@ -143,12 +144,15 @@ class SweepProtocol(Protocol):
             recordings (list of Recordings): Recording objects used in the
                 protocol
             cvode_active (bool): whether to use variable time step
+            deterministic (bool): whether to force all mechanism
+                to be deterministic
         """
 
         super(SweepProtocol, self).__init__(name)
         self.stimuli = stimuli
         self.recordings = recordings
         self.cvode_active = cvode_active
+        self.deterministic = deterministic
 
     @property
     def total_duration(self):
@@ -160,6 +164,26 @@ class SweepProtocol(Protocol):
         """Return subprotocols"""
 
         return collections.OrderedDict({self.name: self})
+
+    def adjust_stochasticity(func):
+        """Decorator method to adjust the stochasticity of the mechanisms"""
+        def inner(self, cell_model, param_values, **kwargs):
+            """Inner function"""
+            previous_stoch_state = []
+            if self.deterministic:
+                for mech in cell_model.mechanisms:
+                    previous_stoch_state.append(mech.deterministic)
+                    mech.deterministic = True
+
+            responses = func(self, cell_model, param_values, **kwargs)
+
+            if self.deterministic:
+                for i, mech in enumerate(cell_model.mechanisms):
+                    mech.deterministic = previous_stoch_state[i]
+
+            return responses
+
+        return inner
 
     def _run_func(self, cell_model, param_values, sim=None):
         """Run protocols"""
@@ -198,6 +222,7 @@ class SweepProtocol(Protocol):
                 "".join(
                     traceback.format_exception(*sys.exc_info())))
 
+    @adjust_stochasticity
     def run(
             self,
             cell_model,
@@ -295,7 +320,8 @@ class StepProtocol(SweepProtocol):
             step_stimulus=None,
             holding_stimulus=None,
             recordings=None,
-            cvode_active=None):
+            cvode_active=None,
+            deterministic=False):
         """Constructor
 
         Args:
@@ -304,6 +330,8 @@ class StepProtocol(SweepProtocol):
             recordings (list of Recordings): Recording objects used in the
                 protocol
             cvode_active (bool): whether to use variable time step
+            deterministic (bool): whether to force all mechanism
+                to be deterministic
         """
 
         super(StepProtocol, self).__init__(

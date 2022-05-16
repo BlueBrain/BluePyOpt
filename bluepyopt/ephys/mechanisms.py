@@ -123,18 +123,19 @@ class NrnMODMechanism(Mechanism, serializer.DictMixin):
                 (self.suffix),
                 1 if deterministic else 0)
 
-            if not deterministic:
-                # Set the seeds
-                short_secname = sim.neuron.h.secname(sec=isec).split('.')[-1]
-                for iseg in isec:
-                    seg_name = '%s.%.19g' % (short_secname, iseg.x)
-                    getattr(sim.neuron.h,
-                            "setdata_%s" % self.suffix)(iseg.x, sec=isec)
-                    seed_id1 = icell.gid
-                    seed_id2 = self.hash_py(seg_name)
-                    getattr(
-                        sim.neuron.h,
-                        "setRNG_%s" % self.suffix)(seed_id1, seed_id2)
+            # Set the seeds even when deterministic,
+            # that way neuron's psection does not crash
+            # when encountering a stoch mech var that is not set (e.g. rng)
+            short_secname = sim.neuron.h.secname(sec=isec).split('.')[-1]
+            for iseg in isec:
+                seg_name = '%s.%.19g' % (short_secname, iseg.x)
+                getattr(sim.neuron.h,
+                        "setdata_%s" % self.suffix)(iseg.x, sec=isec)
+                seed_id1 = icell.gid
+                seed_id2 = self.hash_py(seg_name)
+                getattr(
+                    sim.neuron.h,
+                    "setRNG_%s" % self.suffix)(seed_id1, seed_id2)
         else:
             if not deterministic:
                 # can't do this for non-Stoch channels
