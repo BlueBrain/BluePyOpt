@@ -355,7 +355,7 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
             name,
             soma_distance=soma_distance,
             seclist_name=sec_name,
-            comment=''
+            comment=comment,
         )
         self.sec_index = sec_index
 
@@ -428,8 +428,8 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
             name,
             soma_distance=soma_distance,
             sec_index=sec_index,
-            seclist_name=sec_name,
-            comment=''
+            sec_name=sec_name,
+            comment=comment
         )
 
         if direction is None:
