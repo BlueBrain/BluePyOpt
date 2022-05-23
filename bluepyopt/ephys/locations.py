@@ -436,7 +436,6 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
             direction = [0.0, 1.0, 0.0]
         self.direction = direction
 
-
     def set_sec_index(self, icell=None):
         """Search for the point furthest away along given direction."""
         points = np.array(
@@ -449,10 +448,10 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
                 for section in getattr(icell, self.seclist_name)
             ]
         )
-        if direction == 'radial':
+        if self.direction == 'radial':
             self.sec_index = np.argmax(np.linalg.norm(points, axis=1))
         else:
-            self.sec_index = np.argmax(points.dot(direction))
+            self.sec_index = np.argmax(points.dot(self.direction))
 
     def instantiate(self, sim=None, icell=None):
         """ """
