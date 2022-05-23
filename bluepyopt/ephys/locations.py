@@ -400,19 +400,47 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
     a direction, and pick a location at a given distance from soma along
     the path to that section.
 
+    If direction == 'radial', the largest radial direction is used.
+
     This is most useful to follow the trunk of an apical dendrite
     without knowing the apical point, but only that apical trunk goes along y.
     """
 
-    def set_sec_index(self, icell=None, direction=None):
-        """Search for the point furthest away along given direction.
+    def __init__(
+        self,
+        name,
+        soma_distance=None,
+        sec_index=None,
+        sec_name=None,
+        direction=None,
+        comment=""
+    ):
+        """Constructor
 
         Args:
+            name (str): name of this object
+            soma_distance (float): distance from soma to this compartment
+            sec_index (int): index of the section  to consider
+            sec_name (str): name of Neuron sections (ex: 'apic')
             direction (list of 3 elements): 3d vector representing direction
         """
+        super(NrnTrunkSomaDistanceCompLocation, self).__init__(
+            name,
+            soma_distance=soma_distance,
+            sec_index = sec_index,
+            seclist_name=sec_name,
+            comment=''
+        )
+
         if direction is None:
             direction = [0.0, 1.0, 0.0]
-        sections = getattr(icell, self.seclist_name)
+        self.direction = direction
+
+
+    def set_sec_index(self, icell=None):
+        """Search for the point furthest away along given direction.
+
+        """
         points = np.array(
             [
                 [
@@ -420,10 +448,13 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
                     section.y3d(section.n3d() - 1),
                     section.z3d(section.n3d() - 1),
                 ]
-                for section in sections
+                for section in getattr(icell, self.seclist_name)
             ]
         )
-        self.sec_index = np.argmax(points.dot(direction))
+        if direction == 'radial':
+            self.sec_index = np.argmax(np.linalg.norm(points, axis=1))
+        else:
+            self.sec_index = np.argmax(points.dot(direction))
 
     def instantiate(self, sim=None, icell=None):
         """ """
