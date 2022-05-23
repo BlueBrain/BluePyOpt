@@ -427,7 +427,7 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
         super(NrnTrunkSomaDistanceCompLocation, self).__init__(
             name,
             soma_distance=soma_distance,
-            sec_index = sec_index,
+            sec_index=sec_index,
             seclist_name=sec_name,
             comment=''
         )
@@ -438,9 +438,7 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
 
 
     def set_sec_index(self, icell=None):
-        """Search for the point furthest away along given direction.
-
-        """
+        """Search for the point furthest away along given direction."""
         points = np.array(
             [
                 [
