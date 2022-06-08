@@ -55,6 +55,6 @@ def test_optimisationsCMA_MO_run():
     )
     pop, hof, log, hist = optimisation.run(max_ngen=2)
 
-    assert abs(log.select("avg")[-1] - 120.) < 1e-4
-    assert abs(log.select("std")[-1] - 74.8331) < 1e-4
-    assert pop[0] == [0.07506300058169628, 0.01000000003249999]
+    assert abs(log.select("avg")[-1] - 40.) < 1e-4
+    assert abs(log.select("std")[-1] - 16.32993) < 1e-4
+    assert pop[0] == [0.09601241274168831, 0.024646650865379722]
