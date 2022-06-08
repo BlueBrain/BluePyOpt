@@ -422,7 +422,8 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
             soma_distance (float): distance from soma to this compartment
             sec_index (int): index of the section  to consider
             sec_name (str): name of Neuron sections (ex: 'apic')
-            direction (list of 3 elements): 3d vector representing direction
+            direction (list of 3 elements): 3d vector representing direction,
+                if None, default is [0, 1, 0]
         """
         super(NrnTrunkSomaDistanceCompLocation, self).__init__(
             name,
