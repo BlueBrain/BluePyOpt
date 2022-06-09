@@ -315,7 +315,6 @@ class TestNrnTrunkSomaDistanceCompLocation(object):
         cell.testdend.append(sec=dend4)
         cell.testdend.append(sec=dend5)
 
-
         x0 = self.sim.neuron.h.Vector([0] * 10)
         d = self.sim.neuron.h.Vector([1] * 10)
 
@@ -340,7 +339,6 @@ class TestNrnTrunkSomaDistanceCompLocation(object):
         assert comp == dend3(0.5)
         comp = self.loc_other.instantiate(sim=self.sim, icell=cell)
         assert comp == dend5(0.5)
-
 
 
 @pytest.mark.unit
