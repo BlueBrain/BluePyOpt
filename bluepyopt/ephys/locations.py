@@ -450,9 +450,9 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
             ]
         )
         if self.direction == 'radial':
-            self.sec_index = np.argmax(np.linalg.norm(points, axis=1))
+            self.sec_index = int(np.argmax(np.linalg.norm(points, axis=1)))
         else:
-            self.sec_index = np.argmax(points.dot(self.direction))
+            self.sec_index = int(np.argmax(points.dot(self.direction)))
 
     def instantiate(self, sim=None, icell=None):
         """ """
