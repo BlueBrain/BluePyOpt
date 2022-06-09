@@ -100,7 +100,7 @@ class TestNrnSeclistCompLocation(object):
         self.sim = ephys.simulators.NrnSimulator()
 
     def test_instantiate(self):
-        """ephys.locations.NrnSomaDistanceCompLocation: test instantiate"""
+        """ephys.locations.NrnSeclistCompLocation: test instantiate"""
 
         # Create a little test class with a soma and two dendritic sections
         class Cell(object):
@@ -126,6 +126,50 @@ class TestNrnSeclistCompLocation(object):
 
         for _ in range(10000):
             soma_comp = self.loc.instantiate(sim=self.sim, icell=cell)
+
+
+@pytest.mark.unit
+class TestNrnSeclistSecLocation(object):
+
+    """Test class for NrnSeclistSecLocation"""
+
+    def setup(self):
+        """Setup"""
+        self.loc = ephys.locations.NrnSeclistSecLocation(
+            name='test',
+            seclist_name='somatic',
+            sec_index=0)
+        self.loc_dend = ephys.locations.NrnSeclistSecLocation(
+            name='test',
+            seclist_name='basal',
+            sec_index=1)
+        assert self.loc.name == 'test'
+        self.sim = ephys.simulators.NrnSimulator()
+
+    def test_instantiate(self):
+        """ephys.locations.NrnSeclistSecLocation: test instantiate"""
+
+        # Create a little test class with a soma and two dendritic sections
+        class Cell(object):
+            """Cell class"""
+            pass
+
+        cell = Cell()
+        soma = self.sim.neuron.h.Section()
+        dend1 = self.sim.neuron.h.Section(name='dend1')
+        dend2 = self.sim.neuron.h.Section(name='dend2')
+
+        cell.somatic = self.sim.neuron.h.SectionList()
+        cell.somatic.append(soma)
+        cell.basal = self.sim.neuron.h.SectionList()
+        cell.basal.append(dend1)
+        cell.basal.append(dend2)
+
+        soma_comp = self.loc.instantiate(sim=self.sim, icell=cell)
+        assert soma_comp == soma
+
+        dend_comp = self.loc_dend.instantiate(sim=self.sim, icell=cell)
+        assert dend_comp == dend2
 
 
 @pytest.mark.unit
@@ -170,6 +214,62 @@ class TestNrnSomaDistanceCompLocation(object):
 
         comp = self.loc.instantiate(sim=self.sim, icell=cell)
         assert comp == dend2(0.5)
+
+
+@pytest.mark.unit
+class TestNrnSecSomaDistanceCompLocation(object):
+
+    """Test class for NrnSecSomaDistanceCompLocation"""
+
+    def setup(self):
+        """Setup"""
+        self.loc = ephys.locations.NrnSecSomaDistanceCompLocation(
+            'test',
+            125,
+            1,
+            'testdend')
+        self.loc_other = ephys.locations.NrnSecSomaDistanceCompLocation(
+            'test',
+            250,
+            4,
+            'testdend')
+        assert self.loc.name == 'test'
+        self.sim = ephys.simulators.NrnSimulator()
+
+    def test_instantiate(self):
+        """ephys.locations.NrnSomaDistanceCompLocation: test instantiate"""
+
+        # Create a little test class with a soma and two dendritic sections
+        class Cell(object):
+
+            """Cell class"""
+            pass
+        cell = Cell()
+        soma = self.sim.neuron.h.Section(name="soma[0]")
+        cell.soma = [soma]
+        cell.testdend = self.sim.neuron.h.SectionList()
+        dend1 = self.sim.neuron.h.Section(name='dend[0]')
+        dend2 = self.sim.neuron.h.Section(name='dend[1]')
+        dend3 = self.sim.neuron.h.Section(name='dend[2]')
+        dend4 = self.sim.neuron.h.Section(name='dend[3]')
+        dend5 = self.sim.neuron.h.Section(name='dend[4]')
+
+        cell.testdend.append(sec=dend1)
+        cell.testdend.append(sec=dend2)
+        cell.testdend.append(sec=dend3)
+        cell.testdend.append(sec=dend4)
+        cell.testdend.append(sec=dend5)
+
+        dend1.connect(soma(0.5), 0.0)
+        dend2.connect(dend1(1.0), 0.0)
+        dend3.connect(dend1(1.0), 0.0)
+        dend4.connect(dend3(1.0), 0.0)
+        dend5.connect(dend4(1.0), 0.0)
+
+        comp = self.loc.instantiate(sim=self.sim, icell=cell)
+        assert comp == dend2(0.5)
+        comp = self.loc_other.instantiate(sim=self.sim, icell=cell)
+        assert comp == dend4(0.5)
 
 
 @pytest.mark.unit
