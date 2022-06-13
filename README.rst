@@ -97,6 +97,10 @@ When you use the BluePyOpt software or method for your research, we ask you to c
 	}
 
 
+Publications that use or mention BluePyOpt
+==========================================
+The list of publications that use or mention BluePyOpt can be found on `the github wiki page <https://github.com/BlueBrain/BluePyOpt/wiki/Publications-that-use-or-mention-BluePyOpt>`_.
+
 Support
 =======
 We are providing support using a chat channel on `Gitter <https://gitter.im/BlueBrain/BluePyOpt>`_, or the `Github discussion page <https://github.com/BlueBrain/BluePyOpt/discussions>`_.
@@ -192,10 +196,6 @@ https://github.com/BlueBrain/BluePyOpt/blob/master/examples/tsodyksmarkramstp/ts
 API documentation
 =================
 The API documentation can be found on `ReadTheDocs <http://bluepyopt.readthedocs.io/en/latest/>`_.
-
-Publications that use or mention BluePyOpt
-==========================================
-The list of publications that use or mention BluePyOpt can be found on `the github wiki page <https://github.com/BlueBrain/BluePyOpt/wiki/Publications-that-use-or-mention-BluePyOpt>`_.
 
 Funding
 =======
