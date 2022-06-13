@@ -193,6 +193,10 @@ API documentation
 =================
 The API documentation can be found on `ReadTheDocs <http://bluepyopt.readthedocs.io/en/latest/>`_.
 
+Publications that use or mention BluePyOpt
+==========================================
+The list of publications that use or mention BluePyOpt can be found on `the github wiki page <https://github.com/BlueBrain/BluePyOpt/wiki/Publications-that-use-or-mention-BluePyOpt>`_.
+
 Funding
 =======
 This work has been partially funded by the European Union Seventh Framework Program (FP7/2007­2013) under grant agreement no. 604102 (HBP), the European Union’s Horizon 2020 Framework Programme for Research and Innovation under the Specific Grant Agreement No. 720270, 785907 (Human Brain Project SGA1/SGA2) and by the EBRAINS research infrastructure, funded from the European Union’s Horizon 2020 Framework Programme for Research and Innovation under the Specific Grant Agreement No. 945539 (Human Brain Project SGA3).
