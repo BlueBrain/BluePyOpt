@@ -121,6 +121,8 @@ class NrnSimulator(object):
         """Run protocol"""
 
         self.neuron.h.tstop = tstop
+        self._pc = self.neuron.h.ParallelContext()
+        self._pc.mpiabort_on_error(0)
 
         if cvode_active and dt is not None:
             raise ValueError(
