@@ -25,6 +25,7 @@ import itertools
 
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
+import numpy as np
 
 
 class Location(BaseEPhys):
@@ -354,7 +355,7 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
             name,
             soma_distance=soma_distance,
             seclist_name=sec_name,
-            comment=''
+            comment=comment,
         )
         self.sec_index = sec_index
 
@@ -390,6 +391,74 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
         sim.neuron.h.distance(0, 0.5, sec=soma)
 
         return self.find_icomp(sim, branches)
+
+
+class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
+    """Location at a distance from soma along a main direction.
+
+    We search for the section that is the furthest away from some along
+    a direction, and pick a location at a given distance from soma along
+    the path to that section.
+
+    If direction == 'radial', the largest radial direction is used.
+
+    This is most useful to follow the trunk of an apical dendrite
+    without knowing the apical point, but only that apical trunk goes along y.
+    """
+
+    def __init__(
+        self,
+        name,
+        soma_distance=None,
+        sec_index=None,
+        sec_name=None,
+        direction=None,
+        comment=""
+    ):
+        """Constructor
+
+        Args:
+            name (str): name of this object
+            soma_distance (float): distance from soma to this compartment
+            sec_index (int): index of the section  to consider
+            sec_name (str): name of Neuron sections (ex: 'apic')
+            direction (list of 3 elements): 3d vector representing direction,
+                if None, default is [0, 1, 0]
+        """
+        super(NrnTrunkSomaDistanceCompLocation, self).__init__(
+            name,
+            soma_distance=soma_distance,
+            sec_index=sec_index,
+            sec_name=sec_name,
+            comment=comment
+        )
+
+        if direction is None:
+            direction = [0.0, 1.0, 0.0]
+        self.direction = direction
+
+    def set_sec_index(self, icell=None):
+        """Search for the point furthest away along given direction."""
+        points = np.array(
+            [
+                [
+                    section.x3d(section.n3d() - 1),
+                    section.y3d(section.n3d() - 1),
+                    section.z3d(section.n3d() - 1),
+                ]
+                for section in getattr(icell, self.seclist_name)
+            ]
+        )
+        if self.direction == 'radial':
+            self.sec_index = int(np.argmax(np.linalg.norm(points, axis=1)))
+        else:
+            self.sec_index = int(np.argmax(points.dot(self.direction)))
+
+    def instantiate(self, sim=None, icell=None):
+        """ """
+        if self.sec_index is None:
+            self.set_sec_index(icell=icell)
+        return super().instantiate(sim=sim, icell=icell)
 
 
 class EPhysLocInstantiateException(Exception):
