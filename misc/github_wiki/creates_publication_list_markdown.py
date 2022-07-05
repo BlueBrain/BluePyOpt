@@ -5,10 +5,12 @@ from pathlib import Path
 
 from pybtex import PybtexEngine
 
+
 def put_bullet_points(input):
     """Replace references by bullet points."""
-    to_replace = "\[[0-9]+\]" # any numbers in braquets
+    to_replace = "\[[0-9]+\]"  # any numbers in braquets
     return re.sub(to_replace, "*", input)
+
 
 working_directory = Path("./")
 bibtex_folder = working_directory / "bibtex"
@@ -82,5 +84,6 @@ output = f"""# Publications that use or mention BluePyOpt
 
 
 # -- write down markwodn wiki -- #
+output_path.parent.mkdir(parents=True, exist_ok=True)
 with open(output_path, "w") as f:
     f.write(output)
