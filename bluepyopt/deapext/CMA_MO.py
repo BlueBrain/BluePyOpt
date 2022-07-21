@@ -71,7 +71,7 @@ def get_hyped(pop, ubound_score=250., threshold_improvement=240.):
     ubounds = numpy.max(points, axis=0) + 2.0
 
     hv = hype.hypeIndicatorSampled(
-        points=points, bounds=ubounds, k=5, nrOfSamples=200000
+        points=points, bounds=ubounds, k=5, nrOfSamples=1000000
     )
     return hv
 

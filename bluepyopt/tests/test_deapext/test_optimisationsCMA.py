@@ -19,7 +19,7 @@ def test_optimisationsCMA_normspace():
                                         optimisation.to_space)]
 
     for a, b in zip(x, y):
-        assert abs(a - b) < 1e-5
+        assert b == pytest.approx(a, abs=1e-5)
 
 
 @pytest.mark.unit
@@ -34,9 +34,10 @@ def test_optimisationsCMA_SO_run():
     optimisation = optimiser(evaluator=evaluator, centroids=[x])
     pop, hof, log, hist = optimisation.run(max_ngen=2)
 
-    assert abs(log.select("avg")[-1] - 53.3333) < 1e-4
-    assert abs(log.select("std")[-1] - 83.7987) < 1e-4
-    assert pop[0] == [0.10525059698894745, 0.01000000003249999]
+    assert log.select("avg")[-1] == pytest.approx(53.3333, abs=1e-4)
+    assert log.select("std")[-1] == pytest.approx(83.7987, abs=1e-4)
+    assert pop[0][0] == pytest.approx(0.10525059698894745, abs=1e-6)
+    assert pop[0][1] == pytest.approx(0.01000000003249999, abs=1e-6)
 
 
 @pytest.mark.unit
@@ -55,6 +56,7 @@ def test_optimisationsCMA_MO_run():
     )
     pop, hof, log, hist = optimisation.run(max_ngen=2)
 
-    assert abs(log.select("avg")[-1] - 120.) < 1e-4
-    assert abs(log.select("std")[-1] - 74.8331) < 1e-4
-    assert pop[0] == [0.07506300058169628, 0.01000000003249999]
+    assert log.select("avg")[-1] == pytest.approx(40., abs=1e-4)
+    assert log.select("std")[-1] == pytest.approx(16.32993, abs=1e-4)
+    assert pop[0][0] == pytest.approx(0.09601241274168831, abs=1e-6)
+    assert pop[0][1] == pytest.approx(0.024646650865379722, abs=1e-6)

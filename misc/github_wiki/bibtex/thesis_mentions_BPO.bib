@@ -1,0 +1,154 @@
+
+@phdthesis{Cremonesi:271927,
+      title = {Computational characteristics and hardware implications of  brain tissue simulations},
+      author = {Cremonesi, Francesco},
+      publisher = {EPFL},
+      school = {École Polytechnique Fédérale de Lausanne},
+      address = {Lausanne},
+      pages = {196},
+      year = {2019},
+      abstract = {Understanding the link between the brain's anatomy and its  function through computer
+simulations of neural tissue  models is a widely used approach in computational  neuroscience.
+This technique enables rapid prototyping and  testing of hypotheses, allowing researchers to
+bridge the  scales of biological phenomena. Until recently, the  constant trend of improvement
+in computational power has  supported an exponential growth in the scale and level of  detail
+of in silico experiments. However, a systematic  characterization of the performance landscape
+has not yet  been carried out.
+In this work we intend to capture  intrinsic computational properties of the existing  mod-
+elling abstractions and answer questions about the  intricate relationship between simulation
+algorithms and  modern hardware architecture. Our first contribution is a  novel set of hardware-
+agnostic metrics that enables us to  bring focus to the heterogeneous landscape of brain  tissue
+models. We develop a methodology able to capture  subtle differences between cell-based
+models and quantify  their impact on performance based on hardware features. We  show that
+lumping simulation experiments together by  referring to numbers of neurons and synapses
+without  further detail hides fundamental differences in  computational and hardware require-
+ments across models. In  addition to analysing different neuron representations, we  investigate
+the impact of biological heterogeneity on the  performance of a cortical microcircuit model.
+Our analysis  indicates that while general-purpose computers have until  now sustained high-
+performance simulations of all brain  tissue models, the next generation of in silico models
+will  require hardware tailored to the underlying abstraction. We  find that all formalisms
+saturate the memory bandwidth with  a fairly small number of shared memory threads, but
+the  reasons behind this are quite different: conductance-based  models are dominated by the
+large memory traffic of  clock-driven kernels, while current-based models are most  affected
+by event-driven execution and memory latency. In  distributed simulations the latency of the
+interconnect  fabric is the root cause for a significant degradation in  performance.
+We argue that performance analyses such as  ours are required to enable the next generation
+of brain  tissue simulations - or else scientific progress risks  being hindered by the presence
+of severe hardware  bottlenecks. Our methodology provides a common tool to  facilitate the
+communication between modellers, developers  and hardware designers in order to sustain
+the larger  memory and performance requirements of future brain tissue  simulations.},
+      url = {http://infoscience.epfl.ch/record/271927},
+      doi = {10.5075/epfl-thesis-9767},
+}
+
+@mastersthesis{Johansson1291310,
+   author = {Johansson, Oscar},
+   institution = {Linköping University, Department of Computer and Information Science},
+   pages = {60},
+   school = {Linköping University, Department of Computer and Information Science},
+   title = {Weight Estimation and Evaluation of User Suggestions in Mobile Browsing},
+   abstract = {This study investigates the suggestion system of a mobile browser. The goal of a suggestion system is to assist the user by presenting relevant suggestions in an ordered list. By weighting the different types of suggestions presented to the user, such as history, bookmarks etc., it is investigated how this affects the performance of the suggestion sys- tem. The performance is measured using the position, error and Mean Reciprocal Rank of the chosen suggestion as well as the number of written characters. It is also measured if the user chose to not use the suggestion system, by searching or entering the entire URL. The weights were estimated using a Genetic Algorithm. The evaluation was done by performing an A/B test, were the control group used an unweighted system and the test group used the weights estimated by the genetic algorithm. The results from the A/B test were statistically analyzed using BEST and Bootstrap. The results showed an improvement of position, number of written characters, MMR and the error. There was no change in how much the user used the suggestion system. The thesis concluded that there is a correlation between the position of the desired suggestion and when the user stops typing, and that weighting types is a way to improve said position. The thesis also concludes that there is a need for future work in regards to evaluation of the optimization algorithm and error measurement. },
+   year = {2019}
+}
+
+@phdthesis{Silverstein1187505,
+   author = {Silverstein, David N.},
+   institution = {KTH, Computational Science and Technology (CST)},
+   note = {QC 20180305},
+   school = {KTH, Computational Science and Technology (CST)},
+   title = {Investigations of neural attractor dynamics in human visual awareness},
+   series = {TRITA-EECS-AVL},
+   number = {2018:18},
+   keywords = {attractor dynamics, visual awareness, visual perception, visual attention, attentional blink, backward masking, gliomas, brain tumor, white matter, cell assemblies, neocortical model, threat response, fear signaling, amygdala},
+   abstract = {What we see, how we see it and what emotions may arise from stimuli has long been studied by philosophers, psychologists, medical doctors and neuroscientists. This thesis work investigates a particular view on the possible dynamics, utilizing computational models of spiking neural attractor networks. From neurological studies on humans and other primates, we know visual perception and recognition of objects occur partly along the visual ventral stream, from V1 to V2, V4, IT and downstream to other areas. This visual awareness can be both conscious and unconscious and may also trigger an emotional response. As seen from many psychophysical experiments in backward masking (BM) and attentional blink (AB), some spatial and temporal dynamics can determine what becomes visually conscious and what does not. To explore this computationally, biophysical models of BM and AB were implemented and simulated to mimic human experiments, with the assumption that neural assemblies as attractor networks activate and propagate along the ventral stream and beyond. It was observed that attractor interference between percepts in sensory and associative cortex can occur during this activity. During typical human AB experimental trials in which two expected target symbols amongst distractors are presented less than 500 ms apart, the second target is often not reported as seen. When simulating this paradigm as two expected target neural attractors amongst distractors, it was observed in the present work that an initial attractor in associative cortex can impede the activation and propagation of a following attractor, which mimics missing conscious perception of the second target. It was also observed that simulating the presence of benzodiazepines (GABA agonists) will slow cortical dynamics and increase the AB, as previously shown in human experiments. During typical human BM experimental trials in which a brief target stimulus is followed by a masking stimulus after a short interval of less than 100 ms, recognition of the target can be impaired when in close spatial proximity. When simulating this paradigm using a biophysical model of V1 and V2 with feedforward and feedback connections, attractor targets were activated in V1 before imposition of a proximal metacontrast mask. If an activating target attractor in V1 is quiesced enough with lateral inhibition from a mask, or not reinforced by recurrent feedback from feedforward activation in V2, it is more likely to burn out before becoming fully active and progressing through V2 and beyond. BM was also simulated with an increasing stimulus interval and with the presence and absence of feedback activity. This showed that recurrent feedback diminishes BM effects and can make conscious perception more likely. To better understand possible emotional components of visual perception and early regulation, visual signaling pathways to the amygdala were investigated and proposed for emotional salience and the possible onset of fear. While one subcortical and likely unconscious pathway (before amydala efferent signaling) was affirmed via the superior colliculus and pulvinar, four others traversed through the ventral stream. One traversed though IT on recognition, another via the OFC on conditioning, and two other possibly conscious pathways traversed though the parietal and then prefrontal cortex, one excitatory pathway via the ventral-medial area and one regulatory pathway via the ventral-lateral area. Predicted latencies were determined for these signaling pathways, which can be experimentally testable. The conscious feeling of fear itself may not occur until after interoceptive inspection. A pathology of attractor dynamics was also investigated, which can occur from the presence of a brain tumor in white matter. Due to degradation from tumor invasion of white matter projections between two simulated neocortical patches, information transfer between separate neural attractors degraded, leading first to recall errors and later to epileptic-like activity. Neural plasticity could partially compensate up to a point, before transmission failure. This suggests that once epileptic seizures start in glioma patients, compensatory plasticity may already be exhausted. Interestingly, the presence of additional noise could also partially compensate for white matter loss. },
+   ISBN = {978-91-7729-706-2},
+   year = {2018}
+}
+
+@misc{10481/70162,
+year = {2021},
+url = {http://hdl.handle.net/10481/70162},
+abstract = {The cerebellum is a critical brain area for sensorimotor and also non-motor functions
+such as cognitive and emotional processes. Cerebellar lesions contribute to pathological
+syndromes such as autism or schizophrenia. However, the primitives under which the
+cerebellum, and the whole brain, operate at a functional and dysfunctional level are still
+unclear.
+To address the complexity of the "diseased" brain system, it is necessary to extract the
+relevant underlying molecular mechanisms. The availability of large volumes of biomedical
+data usually makes it difficult to extract this relevant information and interpret it
+comprehensively. In this thesis, we have made a preliminary experimentation to analyze
+genetic correlations between diseases with different clinical symptomatologies and/or clinical
+prognosis (and still based on similar molecular mechanisms). For this purpose, we have
+developed a methodology for the identification and functional annotation of the most relevant
+genes in disease. This methodology integrates current systems biology methods, such as
+protein-protein interaction (PPI) networks, together with multidimensional data sets from
+different biological levels. The objectives of this first part of the thesis are: the identification of
+potential diagnostic biomarkers (corresponding to key nodes in the biological and molecular
+processes of the interactome); the deductive analysis of multidimensional data as an
+alternative to other search systems; and the extraction of connections between disorders
+(comorbidities) that are a priori unrelated and that usually escape these traditional systems.
+Although the methodology is of general purpose, we have applied it to a set of diseases called
+channelopathies, where ion channels are altered and which generate a wide phenotypic
+variability. We conclude that our methodology is flexible, fast and easy to apply. Furthermore,
+it is able to find more correlations between relevant genes than other two traditional methods.
+Understanding the cerebellar operation in information processing requires decoding
+the intrinsic functional dynamics of healthy neurons. The tools provided by computational
+neuroscience allow developing large-scale computational models for the study of these
+information processing primitives. The most abundant and smallest neurons not only in the
+cerebellar input layer, but also in the whole brain, are the cerebellar granule cells (GrCs). These
+neurons play a crucial role in the creation of somatosensory information representations. Their
+firing characteristics are related to synchronization, rhythmicity and learning in the cerebellum.
+One of these features is the frequency of enhanced bursting (i.e., spiking resonance). This
+complex firing pattern has been proposed to facilitate input signal transmission in the thetafrequency
+band (4-12Hz). However, the functional role of this feature in the operation of the
+granular layer (the input layer of the cerebellar cortex) is still unclear. Moreover, inherent complex dynamics such as resonance are usually ignored in most efficient computational
+models. The main goal of this thesis is the creation of different mathematical models of
+cerebellar GrCs that meet two requirements: to be efficient enough to allow the simulation of
+large-scale neuron networks, and to be biologically plausible enough to enable the evaluation
+of the functional impact of these nonlinear dynamics on the information transmission. Indeed,
+a high degree of biological realism in efficient models allows research at levels where in vivo
+or in vitro experimental biology is limited.
+Methodologically, in this thesis we have chosen the "adaptive exponential integrateand-
+fire" (AdEx) type of model as the simplified neuron model (it has only two differential
+equations and few parameters) that meets both realism and low computational cost. This
+model fits quite well the firing characteristics of real cells, but some of its parameters cannot
+be directly fitted with measurable experimental values. Therefore, an optimization method is
+necessary to best fit the parameters to the biological data. We have focused on addressing
+this challenging optimization problem.
+First, we have developed a parametric optimization methodology based on genetic
+algorithms (GA) applied to the case of GrC. We have presented the obtained AdEx neuron
+models and demonstrated their suitability to reproduce not only the main firing properties of
+real GrCs (including resonance), but also emergent features not defined in the GA (within the
+cost function to be optimized).
+Second, we evaluated four alternative algorithms, which are the most widely used and
+successful in other fields such as engineering.
+Finally, in the last part of this thesis we have presented an advanced optimization
+methodology based on multimodal algorithms. The advantage of this approach is that, after a
+single optimization process, instead of obtaining an only one candidate numerically
+outperforming the other candidates, as in the previous cases (a single solution), we obtain a
+sparse population of different neuron models. That is, a heterogeneous population of neurons
+of the same type with intrinsic variations in their properties. From this set of promising neuron
+models, the researcher can choose and filter based on the desired biological plausibility (and
+neuronal parameter configuration). Thus, we also studied how the target properties of the
+neuron could be obtained with diverse internal parameter configurations. We explored the
+parameter space and its impact on the subset of neuronal properties that we aim to reproduce.},
+organization = {Tesis Univ. Granada.,
+“Human Brain Project” [HBP, Specific Grant Agreement 2 (SGA2 H2020-RIA 785907) and 3 (SGA3 H2020-RIA 945539)] financiado por EU (H2020),
+“Integración sensorimotora para control adaptativo mediante aprendizaje en cerebelo y centros nerviosos relacionados. Aplicación en robótica” [INTSENSO (MICINN-FEDER-PID2019-109991GBI00)] financiado Ministerio de Ciencia e Innovación (MICINN),
+“Cerebelo y oliva inferior en tareas de adaptación sensorimotora” [CEREBIO (J.A. P18-FR-2378)] financiado por la Junta de Andalucía},
+publisher = {Universidad de Granada},
+keywords = {Dinámica Neuronal, Procesamiento de información, Capa granular del cerebelo, Neuronal Dynamics, Information processing, Granular layer of the cerebellum},
+title = {Estudio del Impacto de la Dinámica Neuronal en el Procesamiento de Información en la Capa Granular del Cerebelo},
+author = {Marín Alejo, Milagros},
+}
+
+@phdthesis{AlqahtaniMultiDomain,
+   author = {Alqahtani,  Abdulrahman},
+   institution = {School of Biomedical Engineering, UNSW},
+   school = {School of Biomedical Engineering, UNSW},
+   publisher = {UNSW, Sydney},
+   title = {A multi-domain continuum model of electrical stimulation of healthy and degenerate retina},
+   keywords = {Discrete model, Continuum model, Retinal electrical stimulation, Retinal implant, Retinal ganglion cells activation},
+   abstract = {Visual neuroprostheses aim to restore vision to patients suffering from degenerative retinal diseases such as retinitis pigmentosa and age-related macular degeneration. Development of visual implants faces a great number of challenges in both device design and stimulation strategy. Computational modelling is a powerful tool for exploring and testing new visual prostheses design and stimulation strategies. In this thesis, we have proposed and validated a new version of the classical cable equation valid for any fibre morphology, electrode configuration, or non-uniformity in ion channel expression, implemented using a finite element approach. Moreover, we developed the first continuum multi-domain model of retinal electrical stimulation to represent all main retinal ganglion cell (RGC) compartments. The continuum model was validated against discrete morphologically-realistic OFF and ON RGC models as well as RGC excitation thresholds reported in recently published in vitro experimental studies using intra- and extra-cellular electrical stimulation. The continuum model reproduced the same results as that of the discrete model and in vitro experimental studies. Furthermore, the first degenerate model of retinal electrical stimulation accounting for observed changes occurring in the whole retina was developed, using a detailed model of electrical stimulation of OFF and ON RGCs. Interestingly, the model predicted that suprachoroidal stimulation of the degenerate retina exhibited increased current thresholds, mainly due to the presence of the glial scar layer. In contrast, epiretinal stimulation thresholds were almost similar for both healthy and degenerate models, implying epiretinal prostheses can bypass the influence of the glial scar layer. Various stimulation strategies were examined for both healthy and degenerate retinal models. No significant difference among the three return electrode configurations (monopolar, quasi-monopolar and hexapolar) was found when the distance between electrodes and RGCs was less than the electrode diameter. Electrode spacing was the significant factor underlying increased current thresholds, where electrode size had a marginal impact among all three return electrode configurations. Stimulus pulse polarities and durations were found to have a significant impact on the localisation of evoked phosphenes. Moreover, virtual electrodes could be elicited by using an appropriate time shift between two stimulus waveforms applied to the active electrodes.},
+   year = {2019},
+}
