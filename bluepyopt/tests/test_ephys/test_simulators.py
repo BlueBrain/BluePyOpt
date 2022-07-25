@@ -21,6 +21,7 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
 # pylint:disable=W0612
 
+import os
 import types
 
 import pytest
@@ -137,4 +138,74 @@ def test_disable_banner_exception(mock_glob):
     import warnings
     with warnings.catch_warnings(record=True) as warnings_record:
         ephys.simulators.NrnSimulator._nrn_disable_banner()
+        assert len(warnings_record) == 1
+
+
+@pytest.mark.unit
+def test_lfpysimulator_init():
+    """ephys.simulators: test if LFPySimulator constructor works"""
+
+    empty_cell = ephys.models.LFPyCellModel(name="empty_cell")
+    neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=empty_cell)
+    assert isinstance(neuron_sim, ephys.simulators.LFPySimulator)
+
+
+@pytest.mark.unit
+def test_lfpyimulator_init_windows():
+    """ephys.simulators: test if LFPySimulator constructor works on Windows"""
+
+    with mock.patch('platform.system', mock.MagicMock(return_value="Windows")):
+        empty_cell = ephys.models.LFPyCellModel(name="empty_cell")
+        neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=empty_cell)
+        assert isinstance(neuron_sim, ephys.simulators.LFPySimulator)
+        assert not neuron_sim.disable_banner
+        assert not neuron_sim.banner_disabled
+
+        neuron_sim.neuron.h.celsius = 34
+
+        assert not neuron_sim.disable_banner
+        assert not neuron_sim.banner_disabled
+
+
+@pytest.mark.unit
+def test__lfpysimulator_neuron_import():
+    """ephys.simulators: test if neuron import from LFPySimulator was successful"""
+    from bluepyopt import ephys  # NOQA
+    empty_cell = ephys.models.LFPyCellModel(name="empty_cell")
+    neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=empty_cell)
+    assert isinstance(neuron_sim.neuron, types.ModuleType)
+
+
+@pytest.mark.unit
+def test_lfpysim_run_cvodeactive_dt_exception():
+    """ephys.simulators: test if LFPySimulator run returns exception cvode and dt both used"""
+
+    from bluepyopt import ephys  # NOQA
+    TESTDATA_DIR = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), 'testdata'
+    )
+    simple_morphology_path = os.path.join(TESTDATA_DIR, 'simple.swc')
+    test_morph = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
+
+    lfpy_cell = ephys.models.LFPyCellModel(name="lfpy_cell", morph=test_morph, mechs=[])
+    neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=lfpy_cell)
+    lfpy_cell.instantiate(sim=neuron_sim)
+
+    with pytest.raises(ValueError, match=('NrnSimulator: '
+        'Impossible to combine the dt argument when '
+        'cvode_active is True in the NrnSimulator run method')):
+        neuron_sim.run(10, dt=0.1, cvode_active=True)
+
+    lfpy_cell.destroy(sim=neuron_sim)
+
+
+@pytest.mark.unit
+@mock.patch('glob.glob')
+def test_lfpysimulator_disable_banner_exception(mock_glob):
+    """ephys.simulators: test if LFPySimulator disable_banner raises exception"""
+    mock_glob.return_value = []
+
+    import warnings
+    with warnings.catch_warnings(record=True) as warnings_record:
+        ephys.simulators.LFPySimulator._nrn_disable_banner()
         assert len(warnings_record) == 1
