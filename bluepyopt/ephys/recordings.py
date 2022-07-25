@@ -112,7 +112,7 @@ class CompRecording(Recording):
 
 class LFPRecording(Recording):
 
-    """Electrode sesponse to stimulus"""
+    """Electrode response to stimulus"""
 
     location = "extracellular"
     variable = "v"
