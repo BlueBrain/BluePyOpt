@@ -42,7 +42,7 @@ class NrnParameter(bluepyopt.parameters.Parameter):
             value=None,
             frozen=False,
             bounds=None,
-            param_dependancies=None):
+            param_dependencies=None):
         """Contructor"""
 
         super(NrnParameter, self).__init__(
@@ -50,7 +50,7 @@ class NrnParameter(bluepyopt.parameters.Parameter):
             value=value,
             frozen=frozen,
             bounds=bounds,
-            param_dependancies=param_dependancies)
+            param_dependencies=param_dependencies)
 
     def instantiate(self, sim=None, icell=None, params=None):
         """Instantiate the parameter in the simulator"""
@@ -73,7 +73,7 @@ class MetaParameter(NrnParameter):
             value=None,
             frozen=False,
             bounds=None,
-            param_dependancies=None):
+            param_dependencies=None):
         """Constructor"""
 
         super(MetaParameter, self).__init__(
@@ -81,7 +81,7 @@ class MetaParameter(NrnParameter):
             value=value,
             frozen=frozen,
             bounds=bounds,
-            param_dependancies=param_dependancies)
+            param_dependencies=param_dependencies)
 
         self.obj = obj
         self.attr_name = attr_name
@@ -131,7 +131,7 @@ class NrnGlobalParameter(NrnParameter, DictMixin):
             frozen=False,
             bounds=None,
             param_name=None,
-            param_dependancies=None):
+            param_dependencies=None):
         """Contructor
 
         Args:
@@ -149,7 +149,7 @@ class NrnGlobalParameter(NrnParameter, DictMixin):
             value=value,
             frozen=frozen,
             bounds=bounds,
-            param_dependancies=param_dependancies)
+            param_dependencies=param_dependencies)
 
         self.param_name = param_name
 
@@ -171,7 +171,7 @@ class NrnSectionParameter(NrnParameter, DictMixin):
 
     """Parameter of a section"""
     SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',
-                         'value_scaler', 'locations', 'param_dependancies')
+                         'value_scaler', 'locations', 'param_dependencies')
 
     def __init__(
             self,
@@ -182,7 +182,7 @@ class NrnSectionParameter(NrnParameter, DictMixin):
             param_name=None,
             value_scaler=None,
             locations=None,
-            param_dependancies=None):
+            param_dependencies=None):
         """Contructor
 
         Args:
@@ -196,7 +196,7 @@ class NrnSectionParameter(NrnParameter, DictMixin):
             value_scaler (float): value used to scale the parameter value
             locations (list of ephys.locations.Location): locations on which
                 to instantiate the parameter
-            param_dependancies (list): dependencies needed to intantiate
+            param_dependencies (list): dependencies needed to intantiate
                 the parameter
         """
 
@@ -205,7 +205,7 @@ class NrnSectionParameter(NrnParameter, DictMixin):
             value=value,
             frozen=frozen,
             bounds=bounds,
-            param_dependancies=param_dependancies)
+            param_dependencies=param_dependencies)
 
         self.locations = locations
         self.param_name = param_name
@@ -225,7 +225,7 @@ class NrnSectionParameter(NrnParameter, DictMixin):
                 self.name)
 
         _values = {"value": self.value}
-        for param in self.param_dependancies:
+        for param in self.param_dependencies:
             _values[param] = params[param].value
 
         for location in self.locations:
@@ -253,7 +253,7 @@ class NrnPointProcessParameter(NrnParameter, DictMixin):
     """Parameter of a section"""
     SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',
                          'value_scaler', 'locations', 'param_name', 
-                         'param_dependancies')
+                         'param_dependencies')
 
     def __init__(
             self,
@@ -263,7 +263,7 @@ class NrnPointProcessParameter(NrnParameter, DictMixin):
             bounds=None,
             locations=None,
             param_name=None,
-            param_dependancies=None):
+            param_dependencies=None):
         """Constructor
 
         Args:
@@ -276,7 +276,7 @@ class NrnPointProcessParameter(NrnParameter, DictMixin):
             locations: an iterator of the point process locations you want to
                        set the parameters of
             param_name (str): name of parameter used within the point process
-            param_dependancies (list): dependencies needed to intantiate
+            param_dependencies (list): dependencies needed to intantiate
                 the parameter
         """
 
@@ -285,7 +285,7 @@ class NrnPointProcessParameter(NrnParameter, DictMixin):
             value=value,
             frozen=frozen,
             bounds=bounds,
-            param_dependancies=param_dependancies)
+            param_dependencies=param_dependencies)
 
         self.locations = locations
         self.param_name = param_name
@@ -320,7 +320,7 @@ class NrnRangeParameter(NrnParameter, DictMixin):
 
     """Parameter that has a range over a section"""
     SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',
-                         'value_scaler', 'locations', 'param_dependancies')
+                         'value_scaler', 'locations', 'param_dependencies')
 
     def __init__(
             self,
@@ -331,7 +331,7 @@ class NrnRangeParameter(NrnParameter, DictMixin):
             param_name=None,
             value_scaler=None,
             locations=None,
-            param_dependancies=None):
+            param_dependencies=None):
         """Contructor
 
         Args:
@@ -345,7 +345,7 @@ class NrnRangeParameter(NrnParameter, DictMixin):
             value_scaler (float): value used to scale the parameter value
             locations (list of ephys.locations.Location): locations on which
                 to instantiate the parameter
-            param_dependancies (list): dependencies needed to intantiate
+            param_dependencies (list): dependencies needed to intantiate
                 the parameter
         """
 
@@ -354,7 +354,7 @@ class NrnRangeParameter(NrnParameter, DictMixin):
             value=value,
             frozen=frozen,
             bounds=bounds,
-            param_dependancies=param_dependancies)
+            param_dependencies=param_dependencies)
 
         self.locations = locations
         self.param_name = param_name
@@ -372,7 +372,7 @@ class NrnRangeParameter(NrnParameter, DictMixin):
                 'without value' % self.name)
 
         _values = {"value": self.value}
-        for param in self.param_dependancies:
+        for param in self.param_dependencies:
             _values[param] = params[param].value
 
         for location in self.locations:
