@@ -181,6 +181,15 @@ def test_CellModel_destroy():
 
 
 @pytest.mark.unit
+def test_lfpy_create_empty_template():
+    """ephys.models: Test creation of lfpy empty template"""
+    template_name = 'FakeTemplate'
+    hoc_template = ephys.models.LFPyCellModel.create_empty_template(template_name)
+    sim.neuron.h(hoc_template)
+    assert hasattr(sim.neuron.h, template_name)
+
+
+@pytest.mark.unit
 def test_lfpycellmodel():
     """ephys.models: Test LFPyCellModel class"""
     model = ephys.models.LFPyCellModel('test_lfpy_model', morph=test_morph,
@@ -195,6 +204,92 @@ def test_lfpycellmodel():
     model.instantiate(sim=sim)
     model.destroy(sim=sim)
     assert isinstance(model, ephys.models.LFPyCellModel)
+
+
+@pytest.mark.unit
+def test_lfpycellmodel_namecheck():
+    """ephys.models: Test LFPyCellModel class name checking"""
+
+    # Test valid name
+    for name in ['test3', 'test_3']:
+        ephys.models.LFPyCellModel(name, morph=test_morph, mechs=[])
+
+    # Test invalid names
+    for name in ['3test', '', 'test$', 'test 3']:
+        with pytest.raises(TypeError):
+            ephys.models.LFPyCellModel(name, morph=test_morph, mechs=[])
+
+
+@pytest.mark.unit
+def test_load_lfpy_hoc_template():
+    """ephys.models: Test loading of hoc template with lfpy cell"""
+
+    template_name = 'test_load_hoc'
+    hoc_string = ephys.models.LFPyCellModel.create_empty_template(template_name)
+    ephys.models.HocCellModel.load_hoc_template(sim, hoc_string)
+    assert hasattr(sim.neuron.h, template_name)
+
+
+@pytest.mark.unit
+def test_LFPyCellModel_create_empty_cell():
+    """ephys.models: Test create_empty_cell with lfpy cell"""
+    template_name = 'create_empty_cell'
+    cell = ephys.models.LFPyCellModel.create_empty_cell(template_name, sim)
+    assert callable(cell)
+    assert hasattr(sim.neuron.h, template_name)
+
+
+@pytest.mark.unit
+def test_LFPyCellModel_create_hoc():
+    """ephys.models: Test create_hoc with lfpy cell"""
+
+    morph0 = ephys.morphologies.NrnFileMorphology(
+        simple_morphology_path,
+        do_replace_axon=True)
+
+    cell_model = ephys.models.LFPyCellModel('LFPyCellModel',
+                                        morph=morph0,
+                                        mechs=[],
+                                        params=[])
+
+    hoc_string = cell_model.create_hoc({})
+    assert 'begintemplate LFPyCellModel' in hoc_string
+    assert 'proc replace_axon()' in hoc_string
+    cell_model_hoc = ephys.models.HocCellModel(
+        'CellModelHOC',
+        simple_morphology_path,
+        hoc_string=hoc_string)
+
+    assert isinstance(cell_model_hoc, ephys.models.HocCellModel)
+
+
+@pytest.mark.unit
+def test_LFPyCellModel_destroy():
+    """ephys.models: Test LFPyCellModel destroy"""
+    morph0 = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
+    cell_model0 = ephys.models.LFPyCellModel(
+        'LFPyCellModel_destroy', morph=morph0, mechs=[], params=[]
+    )
+    morph1 = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
+    cell_model1 = ephys.models.LFPyCellModel(
+        'LFPyCellModel_destroy', morph=morph1, mechs=[], params=[]
+    )
+
+    assert not hasattr(sim.neuron.h, 'LFPyCellModel_destroy')
+
+    cell_model0.instantiate(sim=sim)
+    assert hasattr(sim.neuron.h, 'LFPyCellModel_destroy')
+    assert 1 == len(sim.neuron.h.LFPyCellModel_destroy)
+
+    cell_model1.instantiate(sim=sim)
+    assert 2 == len(sim.neuron.h.LFPyCellModel_destroy)
+
+    # make sure cleanup works
+    cell_model0.destroy(sim=sim)
+    assert 1 == len(sim.neuron.h.LFPyCellModel_destroy)
+
+    cell_model1.destroy(sim=sim)
+    assert 0 == len(sim.neuron.h.LFPyCellModel_destroy)
 
 
 @pytest.mark.unit
