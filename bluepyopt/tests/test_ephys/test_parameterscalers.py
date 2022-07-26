@@ -37,6 +37,21 @@ def test_NrnSegmentSomaDistanceScaler_dist_params():
 
 
 @pytest.mark.unit
+def test_NrnSegmentSectionDistanceScaler_eval_dist_with_dict():
+    """ephys.parameterscalers: eval_dist of NrnSegmentSectionDistanceScaler with dict as values"""
+
+    dist = '{param1_somatic} + (1 - (abs({distance} - 8) / 4)) * {value}'
+
+    scaler = ephys.parameterscalers.NrnSegmentSectionDistanceScaler(
+        distribution=dist)
+
+    _values = {'value': 1, 'param1_somatic': 0.5}
+
+    assert (scaler.eval_dist(values=_values, distance=10)
+            == '0.5 + (1 - (abs(10 - 8) / 4)) * 1')
+
+
+@pytest.mark.unit
 def test_serialize():
     """ephys.parameterscalers: test serialization"""
 
