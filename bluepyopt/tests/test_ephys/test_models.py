@@ -184,7 +184,9 @@ def test_CellModel_destroy():
 def test_lfpy_create_empty_template():
     """ephys.models: Test creation of lfpy empty template"""
     template_name = 'FakeTemplate'
-    hoc_template = ephys.models.LFPyCellModel.create_empty_template(template_name)
+    hoc_template = ephys.models.LFPyCellModel.create_empty_template(
+        template_name
+    )
     sim.neuron.h(hoc_template)
     assert hasattr(sim.neuron.h, template_name)
 
@@ -225,7 +227,9 @@ def test_load_lfpy_hoc_template():
     """ephys.models: Test loading of hoc template with lfpy cell"""
 
     template_name = 'test_load_hoc'
-    hoc_string = ephys.models.LFPyCellModel.create_empty_template(template_name)
+    hoc_string = ephys.models.LFPyCellModel.create_empty_template(
+        template_name
+    )
     ephys.models.HocCellModel.load_hoc_template(sim, hoc_string)
     assert hasattr(sim.neuron.h, template_name)
 
@@ -245,12 +249,15 @@ def test_LFPyCellModel_create_hoc():
 
     morph0 = ephys.morphologies.NrnFileMorphology(
         simple_morphology_path,
-        do_replace_axon=True)
+        do_replace_axon=True
+    )
 
-    cell_model = ephys.models.LFPyCellModel('LFPyCellModel',
-                                        morph=morph0,
-                                        mechs=[],
-                                        params=[])
+    cell_model = ephys.models.LFPyCellModel(
+        'LFPyCellModel',
+        morph=morph0,
+        mechs=[],
+        params=[]
+    )
 
     hoc_string = cell_model.create_hoc({})
     assert 'begintemplate LFPyCellModel' in hoc_string

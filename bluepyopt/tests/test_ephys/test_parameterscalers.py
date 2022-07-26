@@ -38,7 +38,7 @@ def test_NrnSegmentSomaDistanceScaler_dist_params():
 
 @pytest.mark.unit
 def test_NrnSegmentSectionDistanceScaler_eval_dist_with_dict():
-    """ephys.parameterscalers: eval_dist of NrnSegmentSectionDistanceScaler with dict as values"""
+    """ephys.parameterscalers: eval_dist of NrnSegmentSectionDistanceScaler"""
 
     dist = '{param1_somatic} + (1 - (abs({distance} - 8) / 4)) * {value}'
 

@@ -60,7 +60,6 @@ class DummyCellModel1(ephys.models.Model):
         self.persistent = []
 
 
-
 class DummyLFPyCellModel1(ephys.models.Model):
 
     """Dummy LFPy cell model 1"""

@@ -260,7 +260,7 @@ def test_extraFELFeature():
     name = 'test_extraFELFeature'
     stim_start = 400
     stim_end = 1750
-    fs = 10 # sampling freq (kHz)
+    fs = 10
     ms_cut = [10, 25]
 
     # load responses from file
@@ -288,10 +288,9 @@ def test_extraFELFeature():
         fs=fs,
         ms_cut=ms_cut
     )
-    
+
     ret = efeature.calculate_feature(responses, raise_warnings=True)
     assert len(ret) == 209
-
 
     # compute for 1 electrode
     efeature = efeatures.extraFELFeature(

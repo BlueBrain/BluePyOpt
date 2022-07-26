@@ -169,7 +169,7 @@ def test_lfpyimulator_init_windows():
 
 @pytest.mark.unit
 def test__lfpysimulator_neuron_import():
-    """ephys.simulators: test if neuron import from LFPySimulator was successful"""
+    """ephys.simulators: test neuron import from LFPySimulator"""
     from bluepyopt import ephys  # NOQA
     empty_cell = ephys.models.LFPyCellModel(name="empty_cell")
     neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=empty_cell)
@@ -178,7 +178,7 @@ def test__lfpysimulator_neuron_import():
 
 @pytest.mark.unit
 def test_lfpysim_run_cvodeactive_dt_exception():
-    """ephys.simulators: test if LFPySimulator run returns exception cvode and dt both used"""
+    """ephys.simulators: test if LFPySimulator run returns exception"""
 
     from bluepyopt import ephys  # NOQA
     TESTDATA_DIR = os.path.join(
@@ -187,13 +187,20 @@ def test_lfpysim_run_cvodeactive_dt_exception():
     simple_morphology_path = os.path.join(TESTDATA_DIR, 'simple.swc')
     test_morph = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
 
-    lfpy_cell = ephys.models.LFPyCellModel(name="lfpy_cell", morph=test_morph, mechs=[])
+    lfpy_cell = ephys.models.LFPyCellModel(
+        name="lfpy_cell", morph=test_morph, mechs=[]
+    )
     neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=lfpy_cell)
     lfpy_cell.instantiate(sim=neuron_sim)
 
-    with pytest.raises(ValueError, match=('NrnSimulator: '
-        'Impossible to combine the dt argument when '
-        'cvode_active is True in the NrnSimulator run method')):
+    with pytest.raises(
+        ValueError,
+        match=(
+            'NrnSimulator: '
+            'Impossible to combine the dt argument when '
+            'cvode_active is True in the NrnSimulator run method'
+        ),
+    ):
         neuron_sim.run(10, dt=0.1, cvode_active=True)
 
     lfpy_cell.destroy(sim=neuron_sim)
@@ -202,7 +209,7 @@ def test_lfpysim_run_cvodeactive_dt_exception():
 @pytest.mark.unit
 @mock.patch('glob.glob')
 def test_lfpysimulator_disable_banner_exception(mock_glob):
-    """ephys.simulators: test if LFPySimulator disable_banner raises exception"""
+    """ephys.simulators: test LFPySimulator disable_banner raises exception"""
     mock_glob.return_value = []
 
     import warnings

@@ -100,7 +100,9 @@ def test_lfprecording_instantiate():
     test_morph = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
 
     recording = ephys.recordings.LFPRecording()
-    lfpy_cell = ephys.models.LFPyCellModel(name="lfpy_cell", morph=test_morph, mechs=[])
+    lfpy_cell = ephys.models.LFPyCellModel(
+        name="lfpy_cell", morph=test_morph, mechs=[]
+    )
     neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=lfpy_cell)
     lfpy_cell.instantiate(sim=neuron_sim)
 
@@ -111,4 +113,3 @@ def test_lfprecording_instantiate():
     assert recording.instantiated
 
     lfpy_cell.destroy(sim=neuron_sim)
-
