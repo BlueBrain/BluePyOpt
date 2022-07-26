@@ -357,7 +357,7 @@ class LFPySquarePulse(Stimulus):
         self.total_duration = total_duration
         self.iclamp = None
 
-    def instantiate(self, sim=None, icell=None, LFPyCell=None):
+    def instantiate(self, lfpy_cell=None):
         """Run stimulus"""
         import LFPy
         from .locations import NrnSomaDistanceCompLocation
@@ -366,8 +366,8 @@ class LFPySquarePulse(Stimulus):
             sec_index = self.location.sec_index
         elif isinstance(self.location, NrnSomaDistanceCompLocation):
             # compute sec_index closest to soma_distance
-            cell_seg_locs = np.array([LFPyCell.x, LFPyCell.y, LFPyCell.z]).T
-            soma_loc = LFPyCell.somapos
+            cell_seg_locs = np.array([lfpy_cell.x, lfpy_cell.y, lfpy_cell.z]).T
+            soma_loc = lfpy_cell.somapos
             dist_from_soma = np.array(
                 [np.linalg.norm(loc - soma_loc) for loc in cell_seg_locs]
             )
@@ -381,7 +381,7 @@ class LFPySquarePulse(Stimulus):
             )
 
         self.iclamp = LFPy.StimIntElectrode(
-            cell=LFPyCell,
+            cell=lfpy_cell,
             idx=sec_index,
             pptype="IClamp",
             amp=self.step_amplitude,

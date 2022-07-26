@@ -141,10 +141,10 @@ class LFPRecording(Recording):
             return None
         self.tvector = self.cell.tvec
         return responses.TimeLFPResponse(
-            self.name, self.tvector, self.sim.lfpyelectrode.data
+            self.name, self.tvector, self.electrode.data
         )
 
-    def instantiate(self, sim=None, icell=None, LFPyCell=None):
+    def instantiate(self, sim=None, lfpy_cell=None, electrode=None):
         import LFPy
 
         """Instantiate recording"""
@@ -154,10 +154,11 @@ class LFPRecording(Recording):
         )
 
         assert isinstance(
-            LFPyCell, LFPy.Cell
+            lfpy_cell, LFPy.Cell
         ), "LFPRecording is only available for LFPCellModel"
-        self.cell = LFPyCell
+        self.cell = lfpy_cell
         self.tvector = None
+        self.electrode = electrode
         self.sim = sim
 
         self.instantiated = True
@@ -168,7 +169,8 @@ class LFPRecording(Recording):
         self.electrode = None
         self.LFP = None
         self.tvector = None
-
+        self.electrode = None
+        self.cell = None
         self.instantiated = False
 
     def __str__(self):

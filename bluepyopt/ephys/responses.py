@@ -86,35 +86,22 @@ class TimeVoltageResponse(Response):
             self.name)
 
 
-class TimeLFPResponse(Response):
+class TimeLFPResponse(TimeVoltageResponse):
 
     """Response to stimulus"""
 
-    def __init__(self, name, time=None, LFP=None):
+    def __init__(self, name, time=None, lfp=None):
         """Constructor
         Args:
             name (str): name of this object
             time (list of floats): time series
-            LFP (list of floats): voltage series
+            lfp (list of floats): voltage series
         """
 
-        super(TimeLFPResponse, self).__init__(name)
-
+        super(TimeLFPResponse, self).__init__(name, time=time, voltage=None)
         self.response = {}
         self.response["time"] = time
-        self.response["voltage"] = LFP
+        self.response["voltage"] = lfp
 
-    def read_csv(self, filename):
-        """Load response from csv file"""
-
-        self.response = pandas.read_csv(filename)
-
-    def to_csv(self, filename):
-        """Write response to csv file"""
-
-        self.response.to_csv(filename)
-
-    def __getitem__(self, index):
-        """Return item at index"""
-
-        return self.response.__getitem__(index)
+    def plot(self, axes):
+        raise NotImplementedError
