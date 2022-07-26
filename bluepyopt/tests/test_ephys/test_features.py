@@ -246,3 +246,73 @@ def test_eFELFeature_serialize():
     assert isinstance(deserialized, efeatures.eFELFeature)
     assert deserialized.stim_start == 700
     assert deserialized.recording_names == recording_names
+
+
+@pytest.mark.unit
+def test_extraFELFeature():
+    """ephys.efeatures: Testing extraFELFeature calculation"""
+    import pandas as pd
+
+    somatic_recording_name = 'soma_response'
+    recording_names = {'': 'lfp_response'}
+    channel_ids = 0
+    extrafel_feature_name = 'halfwidth'
+    name = 'test_extraFELFeature'
+    stim_start = 400
+    stim_end = 1750
+    fs = 10 # sampling freq (kHz)
+    ms_cut = [10, 25]
+
+    # load responses from file
+    testdata_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), 'testdata'
+    )
+    resp_fname = os.path.join(testdata_dir, 'lfpy_response_with_soma.pkl')
+    responses_lst = pd.read_pickle(resp_fname)
+    responses = {
+        somatic_recording_name: responses_lst[0][1],
+        recording_names['']: responses_lst[0][0],
+    }
+
+    # compute for all electrodes
+    efeature = efeatures.extraFELFeature(
+        name=name,
+        extrafel_feature_name=extrafel_feature_name,
+        somatic_recording_name=somatic_recording_name,
+        recording_names=recording_names,
+        channel_ids=None,
+        exp_mean=0.001,
+        exp_std=0.001,
+        stim_start=stim_start,
+        stim_end=stim_end,
+        fs=fs,
+        ms_cut=ms_cut
+    )
+    
+    ret = efeature.calculate_feature(responses, raise_warnings=True)
+    assert len(ret) == 209
+
+
+    # compute for 1 electrode
+    efeature = efeatures.extraFELFeature(
+        name=name,
+        extrafel_feature_name=extrafel_feature_name,
+        somatic_recording_name=somatic_recording_name,
+        recording_names=recording_names,
+        channel_ids=channel_ids,
+        exp_mean=0.001,
+        exp_std=0.001,
+        stim_start=stim_start,
+        stim_end=stim_end,
+        fs=fs,
+        ms_cut=ms_cut
+    )
+
+    ret = efeature.calculate_feature(responses, raise_warnings=True)
+    numpy.testing.assert_almost_equal(ret, 0.0015)
+
+    score = efeature.calculate_score(responses)
+    numpy.testing.assert_almost_equal(score, 0.5)
+
+    assert efeature.name == name
+    assert extrafel_feature_name in str(efeature)
