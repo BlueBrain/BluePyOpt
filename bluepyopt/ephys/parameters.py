@@ -252,8 +252,8 @@ class NrnPointProcessParameter(NrnParameter, DictMixin):
 
     """Parameter of a section"""
     SERIALIZED_FIELDS = ('name', 'value', 'frozen', 'bounds', 'param_name',
-                         'value_scaler', 'locations', 'param_name', 
-                         'param_dependencies')
+                         'value_scaler', 'locations', 'param_name',
+                         'param_dependancies')
 
     def __init__(
             self,

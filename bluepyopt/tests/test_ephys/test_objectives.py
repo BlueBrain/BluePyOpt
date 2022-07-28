@@ -89,6 +89,47 @@ def test_SingletonObjective():
 
 
 @pytest.mark.unit
+def test_SingletonWeightObjective():
+    """ephys.objectives: Testing SingletonWeightObjective"""
+
+    recording_names = {'': 'square_pulse_step1.soma.v'}
+
+    mean = 1
+    weight = 0.5
+
+    efeature = ephys.efeatures.eFELFeature(name='test_eFELFeature',
+                                           efel_feature_name='voltage_base',
+                                           recording_names=recording_names,
+                                           stim_start=700,
+                                           stim_end=2700,
+                                           exp_mean=mean,
+                                           exp_std=1)
+
+    s_obj = ephys.objectives.SingletonWeightObjective(
+        'singleton',
+        feature=efeature,
+        weight=weight)
+
+    assert s_obj.name == 'singleton'
+    assert s_obj.features == [efeature]
+    assert s_obj.weight == weight
+    assert str(s_obj) == '( %s ), weight:%f' % (str(efeature), weight)
+
+    response = ephys.responses.TimeVoltageResponse('mock_response')
+    testdata_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        'testdata')
+    response.read_csv(os.path.join(testdata_dir, 'TimeVoltageResponse.csv'))
+    responses = {'square_pulse_step1.soma.v': response, }
+
+    efeature_value = efeature.calculate_feature(responses)
+
+    numpy.testing.assert_almost_equal(
+        s_obj.calculate_score(responses),
+        abs(efeature_value - mean) * weight)
+
+
+@pytest.mark.unit
 def test_MaxObjective():
     """ephys.objectives: Testing MaxObjective"""
 
