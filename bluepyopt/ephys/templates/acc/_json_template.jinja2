@@ -4,7 +4,16 @@
   "produced_by": "{{banner}}",
   {%- endif %}
   {%- if morphology %} {# feed morphology separately as a SWC/ASC file #}
-  "morphology": "{{morphology}}",
+  {%- if replace_axon is not none %}
+  "morphology": {
+     "path": "{{morphology}}",
+     "replace_axon": {{replace_axon}}
+  },
+  {%- else %}
+  "morphology": {
+     "path": "{{morphology}}"
+  },
+  {%- endif %}
   {%- else %}
     execerror("Template {{template_name}} requires morphology name to instantiate")
   {%- endif %}

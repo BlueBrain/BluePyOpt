@@ -5,9 +5,13 @@
 import os
 import re
 import json
+import tempfile
 
 from . import utils
+
+from bluepyopt import ephys
 from bluepyopt.ephys import create_acc
+import arbor
 
 
 import pytest
@@ -16,7 +20,14 @@ DEFAULT_ARBOR_REGION_ORDER = [
     ('apic', 4),
     ('axon', 2),
     ('dend', 3),
-    ('soma', 1)]
+    ('soma', 1),
+    ('myelin', 5)]
+
+
+testdata_dir = os.path.join(
+    os.path.dirname(
+        os.path.abspath(__file__)),
+    'testdata')
 
 
 @pytest.mark.unit
@@ -29,10 +40,12 @@ def test_create_acc():
                                 morphology='CCell.swc',
                                 template_name='CCell')
 
+    ref_dir = os.path.join(testdata_dir, 'acc/CCell')
     cell_json = "CCell.json"
     decor_acc = "CCell_decor.acc"
     label_dict_acc = "CCell_label_dict.acc"
 
+    # Testing keys
     assert cell_json in acc
     cell_json_dict = json.loads(acc[cell_json])
     assert 'cell_model_name' in cell_json_dict
@@ -40,11 +53,23 @@ def test_create_acc():
     assert 'morphology' in cell_json_dict
     assert 'label_dict' in cell_json_dict
     assert 'decor' in cell_json_dict
+    # Testing values
+    with open(os.path.join(ref_dir, cell_json)) as f:
+        ref_cell_json = json.load(f)
+    for k in ref_cell_json:
+        if k != 'produced_by':
+            assert ref_cell_json[k] == cell_json_dict[k]
 
+    # Testing building blocks
     assert decor_acc in acc
     assert acc[decor_acc].startswith('(arbor-component')
     assert '(decor' in acc[decor_acc]
+    # Testing values
+    with open(os.path.join(ref_dir, decor_acc)) as f:
+        ref_decor = f.read()
+    assert ref_decor == acc[decor_acc]  # decor data not exposed in Python
 
+    # Testing building blocks
     assert label_dict_acc in acc
     assert acc[label_dict_acc].startswith('(arbor-component')
     assert '(label-dict' in acc[label_dict_acc]
@@ -53,6 +78,15 @@ def test_create_acc():
     for pos, loc_tag in enumerate(DEFAULT_ARBOR_REGION_ORDER):
         assert matches[pos][0] == loc_tag[0]
         assert matches[pos][1] == str(loc_tag[1])
+    # Testing values
+    ref_labels = arbor.load_component(
+        os.path.join(ref_dir, label_dict_acc)).component
+    with tempfile.TemporaryDirectory() as test_dir:
+        test_labels_filename = os.path.join(test_dir, label_dict_acc)
+        with open(test_labels_filename, 'w') as f:
+            f.write(acc[label_dict_acc])
+        test_labels = arbor.load_component(test_labels_filename).component
+    assert dict(ref_labels.items()) == dict(test_labels.items())
 
 
 @pytest.mark.unit
@@ -62,15 +96,14 @@ def test_create_acc_filename():
     parameters = utils.make_parameters()
     custom_param_val = str(__file__)
 
-    acc = create_acc.create_acc([mech, ],
-                                parameters, morphology='CCell.asc',
-                                template_name='CCell',
-                                template_filename='acc/*_template.jinja2',
-                                template_dir=os.path.join(
-                                    os.path.dirname(__file__),
-                                    'testdata'),
-                                custom_jinja_params={
-                                    'custom_param': custom_param_val})
+    acc = create_acc.create_acc(
+        [mech, ],
+        parameters, morphology='CCell.asc',
+        template_name='CCell',
+        template_filename='acc/templates/*_template.jinja2',
+        template_dir=testdata_dir,
+        custom_jinja_params={
+            'custom_param': custom_param_val})
     cell_json = "CCell_cell.json"
     decor_acc = "CCell_decor.acc"
     label_dict_acc = "CCell_label_dict.acc"
@@ -103,15 +136,114 @@ def test_create_acc_filename():
 
 @pytest.mark.unit
 def test_create_acc_replace_axon():
-    """ephys.create_acc: Test create_acc for exception with axon replacement"""
+    """ephys.create_acc: Test create_acc with axon replacement"""
     mech = utils.make_mech()
     parameters = utils.make_parameters()
+    replace_axon = [dict(nseg=1, L=30., diam=1.0),
+                    dict(nseg=1, L=30., diam=1.0)]
 
-    with pytest.raises(Exception) as exception:
-        acc = create_acc.create_acc([mech, ], parameters,
-                                    morphology='CCell.swc',
-                                    template_name='CCell',
-                                    replace_axon=True)
-    assert exception.type == RuntimeError
-    assert str(exception.value) == \
-        "Axon replacement (replace_axon is True) is not supported in Arbor."
+    acc = create_acc.create_acc([mech, ], parameters,
+                                morphology='CCell.swc',
+                                template_name='CCell',
+                                replace_axon=replace_axon)
+
+    cell_json = "CCell.json"
+    cell_json_dict = json.loads(acc[cell_json])
+    assert 'replace_axon' in cell_json_dict['morphology']
+    assert 'nseg' in cell_json_dict['morphology']['replace_axon'][0]
+    assert 'L' in cell_json_dict['morphology']['replace_axon'][0]
+    assert 'diam' in cell_json_dict['morphology']['replace_axon'][0]
+    assert cell_json_dict['morphology']['replace_axon'] == replace_axon
+
+
+def make_cell(replace_axon):
+    morph_filename = os.path.join(testdata_dir, 'simple_ax2.swc')
+    morph = ephys.morphologies.NrnFileMorphology(morph_filename,
+                                                 do_replace_axon=replace_axon)
+    somatic_loc = ephys.locations.NrnSeclistLocation(
+        'somatic', seclist_name='somatic')
+    mechs = [ephys.mechanisms.NrnMODMechanism(
+        name='hh', suffix='hh', locations=[somatic_loc])]
+    params = [
+        ephys.parameters.NrnSectionParameter(
+            name='gnabar_hh',
+            param_name='gnabar_hh',
+            locations=[somatic_loc]),
+        ephys.parameters.NrnSectionParameter(
+            name='gkbar_hh',
+            param_name='gkbar_hh',
+            locations=[somatic_loc])]
+    return ephys.models.CellModel(
+        'simple_ax2',
+        morph=morph,
+        mechs=mechs,
+        params=params)
+
+
+@pytest.mark.unit
+def test_cell_model_output_and_read_acc():
+    """ephys.create_acc: Test output_acc and read_acc w/o axon replacement"""
+    cell = make_cell(replace_axon=False)
+    param_values = {'gnabar_hh': 0.1,
+                    'gkbar_hh': 0.03}
+
+    with tempfile.TemporaryDirectory() as acc_dir:
+        create_acc.output_acc(acc_dir, cell, param_values)
+        cell_json, arb_morph, arb_labels, arb_decor = \
+            create_acc.read_acc(
+                os.path.join(acc_dir, cell.name + '.json'))
+    assert 'replace_axon' not in cell_json['morphology']
+    cable_cell = arbor.cable_cell(arb_morph, arb_labels, arb_decor)
+    assert isinstance(cable_cell, arbor.cable_cell)
+    assert len(cable_cell.cables('"soma"')) == 1
+    assert len(cable_cell.cables('"axon"')) == 1
+    assert len(arb_morph.branch_segments(
+        cable_cell.cables('"soma"')[0].branch)) == 5
+    assert len(arb_morph.branch_segments(
+        cable_cell.cables('"axon"')[0].branch)) == 5
+
+
+def test_cell_model_output_and_read_acc_replace_axon():
+    """ephys.create_acc: Test output_acc and read_acc w/ axon replacement"""
+    cell = make_cell(replace_axon=True)
+    param_values = {'gnabar_hh': 0.1,
+                    'gkbar_hh': 0.03}
+
+    sim = ephys.simulators.NrnSimulator()
+    cell.instantiate_morphology(sim)
+
+    with tempfile.TemporaryDirectory() as acc_dir:
+        create_acc.output_acc(acc_dir, cell, param_values)
+        try:
+            cell_json, arb_morph, arb_labels, arb_decor = \
+                create_acc.read_acc(
+                    os.path.join(acc_dir, cell.name + '.json'))
+        except Exception as e:  # fail with an older Arbor version
+            assert isinstance(e, NotImplementedError)
+            assert len(e.args) == 1 and e.args[0] == \
+                "Need a newer version of Arbor for axon replacement."
+            return
+
+    # Axon replacement implemented in installed Arbor version
+    assert 'replace_axon' in cell_json['morphology']
+    cable_cell = arbor.cable_cell(arb_morph, arb_labels, arb_decor)
+    assert isinstance(cable_cell, arbor.cable_cell)
+    assert len(cable_cell.cables('"soma"')) == 1
+    assert len(cable_cell.cables('"axon"')) == 1
+    assert len(arb_morph.branch_segments(
+        cable_cell.cables('"soma"')[0].branch)) == 4
+    assert len(arb_morph.branch_segments(
+        cable_cell.cables('"axon"')[0].branch)) == 4
+
+
+def test_cell_model_create_acc_replace_axon_without_instantiate():
+    """ephys.create_acc: Test output_acc and read_acc w/ axon replacement"""
+    cell = make_cell(replace_axon=True)
+    param_values = {'gnabar_hh': 0.1,
+                    'gkbar_hh': 0.03}
+
+    with pytest.raises(ValueError, match='Need to instantiate_morphology'
+                                         ' on CellModel before creating'
+                                         ' JSON/ACC-description with'
+                                         ' axon replacement.'):
+        cell.create_acc(param_values)

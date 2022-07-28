@@ -223,7 +223,7 @@ class CellModel(Model):
 
         return template_function()
 
-    def instantiate(self, sim=None):
+    def instantiate_morphology(self, sim=None):
         """Instantiate model in simulator"""
 
         # TODO replace this with the real template name
@@ -239,6 +239,11 @@ class CellModel(Model):
         self.icell.gid = self.gid
 
         self.morphology.instantiate(sim=sim, icell=self.icell)
+
+    def instantiate(self, sim=None):
+        """Instantiate model in simulator"""
+
+        self.instantiate_morphology(sim)
 
         if self.mechanisms is not None:
             for mechanism in self.mechanisms:
@@ -295,26 +300,53 @@ class CellModel(Model):
 
         template_name = self.name
         morphology = os.path.basename(self.morphology.morphology_path)
-        if self.morphology.do_replace_axon:
-            replace_axon = self.morphology.replace_axon_hoc
-        else:
-            replace_axon = None
 
-        if (
-            self.morphology.morph_modifiers is not None
-            and self.morphology.morph_modifiers_hoc is None
-        ):
-            logger.warning('You have provided custom morphology modifiers, \
-                            but no corresponding hoc files.')
-        elif (
-            self.morphology.morph_modifiers is not None
-            and self.morphology.morph_modifiers_hoc is not None
-        ):
-            if replace_axon is None:
-                replace_axon = ''
-            for morph_modifier_hoc in self.morphology.morph_modifiers_hoc:
-                replace_axon += '\n'
-                replace_axon += morph_modifier_hoc
+        if sim_desc_creator is create_hoc.create_hoc:
+            if self.morphology.do_replace_axon:
+                replace_axon = self.morphology.replace_axon_hoc
+            else:
+                replace_axon = None
+
+            if (
+                self.morphology.morph_modifiers is not None
+                and self.morphology.morph_modifiers_hoc is None
+            ):
+                logger.warning('You have provided custom morphology'
+                               ' modifiers, but no corresponding hoc files.')
+            elif (
+                self.morphology.morph_modifiers is not None
+                and self.morphology.morph_modifiers_hoc is not None
+            ):
+                if replace_axon is None:
+                    replace_axon = ''
+                for morph_modifier_hoc in self.morphology.morph_modifiers_hoc:
+                    replace_axon += '\n'
+                    replace_axon += morph_modifier_hoc
+        elif sim_desc_creator is create_acc.create_acc:
+            if self.morphology.do_replace_axon:
+                if self.icell is None:
+                    raise ValueError('Need to instantiate_morphology'
+                                     ' on CellModel before creating'
+                                     ' JSON/ACC-description with'
+                                     ' axon replacement.')
+                replace_axon = [dict(nseg=section.nseg,
+                                     length=section.L,
+                                     radius=0.5 * section.diam,
+                                     tag=morphologies._arb_tags['axon'])
+                                for section in self.icell.axon]
+                # TODO: if there is a myelinated section,
+                # append to replace_axon
+                #   dict(nseg=5,
+                #        length=1000,
+                #        radius=?,
+                #        tag=morphologies._arb_tags['myelin'])
+                # Where is the myelinated section instantiated, though?
+            else:
+                replace_axon = None
+        else:
+            raise ValueError('Unsupported sim_desc_creator %s '
+                             '(choose either create_hoc.create_hoc or '
+                             'create_acc.create_acc)', str(sim_desc_creator))
 
         ret = sim_desc_creator(mechs=self.mechanisms,
                                parameters=self.params.values(),

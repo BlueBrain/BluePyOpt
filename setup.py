@@ -37,6 +37,7 @@ setuptools.setup(
         'pandas>=0.18',
         'deap',
         'efel>=2.13',
+        'arbor>=0.7',
         'ipyparallel',
         'pickleshare>=0.7.3',
         'Jinja2>=2.8',

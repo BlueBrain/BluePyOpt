@@ -24,6 +24,8 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 import os
 import platform
 import logging
+import numpy
+import arbor
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
@@ -245,3 +247,121 @@ proc replace_axon(){ local nSec, D1, D2
   axon[0] connect axon[1](0), 1
 }
         '''
+
+
+# Arbor morphology tags
+_arb_tags = dict(
+    soma=1,
+    axon=2,
+    dend=3,
+    apic=4,
+    myelin=5
+)
+
+
+def _mpt_to_coord(mpt):
+    return numpy.array([mpt.x, mpt.y, mpt.z])
+
+
+class ArbFileMorphology(Morphology, DictMixin):
+
+    @staticmethod
+    def replace_axon(morphology, replacement=None):
+        '''return a morphology with the axon replaced by two 30 um segments
+
+        Args:
+            morphology (arbor.morphology): An Arbor morphology
+            replacement (): A list of dictionaries containing Arbor segment
+            parameters including nseg, length, radius and tag of the axon
+            replacement (derived from Neuron's stylized specification of
+            geometry, cf. Neuron topology/geometry docs). Each of these is
+            interpreted so that the axon replacement is formed from a single
+            branch of stacked cylindrical segments.
+        '''
+        # Check if prune_tag, prune_tag_roots, distal_radii are available
+        if not hasattr(morphology, "to_segment_tree"):
+            raise NotImplementedError(
+                "Need a newer version of Arbor for axon replacement.")
+
+        # Arbor tags
+        axon_tag = _arb_tags['axon']
+        soma_tag = _arb_tags['soma']
+
+        # Prune morphology to remove axon (myelin not assumed to exist)
+        st = morphology.to_segment_tree()
+        pruned_st = arbor.prune_tag(st, axon_tag)
+        pruned_roots = arbor.prune_tag_roots(st, axon_tag)
+        assert len(pruned_roots) <= 1
+
+        if replacement is not None:
+            ar_radius = [r['radius'] for r in replacement]
+        else:
+            ar_radius = None
+
+        # Create axon replacement building on the pruned root
+        if len(pruned_roots) == 1:
+            axon_root = pruned_roots[0]
+            axon_parent = st.parents[axon_root]
+            ar_prox = st.segments[axon_root].prox
+            ar_prox_center = _mpt_to_coord(ar_prox)
+            ar_dist = st.segments[axon_root].dist
+            ar_dist_center = _mpt_to_coord(ar_dist)
+
+            if ar_radius is None:
+                median_distal_radii = \
+                    arbor.median_distal_radii(st, axon_tag, 60)
+                ar_radius = [ar_prox.radius,
+                             median_distal_radii[0]
+                             if len(median_distal_radii) > 0
+                             else ar_prox.radius]
+
+            logger.debug('Replacing axon with root %d with AIS'
+                         ' of radii %s.', axon_root, str(ar_radius))
+        else:
+            if ar_radius is None:
+                ar_radius = [0.5, 0.5]
+            soma_segs = [i for i, s in enumerate(st.segments)
+                         if s.tag == soma_tag]
+            soma_terminals = [i for i in soma_segs if st.is_terminal(i)]
+            if len(soma_terminals) > 0:
+                axon_parent = soma_terminals[-1]
+            elif len(soma_segs) > 0:
+                axon_parent = soma_segs[-1]
+            else:
+                raise ValueError('Morphology without soma,'
+                                 ' cannot replace axon.')
+
+            ar_prox = st.segments[axon_parent].dist
+            ar_prox_center = _mpt_to_coord(ar_prox)
+            ar_dist = st.segments[axon_parent].prox
+            ar_dist_center = 2 * ar_prox_center - _mpt_to_coord(ar_dist)
+
+            # create new branch for replaced axon not to break
+            # existing location expressions
+            axon_parent = arbor.mnpos
+            logger.debug('Replacing non-existent axon with AIS'
+                         ' of radii %s.', str(ar_radius))
+
+        if replacement is not None:
+            ar_seg_scaling = numpy.cumsum([0] + [r['length'] for r in replacement])
+        else:
+            ar_seg_scaling = numpy.cumsum([0, 30, 30])
+        ar_seg_scaling /= numpy.linalg.norm(ar_dist_center - ar_prox_center)
+
+        ar_centers = [ar_prox_center +
+                      scale * (ar_dist_center - ar_prox_center)
+                      for scale in ar_seg_scaling]
+
+        ar_tags = [r['tag'] for r in replacement]
+
+        for prox, dist, radius, tag in zip(ar_centers[:-1],
+                                           ar_centers[1:],
+                                           ar_radius,
+                                           ar_tags):
+            axon_parent = pruned_st.append(
+                axon_parent,
+                arbor.mpoint(*prox, radius),
+                arbor.mpoint(*dist, radius),
+                tag)
+
+        return arbor.morphology(pruned_st)

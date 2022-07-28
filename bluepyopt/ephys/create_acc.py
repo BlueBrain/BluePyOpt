@@ -2,7 +2,9 @@
 
 # pylint: disable=R0914
 
+from dataclasses import replace
 import os
+import logging
 
 from collections import namedtuple
 from glob import glob
@@ -10,8 +12,14 @@ from glob import glob
 import numpy
 import jinja2
 
-from .create_hoc import Location, Range, _get_template_params, format_float
+import json
+import shutil
+import arbor
 
+logger = logging.getLogger(__name__)
+
+from .create_hoc import Location, Range, _get_template_params, format_float
+from .morphologies import _arb_tags, ArbFileMorphology
 
 # Define Neuron to Arbor variable conversions
 ArbVar = namedtuple('ArbVar', 'name, conv')
@@ -56,7 +64,6 @@ def _arb_is_global_param(loc, param):
 # (relabeling locations to SWC convention)
 # Remarks:
 #  - using SWC convetion: 'dend' for basal dendrite, 'apic' for apical dendrite
-#  - myelinated is unsupported in Arbor
 ArbRegion = namedtuple('ArbRegion', 'ref, defn')
 
 
@@ -79,11 +86,11 @@ _loc2arb_region = dict(
     # defining "all" region for convenience here, else use
     # all=_arb_defined_region('(all)') to omit "all" in label_dict
     all=_make_region('all', '(all)'),
-    somatic=_make_tagged_region('soma', 1),
-    axonal=_make_tagged_region('axon', 2),
-    basal=_make_tagged_region('dend', 3),
-    apical=_make_tagged_region('apic', 4),
-    myelinated=_make_region(None),
+    somatic=_make_tagged_region('soma', _arb_tags['soma']),
+    axonal=_make_tagged_region('axon', _arb_tags['axon']),
+    basal=_make_tagged_region('dend', _arb_tags['dend']),
+    apical=_make_tagged_region('apic', _arb_tags['apic']),
+    myelinated=_make_tagged_region('myelin', _arb_tags['myelin']),
 )
 
 # # Generated with NMODL in arbor/mechanisms
@@ -301,7 +308,7 @@ def create_acc(mechs,
     Args:
         mechs (): All the mechs for the decor template
         parameters (): All the parameters in the decor/label-dict template
-        morpholgy (str): Name of morphology
+        morphology (str): Name of morphology
         ignored_globals (iterable str): Skipped NrnGlobalParameter in decor
         replace_axon (str): String replacement for the 'replace_axon' command.
         Only False is supported at the moment.
@@ -317,9 +324,13 @@ def create_acc(mechs,
                            " (only supported types are .swc and .asc)."
                            % morphology)
 
-    if replace_axon is True:
-        raise RuntimeError("Axon replacement (replace_axon is True) is not "
-                           "supported in Arbor.")
+    if replace_axon is not None:
+        logger.debug("Obtain axon replacement by applying "
+                     "ArbFileMorphology.replace_axon after loading "
+                     "morphology in Arbor.")
+        replace_axon_json = json.dumps(replace_axon)
+    else:
+        replace_axon_json = None
 
     templates = _read_templates(template_dir, template_filename)
 
@@ -359,8 +370,82 @@ def create_acc(mechs,
     return {filenames[name]:
             template.render(template_name=template_name,
                             morphology=morphology,
+                            replace_axon=replace_axon_json,
                             filenames=filenames,
                             regions=_loc2arb_region,
                             **template_params,
                             **custom_jinja_params)
             for name, template in templates.items()}
+
+
+def output_acc(output_dir, cell, parameters,
+               template_filename='acc/*_template.jinja2'):
+    '''Output mixed JSON/ACC format for Arbor cable cell to files
+
+    Args:
+        output_dir (str): Output directory. If not exists, will be created
+        cell (): Cell model to output
+        parameters (): Values for mechanism parameters, etc.
+        template_filename (str): file path of the cell.json , decor.acc and
+        label_dict.acc jinja2 templates (with wildcards expanded by glob)
+    '''
+    output = cell.create_acc(parameters, template_filename)
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    for comp, comp_rendered in output.items():
+        comp_filename = os.path.join(output_dir, comp)
+        if os.path.exists(comp_filename):
+            raise RuntimeError("%s already exists!" % comp_filename)
+        with open(os.path.join(output_dir, comp), 'w') as f:
+            f.write(comp_rendered)
+
+    morpho_filename = os.path.join(
+        output_dir, os.path.basename(cell.morphology.morphology_path))
+    if os.path.exists(morpho_filename):
+        raise RuntimeError("%s already exists!" % morpho_filename)
+    shutil.copy2(cell.morphology.morphology_path, output_dir)
+
+
+# Read the mixed JSON/ACC-output, to be moved to Arbor in future release
+def read_acc(cell_json_filename):
+    '''Return constituents to build an Arbor cable cell from create_acc-export
+
+    Args:
+        cell_json_filename (str): The path to the JSON file containing
+        meta-information on morphology, label-dict and decor of exported cell
+    '''
+    with open(cell_json_filename) as cell_json_file:
+        cell_json = json.load(cell_json_file)
+
+    cell_json_dir = os.path.dirname(cell_json_filename)
+
+    morphology_filename = os.path.join(cell_json_dir,
+                                       cell_json['morphology']['path'])
+    if 'replace_axon' in cell_json['morphology']:
+        replace_axon = cell_json['morphology']['replace_axon']
+    else:
+        replace_axon = None
+
+    if morphology_filename.endswith('.swc'):
+        morpho = arbor.load_swc_arbor(morphology_filename)
+        if replace_axon is not None:
+            morpho = ArbFileMorphology.replace_axon(morpho, replace_axon)
+    elif morphology_filename.endswith('.asc'):
+        morpho = arbor.load_asc(morphology_filename)
+        if replace_axon is not None:
+            morpho = \
+                ArbFileMorphology.replace_axon(morpho.morphology, replace_axon)
+        else:
+            morpho = morpho.morphology
+    else:
+        raise RuntimeError(
+            'Unsupported morphology {} (only .swc and .asc supported)'.format(
+                morphology_filename))
+
+    labels = arbor.load_component(
+        os.path.join(cell_json_dir, cell_json['label_dict'])).component
+    decor = arbor.load_component(
+        os.path.join(cell_json_dir, cell_json['decor'])).component
+
+    return cell_json, morpho, labels, decor
