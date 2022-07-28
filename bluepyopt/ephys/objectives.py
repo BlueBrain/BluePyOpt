@@ -85,7 +85,7 @@ class SingletonObjective(EFeatureObjective):
         """String representation"""
 
         return '( %s )' % self.features[0]
-    
+
 
 class SingletonWeightObjective(EFeatureObjective):
 

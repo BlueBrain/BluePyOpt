@@ -92,7 +92,7 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
 class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
 
     """Scaler based on distance from soma"""
-    SERIALIZED_FIELDS = ('name', 'comment', 'distribution', 
+    SERIALIZED_FIELDS = ('name', 'comment', 'distribution',
                          "distribution", "dist_param_names",
                          "ref_sec", "ref_location",)
 
