@@ -206,7 +206,9 @@ class SweepProtocol(Protocol):
                         tstop=self.total_duration,
                         cvode_active=self.cvode_active)
                 else:
-                    sim.run(tstop=self.total_duration, cvode_active=self.cvode_active)
+                    sim.run(
+                        self.total_duration, cvode_active=self.cvode_active
+                    )
             except (RuntimeError, simulators.NrnSimulatorException):
                 logger.debug(
                     'SweepProtocol: Running of parameter set {%s} generated '
@@ -293,7 +295,8 @@ class SweepProtocol(Protocol):
         for recording in self.recordings:
             try:
                 if isinstance(recording, LFPRecording):
-                    recording.instantiate(sim=sim, lfpy_cell=cell_model.lfpy_cell,
+                    recording.instantiate(sim=sim,
+                                          lfpy_cell=cell_model.lfpy_cell,
                                           electrode=cell_model.lfpy_electrode)
                 else:
                     recording.instantiate(sim=sim, icell=cell_model.icell)

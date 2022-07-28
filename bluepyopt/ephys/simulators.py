@@ -229,7 +229,7 @@ class LFPySimulator(NrnSimulator):
         lfpy_cell.tstop = tstop
 
         if dt is not None:
-            lfpy_cell.LFPyCell.dt = dt
+            lfpy_cell.dt = dt
 
         if cvode_active and dt is not None:
             raise ValueError(

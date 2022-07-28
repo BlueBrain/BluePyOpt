@@ -686,7 +686,9 @@ class LFPyCellModel(Model):
             nsegs_method=None,
         )
 
-        self.lfpy_electrode = RecExtElectrode(self.lfpy_cell, probe=self.electrode)
+        self.lfpy_electrode = RecExtElectrode(
+            self.lfpy_cell, probe=self.electrode
+        )
 
         if self.mechanisms is not None:
             for mechanism in self.mechanisms:

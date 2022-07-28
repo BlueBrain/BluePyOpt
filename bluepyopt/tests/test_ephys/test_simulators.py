@@ -146,7 +146,7 @@ def test_lfpysimulator_init():
     """ephys.simulators: test if LFPySimulator constructor works"""
 
     empty_cell = ephys.models.LFPyCellModel(name="empty_cell")
-    neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=empty_cell)
+    neuron_sim = ephys.simulators.LFPySimulator()
     assert isinstance(neuron_sim, ephys.simulators.LFPySimulator)
 
 
@@ -156,7 +156,7 @@ def test_lfpyimulator_init_windows():
 
     with mock.patch('platform.system', mock.MagicMock(return_value="Windows")):
         empty_cell = ephys.models.LFPyCellModel(name="empty_cell")
-        neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=empty_cell)
+        neuron_sim = ephys.simulators.LFPySimulator()
         assert isinstance(neuron_sim, ephys.simulators.LFPySimulator)
         assert not neuron_sim.disable_banner
         assert not neuron_sim.banner_disabled
@@ -172,7 +172,7 @@ def test__lfpysimulator_neuron_import():
     """ephys.simulators: test neuron import from LFPySimulator"""
     from bluepyopt import ephys  # NOQA
     empty_cell = ephys.models.LFPyCellModel(name="empty_cell")
-    neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=empty_cell)
+    neuron_sim = ephys.simulators.LFPySimulator()
     assert isinstance(neuron_sim.neuron, types.ModuleType)
 
 
@@ -190,7 +190,7 @@ def test_lfpysim_run_cvodeactive_dt_exception():
     lfpy_cell = ephys.models.LFPyCellModel(
         name="lfpy_cell", morph=test_morph, mechs=[]
     )
-    neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=lfpy_cell)
+    neuron_sim = ephys.simulators.LFPySimulator()
     lfpy_cell.instantiate(sim=neuron_sim)
 
     with pytest.raises(
@@ -201,7 +201,13 @@ def test_lfpysim_run_cvodeactive_dt_exception():
             'cvode_active is True in the NrnSimulator run method'
         ),
     ):
-        neuron_sim.run(10, dt=0.1, cvode_active=True)
+        neuron_sim.run(
+            tstop=10,
+            dt=0.1,
+            cvode_active=True,
+            lfpy_cell=lfpy_cell.lfpy_cell,
+            lfpy_electrode=lfpy_cell.lfpy_electrode
+        )
 
     lfpy_cell.destroy(sim=neuron_sim)
 
