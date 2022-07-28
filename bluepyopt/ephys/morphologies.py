@@ -343,7 +343,8 @@ class ArbFileMorphology(Morphology, DictMixin):
                          ' of radii %s.', str(ar_radius))
 
         if replacement is not None:
-            ar_seg_scaling = numpy.cumsum([0] + [r['length'] for r in replacement])
+            ar_seg_scaling = numpy.cumsum([0] +
+                                          [r['length'] for r in replacement])
         else:
             ar_seg_scaling = numpy.cumsum([0, 30, 30])
         ar_seg_scaling /= numpy.linalg.norm(ar_dist_center - ar_prox_center)

@@ -334,13 +334,12 @@ class CellModel(Model):
                                      radius=0.5 * section.diam,
                                      tag=morphologies._arb_tags['axon'])
                                 for section in self.icell.axon]
-                # TODO: if there is a myelinated section,
-                # append to replace_axon
-                #   dict(nseg=5,
-                #        length=1000,
-                #        radius=?,
-                #        tag=morphologies._arb_tags['myelin'])
-                # Where is the myelinated section instantiated, though?
+                # Requires safe iteration over myelin section
+                # replace_axon += [dict(nseg=section.nseg,
+                #                      length=section.L,
+                #                      radius=0.5 * section.diam,
+                #                      tag=morphologies._arb_tags['myelin'])
+                #                 for section in self.icell.myelin]
             else:
                 replace_axon = None
         else:
