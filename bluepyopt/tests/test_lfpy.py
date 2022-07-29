@@ -33,5 +33,5 @@ def test_lfpy_evaluator():
     values = evaluator.fitness_calculator.calculate_values(responses)
 
     assert len(values) == 21
-    assert abs(values['Step1.soma.AP_height'] - 28.26404333055272) < 1e-5
+    assert abs(values['Step1.soma.AP_height'] - 28.1141131972856) < 1e-5
     assert len(responses['Step1.MEA.v']["voltage"]) == 40
