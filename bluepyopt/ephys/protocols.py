@@ -1,4 +1,7 @@
 """Protocol classes"""
+from .recordings import LFPRecording
+from .simulators import LFPySimulator
+from .stimuli import LFPStimulus
 
 """
 Copyright (c) 2016-2020, EPFL/Blue Brain Project
@@ -193,23 +196,19 @@ class SweepProtocol(Protocol):
             cell_model.freeze(param_values)
             cell_model.instantiate(sim=sim)
 
-            if isinstance(cell_model, models.LFPyCellModel):
-                LFPyCell = cell_model.LFPyCell
-            else:
-                LFPyCell = None
-
-            self.instantiate(
-                sim=sim, icell=cell_model.icell, LFPyCell=LFPyCell
-            )
-
-            if hasattr(sim, "electrode"):
-                if any(["LFP" in rec.name for rec in self.recordings]):
-                    sim.effective_electrode = sim.electrode
-                else:
-                    sim.effective_electrode = None
+            self.instantiate(sim=sim, cell_model=cell_model)
 
             try:
-                sim.run(self.total_duration, cvode_active=self.cvode_active)
+                if isinstance(sim, LFPySimulator):
+                    sim.run(
+                        lfpy_cell=cell_model.lfpy_cell,
+                        lfpy_electrode=cell_model.lfpy_electrode,
+                        tstop=self.total_duration,
+                        cvode_active=self.cvode_active)
+                else:
+                    sim.run(
+                        self.total_duration, cvode_active=self.cvode_active
+                    )
             except (RuntimeError, simulators.NrnSimulatorException):
                 logger.debug(
                     'SweepProtocol: Running of parameter set {%s} generated '
@@ -284,23 +283,23 @@ class SweepProtocol(Protocol):
                                        sim=sim)
         return responses
 
-    def instantiate(self, sim=None, icell=None, LFPyCell=None):
+    def instantiate(self, sim=None, cell_model=None):
         """Instantiate"""
 
         for stimulus in self.stimuli:
-            if LFPyCell is not None:
-                stimulus.instantiate(sim=sim, icell=icell, LFPyCell=LFPyCell)
+            if isinstance(stimulus, LFPStimulus):
+                stimulus.instantiate(lfpy_cell=cell_model.lfpy_cell)
             else:
-                stimulus.instantiate(sim=sim, icell=icell)
+                stimulus.instantiate(sim=sim, icell=cell_model.icell)
 
         for recording in self.recordings:
             try:
-                # try to instantiate as an LFPy recording
-                try:
-                    recording.instantiate(sim=sim, icell=icell,
-                                          LFPyCell=LFPyCell)
-                except Exception as e:
-                    recording.instantiate(sim=sim, icell=icell)
+                if isinstance(recording, LFPRecording):
+                    recording.instantiate(sim=sim,
+                                          lfpy_cell=cell_model.lfpy_cell,
+                                          electrode=cell_model.lfpy_electrode)
+                else:
+                    recording.instantiate(sim=sim, icell=cell_model.icell)
             except locations.EPhysLocInstantiateException:
                 logger.debug(
                     'SweepProtocol: Instantiating recording generated '

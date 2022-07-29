@@ -70,7 +70,9 @@ class DummyLFPyCellModel1(ephys.models.Model):
         super(DummyLFPyCellModel1, self).__init__(name)
         self.persistent = []
         self.icell = None
-        self.LFPyCell = None
+        self.lfpy_cell = None
+        self.electrode = None
+        self.lfpy_electrode = None
 
     def freeze(self, param_values):
         """Freeze model"""
@@ -111,7 +113,7 @@ class DummyLFPyCellModel1(ephys.models.Model):
         self.persistent.append(self.icell)
         self.persistent.append(self.icell.soma[0])
 
-        self.LFPyCell = LFPy.Cell(
+        self.lfpy_cell = LFPy.Cell(
             morphology=sim.neuron.h.allsec(),
             dt=0.025,
             v_init=-65,
@@ -120,7 +122,7 @@ class DummyLFPyCellModel1(ephys.models.Model):
             nsegs_method=None,
         )
 
-        return self.icell, self.LFPyCell
+        return self.icell, self.lfpy_cell
 
     def destroy(self, sim=None):
         """Destroy cell from simulator"""

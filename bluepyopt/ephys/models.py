@@ -488,6 +488,7 @@ class LFPyCellModel(Model):
     def __init__(
         self,
         name,
+        electrode=None,
         morph=None,
         mechs=None,
         params=None,
@@ -525,7 +526,9 @@ class LFPyCellModel(Model):
 
         # Cell instantiation in simulator
         self.icell = None
-        self.LFPyCell = None
+        self.lfpy_cell = None
+        self.electrode = electrode
+        self.lfpy_electrode = None
 
         self.dt = dt
         self.v_init = v_init
@@ -656,7 +659,8 @@ class LFPyCellModel(Model):
 
     def instantiate(self, sim=None):
         """Instantiate model in simulator"""
-        import LFPy
+        from LFPy import Cell
+        from lfpykit import RecExtElectrode
 
         # TODO replace this with the real template name
         if not hasattr(sim.neuron.h, self.name):
@@ -673,13 +677,17 @@ class LFPyCellModel(Model):
 
         self.morphology.instantiate(sim=sim, icell=self.icell)
 
-        self.LFPyCell = LFPy.Cell(
+        self.lfpy_cell = Cell(
             morphology=sim.neuron.h.allsec(),
             dt=self.dt,
             v_init=self.v_init,
             pt3d=True,
             delete_sections=False,
             nsegs_method=None,
+        )
+
+        self.lfpy_electrode = RecExtElectrode(
+            self.lfpy_cell, probe=self.electrode
         )
 
         if self.mechanisms is not None:

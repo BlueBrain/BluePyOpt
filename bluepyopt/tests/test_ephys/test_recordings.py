@@ -103,11 +103,11 @@ def test_lfprecording_instantiate():
     lfpy_cell = ephys.models.LFPyCellModel(
         name="lfpy_cell", morph=test_morph, mechs=[]
     )
-    neuron_sim = ephys.simulators.LFPySimulator(LFPyCellModel=lfpy_cell)
+    neuron_sim = ephys.simulators.LFPySimulator()
     lfpy_cell.instantiate(sim=neuron_sim)
 
     recording.instantiate(
-        sim=neuron_sim, icell=lfpy_cell.icell, LFPyCell=lfpy_cell.LFPyCell
+        sim=neuron_sim, lfpy_cell=lfpy_cell.lfpy_cell
     )
 
     assert recording.instantiated

@@ -184,18 +184,16 @@ class NrnSimulatorException(Exception):
         self.original = original
 
 
-class LFPySimulator(object):
+class LFPySimulator(NrnSimulator):
 
     """LFPy simulator"""
 
-    def __init__(self, LFPyCellModel, electrode=None, cvode_active=True,
-                 cvode_minstep=None, random123_globalindex=None,
-                 mechanisms_directory=None):
+    def __init__(self, dt=None, cvode_active=True, cvode_minstep=None,
+                 random123_globalindex=None, mechanisms_directory=None):
         """Constructor
+
         Args:
-            LFPyCellModel (LFPyCellModel): the LFPy cell model
-            electrode (MEAutility.MEA): the MEAutility probe used to compute
-                extracellular signals
+            dt (float): the integration time step used by neuron.
             cvode_active (bool): should neuron use the variable time step
                 integration method
             cvode_minstep (float): the minimum time step allowed for a cvode
@@ -208,81 +206,30 @@ class LFPySimulator(object):
                 "./data/".
         """
 
-        self.LFPyCellModel = LFPyCellModel
-        self.electrode = electrode
-        self.effective_electrode = electrode
-
-        self.lfpyelectrode = None
-
-        if platform.system() == "Windows":
-            # hoc.so does not exist on NEURON Windows
-            # although \\hoc.pyd can work here, it gives an error for
-            # nrn_nobanner_ line
-            self.disable_banner = False
-            self.banner_disabled = False
-        else:
-            self.disable_banner = True
-            self.banner_disabled = False
-
-        self.mechanisms_directory = mechanisms_directory
-        self.neuron.h.load_file('stdrun.hoc')
-
-        self.cvode_active = cvode_active
-        self.cvode_minstep_value = cvode_minstep
-
-        self.random123_globalindex = random123_globalindex
-
-    @staticmethod
-    def _nrn_disable_banner():
-        """Disable Neuron banner"""
-
-        nrnpy_path = os.path.join(imp.find_module("neuron")[1])
-        import glob
-
-        hoc_so_list = glob.glob(os.path.join(nrnpy_path, "hoc*.so"))
-
-        if len(hoc_so_list) != 1:
-            warnings.warn(
-                "Unable to find Neuron hoc shared library in %s, "
-                "not disabling banner" % nrnpy_path
-            )
-        else:
-            hoc_so = hoc_so_list[0]
-            nrndll = ctypes.cdll[hoc_so]
-            ctypes.c_int.in_dll(nrndll, "nrn_nobanner_").value = 1
-
-    @property
-    def neuron(self):
-        """Return neuron module"""
-
-        if self.disable_banner and not self.banner_disabled:
-            NrnSimulator._nrn_disable_banner()
-            self.banner_disabled = True
-
-        import neuron  # NOQA
-        if self.mechanisms_directory is not None:
-            neuron.load_mechanisms(
-                self.mechanisms_directory, warn_if_already_loaded=False
-            )
-
-        return neuron
+        super(LFPySimulator, self).__init__(
+            dt=dt,
+            cvode_active=cvode_active,
+            cvode_minstep=cvode_minstep,
+            random123_globalindex=random123_globalindex,
+            mechanisms_directory=mechanisms_directory
+        )
 
     def run(
             self,
+            lfpy_cell,
+            lfpy_electrode,
             tstop=None,
             dt=None,
             cvode_active=None,
             random123_globalindex=None):
         """Run protocol"""
-        import LFPy
-        # import neuron mechanisms
         _ = self.neuron
 
-        self.LFPyCellModel.LFPyCell.tstart = 0.0
-        self.LFPyCellModel.LFPyCell.tstop = tstop
+        lfpy_cell.tstart = 0.0
+        lfpy_cell.tstop = tstop
 
         if dt is not None:
-            self.LFPyCellModel.LFPyCell.dt = dt
+            lfpy_cell.dt = dt
 
         if cvode_active and dt is not None:
             raise ValueError(
@@ -302,12 +249,7 @@ class LFPySimulator(object):
             rng = self.neuron.h.Random()
             rng.Random123_globalindex(random123_globalindex)
 
-        if self.effective_electrode is not None:
-            self.lfpyelectrode = LFPy.RecExtElectrode(
-                self.LFPyCellModel.LFPyCell, probe=self.electrode)
-            probes = [self.lfpyelectrode]
-        else:
-            probes = None
+        probes = [lfpy_electrode] if lfpy_electrode is not None else None
 
         sim_params = {
             "probes": probes,
@@ -324,7 +266,7 @@ class LFPySimulator(object):
         }
 
         try:
-            self.LFPyCellModel.LFPyCell.simulate(**sim_params)
+            lfpy_cell.simulate(**sim_params)
         except Exception as e:
             raise LFPySimulatorException("LFPy simulator error", e)
 

@@ -196,7 +196,7 @@ class NrnSectionParameter(NrnParameter, DictMixin):
             value_scaler (float): value used to scale the parameter value
             locations (list of ephys.locations.Location): locations on which
                 to instantiate the parameter
-            param_dependencies (list): dependencies needed to intantiate
+            param_dependencies (list): dependencies needed to instantiate
                 the parameter
         """
 

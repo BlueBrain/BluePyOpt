@@ -424,7 +424,7 @@ def test_sweepprotocol_instantiate_with_LFPyCellModel():
     import LFPy
 
     dummy_cell = dummycells.DummyLFPyCellModel1()
-    nrn_sim = ephys.simulators.LFPySimulator(LFPyCellModel=dummy_cell)
+    nrn_sim = ephys.simulators.LFPySimulator()
 
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name='soma_loc',
@@ -450,8 +450,8 @@ def test_sweepprotocol_instantiate_with_LFPyCellModel():
         stimuli=[stim],
         recordings=[rec])
 
-    icell, lfpy_cell = dummy_cell.instantiate(sim=nrn_sim)
-    protocol.instantiate(sim=nrn_sim, icell=icell, LFPyCell=lfpy_cell)
+    dummy_cell.instantiate(sim=nrn_sim)
+    protocol.instantiate(sim=nrn_sim, cell_model=dummy_cell)
 
     # check that recording and stimuli have been instantiated with LFPy
     assert rec.instantiated

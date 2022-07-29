@@ -341,7 +341,7 @@ def recovery_slope(waveforms, sampling_frequency, window):
     time = np.arange(0, waveforms.shape[1]) * (1 / sampling_frequency)  # in s
 
     for i in range(waveforms.shape[0]):
-        if peak_idx[i] == 0 or peak_idx[i] == waveforms.shape[1]:
+        if peak_idx[i] in [0, waveforms.shape[1]]:
             continue
         max_idx = int(peak_idx[i] + ((window / 1000) * sampling_frequency))
         max_idx = np.min([max_idx, waveforms.shape[1]])
