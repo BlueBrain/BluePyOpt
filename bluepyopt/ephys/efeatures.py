@@ -317,7 +317,8 @@ class extraFELFeature(EFeature, DictMixin):
             stim_start (float): stimulation start time (ms)
             stim_end (float): stimulation end time (ms)
             exp_mean (list of floats): experimental mean of this eFeature
-            exp_std (list of floats): experimental standard deviation of this eFeature
+            exp_std (list of floats): experimental standard deviation
+                of this eFeature
             threshold (float): spike detection threshold (mV)
             comment (str): comment
             interp_step (float): interpolation step (ms)

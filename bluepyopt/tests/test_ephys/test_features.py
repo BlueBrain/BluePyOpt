@@ -328,8 +328,6 @@ def test_extraFELFeature():
     assert extrafel_feature_name in str(efeature)
 
 
-
-
 @pytest.mark.unit
 def test_masked_cosine_distance():
     """ephys.efeatures: Testing masked_cosine_distance"""
