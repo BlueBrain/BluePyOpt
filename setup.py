@@ -29,8 +29,7 @@ EXTRA_SCOOP = [
 ]
 
 EXTRA_LFP = [
-    'MEAutility',
-    'LFPy>=2.2.0',
+    'LFPy @ git+https://github.com/LFPy/LFPy.git@mpi_optional',
 ]
 
 setuptools.setup(
