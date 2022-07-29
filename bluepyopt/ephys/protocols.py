@@ -287,7 +287,7 @@ class SweepProtocol(Protocol):
         """Instantiate"""
 
         for stimulus in self.stimuli:
-            if isinstance(stimulus, LFPySquarePulse):
+            if isinstance(stimulus, LFPStimulus):
                 stimulus.instantiate(lfpy_cell=cell_model.lfpy_cell)
             else:
                 stimulus.instantiate(sim=sim, icell=cell_model.icell)

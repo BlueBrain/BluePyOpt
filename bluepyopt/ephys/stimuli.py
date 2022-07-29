@@ -32,6 +32,15 @@ class Stimulus(object):
     pass
 
 
+class LFPStimulus(Stimulus):
+
+    """Base class for stimulus supporting LFPy cells."""
+
+    def instantiate():
+        """Run stimulus"""
+        raise NotImplementedError
+
+
 class NrnCurrentPlayStimulus(Stimulus):
 
     """Current stimulus based on current amplitude and time series"""
@@ -330,7 +339,7 @@ class NrnRampPulse(Stimulus):
                 self.location)
 
 
-class LFPySquarePulse(Stimulus):
+class LFPySquarePulse(LFPStimulus):
 
     """Square pulse current clamp injection"""
 
