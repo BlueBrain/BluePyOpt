@@ -36,7 +36,7 @@ class LFPStimulus(Stimulus):
 
     """Base class for stimulus supporting LFPy cells."""
 
-    def instantiate():
+    def instantiate(self, lfpy_cell=None):
         """Run stimulus"""
         raise NotImplementedError
 
