@@ -88,7 +88,8 @@ def get_recording_names(protocol_name, location=None):
 
 def define_fitness_calculator(protocols, feature_file):
 
-    feature_definitions = json.load(open(feature_file))
+    with open(feature_file, "r") as f:
+        feature_definitions = json.load(f)
 
     objectives = []
     threshold = -20

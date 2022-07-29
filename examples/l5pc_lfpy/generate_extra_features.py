@@ -81,9 +81,8 @@ class NumpyEncoder(json.JSONEncoder):
 
 def dict_to_json(data, path):
     """Save some data in a json file."""
-    s = json.dumps(data, indent=2, cls=NumpyEncoder)
     with open(path, "w") as f:
-        f.write(s)
+        json.dump(data, f, indent=2, cls=NumpyEncoder)
 
 
 def add_extra_objectives(evaluator):
