@@ -135,7 +135,7 @@ def define_fitness_calculator(protocols, feature_file):
     return ephys.objectivescalculators.ObjectivesCalculator(objectives)
 
 
-def create(feature_file="extra_features.json", cvode_active=True):
+def create(feature_file="extra_features.json", cvode_active=True, dt=None):
     """Setup"""
 
     l5pc_cell = l5pc_lfpy_model.create()
@@ -147,9 +147,6 @@ def create(feature_file="extra_features.json", cvode_active=True):
         param.name for param in l5pc_cell.params.values() if not param.frozen
     ]
 
-    dt=None
-    if cvode_active is False:
-        dt=0.025
     lfpy_sim = ephys.simulators.LFPySimulator(cvode_active=cvode_active, dt=dt)
 
     return ephys.evaluators.CellEvaluator(

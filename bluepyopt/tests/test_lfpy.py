@@ -25,6 +25,7 @@ def test_lfpy_evaluator():
     evaluator = l5pc_lfpy_evaluator.create(
         feature_file=L5PC_LFPY_PATH + "/extra_features.json",
         cvode_active=False,
+        dt=0.025,
     )
 
     responses = evaluator.run_protocols(
