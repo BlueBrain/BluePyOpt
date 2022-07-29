@@ -7,7 +7,7 @@ import pytest
 import numpy
 
 from bluepyopt.ephys import efeatures
-from bluepyopt.ephys.responses import TimeVoltageResponse
+from bluepyopt.ephys.responses import TimeVoltageResponse, TimeLFPResponse
 from bluepyopt.ephys.serializer import instantiator
 
 
@@ -267,11 +267,22 @@ def test_extraFELFeature():
     testdata_dir = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), 'testdata'
     )
-    resp_fname = os.path.join(testdata_dir, 'lfpy_response_with_soma.pkl')
-    responses_lst = pd.read_pickle(resp_fname)
+    soma_time = numpy.load(os.path.join(testdata_dir, 'lfpy_soma_time.npy'))
+    soma_voltage = numpy.load(
+        os.path.join(testdata_dir, 'lfpy_soma_voltage.npy')
+    )
+    lfpy_time = numpy.load(os.path.join(testdata_dir, 'lfpy_time.npy'))
+    lfpy_voltage = numpy.load(os.path.join(testdata_dir, 'lfpy_voltage.npy'))
+
+    soma_response = TimeVoltageResponse(
+        name='soma_response', time=soma_time, voltage=soma_voltage
+    )
+    lfpy_response = TimeLFPResponse(
+        name="lfpy_response", time=lfpy_time, lfp=lfpy_voltage
+    )
     responses = {
-        somatic_recording_name: responses_lst[0][1],
-        recording_names['']: responses_lst[0][0],
+        somatic_recording_name: soma_response,
+        recording_names['']: lfpy_response,
     }
 
     # compute for all electrodes
