@@ -1,7 +1,7 @@
 """Protocol classes"""
 from .recordings import LFPRecording
 from .simulators import LFPySimulator
-from .stimuli import LFPySquarePulse
+from .stimuli import LFPStimulus
 
 """
 Copyright (c) 2016-2020, EPFL/Blue Brain Project
