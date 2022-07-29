@@ -36,7 +36,7 @@ class LFPStimulus(Stimulus):
 
     """Base class for stimulus supporting LFPy cells."""
 
-    def instantiate(self, lfpy_cell=None):
+    def instantiate(self, sim=None, lfpy_cell=None):
         """Run stimulus"""
         raise NotImplementedError
 
@@ -366,7 +366,7 @@ class LFPySquarePulse(LFPStimulus):
         self.total_duration = total_duration
         self.iclamp = None
 
-    def instantiate(self, lfpy_cell=None):
+    def instantiate(self, sim=None, lfpy_cell=None):
         """Run stimulus"""
         import LFPy
         from .locations import NrnSomaDistanceCompLocation
