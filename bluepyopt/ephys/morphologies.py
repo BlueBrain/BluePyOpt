@@ -208,7 +208,7 @@ proc replace_axon(){ local nSec, D1, D2
   } else if(nSec == 1) {
     axon[0] D1 = D2 = diam
   } else {
-    axon[0] D1 = diam
+    axon[0] D1 = D2 = diam
     soma distance() //to calculate distance from soma
     forsec axonal{
       //if section is longer than 60um then store diam and exit from loop
