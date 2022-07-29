@@ -28,6 +28,10 @@ EXTRA_SCOOP = [
     'scoop>=0.7',
 ]
 
+EXTRA_ARBOR = [
+    'arbor>=0.7',
+]
+
 setuptools.setup(
     name="bluepyopt",
     version=versioneer.get_version(),
@@ -37,7 +41,6 @@ setuptools.setup(
         'pandas>=0.18',
         'deap',
         'efel>=2.13',
-        'arbor>=0.7',
         'ipyparallel',
         'pickleshare>=0.7.3',
         'Jinja2>=2.8',
@@ -45,8 +48,9 @@ setuptools.setup(
         'Pebble>=4.3.10'
         ],
     extras_require={
-        'all': EXTRA_SCOOP,
+        'all': EXTRA_SCOOP + EXTRA_ARBOR,
         'scoop': EXTRA_SCOOP,
+        'arbor': EXTRA_ARBOR,
         },
     packages=setuptools.find_packages(
         exclude=(
