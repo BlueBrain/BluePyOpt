@@ -248,9 +248,9 @@ def test_LFPySquarePulse_init():
 def test_LFPySquarePulse_instantiate():
     """ephys.stimuli: test if LFPySquarePulse instantiate works"""
 
-    nrn_sim = ephys.simulators.NrnSimulator()
+    lfpy_sim = ephys.simulators.LFPySimulator()
     dummy_cell = dummycells.DummyLFPyCellModel1()
-    _, lfpycell = dummy_cell.instantiate(sim=nrn_sim)
+    _, lfpycell = dummy_cell.instantiate(sim=lfpy_sim)
 
     soma_loc = ephys.locations.NrnSeclistCompLocation(
         name=None,
@@ -266,8 +266,8 @@ def test_LFPySquarePulse_instantiate():
         total_duration=300
     )
 
-    stim.instantiate(lfpy_cell=lfpycell)
-    nrn_sim.run(stim.total_duration)
+    stim.instantiate(sim=lfpy_sim, lfpy_cell=lfpycell)
+    lfpy_sim.run(stim.total_duration)
 
-    stim.destroy(sim=nrn_sim)
-    dummy_cell.destroy(sim=nrn_sim)
+    stim.destroy(sim=lfpy_sim)
+    dummy_cell.destroy(sim=lfpy_sim)
