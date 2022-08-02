@@ -316,14 +316,15 @@ class extraFELFeature(EFeature, DictMixin):
                 of channels
             stim_start (float): stimulation start time (ms)
             stim_end (float): stimulation end time (ms)
-            exp_mean (float): experimental mean of this eFeature
-            exp_std(float): experimental standard deviation of this eFeature
-            threshold(float): spike detection threshold (mV)
+            exp_mean (list of floats): experimental mean of this eFeature
+            exp_std (list of floats): experimental standard deviation
+                of this eFeature
+            threshold (float): spike detection threshold (mV)
             comment (str): comment
-            interp_step(float): interpolation step (ms)
-            double_settings(dict): dictionary with efel double settings that
+            interp_step (float): interpolation step (ms)
+            double_settings (dict): dictionary with efel double settings that
                 should be set before extracting the features
-            int_settings(dict): dictionary with efel int settings that
+            int_settings (dict): dictionary with efel int settings that
                 should be set before extracting the features
         """
 
@@ -421,7 +422,6 @@ class extraFELFeature(EFeature, DictMixin):
             responses,
             raise_warnings=False,
             return_waveforms=False,
-            verbose=False,
     ):
         from .extra_features_utils import calculate_features
 
@@ -445,21 +445,18 @@ class extraFELFeature(EFeature, DictMixin):
                 np.diff(response["time"])
         ):
             assert self.fs is not None
-            if verbose:
-                print("interpolate")
+            logger.info("extraFELFeature.calculate_feature: interpolate")
             response_interp = _interpolate_response(response, fs=self.fs)
         else:
             response_interp = response
 
         if self.fcut is not None:
-            if verbose:
-                print("filter enabled")
+            logger.info("extraFELFeature.calculate_feature: enabled")
             response_filter = _filter_response(response_interp,
                                                fcut=self.fcut,
                                                filt_type=self.filt_type)
         else:
-            if verbose:
-                print("filter disabled")
+            logger.info("extraFELFeature.calculate_feature: filter disabled")
             response_filter = response_interp
 
         ewf = _get_waveforms(response_filter, peak_times, self.ms_cut)

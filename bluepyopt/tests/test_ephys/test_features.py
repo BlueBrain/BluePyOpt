@@ -326,3 +326,34 @@ def test_extraFELFeature():
 
     assert efeature.name == name
     assert extrafel_feature_name in str(efeature)
+
+
+@pytest.mark.unit
+def test_masked_cosine_distance():
+    """ephys.efeatures: Testing masked_cosine_distance"""
+    from scipy.spatial import distance
+
+    exp = numpy.array([0.5, 0.5, 0.5])
+    model = numpy.array([0.7, 0.8, 0.4])
+
+    score = efeatures.masked_cosine_distance(exp, model)
+    assert score == distance.cosine(exp, model)
+
+    # test nan in model feature values
+    model = numpy.array([0.7, numpy.nan, 0.4])
+    score = efeatures.masked_cosine_distance(exp, model)
+    assert score == distance.cosine([0.5, 0.5], [0.7, 0.4])
+
+    # test nan in experimental feature values
+    exp = numpy.array([0.5, 0.5, numpy.nan])
+    model = numpy.array([0.7, 0.8, 0.4])
+
+    score = efeatures.masked_cosine_distance(exp, model)
+    assert score == distance.cosine([0.5, 0.5], [0.7, 0.8]) * 2. / 3.
+
+    # test na in both exp and model feature values
+    exp = numpy.array([0.5, 0.5, numpy.nan])
+    model = numpy.array([0.7, numpy.nan, 0.4])
+
+    score = efeatures.masked_cosine_distance(exp, model)
+    assert score == distance.cosine([0.5], [0.7]) * 2. / 3.
