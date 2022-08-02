@@ -193,6 +193,7 @@ def test_cell_model_output_and_read_acc():
             create_acc.read_acc(
                 os.path.join(acc_dir, cell.name + '.json'))
     assert 'replace_axon' not in cell_json['morphology']
+
     cable_cell = arbor.cable_cell(arb_morph, arb_labels, arb_decor)
     assert isinstance(cable_cell, arbor.cable_cell)
     assert len(cable_cell.cables('"soma"')) == 1
@@ -201,6 +202,17 @@ def test_cell_model_output_and_read_acc():
         cable_cell.cables('"soma"')[0].branch)) == 5
     assert len(arb_morph.branch_segments(
         cable_cell.cables('"axon"')[0].branch)) == 5
+
+    # Create cell model
+    arb_cell_model = arbor.single_cell_model(cable_cell)
+    arb_cell_model.properties.catalogue = arbor.catalogue()
+    arb_cell_model.properties.catalogue.extend(
+        arbor.default_catalogue(), "default::")
+    arb_cell_model.properties.catalogue.extend(
+        arbor.bbp_catalogue(), "BBP::")
+
+    # Run a very short simulation to test mechanism instantiation
+    arb_cell_model.run(tfinal=0.1)
 
 
 def test_cell_model_output_and_read_acc_replace_axon():
@@ -234,6 +246,17 @@ def test_cell_model_output_and_read_acc_replace_axon():
         cable_cell.cables('"soma"')[0].branch)) == 4
     assert len(arb_morph.branch_segments(
         cable_cell.cables('"axon"')[0].branch)) == 4
+
+    # Create cell model
+    arb_cell_model = arbor.single_cell_model(cable_cell)
+    arb_cell_model.properties.catalogue = arbor.catalogue()
+    arb_cell_model.properties.catalogue.extend(
+        arbor.default_catalogue(), "default::")
+    arb_cell_model.properties.catalogue.extend(
+        arbor.bbp_catalogue(), "BBP::")
+
+    # Run a very short simulation to test mechanism instantiation
+    arb_cell_model.run(tfinal=0.1)
 
 
 def test_cell_model_create_acc_replace_axon_without_instantiate():

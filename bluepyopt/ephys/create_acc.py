@@ -52,9 +52,12 @@ def _nrn2arb_var_value(param):
         return param.value
 
 
-def _arb_is_global_param(loc, param):
-    """Returns if location-specific variable is a global one in Arbor."""
-    return loc == 'all' and param.name in ['membrane-capacitance']
+def _arb_is_global_property(loc, param):
+    """Returns if region-specific variable is a global property in Arbor."""
+    return loc == 'all' and param.name in ['membrane-potential',
+                                           'temperature-kelvin',
+                                           'axial-resistivity',
+                                           'membrane-capacitance']
 
 
 # Define BluePyOpt to Arbor region mapping
@@ -115,7 +118,7 @@ _loc2arb_region = dict(
 #     return dict(globals=globals, ranges=ranges)  # suffix skipped
 
 # mechs = dict()
-# for cat in ['allen', 'bbp', 'default']:
+# for cat in ['allen', 'BBP', 'default']:
 #     mechs[cat] = dict()
 #     cat_dir = 'arbor/mechanisms/' + cat
 #     for f in os.listdir(cat_dir):
@@ -144,7 +147,7 @@ _arb_mechs = dict(
         'NaV': {'globals': None, 'ranges': ['gbar']},
         'Nap': {'globals': None, 'ranges': ['gbar', 'g', 'ina']},
         'SK': {'globals': None, 'ranges': ['gbar', 'ik']}},
-    bbp={
+    BBP={
         'CaDynamics_E2': {'globals': None,
                           'ranges': ['decay', 'gamma', 'minCai',
                                      'depth', 'initCai']},
@@ -220,21 +223,26 @@ def _arb_convert_params_and_group_by_mech_local(params, channels):
         mechs = {mech: [] for mech, _ in mech_params}
         for mech, param in mech_params:
             mechs[mech].append(param)
-        for i, param in enumerate(mechs.get(None, [])):
-            if _arb_is_global_param(loc, param):
+        none_local_params = []
+        for param in mechs.get(None, []):
+            if _arb_is_global_property(loc, param):
                 global_params[param.name] = param
-                del mechs[None][i]
+            else:
+                none_local_params.append(param)
+        if None in mechs:
+            mechs[None] = none_local_params
         local_params.append((loc, list(mechs.items())))
     return local_params, global_params
 
 
 def _arb_nmodl_global_translate(mech_name, mech_params):
     """Integrate NMODL GLOBAL parameters of Arbor-built-in mechanisms
-     into mechanism name"""
+     into mechanism name and add catalogue prefix"""
     arb_mech = None
-    for cat in ['bbp', 'default', 'allen']:  # in order of precedence
+    for cat in ['BBP', 'default', 'allen']:  # in order of precedence
         if mech_name in _arb_mechs[cat]:
             arb_mech = _arb_mechs[cat][mech_name]
+            mech_name = cat + '::' + mech_name
             break
     if arb_mech is None:  # not Arbor built-in mech
         return (mech_name, mech_params)

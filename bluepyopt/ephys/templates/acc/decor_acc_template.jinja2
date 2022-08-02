@@ -2,7 +2,7 @@
   (meta-data (version "0.1-dev"))
   (decor
     {%- for param_name, param in global_params.items() %}
-    {%- if param.mech is defined %}  
+    {%- if param.mech is defined %}
     (default (density (mechanism "{{ param.mech }}" ("{{ param.name }}" {{ param.value }}))))
     {%- else %}
     (default ({{ param.name }} {{ param.value }}))
