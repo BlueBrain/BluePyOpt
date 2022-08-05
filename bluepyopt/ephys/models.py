@@ -102,6 +102,7 @@ class CellModel(Model):
 
         # Cell instantiation in simulator
         self.icell = None
+        self.icell_existing_secs = None
 
         self.param_values = None
         self.gid = gid
@@ -240,6 +241,10 @@ class CellModel(Model):
 
         self.morphology.instantiate(sim=sim, icell=self.icell)
 
+        self.icell_existing_secs = [
+            sec for sec in self.secarray_names
+            if sim.neuron.h.section_exists(sec, self.icell)]
+
     def instantiate(self, sim=None):
         """Instantiate model in simulator"""
 
@@ -268,6 +273,7 @@ class CellModel(Model):
         sim.neuron.h.Vector().size()
 
         self.icell = None
+        self.icell_existing_secs = None
 
         self.morphology.destroy(sim=sim)
         for mechanism in self.mechanisms:
@@ -289,7 +295,8 @@ class CellModel(Model):
                          ignored_globals=(), template=None,
                          disable_banner=False,
                          template_dir=None,
-                         sim_desc_creator=None):
+                         sim_desc_creator=None,
+                         sim=None):
         """Create simulator description for this model"""
 
         to_unfreeze = []
@@ -324,17 +331,15 @@ class CellModel(Model):
                     replace_axon += morph_modifier_hoc
         elif sim_desc_creator is create_acc.create_acc:
             if self.morphology.do_replace_axon:
-                replace_axon = [dict(nseg=section.nseg,
-                                     length=section.L,
-                                     radius=0.5 * section.diam,
-                                     tag=morphologies._arb_tags['axon'])
-                                for section in self.icell.axon]
-                # Requires safe iteration over myelin section
-                # replace_axon += [dict(nseg=section.nseg,
-                #                      length=section.L,
-                #                      radius=0.5 * section.diam,
-                #                      tag=morphologies._arb_tags['myelin'])
-                #                 for section in self.icell.myelin]
+                replace_axon = []
+                for sec in ['axon', 'myelin']:
+                    if sec in self.icell_existing_secs:
+                        replace_axon += \
+                            [dict(nseg=section.nseg,
+                                  length=section.L,
+                                  radius=0.5 * section.diam,
+                                  tag=morphologies._arb_tags[sec])
+                             for section in getattr(self.icell, sec)]
             else:
                 replace_axon = None
         else:
