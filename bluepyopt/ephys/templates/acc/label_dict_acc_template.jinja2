@@ -1,7 +1,7 @@
 (arbor-component
   (meta-data (version "0.1-dev"))
   (label-dict
-  {%- for loc, parameters in section_params %} {# could also use channels.keys() #}
+  {%- for loc in section_mechs.keys() %} {# could also use channels.keys() #}
     {%- if regions[loc].defn is not none %}
     {{ regions[loc].defn }}
     {%- endif %}

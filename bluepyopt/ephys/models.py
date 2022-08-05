@@ -324,11 +324,6 @@ class CellModel(Model):
                     replace_axon += morph_modifier_hoc
         elif sim_desc_creator is create_acc.create_acc:
             if self.morphology.do_replace_axon:
-                if self.icell is None:
-                    raise ValueError('Need to instantiate_morphology'
-                                     ' on CellModel before creating'
-                                     ' JSON/ACC-description with'
-                                     ' axon replacement.')
                 replace_axon = [dict(nseg=section.nseg,
                                      length=section.L,
                                      radius=0.5 * section.diam,
@@ -375,13 +370,29 @@ class CellModel(Model):
     def create_acc(self, param_values,
                    ignored_globals=(), template='acc/*_template.jinja2',
                    disable_banner=False,
-                   template_dir=None):
-        """Create hoc code for this model"""
-        return self._create_sim_desc(param_values,
-                                     ignored_globals, template,
-                                     disable_banner,
-                                     template_dir,
-                                     sim_desc_creator=create_acc.create_acc)
+                   template_dir=None,
+                   sim=None):
+        """Create JSON/ACC-description for this model"""
+        destroy_cell = False
+        if self.morphology.do_replace_axon:
+            if self.icell is None:
+                if sim is None:
+                    raise ValueError('Need an instance of NrnSimulator in sim'
+                                     ' to instantiate morphology in order to'
+                                     ' create JSON/ACC-description with'
+                                     ' axon replacement.')
+                self.instantiate_morphology(sim=sim)
+                destroy_cell = True
+
+        ret = self._create_sim_desc(param_values,
+                                    ignored_globals, template,
+                                    disable_banner,
+                                    template_dir,
+                                    sim_desc_creator=create_acc.create_acc)
+
+        if destroy_cell:
+            self.destroy(sim=sim)
+        return ret
 
     def __str__(self):
         """Return string representation"""

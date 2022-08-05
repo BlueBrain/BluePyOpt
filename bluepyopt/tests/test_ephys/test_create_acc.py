@@ -135,6 +135,26 @@ def test_create_acc_filename():
 
 
 @pytest.mark.unit
+def test_create_acc_iexpr_generator():
+    """ephys.create_acc: Test iexpr generation from range expression"""
+    range_expr = ephys.create_hoc.RangeExpr(
+        location='apic',
+        name='gIhbar_Ih',
+        value=2.125,
+        inst_distribution='(0.62109375 - 0.546875*math.exp('
+                          '({distance})*0.421875))*{value}')
+
+    iexpr = ephys.create_acc._arb_generate_iexpr(
+        range_expr,
+        constant_formatter=lambda v: '%.9g' % v)
+
+    assert iexpr == '(sub (scalar 0.62109375) ' \
+                    '(mul (scalar 0.546875) ' \
+                    '(exp (mul (distance (region "soma")) ' \
+                    '(scalar 0.421875) ) ) ) )'
+
+
+@pytest.mark.unit
 def test_create_acc_replace_axon():
     """ephys.create_acc: Test create_acc with axon replacement"""
     mech = utils.make_mech()
@@ -164,20 +184,37 @@ def make_cell(replace_axon):
         'somatic', seclist_name='somatic')
     mechs = [ephys.mechanisms.NrnMODMechanism(
         name='hh', suffix='hh', locations=[somatic_loc])]
+    gkbar_hh_scaler = '(-0.62109375 + 0.546875*math.log(' \
+                      '({distance})*0.421875 + 1.25))*{value}'
     params = [
         ephys.parameters.NrnSectionParameter(
             name='gnabar_hh',
             param_name='gnabar_hh',
             locations=[somatic_loc]),
-        ephys.parameters.NrnSectionParameter(
+        ephys.parameters.NrnRangeParameter(
             name='gkbar_hh',
             param_name='gkbar_hh',
+            value_scaler=ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
+                distribution=gkbar_hh_scaler),
             locations=[somatic_loc])]
     return ephys.models.CellModel(
         'simple_ax2',
         morph=morph,
         mechs=mechs,
         params=params)
+
+
+def run_short_sim(cable_cell):
+    # Create cell model
+    arb_cell_model = arbor.single_cell_model(cable_cell)
+    arb_cell_model.properties.catalogue = arbor.catalogue()
+    arb_cell_model.properties.catalogue.extend(
+        arbor.default_catalogue(), "default::")
+    arb_cell_model.properties.catalogue.extend(
+        arbor.bbp_catalogue(), "BBP::")
+
+    # Run a very short simulation to test mechanism instantiation
+    arb_cell_model.run(tfinal=0.1)
 
 
 @pytest.mark.unit
@@ -203,16 +240,7 @@ def test_cell_model_output_and_read_acc():
     assert len(arb_morph.branch_segments(
         cable_cell.cables('"axon"')[0].branch)) == 5
 
-    # Create cell model
-    arb_cell_model = arbor.single_cell_model(cable_cell)
-    arb_cell_model.properties.catalogue = arbor.catalogue()
-    arb_cell_model.properties.catalogue.extend(
-        arbor.default_catalogue(), "default::")
-    arb_cell_model.properties.catalogue.extend(
-        arbor.bbp_catalogue(), "BBP::")
-
-    # Run a very short simulation to test mechanism instantiation
-    arb_cell_model.run(tfinal=0.1)
+    run_short_sim(cable_cell)
 
 
 def test_cell_model_output_and_read_acc_replace_axon():
@@ -221,11 +249,9 @@ def test_cell_model_output_and_read_acc_replace_axon():
     param_values = {'gnabar_hh': 0.1,
                     'gkbar_hh': 0.03}
 
-    sim = ephys.simulators.NrnSimulator()
-    cell.instantiate_morphology(sim)
-
     with tempfile.TemporaryDirectory() as acc_dir:
-        create_acc.output_acc(acc_dir, cell, param_values)
+        create_acc.output_acc(acc_dir, cell, param_values,
+                              sim=ephys.simulators.NrnSimulator())
         try:
             cell_json, arb_morph, arb_labels, arb_decor = \
                 create_acc.read_acc(
@@ -247,16 +273,7 @@ def test_cell_model_output_and_read_acc_replace_axon():
     assert len(arb_morph.branch_segments(
         cable_cell.cables('"axon"')[0].branch)) == 4
 
-    # Create cell model
-    arb_cell_model = arbor.single_cell_model(cable_cell)
-    arb_cell_model.properties.catalogue = arbor.catalogue()
-    arb_cell_model.properties.catalogue.extend(
-        arbor.default_catalogue(), "default::")
-    arb_cell_model.properties.catalogue.extend(
-        arbor.bbp_catalogue(), "BBP::")
-
-    # Run a very short simulation to test mechanism instantiation
-    arb_cell_model.run(tfinal=0.1)
+    run_short_sim(cable_cell)
 
 
 def test_cell_model_create_acc_replace_axon_without_instantiate():
@@ -265,8 +282,9 @@ def test_cell_model_create_acc_replace_axon_without_instantiate():
     param_values = {'gnabar_hh': 0.1,
                     'gkbar_hh': 0.03}
 
-    with pytest.raises(ValueError, match='Need to instantiate_morphology'
-                                         ' on CellModel before creating'
-                                         ' JSON/ACC-description with'
-                                         ' axon replacement.'):
+    with pytest.raises(ValueError,
+                       match='Need an instance of NrnSimulator in sim'
+                             ' to instantiate morphology in order to'
+                             ' create JSON/ACC-description with'
+                             ' axon replacement.'):
         cell.create_acc(param_values)

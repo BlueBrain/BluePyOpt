@@ -1,0 +1,289 @@
+{
+    "allen": {
+        "CaDynamics": {
+            "globals": [
+                "F"
+            ],
+            "ranges": [
+                "decay",
+                "gamma",
+                "minCai",
+                "depth"
+            ]
+        },
+        "Ca_HVA": {
+            "globals": null,
+            "ranges": [
+                "gbar"
+            ]
+        },
+        "Ca_LVA": {
+            "globals": null,
+            "ranges": [
+                "gbar"
+            ]
+        },
+        "Ih": {
+            "globals": null,
+            "ranges": [
+                "gbar"
+            ]
+        },
+        "Im": {
+            "globals": null,
+            "ranges": [
+                "gbar",
+                "g",
+                "ik"
+            ]
+        },
+        "Im_v2": {
+            "globals": null,
+            "ranges": [
+                "gbar",
+                "ik"
+            ]
+        },
+        "K_P": {
+            "globals": null,
+            "ranges": [
+                "gbar",
+                "g",
+                "ik"
+            ]
+        },
+        "K_T": {
+            "globals": null,
+            "ranges": [
+                "gbar"
+            ]
+        },
+        "Kd": {
+            "globals": null,
+            "ranges": [
+                "gbar",
+                "ik"
+            ]
+        },
+        "Kv2like": {
+            "globals": null,
+            "ranges": [
+                "gbar"
+            ]
+        },
+        "Kv3_1": {
+            "globals": null,
+            "ranges": [
+                "gbar",
+                "ik"
+            ]
+        },
+        "NaTa": {
+            "globals": null,
+            "ranges": [
+                "gbar",
+                "g",
+                "ina"
+            ]
+        },
+        "NaTs": {
+            "globals": null,
+            "ranges": [
+                "gbar",
+                "g",
+                "ina"
+            ]
+        },
+        "NaV": {
+            "globals": null,
+            "ranges": [
+                "gbar"
+            ]
+        },
+        "Nap": {
+            "globals": null,
+            "ranges": [
+                "gbar",
+                "g",
+                "ina"
+            ]
+        },
+        "SK": {
+            "globals": null,
+            "ranges": [
+                "gbar",
+                "ik"
+            ]
+        }
+    },
+    "BBP": {
+        "CaDynamics_E2": {
+            "globals": null,
+            "ranges": [
+                "decay",
+                "gamma",
+                "minCai",
+                "depth",
+                "initCai"
+            ]
+        },
+        "Ca_HVA": {
+            "globals": null,
+            "ranges": [
+                "gCa_HVAbar"
+            ]
+        },
+        "Ca_LVAst": {
+            "globals": null,
+            "ranges": [
+                "gCa_LVAstbar"
+            ]
+        },
+        "Ih": {
+            "globals": null,
+            "ranges": [
+                "gIhbar"
+            ]
+        },
+        "Im": {
+            "globals": null,
+            "ranges": [
+                "gImbar"
+            ]
+        },
+        "K_Pst": {
+            "globals": null,
+            "ranges": [
+                "gK_Pstbar"
+            ]
+        },
+        "K_Tst": {
+            "globals": null,
+            "ranges": [
+                "gK_Tstbar"
+            ]
+        },
+        "NaTa_t": {
+            "globals": null,
+            "ranges": [
+                "gNaTa_tbar"
+            ]
+        },
+        "NaTs2_t": {
+            "globals": null,
+            "ranges": [
+                "gNaTs2_tbar"
+            ]
+        },
+        "Nap_Et2": {
+            "globals": null,
+            "ranges": [
+                "gNap_Et2bar"
+            ]
+        },
+        "SK_E2": {
+            "globals": null,
+            "ranges": [
+                "gSK_E2bar"
+            ]
+        },
+        "SKv3_1": {
+            "globals": null,
+            "ranges": [
+                "gSKv3_1bar"
+            ]
+        }
+    },
+    "default": {
+        "exp2syn": {
+            "globals": null,
+            "ranges": [
+                "tau1",
+                "tau2",
+                "e"
+            ]
+        },
+        "expsyn": {
+            "globals": null,
+            "ranges": [
+                "tau",
+                "e"
+            ]
+        },
+        "expsyn_stdp": {
+            "globals": null,
+            "ranges": [
+                "tau",
+                "taupre",
+                "taupost",
+                "e",
+                "Apost",
+                "Apre",
+                "max_weight"
+            ]
+        },
+        "gj": {
+            "globals": null,
+            "ranges": [
+                "g"
+            ]
+        },
+        "hh": {
+            "globals": null,
+            "ranges": [
+                "gnabar",
+                "gkbar",
+                "gl",
+                "el",
+                "q10"
+            ]
+        },
+        "kamt": {
+            "globals": [
+                "minf",
+                "mtau",
+                "hinf",
+                "htau"
+            ],
+            "ranges": [
+                "gbar",
+                "q10"
+            ]
+        },
+        "kdrmt": {
+            "globals": [
+                "minf",
+                "mtau"
+            ],
+            "ranges": [
+                "gbar",
+                "q10",
+                "vhalfm"
+            ]
+        },
+        "nax": {
+            "globals": null,
+            "ranges": [
+                "gbar",
+                "sh"
+            ]
+        },
+        "nernst": {
+            "globals": [
+                "R",
+                "F"
+            ],
+            "ranges": [
+                "coeff"
+            ]
+        },
+        "pas": {
+            "globals": [
+                "e"
+            ],
+            "ranges": [
+                "g"
+            ]
+        }
+    }
+}

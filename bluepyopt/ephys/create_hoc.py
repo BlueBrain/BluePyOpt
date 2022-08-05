@@ -23,6 +23,7 @@ from bluepyopt.ephys.parameterscalers import (NrnSegmentSomaDistanceScaler,
                                               format_float)
 
 Location = namedtuple('Location', 'name, value')
+RangeExpr = namedtuple('RangeExpr', 'location, name, value, inst_distribution')
 Range = namedtuple('Range', 'location, param_name, value')
 DEFAULT_LOCATION_ORDER = [
     'all',
@@ -60,6 +61,19 @@ def _generate_reinitrng(mechs):
     return reinitrng_content
 
 
+def _range_exprs_to_hoc(range_params):
+    """Process raw range parameters to hoc strings"""
+
+    ret = []
+    for param in range_params:
+        value = param.inst_distribution
+        value = re.sub(r'math\.', '', value)
+        value = re.sub('{distance}', FLOAT_FORMAT, value)
+        value = re.sub('{value}', format_float(param.value), value)
+        ret.append(Range(param.location, param.name, value))
+    return ret
+
+
 def _generate_parameters(parameters):
     """Create a list of parameters that need to be added to the hoc template"""
     param_locations = defaultdict(list)
@@ -92,11 +106,11 @@ def _generate_parameters(parameters):
                 if isinstance(
                         param.value_scaler,
                         NrnSegmentSomaDistanceScaler):
-                    value = param.value_scaler.inst_distribution
-                    value = re.sub(r'math\.', '', value)
-                    value = re.sub('{distance}', FLOAT_FORMAT, value)
-                    value = re.sub('{value}', format_float(param.value), value)
-                    range_params.append(Range(loc, param.param_name, value))
+                    range_params.append(
+                        RangeExpr(loc,
+                                  param.param_name,
+                                  param.value,
+                                  param.value_scaler.inst_distribution))
                 elif isinstance(param.value_scaler, NrnSegmentLinearScaler):
                     value = param.value_scale_func(param.value)
                     section_params[loc].append(
@@ -203,6 +217,9 @@ def create_hoc(mechs,
                                            parameters,
                                            ignored_globals,
                                            disable_banner)
+    template_params['range_params'] = _range_exprs_to_hoc(
+        template_params['range_params']
+    )
     re_init_rng = _generate_reinitrng(mechs)
 
     if custom_jinja_params is None:

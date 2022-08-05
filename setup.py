@@ -87,6 +87,7 @@ setuptools.setup(
     },
     package_data={
         'bluepyopt': [
+            'ephys/static/arbor_catalogues.json',
             'ephys/templates/cell_template.jinja2',
             'ephys/templates/acc/_json_template.jinja2',
             'ephys/templates/acc/decor_acc_template.jinja2',
