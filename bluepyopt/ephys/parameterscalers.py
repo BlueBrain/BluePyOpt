@@ -122,7 +122,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
         self.dist_param_names = dist_param_names
         self.soma_ref_location = soma_ref_location
 
-        if not(0. <= self.soma_ref_location <= 1.):
+        if not (0. <= self.soma_ref_location <= 1.):
             raise ValueError('soma_ref_location must be between 0 and 1.')
 
         if self.dist_param_names is not None:
