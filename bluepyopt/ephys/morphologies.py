@@ -247,17 +247,16 @@ proc replace_axon(){ local nSec, D1, D2
         '''
 
 
-# Arbor morphology tags
-_arb_tags = dict(
-    soma=1,
-    axon=2,
-    dend=3,
-    apic=4,
-    myelin=5
-)
-
-
 class ArbFileMorphology(Morphology, DictMixin):
+
+    # Arbor morphology tags
+    tags = dict(
+        soma=1,
+        axon=2,
+        dend=3,
+        apic=4,
+        myelin=5
+    )
 
     @staticmethod
     def replace_axon(morphology, replacement=None):
@@ -291,8 +290,8 @@ class ArbFileMorphology(Morphology, DictMixin):
                 "Need a newer version of Arbor for axon replacement.")
 
         # Arbor tags
-        axon_tag = _arb_tags['axon']
-        soma_tag = _arb_tags['soma']
+        axon_tag = ArbFileMorphology.tags['axon']
+        soma_tag = ArbFileMorphology.tags['soma']
 
         # Prune morphology to remove axon (myelin not assumed to exist)
         st = morphology.to_segment_tree()

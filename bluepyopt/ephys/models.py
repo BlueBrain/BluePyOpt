@@ -338,7 +338,8 @@ class CellModel(Model):
                             [dict(nseg=section.nseg,
                                   length=section.L,
                                   radius=0.5 * section.diam,
-                                  tag=morphologies._arb_tags[sec])
+                                  tag=morphologies.
+                                  ArbFileMorphology.tags[sec])
                              for section in getattr(self.icell, sec)]
             else:
                 replace_axon = None

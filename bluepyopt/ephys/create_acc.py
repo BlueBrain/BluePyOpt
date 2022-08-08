@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 from .create_hoc import Location, RangeExpr, \
     _get_template_params, format_float, DEFAULT_LOCATION_ORDER
-from .morphologies import _arb_tags, ArbFileMorphology
+from .morphologies import ArbFileMorphology
 
 
 # Define Neuron to Arbor variable conversions
@@ -127,11 +127,11 @@ _loc2arb_region = dict(
     # defining "all" region for convenience here, else use
     # all=_arb_defined_region('(all)') to omit "all" in label_dict
     all=_make_region('all', '(all)'),
-    somatic=_make_tagged_region('soma', _arb_tags['soma']),
-    axonal=_make_tagged_region('axon', _arb_tags['axon']),
-    basal=_make_tagged_region('dend', _arb_tags['dend']),
-    apical=_make_tagged_region('apic', _arb_tags['apic']),
-    myelinated=_make_tagged_region('myelin', _arb_tags['myelin']),
+    somatic=_make_tagged_region('soma', ArbFileMorphology.tags['soma']),
+    axonal=_make_tagged_region('axon', ArbFileMorphology.tags['axon']),
+    basal=_make_tagged_region('dend', ArbFileMorphology.tags['dend']),
+    apical=_make_tagged_region('apic', ArbFileMorphology.tags['apic']),
+    myelinated=_make_tagged_region('myelin', ArbFileMorphology.tags['myelin']),
 )
 
 
