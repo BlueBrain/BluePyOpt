@@ -160,7 +160,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
     gen = start_gen + 1
     stopping_params = {"gen": gen}
     while utils.run_next_gen(
-            not(_check_stopping_criteria(stopping_criteria, stopping_params)),
+            not (_check_stopping_criteria(stopping_criteria, stopping_params)),
             terminator):
         offspring = _get_offspring(parents, toolbox, cxpb, mutpb)
 
@@ -175,7 +175,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
 
         logger.info(logbook.stream)
 
-        if(cp_filename and cp_frequency and
+        if (cp_filename and cp_frequency and
            gen % cp_frequency == 0):
             cp = dict(population=population,
                       generation=gen,
