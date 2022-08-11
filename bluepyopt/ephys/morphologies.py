@@ -27,6 +27,19 @@ import logging
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
+try:
+    import arbor
+    import numpy
+except ImportError as e:
+    class arbor:
+        def __getattribute__(self, _):
+            raise ImportError("Loading an ACC/JSON-exported cell model into an"
+                              " Arbor morphology and cable cell components"
+                              " requires missing dependency arbor."
+                              " To install BluePyOpt with arbor,"
+                              " run 'pip install bluepyopt[arbor]'.")
+
+
 logger = logging.getLogger(__name__)
 
 # TODO define an addressing scheme
@@ -271,14 +284,6 @@ class ArbFileMorphology(Morphology, DictMixin):
             interpreted so that the axon replacement is formed from a single
             branch of stacked cylindrical segments.
         '''
-        import numpy
-        try:
-            import arbor
-        except ImportError as e:
-            raise ImportError("Creating Arbor morphology with axon replacement"
-                              " requires missing dependency arbor."
-                              " To install BluePyOpt with arbor,"
-                              " run 'pip install bluepyopt[arbor]'.")
 
         def _mpt_to_coord(mpt):
             '''Convert arbor.mpoint 3d center coordinates to numpy array'''

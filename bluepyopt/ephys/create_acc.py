@@ -4,7 +4,7 @@
 
 import os
 import logging
-
+import pathlib
 from collections import namedtuple
 from glob import glob
 
@@ -13,6 +13,17 @@ import jinja2
 import json
 import shutil
 import ast
+
+try:
+    import arbor
+except ImportError as e:
+    class arbor:
+        def __getattribute__(self, _):
+            raise ImportError("Loading an ACC/JSON-exported cell model into an"
+                              " Arbor morphology and cable cell components"
+                              " requires missing dependency arbor."
+                              " To install BluePyOpt with arbor,"
+                              " run 'pip install bluepyopt[arbor]'.")
 
 logger = logging.getLogger(__name__)
 
@@ -544,7 +555,7 @@ def create_acc(mechs,
         of a custom template
     '''
 
-    if morphology[-4:].lower() not in ['.swc', '.asc']:
+    if pathlib.Path(morphology).suffix.lower() not in ['.swc', '.asc']:
         raise RuntimeError("Morphology file %s not supported in Arbor "
                            " (only supported types are .swc and .asc)."
                            % morphology)
@@ -670,15 +681,6 @@ def read_acc(cell_json_filename):
         cell_json_filename (str): The path to the JSON file containing
         meta-information on morphology, label-dict and decor of exported cell
     '''
-
-    try:
-        import arbor
-    except ImportError as e:
-        raise ImportError("Loading an ACC/JSON-exported cell model into an"
-                          " Arbor morphology and cable cell components"
-                          " requires missing dependency arbor."
-                          " To install BluePyOpt with arbor,"
-                          " run 'pip install bluepyopt[arbor]'.")
 
     with open(cell_json_filename) as cell_json_file:
         cell_json = json.load(cell_json_file)

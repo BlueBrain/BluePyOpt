@@ -174,3 +174,34 @@ def test_exec():
     finally:
         os.chdir(old_cwd)
         output.close()
+
+
+@pytest.mark.slow
+def test_l5pc_soma_arbor():
+    """L5PC Soma Arbor Notebook: test execution"""
+    import numpy
+    numpy.seterr(all='raise')
+    old_cwd = os.getcwd()
+    output = StringIO()
+    try:
+        os.chdir(L5PC_PATH)
+        with stdout_redirector(output):
+            # When using import instead of execfile this doesn't work
+            # Probably because multiprocessing doesn't work correctly during
+            # import
+            if sys.version_info[0] < 3:
+                execfile('l5pc_soma_arbor_somatic.py')  # NOQA
+            else:
+                with open('l5pc_soma_arbor_somatic.py') as l5pc_file:
+                    globals = {}
+                    exec(compile(l5pc_file.read(),
+                                 'l5pc_soma_arbor_somatic.py',
+                                 'exec'), globals, globals)  # NOQA
+        stdout = output.getvalue()
+        # mean relative L1-deviation between Arbor and Neuron below tolerance
+        assert 'Default dt ({:,.3g}): test_l5pc OK!'.format(0.025) + \
+            ' The mean relative Arbor-Neuron L1-deviation and error' \
+            in stdout
+    finally:
+        os.chdir(old_cwd)
+        output.close()

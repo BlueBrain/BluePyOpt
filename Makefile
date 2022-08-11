@@ -15,7 +15,11 @@ l5pc_nbconvert: jupyter
 	cd examples/l5pc && \
 		jupyter nbconvert --to python L5PC.ipynb && \
 		sed '/get_ipython/d;/plt\./d;/plot_responses/d;/import matplotlib/d;/neurom/d;/axes/d;/fig/d;/for index/d' L5PC.py >L5PC.tmp && \
-		mv L5PC.tmp L5PC.py
+		mv L5PC.tmp L5PC.py && \
+		python l5pc_soma_arbor_pm.py --prepare-only --regions somatic --param-values ../../bluepyopt/tests/testdata/l5pc_soma_arbor/param_values.json && \
+		jupyter nbconvert --to python l5pc_soma_arbor_somatic.ipynb && \
+		sed '/get_ipython/d;/plt\./d;/import matplotlib/d;/from IPython.display/d;/multiprocessing/d;s/pool.map/map/g;s/# test_l5pc: insert //g;/# test_l5pc: skip/d' l5pc_soma_arbor_somatic.py >l5pc_soma_arbor_somatic.tmp && \
+		mv l5pc_soma_arbor_somatic.tmp l5pc_soma_arbor_somatic.py
 l5pc_nrnivmodl:
 	cd examples/l5pc && nrnivmodl mechanisms
 l5pc_zip:
@@ -41,6 +45,8 @@ coverage_test: test
 jupyter:
 	pip install jupyter
 	pip install ipython --upgrade
+	pip install papermill
+	pip install scipy
 install_test_requirements:
 	pip install -q $(TEST_REQUIREMENTS) --upgrade
 test: clean unit functional
@@ -65,6 +71,8 @@ clean:
 	rm -rf bluepyopt/tests/coverage.xml
 	rm -rf bluepyopt/tests/coverage_html
 	rm -rf examples/l5pc/L5PC.py
+	rm -rf examples/l5pc/l5pc_soma_arbor_somatic.ipynb
+	rm -rf examples/l5pc/l5pc_soma_arbor_somatic.py
 	rm -rf examples/l5pc/x86_64
 	rm -rf examples/stochkv/x86_64
 	rm -rf .coverage
