@@ -35,7 +35,7 @@ setuptools.setup(
     install_requires=[
         'numpy>=1.6',
         'pandas>=0.18',
-        'deap',
+        'deap>=1.3.3',
         'efel>=2.13',
         'ipyparallel',
         'pickleshare>=0.7.3',
