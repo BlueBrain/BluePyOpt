@@ -8,7 +8,6 @@ import pathlib
 from collections import namedtuple
 from glob import glob
 
-import numpy
 import jinja2
 import json
 import shutil
@@ -195,17 +194,18 @@ def _arb_load_mech_catalogues():
 
 def _find_mech_and_convert_param_name(param, mechs):
     """Find a parameter's mechanism and convert name to Arbor convention"""
-    mech_suffix_matches = numpy.where([param.name.endswith("_" + mech)
-                                       for mech in mechs])[0]
-    if mech_suffix_matches.size == 0:
+    mech_suffix_matches = [i for i, mech in enumerate(mechs)
+                           if param.name.endswith("_" + mech)]
+    if len(mech_suffix_matches) == 0:
         return None, _nrn2arb_param(param, name=param.name)
-    elif mech_suffix_matches.size == 1:
+    elif len(mech_suffix_matches) == 1:
         mech = mechs[mech_suffix_matches[0]]
         name = param.name[:-(len(mech) + 1)]
         return mech, _nrn2arb_param(param, name=name)
     else:
         raise RuntimeError("Parameter name %s matches multiple mechanisms %s "
-                           % (param.name, repr(mechs[mech_suffix_matches])))
+                           % (param.name,
+                              [repr(mechs[i]) for i in mech_suffix_matches]))
 
 
 def _arb_convert_params_and_group_by_mech(params, channels):

@@ -24,7 +24,7 @@ parser = argparse.ArgumentParser(description=
     'Run l5pc_soma_arbor notebook with papermill using different options.')
 parser.add_argument('--output-dir', type=str, default='.',
                     help='Output directory')
-parser.add_argument('--regions', type=str, nargs='+', required=True,
+parser.add_argument('--regions', type=str, nargs='+',
                     help='L5PC mechanisms to use: region[:mech1,mech2,...].')
 parser.add_argument('--powerset', type=int,
                     help='Process powerset of local mechs up to this size.')
@@ -35,6 +35,8 @@ parser.add_argument('--prepare-only', action='store_true',
                     help='Prepare notebooks only, do not run them.)')
 parser.add_argument('--default-dt', type=float, default=0.025,
                     help='dt used for time-integration by default.')
+parser.add_argument('--run-fine-dt', action='store_true',
+                    help='Run time-integration with fine dt (0.001).')
 parser.add_argument('--rel-l1-tolerance', type=float, default=0.05,
                     help='Tolerance for rel. Arbor-Neuron L1-difference.')
 args = parser.parse_args()
@@ -158,7 +160,7 @@ for loc, loc_mechs in all_mechanisms.items():
                             param_values_json=param_values_json,
                             default_dt=args.default_dt,
                             run_spike_time_analysis=False,
-                            run_fine_dt=False,
+                            run_fine_dt=args.run_fine_dt,
                             voltage_residual_rel_l1_tolerance=
                                 args.rel_l1_tolerance),
             prepare_only=args.prepare_only
@@ -198,7 +200,7 @@ for loc, loc_mechs in all_mechanisms.items():
                                     param_values_json=param_values_json,
                                     default_dt=args.default_dt,
                                     run_spike_time_analysis=False,
-                                    run_fine_dt=False,
+                                    run_fine_dt=args.run_fine_dt,
                                     voltage_residual_rel_l1_tolerance=
                                         args.rel_l1_tolerance),
                     prepare_only=args.prepare_only
