@@ -6,12 +6,13 @@
   {%- if morphology %} {# feed morphology separately as a SWC/ASC file #}
   {%- if replace_axon is not none %}
   "morphology": {
-     "path": "{{morphology}}",
-     "replace_axon": {{replace_axon}}
+     "original": "{{morphology}}",
+     "replace_axon": {{replace_axon}},
+     "modified": "{{modified_morphology}}"
   },
   {%- else %}
   "morphology": {
-     "path": "{{morphology}}"
+     "original": "{{morphology}}"
   },
   {%- endif %}
   {%- else %}

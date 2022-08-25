@@ -565,8 +565,14 @@ def create_acc(mechs,
                      "ArbFileMorphology.replace_axon after loading "
                      "morphology in Arbor.")
         replace_axon_json = json.dumps(replace_axon)
+        if hasattr(arbor, 'prune_tag'):
+            modified_morphology = \
+                pathlib.Path(morphology).stem + '_modified.acc'
+        else:
+            modified_morphology = None
     else:
         replace_axon_json = None
+        modified_morphology = None
 
     templates = _read_templates(template_dir, template_filename)
 
@@ -631,6 +637,7 @@ def create_acc(mechs,
                             banner=banner,
                             morphology=morphology,
                             replace_axon=replace_axon_json,
+                            modified_morphology=modified_morphology,
                             filenames=filenames,
                             regions=_loc2arb_region,
                             global_mechs=global_mechs,
@@ -639,6 +646,37 @@ def create_acc(mechs,
                             section_scaled_mechs=section_scaled_mechs,
                             **custom_jinja_params)
             for name, template in templates.items()}
+
+
+def _instantiate_morphology(morpho_filename, replace_axon):
+    '''Load morphology and optionally perform axon replacement
+    Args:
+        morpho_filename (str): Path to file with original morphology.
+        replace_axon (): list of segments to replace axon with (if not None).
+    '''
+
+    morpho_suffix = pathlib.Path(morpho_filename).suffix
+
+    if morpho_suffix == '.acc':
+        morpho = arbor.load_component(morpho_filename).component
+        if replace_axon is not None:
+            morpho = ArbFileMorphology.replace_axon(morpho, replace_axon)
+    elif morpho_suffix == '.swc':
+        morpho = arbor.load_swc_arbor(morpho_filename)
+        if replace_axon is not None:
+            morpho = ArbFileMorphology.replace_axon(morpho, replace_axon)
+    elif morpho_suffix == '.asc':
+        morpho = arbor.load_asc(morpho_filename)
+        if replace_axon is not None:
+            morpho = \
+                ArbFileMorphology.replace_axon(morpho.morphology, replace_axon)
+        else:
+            morpho = morpho.morphology
+    else:
+        raise RuntimeError(
+            'Unsupported morphology {} (only .swc and .asc supported)'.format(
+                morpho_filename))
+    return morpho
 
 
 def output_acc(output_dir, cell, parameters,
@@ -657,6 +695,12 @@ def output_acc(output_dir, cell, parameters,
     '''
     output = cell.create_acc(parameters, template_filename, sim=sim)
 
+    cell_json = [comp_rendered
+                 for comp, comp_rendered in output.items()
+                 if pathlib.Path(comp).suffix == '.json']
+    assert len(cell_json) == 1
+    cell_json = json.loads(cell_json[0])
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     for comp, comp_rendered in output.items():
@@ -667,10 +711,18 @@ def output_acc(output_dir, cell, parameters,
             f.write(comp_rendered)
 
     morpho_filename = os.path.join(
-        output_dir, os.path.basename(cell.morphology.morphology_path))
+        output_dir, cell_json['morphology']['original'])
     if os.path.exists(morpho_filename):
         raise RuntimeError("%s already exists!" % morpho_filename)
-    shutil.copy2(cell.morphology.morphology_path, output_dir)
+    shutil.copy2(cell.morphology.morphology_path, morpho_filename)
+
+    if 'replace_axon' in cell_json['morphology']:
+        if hasattr(arbor, 'prune_tag'):
+            morpho = _instantiate_morphology(
+                morpho_filename, cell_json['morphology']['replace_axon'])
+            arbor.write_component(
+                morpho,
+                os.path.join(output_dir, cell_json['morphology']['modified']))
 
 
 # Read the mixed JSON/ACC-output, to be moved to Arbor in future release
@@ -687,28 +739,11 @@ def read_acc(cell_json_filename):
 
     cell_json_dir = os.path.dirname(cell_json_filename)
 
-    morphology_filename = os.path.join(cell_json_dir,
-                                       cell_json['morphology']['path'])
-    if 'replace_axon' in cell_json['morphology']:
-        replace_axon = cell_json['morphology']['replace_axon']
-    else:
-        replace_axon = None
-
-    if morphology_filename.endswith('.swc'):
-        morpho = arbor.load_swc_arbor(morphology_filename)
-        if replace_axon is not None:
-            morpho = ArbFileMorphology.replace_axon(morpho, replace_axon)
-    elif morphology_filename.endswith('.asc'):
-        morpho = arbor.load_asc(morphology_filename)
-        if replace_axon is not None:
-            morpho = \
-                ArbFileMorphology.replace_axon(morpho.morphology, replace_axon)
-        else:
-            morpho = morpho.morphology
-    else:
-        raise RuntimeError(
-            'Unsupported morphology {} (only .swc and .asc supported)'.format(
-                morphology_filename))
+    morpho_filename = os.path.join(cell_json_dir,
+                                   cell_json['morphology']['original'])
+    morpho = _instantiate_morphology(
+        morpho_filename,
+        cell_json['morphology'].get('replace_axon', None))
 
     labels = arbor.load_component(
         os.path.join(cell_json_dir, cell_json['label_dict'])).component

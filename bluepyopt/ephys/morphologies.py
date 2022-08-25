@@ -289,14 +289,33 @@ class ArbFileMorphology(Morphology, DictMixin):
             '''Convert arbor.mpoint 3d center coordinates to numpy array'''
             return numpy.array([mpt.x, mpt.y, mpt.z])
 
-        # Check if prune_tag, prune_tag_roots, distal_radii are available
-        if not hasattr(morphology, "to_segment_tree"):
+        def _find_ais_centers(st, axon_parent=None):
+            if axon_parent is None or axon_parent == arbor.mnpos:
+                soma_segs = [i for i, s in enumerate(st.segments)
+                             if s.tag == ArbFileMorphology.tags['soma']]
+                soma_terminals = [i for i in soma_segs if st.is_terminal(i)]
+                if len(soma_terminals) > 0:
+                    axon_parent = soma_terminals[-1]
+                elif len(soma_segs) > 0:
+                    axon_parent = soma_segs[-1]
+                else:
+                    raise ValueError('Morphology without soma,'
+                                     ' cannot replace axon.')
+
+            ar_prox = st.segments[axon_parent].dist
+            ar_prox_center = _mpt_to_coord(ar_prox)
+            ar_dist = st.segments[axon_parent].prox
+            ar_dist_center = 2 * ar_prox_center - _mpt_to_coord(ar_dist)
+
+            return ar_prox_center, ar_dist_center
+
+        # Check if prune_tag, prune_tag_roots are available
+        if not hasattr(arbor, 'prune_tag'):
             raise NotImplementedError(
                 "Need a newer version of Arbor for axon replacement.")
 
         # Arbor tags
         axon_tag = ArbFileMorphology.tags['axon']
-        soma_tag = ArbFileMorphology.tags['soma']
 
         # Prune morphology to remove axon (myelin not assumed to exist)
         st = morphology.to_segment_tree()
@@ -318,6 +337,10 @@ class ArbFileMorphology(Morphology, DictMixin):
             ar_dist = st.segments[axon_root].dist
             ar_dist_center = _mpt_to_coord(ar_dist)
 
+            if all(ar_prox_center == ar_dist_center):
+                ar_prox_center, ar_dist_center = \
+                    _find_ais_centers(st, axon_parent)
+
             if ar_radius is None:
                 median_distal_radii = \
                     arbor.median_distal_radii(st, axon_tag, 60)
@@ -331,21 +354,8 @@ class ArbFileMorphology(Morphology, DictMixin):
         else:
             if ar_radius is None:
                 ar_radius = [0.5, 0.5]
-            soma_segs = [i for i, s in enumerate(st.segments)
-                         if s.tag == soma_tag]
-            soma_terminals = [i for i in soma_segs if st.is_terminal(i)]
-            if len(soma_terminals) > 0:
-                axon_parent = soma_terminals[-1]
-            elif len(soma_segs) > 0:
-                axon_parent = soma_segs[-1]
-            else:
-                raise ValueError('Morphology without soma,'
-                                 ' cannot replace axon.')
 
-            ar_prox = st.segments[axon_parent].dist
-            ar_prox_center = _mpt_to_coord(ar_prox)
-            ar_dist = st.segments[axon_parent].prox
-            ar_dist_center = 2 * ar_prox_center - _mpt_to_coord(ar_dist)
+            ar_prox_center, ar_dist_center = _find_ais_centers(st)
 
             # create new branch for replaced axon not to break
             # existing location expressions

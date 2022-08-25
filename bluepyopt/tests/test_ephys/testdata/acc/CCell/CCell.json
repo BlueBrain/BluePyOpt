@@ -2,7 +2,7 @@
   "cell_model_name": "CCell",
   "produced_by": "Created by BluePyOpt(1.12.62) at 2022-07-28 17:15:28.166082", 
   "morphology": {
-     "path": "CCell.swc"
+     "original": "CCell.swc"
   },
   "label_dict": "CCell_label_dict.acc",
   "decor": "CCell_decor.acc"
