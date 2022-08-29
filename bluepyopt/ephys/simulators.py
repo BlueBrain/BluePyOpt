@@ -88,8 +88,6 @@ class NrnSimulator(object):
             ctypes.c_int.in_dll(nrndll, 'nrn_nobanner_').value = 1
 
     # pylint: disable=R0201
-    # TODO function below should probably a class property or something in that
-    # sense
     @property
     def neuron(self):
         """Return neuron module"""
