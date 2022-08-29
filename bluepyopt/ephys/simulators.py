@@ -34,16 +34,11 @@ class NrnSimulator(object):
                 "./data/".
         """
 
-        if platform.system() in ['Windows', 'Darwin']:
-            # hoc.so does not exist on NEURON Windows
-            # although \\hoc.pyd can work here, it gives an error for
-            # nrn_nobanner_ line
-            self.disable_banner = False
-            self.banner_disabled = False
-        else:
-            self.disable_banner = True
-            self.banner_disabled = False
-
+        # hoc.so does not exist on NEURON Windows or MacOS
+        # although \\hoc.pyd can work here, it gives an error for
+        # nrn_nobanner_ line
+        self.disable_banner = platform.system() not in ['Windows', 'Darwin']
+        self.banner_disabled = False
         self.mechanisms_directory = mechanisms_directory
         self.neuron.h.load_file('stdrun.hoc')
 
