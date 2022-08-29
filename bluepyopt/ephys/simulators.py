@@ -34,7 +34,7 @@ class NrnSimulator(object):
                 "./data/".
         """
 
-        if platform.system() == 'Windows':
+        if platform.system() in ['Windows', 'Darwin']:
             # hoc.so does not exist on NEURON Windows
             # although \\hoc.pyd can work here, it gives an error for
             # nrn_nobanner_ line
