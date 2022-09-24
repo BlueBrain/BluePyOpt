@@ -309,28 +309,36 @@ class ArbFileMorphology(Morphology, DictMixin):
 
             return ar_prox_center, ar_dist_center
 
-        # Check if prune_tag, prune_tag_roots are available
-        if not hasattr(arbor, 'prune_tag'):
+        # Check if tag_roots is available
+        if not hasattr(arbor.segment_tree, 'tag_roots'):
             raise NotImplementedError(
                 "Need a newer version of Arbor for axon replacement.")
 
         # Arbor tags
         axon_tag = ArbFileMorphology.tags['axon']
 
-        # Prune morphology to remove axon (myelin not assumed to exist)
+        # Prune morphology at axon root
         st = morphology.to_segment_tree()
-        pruned_st = arbor.prune_tag(st, axon_tag)
-        pruned_roots = arbor.prune_tag_roots(st, axon_tag)
-        assert len(pruned_roots) <= 1
+        axon_roots = st.tag_roots(axon_tag)
+        if len(axon_roots) > 1:
+            raise ValueError("Axon replacement is only supported for axon with a single root.")
+        elif len(axon_roots) == 1:
+            axon_root = axon_roots[0]
+            pruned_st, axon_st = st.split_at(axon_root)
+        else:
+            pruned_st = st
 
         if replacement is not None:
             ar_radius = [r['radius'] for r in replacement]
         else:
+            if len(axon_roots) > 1:
+                ValueError('Please specify axon replacement explicitly '
+                           'for morphology with pre-existing axon.')
             ar_radius = None
 
         # Create axon replacement building on the pruned root
-        if len(pruned_roots) == 1:
-            axon_root = pruned_roots[0]
+        if len(axon_roots) == 1:
+            axon_root = axon_roots[0]
             axon_parent = st.parents[axon_root]
             ar_prox = st.segments[axon_root].prox
             ar_prox_center = _mpt_to_coord(ar_prox)
@@ -341,13 +349,8 @@ class ArbFileMorphology(Morphology, DictMixin):
                 ar_prox_center, ar_dist_center = \
                     _find_ais_centers(st, axon_parent)
 
-            if ar_radius is None:
-                median_distal_radii = \
-                    arbor.median_distal_radii(st, axon_tag, 60)
-                ar_radius = [ar_prox.radius,
-                             median_distal_radii[0]
-                             if len(median_distal_radii) > 0
-                             else ar_prox.radius]
+            # Could approximate ar_radius based on original morphology
+            # here if it is None (caught above)
 
             logger.debug('Replacing axon with root %d with AIS'
                          ' of radii %s.', axon_root, str(ar_radius))

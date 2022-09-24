@@ -15,7 +15,9 @@
     {%- endif %}
     {%- endfor %}
 
+
     {%- for loc, mech_parameters in section_mechs.items() %}{# paint-to-region instead of default #}
+
     {%- for mech, params in mech_parameters.items() %}
     {%- if mech is not none %}
     {%- if mech in section_scaled_mechs[loc] %}
@@ -29,4 +31,11 @@
     {%- endfor %}
     {%- endif %}
     {%- endfor %}
+
+    {%- for synapse_name, mech_param_locs in pprocess_mechs[loc].items() %}
+    {%- for point_loc in mech_param_locs.point_locs %}
+    (place {{point_loc.ref}} (synapse (mechanism "{{ mech_param_locs.mech }}" {%- for param in mech_param_locs.params %} ("{{ param.name }}" {{ param.value }}){%- endfor %})) "{{ synapse_name }}")
+    {%- endfor %}
+    {%- endfor %}
+
     {%- endfor %}))

@@ -15,6 +15,7 @@ from . import mechanisms
 from bluepyopt.ephys.parameters import (NrnGlobalParameter,
                                         NrnSectionParameter,
                                         NrnRangeParameter,
+                                        NrnPointProcessParameter,
                                         MetaParameter)
 
 from bluepyopt.ephys.parameterscalers import (NrnSegmentSomaDistanceScaler,
@@ -22,7 +23,9 @@ from bluepyopt.ephys.parameterscalers import (NrnSegmentSomaDistanceScaler,
                                               FLOAT_FORMAT,
                                               format_float)
 
+# Consider renaming Location as name already used in locations module
 Location = namedtuple('Location', 'name, value')
+PointExpr = namedtuple('PointExpr', 'name, point_loc, value')
 RangeExpr = namedtuple('RangeExpr', 'location, name, value, inst_distribution')
 Range = namedtuple('Range', 'location, param_name, value')
 DEFAULT_LOCATION_ORDER = [
@@ -37,16 +40,26 @@ DEFAULT_LOCATION_ORDER = [
 def _generate_channels_by_location(mechs, location_order):
     """Create a OrderedDictionary of all channel mechs for hoc template."""
     channels = OrderedDict((location, []) for location in location_order)
+    point_channels = OrderedDict((location, []) for location in location_order)
     for mech in mechs:
         name = mech.suffix
         for location in mech.locations:
             # TODO this is dangerous, implicitely assumes type of location
-            channels[location.seclist_name].append(name)
-    return channels
+            if isinstance(mech, mechanisms.NrnMODPointProcessMechanism):
+                point_channels[location.seclist_name].append(mech)
+            else:
+                channels[location.seclist_name].append(name)
+    return channels, point_channels
 
 
 def _generate_reinitrng(mechs):
     """Create re_init_rng function"""
+
+    for mech in mechs:
+        if isinstance(mech, mechanisms.NrnMODPointProcessMechanism):
+            raise NotImplementedError(
+                'HOC generation for models with point process mechanisms'
+                ' is not yet supported.')
 
     reinitrng_hoc_blocks = ''
 
@@ -87,9 +100,15 @@ def _generate_parameters(parameters):
             assert isinstance(
                 param.locations, (tuple, list)), 'Must have locations list'
             for location in param.locations:
-                param_locations[location.seclist_name].append(param)
+                if not isinstance(param, NrnPointProcessParameter):
+                    param_locations[location.seclist_name].append(param)
+                else:
+                    for pprocess_location in location.pprocess_mech.locations:
+                        param_locations[
+                            pprocess_location.seclist_name].append(param)
 
     section_params = defaultdict(list)
+    pprocess_params = defaultdict(list)
     range_params = []
 
     location_order = DEFAULT_LOCATION_ORDER
@@ -119,11 +138,19 @@ def _generate_parameters(parameters):
                 value = param.value_scale_func(param.value)
                 section_params[loc].append(
                     Location(param.param_name, format_float(value)))
+            elif isinstance(param, NrnPointProcessParameter):
+                value = param.value
+                pprocess_params[loc].append(
+                    PointExpr(param.param_name, param.locations, format_float(value)))
+
 
     ordered_section_params = [(loc, section_params[loc])
                               for loc in location_order]
 
-    return global_params, ordered_section_params, range_params, location_order
+    ordered_pprocess_params = [(loc, pprocess_params[loc])
+                               for loc in location_order]
+
+    return global_params, ordered_section_params, range_params, ordered_pprocess_params, location_order
 
 
 def _read_template(template_dir, template_filename):
@@ -157,9 +184,9 @@ def _get_template_params(
         This iterable contains parameter names that aren't checked
     '''
 
-    global_params, section_params, range_params, location_order = \
+    global_params, section_params, range_params, pprocess_params, location_order = \
         _generate_parameters(parameters)
-    channels = _generate_channels_by_location(mechs, location_order)
+    channels, point_channels = _generate_channels_by_location(mechs, location_order)
 
     ignored_global_params = {}
     for ignored_global in ignored_globals:
@@ -178,8 +205,10 @@ def _get_template_params(
                 ignored_global_params=ignored_global_params,
                 section_params=section_params,
                 range_params=range_params,
+                pprocess_params=pprocess_params,
                 location_order=location_order,
                 channels=channels,
+                point_channels=point_channels,
                 banner=banner)
 
 
@@ -217,6 +246,11 @@ def create_hoc(mechs,
                                            parameters,
                                            ignored_globals,
                                            disable_banner)
+
+    # delete empty dicts to avoid conflict with custom_jinja_params
+    del template_params['pprocess_params']
+    del template_params['point_channels']
+
     template_params['range_params'] = _range_exprs_to_hoc(
         template_params['range_params']
     )

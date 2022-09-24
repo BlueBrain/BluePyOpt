@@ -125,7 +125,7 @@ class NrnSectionCompLocation(Location, DictMixin):
     def __init__(
             self,
             name,
-            sec_name=None,
+            seclist_name=None,
             comp_x=None,
             comment=''):
         """Constructor
@@ -137,7 +137,7 @@ class NrnSectionCompLocation(Location, DictMixin):
         """
 
         super(NrnSectionCompLocation, self).__init__(name, comment)
-        self.sec_name = sec_name
+        self.seclist_name = seclist_name
         self.comp_x = comp_x
 
     def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
@@ -145,13 +145,13 @@ class NrnSectionCompLocation(Location, DictMixin):
 
         # Dont see any other way but to use eval, apart from parsing the
         # sec_name string which can be complicated
-        isection = eval('icell.%s' % self.sec_name)  # pylint: disable=W0123
+        isection = eval('icell.%s' % self.seclist_name)  # pylint: disable=W0123
 
         icomp = isection(self.comp_x)
         return icomp
 
     def __str__(self):
-        return '%s(%s)' % (self.sec_name, self.comp_x)
+        return '%s(%s)' % (self.seclist_name, self.comp_x)
 
 
 class NrnPointProcessLocation(Location):
@@ -340,7 +340,7 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
         name,
         soma_distance=None,
         sec_index=None,
-        sec_name=None,
+        seclist_name=None,
         comment=""
     ):
         """Constructor
@@ -354,7 +354,7 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
         super(NrnSecSomaDistanceCompLocation, self).__init__(
             name,
             soma_distance=soma_distance,
-            seclist_name=sec_name,
+            seclist_name=seclist_name,
             comment=comment,
         )
         self.sec_index = sec_index
@@ -411,7 +411,7 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
         name,
         soma_distance=None,
         sec_index=None,
-        sec_name=None,
+        seclist_name=None,
         direction=None,
         comment=""
     ):
@@ -429,7 +429,7 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
             name,
             soma_distance=soma_distance,
             sec_index=sec_index,
-            sec_name=sec_name,
+            seclist_name=seclist_name,
             comment=comment
         )
 

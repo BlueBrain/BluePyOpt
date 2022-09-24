@@ -26,9 +26,17 @@ except ImportError as e:
 
 logger = logging.getLogger(__name__)
 
-from .create_hoc import Location, RangeExpr, \
+from .create_hoc import Location, RangeExpr, PointExpr, \
     _get_template_params, format_float, DEFAULT_LOCATION_ORDER
 from .morphologies import ArbFileMorphology
+from .locations import (NrnSeclistLocation,
+                        NrnSeclistSecLocation,
+                        NrnSectionCompLocation,
+                        NrnPointProcessLocation,
+                        NrnSeclistCompLocation,
+                        NrnSomaDistanceCompLocation,
+                        NrnSecSomaDistanceCompLocation,
+                        NrnTrunkSomaDistanceCompLocation)
 
 
 # Define Neuron to Arbor variable conversions
@@ -82,8 +90,20 @@ def _nrn2arb_param(param, name):
                          name=_nrn2arb_var_name(name),
                          value=_nrn2arb_var_value(param),
                          inst_distribution=param.inst_distribution)
+    elif isinstance(param, PointExpr):
+        return PointExpr(name=_nrn2arb_var_name(name),
+                         point_loc=param.point_loc,
+                         value=_nrn2arb_var_value(param))
     else:
         raise ValueError('Invalid parameter expression type.')
+
+
+def _nrn2arb_mech_name(name):
+    """Neuron to Arbor mechanism name conversion."""
+    if name in ['Exp2Syn', 'ExpSyn']:
+        return name.lower()
+    else:
+        return name
 
 
 def _arb_is_global_property(loc, param):
@@ -115,25 +135,24 @@ def _arb_pop_global_properties(loc, mechs):
 # (relabeling locations to SWC convention)
 # Remarks:
 #  - using SWC convetion: 'dend' for basal dendrite, 'apic' for apical dendrite
-ArbRegion = namedtuple('ArbRegion', 'ref, defn')
-
+ArbLabel = namedtuple('ArbLabel', 'ref, defn')
 
 def _make_region(region, expr=None):
     """Create Arbor region with region name and defining expression
     (name for decor, defined in label_dict) or region expression only
-    (for decor, no defined label in label_dict)."""
+    (for decor, no label defined in label_dict)."""
     if expr is not None:
-        return ArbRegion(ref='(region \"%s\")' % region,
-                         defn='(region-def \"%s\" %s)' % (region, expr))
+        return ArbLabel(ref='(region \"%s\")' % region,
+                        defn='(region-def \"%s\" %s)' % (region, expr))
     else:
-        return ArbRegion(ref=region, defn=expr)
+        return ArbLabel(ref=region, defn=None)
 
 
 def _make_tagged_region(region, tag):
     return _make_region(region, '(tag %i)' % tag)
 
 
-_loc2arb_region = dict(
+_arb_regions = dict(
     # defining "all" region for convenience here, else use
     # all=_arb_defined_region('(all)') to omit "all" in label_dict
     all=_make_region('all', '(all)'),
@@ -143,6 +162,61 @@ _loc2arb_region = dict(
     apical=_make_tagged_region('apic', ArbFileMorphology.tags['apic']),
     myelinated=_make_tagged_region('myelin', ArbFileMorphology.tags['myelin']),
 )
+
+
+def _raise_section_index_unsupported(loc):
+    raise ValueError('Translation of Neuron section index to'
+                     ' Arbor morphology not yet supported'
+                     ' (Neuron section index != Arbor segment index).')
+
+_loc2arb_conv = {
+
+    # areal locations
+     NrnSeclistLocation: lambda loc: _arb_regions[loc.seclist_name],
+     NrnSeclistSecLocation: _raise_section_index_unsupported,
+
+    # point locations
+    NrnSectionCompLocation: lambda loc:
+        ArbLabel(ref='(on-components %s %s)' % 
+                      (format_float(loc.comp_x),
+                       _arb_regions[loc.seclist_name].ref),
+                 defn=None),
+    NrnPointProcessLocation: lambda loc: 
+        [_loc2arb_label(loc) for loc in loc.pprocess_mech.locations],
+    NrnSeclistCompLocation: _raise_section_index_unsupported,
+
+    # distance-based point locations
+    NrnSomaDistanceCompLocation: lambda loc:
+        ArbLabel(ref='(restrict (distal-translate (on-components 0.5'
+                     ' %s) %s) %s)' % 
+                     (_arb_regions['somatic'].ref,
+                      format_float(loc.soma_distance),
+                      _arb_regions[loc.seclist_name].ref),
+                 defn=None),
+    NrnSecSomaDistanceCompLocation: _raise_section_index_unsupported,
+    NrnTrunkSomaDistanceCompLocation: _raise_section_index_unsupported
+}
+
+def _loc2arb_label(location):
+    """Convert location from Neuron to Arbor."""
+
+    return _loc2arb_conv[type(location)](location)
+
+
+def _arb_eval_point_proc_locs(pprocess_mechs):
+
+    result = {loc: dict() for loc in pprocess_mechs}
+
+    for loc, mechs in pprocess_mechs.items():
+         for mech, point_exprs in mechs.items():
+            result[loc][mech.name] = dict(
+                mech=mech.suffix,
+                params=[Location(point_expr.name, point_expr.value)
+                        for point_expr in point_exprs],
+                point_locs=[_loc2arb_label(loc) for loc in mech.locations])
+
+    return result
+
 
 
 def _arb_load_mech_catalogues():
@@ -194,18 +268,29 @@ def _arb_load_mech_catalogues():
 
 def _find_mech_and_convert_param_name(param, mechs):
     """Find a parameter's mechanism and convert name to Arbor convention"""
-    mech_suffix_matches = [i for i, mech in enumerate(mechs)
-                           if param.name.endswith("_" + mech)]
-    if len(mech_suffix_matches) == 0:
+    if not isinstance(param, PointExpr):
+        mech_matches = [i for i, mech in enumerate(mechs)
+                        if param.name.endswith("_" + mech)]
+    else:
+        param_pprocesses = [loc.pprocess_mech for loc in param.point_loc]
+        mech_matches = [i for i, mech in enumerate(mechs)
+                        if mech in param_pprocesses]
+
+    if len(mech_matches) == 0:
         return None, _nrn2arb_param(param, name=param.name)
-    elif len(mech_suffix_matches) == 1:
-        mech = mechs[mech_suffix_matches[0]]
-        name = param.name[:-(len(mech) + 1)]
+
+    elif len(mech_matches) == 1:
+        mech = mechs[mech_matches[0]]
+        if not isinstance(param, PointExpr):
+            name = param.name[:-(len(mech) + 1)]
+        else:
+            name = param.name
         return mech, _nrn2arb_param(param, name=name)
+
     else:
         raise RuntimeError("Parameter name %s matches multiple mechanisms %s "
                            % (param.name,
-                              [repr(mechs[i]) for i in mech_suffix_matches]))
+                              [repr(mechs[i]) for i in mech_matches]))
 
 
 def _arb_convert_params_and_group_by_mech(params, channels):
@@ -257,10 +342,12 @@ def _arb_nmodl_global_translate_mech(mech_name, mech_params, arb_cats):
     """Integrate NMODL GLOBAL parameters of Arbor-built-in mechanisms
      into mechanism name and add catalogue prefix"""
     arb_mech = None
+    arb_mech_name = _nrn2arb_mech_name(mech_name)
+
     for cat in ['BBP', 'default', 'allen']:  # in order of precedence
-        if mech_name in arb_cats[cat]:
-            arb_mech = arb_cats[cat][mech_name]
-            mech_name = cat + '::' + mech_name
+        if arb_mech_name in arb_cats[cat]:
+            arb_mech = arb_cats[cat][arb_mech_name]
+            mech_name = cat + '::' + arb_mech_name
             break
     if arb_mech is None:  # not Arbor built-in mech
         return (mech_name, mech_params)
@@ -290,13 +377,27 @@ def _arb_nmodl_global_translate_mech(mech_name, mech_params, arb_cats):
             return (mech_name, remaining_mech_params)
 
 
-def _arb_nmodl_global_translate(mechs, arb_cats):
-    """Translate all mechanisms in a region"""
+def _arb_nmodl_global_translate_density(mechs, arb_cats):
+    """Translate all density mechanisms in a region"""
     return dict([_arb_nmodl_global_translate_mech(mech, params, arb_cats)
                  for mech, params in mechs.items()])
 
 
-def _arb_filter_scaled_mechs(mechs):
+def _arb_nmodl_global_translate_points(mechs, arb_cats):
+    """Translate all point mechanisms in a region"""
+    result = dict()
+
+    for synapse_name, mech_desc in mechs.items():
+        mech, params = _arb_nmodl_global_translate_mech(
+            mech_desc['mech'], mech_desc['params'], arb_cats)
+        result[synapse_name] = dict(mech=mech,
+                                    params=params,
+                                    point_locs=mech_desc['point_locs'])
+
+    return result
+
+
+def _arb_project_scaled_mechs(mechs):
     """Returns all mechanisms with scaled parameters in Arbor"""
     scaled_mechs = dict()
     for mech, params in mechs.items():
@@ -565,7 +666,7 @@ def create_acc(mechs,
                      "ArbFileMorphology.replace_axon after loading "
                      "morphology in Arbor.")
         replace_axon_json = json.dumps(replace_axon)
-        if hasattr(arbor, 'prune_tag'):
+        if hasattr(arbor.segment_tree, 'tag_roots'):
             modified_morphology = \
                 pathlib.Path(morphology).stem + '_modified.acc'
         else:
@@ -590,6 +691,7 @@ def create_acc(mechs,
 
     # postprocess template parameters for Arbor
     channels = template_params['channels']
+    point_channels = template_params['point_channels']
     banner = template_params['banner']
 
     # global_mechs refer to default mechanisms/params in Arbor
@@ -620,16 +722,34 @@ def create_acc(mechs,
 
     # join mechs constant params with inhomogeneous ones on mechanisms
     _arb_append_scaled_mechs(global_mechs, global_scaled_mechs)
-    for loc, mechs in section_scaled_mechs.items():
+    for loc in section_scaled_mechs:
         _arb_append_scaled_mechs(section_mechs[loc], section_scaled_mechs[loc])
+
+    # section_pprocess_mechs refer to locally placed mechanisms/params in Arbor
+    # [loc -> mech -> param.name/.value]
+    pprocess_mechs, global_pprocess_mechs = \
+        _arb_convert_params_and_group_by_mech_local(
+            template_params['pprocess_params'], point_channels)
+    if any(len(params) > 0 for params in global_pprocess_mechs.values()):
+        raise ValueError('Point process mechanisms cannot be'
+                         ' placed globally in Arbor.')
+
+    # Evaluate synapse locations
+    # (no new labels introduced, but locations explicitly defined)
+    pprocess_mechs = _arb_eval_point_proc_locs(pprocess_mechs)
 
     # translate mechs to Arbor's convention
     arb_cats = _arb_load_mech_catalogues()
-    global_mechs = _arb_nmodl_global_translate(global_mechs, arb_cats)
-    global_scaled_mechs = _arb_filter_scaled_mechs(global_mechs)
-    section_mechs = {loc: _arb_nmodl_global_translate(mechs, arb_cats)
-                     for loc, mechs in section_mechs.items()}
-    section_scaled_mechs = {loc: _arb_filter_scaled_mechs(mechs)
+    global_mechs = _arb_nmodl_global_translate_density(global_mechs, arb_cats)
+    section_mechs = {
+        loc: _arb_nmodl_global_translate_density(mechs, arb_cats)
+        for loc, mechs in section_mechs.items()}
+    pprocess_mechs = {
+        loc: _arb_nmodl_global_translate_points(mechs, arb_cats)
+        for loc, mechs in pprocess_mechs.items()}
+
+    global_scaled_mechs = _arb_project_scaled_mechs(global_mechs)
+    section_scaled_mechs = {loc: _arb_project_scaled_mechs(mechs)
                             for loc, mechs in section_mechs.items()}
 
     return {filenames[name]:
@@ -639,11 +759,12 @@ def create_acc(mechs,
                             replace_axon=replace_axon_json,
                             modified_morphology=modified_morphology,
                             filenames=filenames,
-                            regions=_loc2arb_region,
+                            regions=_arb_regions,
                             global_mechs=global_mechs,
                             global_scaled_mechs=global_scaled_mechs,
                             section_mechs=section_mechs,
                             section_scaled_mechs=section_scaled_mechs,
+                            pprocess_mechs=pprocess_mechs,
                             **custom_jinja_params)
             for name, template in templates.items()}
 
@@ -717,7 +838,7 @@ def output_acc(output_dir, cell, parameters,
     shutil.copy2(cell.morphology.morphology_path, morpho_filename)
 
     if 'replace_axon' in cell_json['morphology']:
-        if hasattr(arbor, 'prune_tag'):
+        if hasattr(arbor.segment_tree, 'tag_roots'):
             morpho = _instantiate_morphology(
                 morpho_filename, cell_json['morphology']['replace_axon'])
             arbor.write_component(
