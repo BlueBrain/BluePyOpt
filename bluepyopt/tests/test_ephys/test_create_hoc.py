@@ -24,7 +24,7 @@ DEFAULT_LOCATION_ORDER = [
 def test__generate_channels_by_location():
     """ephys.create_hoc: Test _generate_channels_by_location"""
     mech = utils.make_mech()
-    channels = create_hoc._generate_channels_by_location(
+    channels, point_channels = create_hoc._generate_channels_by_location(
         [mech, ], DEFAULT_LOCATION_ORDER)
 
     assert len(channels['apical']) == 1
@@ -33,13 +33,17 @@ def test__generate_channels_by_location():
     assert channels['apical'] == ['Ih']
     assert channels['basal'] == ['Ih']
 
+    for loc in point_channels:
+        assert len(point_channels[loc]) == 0
+
 
 @pytest.mark.unit
 def test__generate_parameters():
     """ephys.create_hoc: Test _generate_parameters"""
     parameters = utils.make_parameters()
 
-    global_params, section_params, range_params, location_order = \
+    global_params, section_params, range_params, \
+        pprocess_params, location_order = \
         create_hoc._generate_parameters(parameters)
 
     assert global_params == {'NrnGlobalParameter': 65}
@@ -48,6 +52,9 @@ def test__generate_parameters():
     assert section_params[4][0] == 'somatic'
     assert len(section_params[4][1]) == 2
     assert range_params == []
+    for loc, pparams in pprocess_params:
+        assert loc in DEFAULT_LOCATION_ORDER
+        assert len(pparams) == 0
     assert location_order == DEFAULT_LOCATION_ORDER
 
 

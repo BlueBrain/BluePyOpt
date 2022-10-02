@@ -4,14 +4,18 @@
 
 
 import os
+import argparse
 
 import bluepyopt as bpopt
 import bluepyopt.ephys as ephys
 
 
-def main():
+def main(args):
     """Main"""
-    nrn_sim = ephys.simulators.NrnSimulator()
+    if args.sim == 'nrn':
+        sim = ephys.simulators.NrnSimulator()
+    else:
+        sim = ephys.simulators.ArbSimulator()
 
     morph = ephys.morphologies.NrnFileMorphology(
         os.path.join(
@@ -21,11 +25,17 @@ def main():
         'somatic',
         seclist_name='somatic')
 
-    somacenter_loc = ephys.locations.NrnSeclistCompLocation(
-        name='somacenter',
-        seclist_name='somatic',
-        sec_index=0,
-        comp_x=0.5)
+    if args.sim == 'nrn':
+        somacenter_loc = ephys.locations.NrnSeclistCompLocation(
+            name='somacenter',
+            seclist_name='somatic',
+            sec_index=0,
+            comp_x=0.5)
+    else:
+        somacenter_loc = ephys.locations.ArbBranchRelLocation(
+            name='somacenter',
+            branch=0,
+            pos=0.5)
 
     pas_mech = ephys.mechanisms.NrnMODMechanism(
         name='pas',
@@ -52,15 +62,26 @@ def main():
     number = 5
     interval = 5
 
-    netstim = ephys.stimuli.NrnNetStimStimulus(
-        total_duration=200,
-        number=5,
-        interval=5,
-        start=stim_start,
-        weight=5e-4,
-        locations=[expsyn_loc])
-
     stim_end = stim_start + interval * number
+
+    if args.sim == 'nrn':
+        netstim = ephys.stimuli.NrnNetStimStimulus(
+            total_duration=200,
+            number=5,
+            interval=5,
+            start=stim_start,
+            weight=5e-4,
+            locations=[expsyn_loc])
+    else:
+        # emulating NrnNetStimStimulus as not yet supported in Arbor
+        netstim = [
+            ephys.stimuli.NrnSquarePulse(
+                step_amplitude=5e-4,
+                step_delay=stim_start + i*interval,
+                step_duration=1,
+                location=expsyn_loc,
+                total_duration=200) for i in range(number)]
+
 
     cm_param = ephys.parameters.NrnSectionParameter(
         name='cm',
@@ -80,10 +101,16 @@ def main():
         location=somacenter_loc,
         variable='v')
 
-    protocol = ephys.protocols.SweepProtocol(
-        'netstim_protocol',
-        [netstim],
-        [rec])
+    if args.sim == 'nrn':
+        protocol = ephys.protocols.SweepProtocol(
+            'netstim_protocol',
+            [netstim],
+            [rec])
+    else:
+        protocol = ephys.protocols.ArbSweepProtocol(
+            'netstim_protocol',
+            netstim,
+            [rec])
 
     max_volt_feature = ephys.efeatures.eFELFeature(
         'maximum_voltage',
@@ -105,7 +132,7 @@ def main():
         param_names=['expsyn_tau'],
         fitness_protocols={protocol.name: protocol},
         fitness_calculator=score_calc,
-        sim=nrn_sim)
+        sim=sim)
 
     default_param_values = {'expsyn_tau': 10.0}
 
@@ -126,7 +153,8 @@ def main():
     responses = protocol.run(
         cell_model=cell,
         param_values=best_ind_dict,
-        sim=nrn_sim)
+        sim=sim,
+        isolate=False)
 
     time = responses['soma.v']['time']
     voltage = responses['soma.v']['voltage']
@@ -136,8 +164,26 @@ def main():
     plt.plot(time, voltage)
     plt.xlabel('Time (ms)')
     plt.ylabel('Voltage (ms)')
+
+    if args.output is not None:
+        if not os.path.exists(args.output):
+            output_dir = os.path.dirname(args.output)
+            if len(output_dir) > 0:
+                os.makedirs(output_dir, exist_ok=True)
+            plt.savefig(args.output)
+
     plt.show()
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='expsyn')
+    parser.add_argument('--sim', default='nrn',
+                        help='Simulator (choose either nrn or arb)')
+    parser.add_argument('-o', '--output',
+                        help='Path to store voltage trace plot to')
+    args = parser.parse_args()
+
+    if args.sim not in ['nrn', 'arb']:
+        raise argparse.ArgumentError('Simulator must be either nrn or arb')
+
+    main(args)

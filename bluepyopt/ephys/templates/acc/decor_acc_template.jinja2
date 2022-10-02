@@ -34,7 +34,7 @@
 
     {%- for synapse_name, mech_param_locs in pprocess_mechs[loc].items() %}
     {%- for point_loc in mech_param_locs.point_locs %}
-    (place {{point_loc.ref}} (synapse (mechanism "{{ mech_param_locs.mech }}" {%- for param in mech_param_locs.params %} ("{{ param.name }}" {{ param.value }}){%- endfor %})) "{{ synapse_name }}")
+    (place {{point_loc.loc}} (synapse (mechanism "{{ mech_param_locs.mech }}" {%- for param in mech_param_locs.params %} ("{{ param.name }}" {{ param.value }}){%- endfor %})) "{{ synapse_name }}")
     {%- endfor %}
     {%- endfor %}
 

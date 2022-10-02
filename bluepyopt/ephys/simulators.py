@@ -9,6 +9,17 @@ import ctypes
 import platform
 import warnings
 
+try:
+    import arbor
+except ImportError as e:
+    class arbor:
+        def __getattribute__(self, _):
+            raise ImportError("Loading an ACC/JSON-exported cell model into an"
+                              " Arbor morphology and cable cell components"
+                              " requires missing dependency arbor."
+                              " To install BluePyOpt with arbor,"
+                              " run 'pip install bluepyopt[arbor]'.")
+
 logger = logging.getLogger(__name__)
 
 
@@ -175,3 +186,42 @@ class NrnSimulatorException(Exception):
 
         super(NrnSimulatorException, self).__init__(message)
         self.original = original
+
+
+class ArbSimulator(object):
+
+    """Arbor simulator"""
+
+    def __init__(self, dt=None):  # TODO: add discretization policies, etc.
+        """Constructor
+
+        Args:
+            dt (float): the integration time step used by Arbor.
+        """
+
+        self.dt = dt
+
+    def instantiate(self, morph, labels, decor):
+        cable_cell = arbor.cable_cell(morph, labels, decor)
+        arb_cell_model = arbor.single_cell_model(cable_cell)
+
+        # Add catalogues with explicit qualifiers
+        # (could also be a simulator-option)
+        arb_cell_model.properties.catalogue = arbor.catalogue()
+        arb_cell_model.properties.catalogue.extend(
+            arbor.default_catalogue(), "default::")
+        arb_cell_model.properties.catalogue.extend(
+            arbor.bbp_catalogue(), "BBP::")
+        return arb_cell_model
+
+    def run(self,
+            arb_cell_model,
+            tstop=None,
+            dt=None):
+
+        dt = dt if dt is not None else self.dt
+
+        if dt is not None:
+            return arb_cell_model.run(tfinal=tstop, dt=dt)
+        else:
+            return arb_cell_model.run(tfinal=tstop)

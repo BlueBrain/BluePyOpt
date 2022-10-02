@@ -1,22 +1,19 @@
 #!/usr/bin/env python
 
-'''Example for generating a mixed JSON/ACC Arbor cable cell description
+'''Example for generating a mixed JSON/ACC Arbor cable cell description (with optional axon-replacement)
 
  $ python generate_acc.py --output-dir test_acc/ --replace-axon
 
  Will save 'l5pc.json', 'l5pc_label_dict.acc' and 'l5pc_decor.acc'
  into the folder 'test_acc' that can be loaded in Arbor with:
-     'with open("test_acc/l5pc_cell.json") as cell_json_file:
-        cell_json = json.load(cell_json_file)
-      morpho = arbor.load_asc("test_acc/" + cell_json["morphology"]["path"])
-      labels = arbor.load_component("test_acc/" + cell_json["label_dict"]).component
-      decor = arbor.load_component("test_acc/" + cell_json["decor"]).component'
- An implementation with axon-replacement is available in ephys.create_acc.read_acc.
- An Arbor cable cell is then created with
-     cell = arbor.cable_cell(morpho.morphology, labels, decor)
+     'cell_json, morpho, labels, decor = \
+        ephys.create_acc.read_acc("test_acc/l5pc_cell.json")'
+ An Arbor cable cell can then be created with
+     'cell = arbor.cable_cell(morpho, labels, decor)'
  The resulting cable cell can be output to ACC for visual inspection 
- in the Arbor GUI (File > Cable cell > Load) using
-     arbor.write_component(cell, "l5pc.acc")
+ and e.g. validating/deriving custom Arbor locset/region/iexpr 
+ expressions in the Arbor GUI (File > Cable cell > Load) using
+     'arbor.write_component(cell, "l5pc_cable_cell.acc")'
 '''
 import argparse
 

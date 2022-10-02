@@ -32,7 +32,11 @@ sc_prepare: jupyter
 	cd examples/simplecell && \
 		jupyter nbconvert --to python simplecell.ipynb && \
 		sed '/get_ipython/d;/plt\./d;/plot_responses/d;/import matplotlib/d' simplecell.py >simplecell.tmp && \
-		mv simplecell.tmp simplecell.py
+		mv simplecell.tmp simplecell.py && \
+		jupyter nbconvert --to python simplecell_arbor.ipynb && \
+		sed '/get_ipython/d;/plt\./d;/plot_responses/d;/import matplotlib/d' simplecell_arbor.py >simplecell_arbor.tmp && \
+		mv simplecell_arbor.tmp simplecell_arbor.py
+
 meta_prepare: jupyter
 	cd examples/metaparameters && \
 		jupyter nbconvert --to python metaparameters.ipynb && \

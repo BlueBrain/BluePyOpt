@@ -14,14 +14,18 @@
                 "somadistance": 660,
                 "type": "somadistance",
                 "name": "dend1",
-                "seclist_name": "apical"
+                "seclist_name": "apical",
+                "arbor_branch_index": 251,
+                "arbor_branch_index_with_replaced_axon": 123
             },
             {
                 "var": "v",
                 "somadistance": 800,
                 "type": "somadistance",
                 "name": "dend2",
-                "seclist_name": "apical"
+                "seclist_name": "apical",
+                "arbor_branch_index": 251,
+                "arbor_branch_index_with_replaced_axon": 123
             }
         ]
     },

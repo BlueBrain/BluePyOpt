@@ -29,18 +29,10 @@ logger = logging.getLogger(__name__)
 from .create_hoc import Location, RangeExpr, PointExpr, \
     _get_template_params, format_float, DEFAULT_LOCATION_ORDER
 from .morphologies import ArbFileMorphology
-from .locations import (NrnSeclistLocation,
-                        NrnSeclistSecLocation,
-                        NrnSectionCompLocation,
-                        NrnPointProcessLocation,
-                        NrnSeclistCompLocation,
-                        NrnSomaDistanceCompLocation,
-                        NrnSecSomaDistanceCompLocation,
-                        NrnTrunkSomaDistanceCompLocation)
 
 
 # Define Neuron to Arbor variable conversions
-ArbVar = namedtuple('ArbVar', 'name, conv')
+ArbVar = namedtuple('ArbVar', 'name, conv')  # turn into a class
 
 
 # Inhomogeneous expression for soma-distance-scaled parameter in Arbor
@@ -131,92 +123,21 @@ def _arb_pop_global_properties(loc, mechs):
     return [(None, global_properties)]  # list of (mech, params) tuples
 
 
-# Define BluePyOpt to Arbor region mapping
-# (relabeling locations to SWC convention)
-# Remarks:
-#  - using SWC convetion: 'dend' for basal dendrite, 'apic' for apical dendrite
-ArbLabel = namedtuple('ArbLabel', 'ref, defn')
-
-def _make_region(region, expr=None):
-    """Create Arbor region with region name and defining expression
-    (name for decor, defined in label_dict) or region expression only
-    (for decor, no label defined in label_dict)."""
-    if expr is not None:
-        return ArbLabel(ref='(region \"%s\")' % region,
-                        defn='(region-def \"%s\" %s)' % (region, expr))
-    else:
-        return ArbLabel(ref=region, defn=None)
-
-
-def _make_tagged_region(region, tag):
-    return _make_region(region, '(tag %i)' % tag)
-
-
-_arb_regions = dict(
-    # defining "all" region for convenience here, else use
-    # all=_arb_defined_region('(all)') to omit "all" in label_dict
-    all=_make_region('all', '(all)'),
-    somatic=_make_tagged_region('soma', ArbFileMorphology.tags['soma']),
-    axonal=_make_tagged_region('axon', ArbFileMorphology.tags['axon']),
-    basal=_make_tagged_region('dend', ArbFileMorphology.tags['dend']),
-    apical=_make_tagged_region('apic', ArbFileMorphology.tags['apic']),
-    myelinated=_make_tagged_region('myelin', ArbFileMorphology.tags['myelin']),
-)
-
-
-def _raise_section_index_unsupported(loc):
-    raise ValueError('Translation of Neuron section index to'
-                     ' Arbor morphology not yet supported'
-                     ' (Neuron section index != Arbor segment index).')
-
-_loc2arb_conv = {
-
-    # areal locations
-     NrnSeclistLocation: lambda loc: _arb_regions[loc.seclist_name],
-     NrnSeclistSecLocation: _raise_section_index_unsupported,
-
-    # point locations
-    NrnSectionCompLocation: lambda loc:
-        ArbLabel(ref='(on-components %s %s)' % 
-                      (format_float(loc.comp_x),
-                       _arb_regions[loc.seclist_name].ref),
-                 defn=None),
-    NrnPointProcessLocation: lambda loc: 
-        [_loc2arb_label(loc) for loc in loc.pprocess_mech.locations],
-    NrnSeclistCompLocation: _raise_section_index_unsupported,
-
-    # distance-based point locations
-    NrnSomaDistanceCompLocation: lambda loc:
-        ArbLabel(ref='(restrict (distal-translate (on-components 0.5'
-                     ' %s) %s) %s)' % 
-                     (_arb_regions['somatic'].ref,
-                      format_float(loc.soma_distance),
-                      _arb_regions[loc.seclist_name].ref),
-                 defn=None),
-    NrnSecSomaDistanceCompLocation: _raise_section_index_unsupported,
-    NrnTrunkSomaDistanceCompLocation: _raise_section_index_unsupported
-}
-
-def _loc2arb_label(location):
-    """Convert location from Neuron to Arbor."""
-
-    return _loc2arb_conv[type(location)](location)
-
-
 def _arb_eval_point_proc_locs(pprocess_mechs):
+    """Evaluate point process locations"""
 
     result = {loc: dict() for loc in pprocess_mechs}
 
     for loc, mechs in pprocess_mechs.items():
-         for mech, point_exprs in mechs.items():
+        for mech, point_exprs in mechs.items():
             result[loc][mech.name] = dict(
                 mech=mech.suffix,
                 params=[Location(point_expr.name, point_expr.value)
                         for point_expr in point_exprs],
-                point_locs=[_loc2arb_label(loc) for loc in mech.locations])
+                point_locs=[loc.acc_label()
+                            for loc in mech.locations])
 
     return result
-
 
 
 def _arb_load_mech_catalogues():
@@ -407,6 +328,7 @@ def _arb_project_scaled_mechs(mechs):
     return scaled_mechs
 
 
+# Translating parameter scaling expressions to Arbor S-expressions
 class ArbIExprValueEliminator(ast.NodeTransformer):
     """Divide expression (symbolically) by value and replace
         non-linear occurrences by numeric value"""
@@ -579,7 +501,8 @@ class ArbIExprEmitter(ast.NodeVisitor):
     def visit_Name(self, node):
         if node.id == '_arb_parse_iexpr_distance':
             self._emit(
-                '(distance (region "soma"))'
+                '(distance %s)' %
+                ArbFileMorphology.region_labels['somatic'].ref
             )
 
 
@@ -759,7 +682,7 @@ def create_acc(mechs,
                             replace_axon=replace_axon_json,
                             modified_morphology=modified_morphology,
                             filenames=filenames,
-                            regions=_arb_regions,
+                            regions=ArbFileMorphology.region_labels,
                             global_mechs=global_mechs,
                             global_scaled_mechs=global_scaled_mechs,
                             section_mechs=section_mechs,

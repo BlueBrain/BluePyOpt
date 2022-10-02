@@ -260,7 +260,37 @@ proc replace_axon(){ local nSec, D1, D2
         '''
 
 
+class ArbLabel:
+    """Arbor label"""
+
+    def __init__(self, type, name, defn):
+        self._type = type
+        self._name = name
+        self._defn = defn
+
+    @property
+    def defn(self):
+        """Label definition for label-dict"""
+        return '(%s-def "%s" %s)' % (self._type, self._name, self._defn)
+
+    @property
+    def ref(self):
+        """Reference to label defined in label-dict"""
+        return '(%s "%s")' % (self._type, self._name)
+
+    @property
+    def name(self):
+        """Name of the label"""
+        return self._name
+
+    @property
+    def loc(self):
+        """Expression defining the location of the label"""
+        return self._defn
+
+
 class ArbFileMorphology(Morphology, DictMixin):
+    """Arbor morphology utilities"""
 
     # Arbor morphology tags
     tags = dict(
@@ -269,6 +299,24 @@ class ArbFileMorphology(Morphology, DictMixin):
         dend=3,
         apic=4,
         myelin=5
+    )
+
+    # Correspondence of BluePyOpt to Arbor region labels
+    # (renaming locations according to SWC convention: using
+    # 'dend' for basal dendrite, 'apic' for apical dendrite)
+    region_labels = dict(
+        all=ArbLabel(
+            type='region', name='all', defn='(all)'),
+        somatic=ArbLabel(
+            type='region', name='soma', defn='(tag %i)' % tags['soma']),
+        axonal=ArbLabel(
+            type='region', name='axon', defn='(tag %i)' % tags['axon']),
+        basal=ArbLabel(
+            type='region', name='dend', defn='(tag %i)' % tags['dend']),
+        apical=ArbLabel(
+            type='region', name='apic', defn='(tag %i)' % tags['apic']),
+        myelinated=ArbLabel(
+            type='region', name='myelin', defn='(tag %i)' % tags['myelin']),
     )
 
     @staticmethod
@@ -321,7 +369,8 @@ class ArbFileMorphology(Morphology, DictMixin):
         st = morphology.to_segment_tree()
         axon_roots = st.tag_roots(axon_tag)
         if len(axon_roots) > 1:
-            raise ValueError("Axon replacement is only supported for axon with a single root.")
+            raise ValueError("Axon replacement is only supported for "
+                             "morphologies with a single axon root.")
         elif len(axon_roots) == 1:
             axon_root = axon_roots[0]
             pruned_st, axon_st = st.split_at(axon_root)

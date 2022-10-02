@@ -47,11 +47,11 @@ class TestNrnSectionCompLocation(object):
         """Setup"""
         self.loc = ephys.locations.NrnSectionCompLocation(
             name='test',
-            seclist_name='soma[0]',
+            sec_name='soma[0]',
             comp_x=0.5)
         self.loc_dend = ephys.locations.NrnSectionCompLocation(
             name='test',
-            seclist_name='dend[1]',
+            sec_name='dend[1]',
             comp_x=0.5)
         assert self.loc.name == 'test'
         self.sim = ephys.simulators.NrnSimulator()

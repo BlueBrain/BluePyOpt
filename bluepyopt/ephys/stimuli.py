@@ -56,6 +56,13 @@ class NrnCurrentPlayStimulus(Stimulus):
         self.current_vec = None
         self.time_vec = None
 
+    def envelope(self):
+        """Stimulus envelope"""
+
+        envelope = list(zip(self.time_points, self.current_points))
+
+        return envelope
+
     def instantiate(self, sim=None, icell=None):
         """Run stimulus"""
 
@@ -187,6 +194,19 @@ class NrnSquarePulse(Stimulus):
         self.total_duration = total_duration
         self.iclamp = None
 
+    def envelope(self):
+        """Stimulus envelope"""
+
+        envelope = [(0., 0.),
+                    (self.step_delay, 0.),
+                    (self.step_delay, self.step_amplitude),
+                    (self.step_delay + self.step_duration,
+                        self.step_amplitude),
+                    (self.step_delay + self.step_duration, 0.),
+                    (self.total_duration, 0.)]
+
+        return envelope
+
     def instantiate(self, sim=None, icell=None):
         """Run stimulus"""
 
@@ -254,6 +274,31 @@ class NrnRampPulse(Stimulus):
         self.iclamp = None
         self.persistent = []  # TODO move this into higher abstract classes
 
+    def envelope(self):
+        """Stimulus envelope"""
+
+        envelope = [
+            # at time 0.0, current is 0.0
+            (0.0, 0.0),
+
+            # until time ramp_delay, current is 0.0
+            (self.ramp_delay, 0.0),
+
+            # at time ramp_delay, current is ramp_amplitude_start
+            (self.ramp_delay, self.ramp_amplitude_start),
+
+            # at time ramp_delay+ramp_duration, current is ramp_amplitude_end
+            (self.ramp_delay + self.ramp_duration,
+             self.ramp_amplitude_end),
+
+            # after ramp, current is set 0.0
+            (self.ramp_delay + self.ramp_duration, 0.0),
+
+            (self.total_duration, 0.0)
+        ]
+
+        return envelope
+
     def instantiate(self, sim=None, icell=None):
         """Run stimulus"""
 
@@ -268,33 +313,12 @@ class NrnRampPulse(Stimulus):
             self.ramp_amplitude_end
         )
 
+        times, amps = zip(*self.envelope())
+
         # create vector to store the times at which stim amp changes
-        times = sim.neuron.h.Vector()
+        times = sim.neuron.h.Vector(times)
         # create vector to store to which stim amps over time
-        amps = sim.neuron.h.Vector()
-
-        # at time 0.0, current is 0.0
-        times.append(0.0)
-        amps.append(0.0)
-
-        # until time ramp_delay, current is 0.0
-        times.append(self.ramp_delay)
-        amps.append(0.0)
-
-        # at time ramp_delay, current is ramp_amplitude_start
-        times.append(self.ramp_delay)
-        amps.append(self.ramp_amplitude_start)
-
-        # at time ramp_delay+ramp_duration, current is ramp_amplitude_end
-        times.append(self.ramp_delay + self.ramp_duration)
-        amps.append(self.ramp_amplitude_end)
-
-        # after ramp, current is set 0.0
-        times.append(self.ramp_delay + self.ramp_duration)
-        amps.append(0.0)
-
-        times.append(self.total_duration)
-        amps.append(0.0)
+        amps = sim.neuron.h.Vector(amps)
 
         # create a current clamp
         self.iclamp = sim.neuron.h.IClamp(

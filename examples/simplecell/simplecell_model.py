@@ -23,17 +23,23 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 import bluepyopt.ephys as ephys
 
 
-def create(do_replace_axon):
-    """Create cell model (identical to simplecell.ipynb)"""
+def define_morphology(do_replace_axon):
 
-    morph = ephys.morphologies.NrnFileMorphology('simple.swc',
+    return ephys.morphologies.NrnFileMorphology('simple.swc',
                                                  do_replace_axon=do_replace_axon)
+
+def define_mechanisms():
     somatic_loc = ephys.locations.NrnSeclistLocation('somatic', seclist_name='somatic')
 
     hh_mech = ephys.mechanisms.NrnMODMechanism(
         name='hh',
         suffix='hh',
         locations=[somatic_loc])
+    return [hh_mech]
+
+
+def define_parameters():
+    somatic_loc = ephys.locations.NrnSeclistLocation('somatic', seclist_name='somatic')
 
     cm_param = ephys.parameters.NrnSectionParameter(
         name='cm',
@@ -54,11 +60,16 @@ def create(do_replace_axon):
         bounds=[0.01, 0.075],
         locations=[somatic_loc],
         frozen=False)
- 
+    return [cm_param, gnabar_param, gkbar_param]
+
+
+def create(do_replace_axon):
+    """Create cell model (identical to simplecell.ipynb)"""
+
     cell = ephys.models.CellModel(
         'simple_cell',
-        morph=morph,
-        mechs=[hh_mech],
-        params=[cm_param, gnabar_param, gkbar_param])
+        morph=define_morphology(do_replace_axon),
+        mechs=define_mechanisms(),
+        params=define_parameters())
 
     return cell

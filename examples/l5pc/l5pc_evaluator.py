@@ -36,21 +36,43 @@ config_dir = os.path.join(script_dir, 'config')
 
 
 def define_protocols():
-    """Define protocols"""
+    """Define protocols for Neuron"""
+    protocol_definitions = load_protocols()
+    return create_protocols(protocol_definitions)
 
-    protocol_definitions = json.load(
+
+def define_protocols_arb(do_replace_axon):
+    """Define protocols for Arbor"""
+    protocol_definitions = load_protocols()
+    return create_protocols(protocol_definitions, do_replace_axon, sim='arb')
+
+
+def load_protocols():
+
+    return json.load(
         open(
             os.path.join(
                 config_dir,
                 'protocols.json')))
 
+
+def create_protocols(protocol_definitions, do_replace_axon=None, sim='nrn'):
+
     protocols = {}
 
-    soma_loc = ephys.locations.NrnSeclistCompLocation(
-        name='soma',
-        seclist_name='somatic',
-        sec_index=0,
-        comp_x=0.5)
+    if sim == 'nrn':
+        soma_loc = ephys.locations.NrnSeclistCompLocation(
+            name='soma',
+            seclist_name='somatic',
+            sec_index=0,
+            comp_x=0.5)
+    elif sim == 'arb':
+        soma_loc = ephys.locations.ArbBranchRelLocation(
+            name='soma',
+            branch=0,
+            pos=0.5)
+    else:
+        raise ValueError('Simulator must be either nrn or arb, not %s' % sim)
 
     for protocol_name, protocol_definition in protocol_definitions.items():
         # By default include somatic recording
@@ -65,10 +87,20 @@ def define_protocols():
         if 'extra_recordings' in protocol_definition:
             for recording_definition in protocol_definition['extra_recordings']:
                 if recording_definition['type'] == 'somadistance':
-                    location = ephys.locations.NrnSomaDistanceCompLocation(
-                        name=recording_definition['name'],
-                        soma_distance=recording_definition['somadistance'],
-                        seclist_name=recording_definition['seclist_name'])
+                    if sim == 'nrn':
+                        location = ephys.locations.NrnSomaDistanceCompLocation(
+                            name=recording_definition['name'],
+                            soma_distance=recording_definition['somadistance'],
+                            seclist_name=recording_definition['seclist_name'])
+                    else:
+                        # L5PC has disconnected topology
+                        location = ephys.locations.ArbLocsetLocation(
+                            name=recording_definition['name'],
+                            locset='(restrict (distal-translate (proximal %s) %s) (proximal-interval (distal (branch %s))))' %
+                            (ephys.morphologies.ArbFileMorphology.region_labels[recording_definition['seclist_name']].ref,
+                             recording_definition['somadistance'],
+                             recording_definition['arbor_branch_index_with_replaced_axon'] if do_replace_axon else
+                             recording_definition['arbor_branch_index']))
                     var = recording_definition['var']
                     recording = ephys.recordings.CompRecording(
                         name='%s.%s.%s' % (protocol_name, location.name, var),
@@ -90,10 +122,16 @@ def define_protocols():
                 location=soma_loc,
                 total_duration=stimulus_definition['totduration']))
 
-        protocols[protocol_name] = ephys.protocols.SweepProtocol(
-            protocol_name,
-            stimuli,
-            recordings)
+        if sim == 'nrn':
+            protocols[protocol_name] = ephys.protocols.SweepProtocol(
+                protocol_name,
+                stimuli,
+                recordings)
+        else:
+            protocols[protocol_name] = ephys.protocols.ArbSweepProtocol(
+                protocol_name,
+                stimuli,
+                recordings)
 
     return protocols
 

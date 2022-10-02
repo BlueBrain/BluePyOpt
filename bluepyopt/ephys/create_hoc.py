@@ -45,10 +45,11 @@ def _generate_channels_by_location(mechs, location_order):
         name = mech.suffix
         for location in mech.locations:
             # TODO this is dangerous, implicitely assumes type of location
+            seclist_name = getattr(location, 'seclist_name', 'all')
             if isinstance(mech, mechanisms.NrnMODPointProcessMechanism):
-                point_channels[location.seclist_name].append(mech)
+                point_channels[seclist_name].append(mech)
             else:
-                channels[location.seclist_name].append(name)
+                channels[seclist_name].append(name)
     return channels, point_channels
 
 
@@ -99,13 +100,14 @@ def _generate_parameters(parameters):
         else:
             assert isinstance(
                 param.locations, (tuple, list)), 'Must have locations list'
-            for location in param.locations:
+            for location in param.locations:  # FIXME: NrnSectionCompLocation
                 if not isinstance(param, NrnPointProcessParameter):
                     param_locations[location.seclist_name].append(param)
                 else:
                     for pprocess_location in location.pprocess_mech.locations:
-                        param_locations[
-                            pprocess_location.seclist_name].append(param)
+                        pprocess_seclist = getattr(pprocess_location,
+                                                   'seclist_name', 'all')
+                        param_locations[pprocess_seclist].append(param)
 
     section_params = defaultdict(list)
     pprocess_params = defaultdict(list)
@@ -141,8 +143,8 @@ def _generate_parameters(parameters):
             elif isinstance(param, NrnPointProcessParameter):
                 value = param.value
                 pprocess_params[loc].append(
-                    PointExpr(param.param_name, param.locations, format_float(value)))
-
+                    PointExpr(param.param_name, param.locations,
+                              format_float(value)))
 
     ordered_section_params = [(loc, section_params[loc])
                               for loc in location_order]
@@ -150,7 +152,8 @@ def _generate_parameters(parameters):
     ordered_pprocess_params = [(loc, pprocess_params[loc])
                                for loc in location_order]
 
-    return global_params, ordered_section_params, range_params, ordered_pprocess_params, location_order
+    return global_params, ordered_section_params, range_params, \
+        ordered_pprocess_params, location_order
 
 
 def _read_template(template_dir, template_filename):
@@ -184,9 +187,11 @@ def _get_template_params(
         This iterable contains parameter names that aren't checked
     '''
 
-    global_params, section_params, range_params, pprocess_params, location_order = \
+    global_params, section_params, range_params, \
+        pprocess_params, location_order = \
         _generate_parameters(parameters)
-    channels, point_channels = _generate_channels_by_location(mechs, location_order)
+    channels, point_channels = _generate_channels_by_location(
+        mechs, location_order)
 
     ignored_global_params = {}
     for ignored_global in ignored_globals:
