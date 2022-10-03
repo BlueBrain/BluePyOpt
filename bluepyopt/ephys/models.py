@@ -334,13 +334,19 @@ class CellModel(Model):
                 replace_axon = []
                 for sec in ['axon', 'myelin']:
                     if sec in self.icell_existing_secs:
-                        replace_axon += \
-                            [dict(nseg=section.nseg,
-                                  length=section.L,
-                                  radius=0.5 * section.diam,
-                                  tag=morphologies.
-                                  ArbFileMorphology.tags[sec])
-                             for section in getattr(self.icell, sec)]
+                        for section in getattr(self.icell, sec):
+                            seg_bounds = [seg for seg
+                                          in section.allseg()]
+                            replace_axon += \
+                                [dict(
+                                    length=(dist.x - prox.x) * section.L,
+                                    prox_radius=0.5 * prox.diam,
+                                    dist_radius=0.5 * dist.diam,
+                                    tag=morphologies.
+                                    ArbFileMorphology.tags[sec])
+                                    for prox, dist
+                                    in zip(seg_bounds[:-1],
+                                           seg_bounds[1:])]
             else:
                 replace_axon = None
         else:

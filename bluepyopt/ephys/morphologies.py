@@ -374,11 +374,14 @@ class ArbFileMorphology(Morphology, DictMixin):
         elif len(axon_roots) == 1:
             axon_root = axon_roots[0]
             pruned_st, axon_st = st.split_at(axon_root)
+            logger.debug('Pruned %s of segment tree %s.',
+                         axon_st, st)
         else:
             pruned_st = st
 
         if replacement is not None:
-            ar_radius = [r['radius'] for r in replacement]
+            ar_radius = [(r['prox_radius'], r['dist_radius'])
+                         for r in replacement]
         else:
             if len(axon_roots) > 1:
                 ValueError('Please specify axon replacement explicitly '
@@ -389,6 +392,7 @@ class ArbFileMorphology(Morphology, DictMixin):
         if len(axon_roots) == 1:
             axon_root = axon_roots[0]
             axon_parent = st.parents[axon_root]
+
             ar_prox = st.segments[axon_root].prox
             ar_prox_center = _mpt_to_coord(ar_prox)
             ar_dist = st.segments[axon_root].dist
@@ -405,7 +409,7 @@ class ArbFileMorphology(Morphology, DictMixin):
                          ' of radii %s.', axon_root, str(ar_radius))
         else:
             if ar_radius is None:
-                ar_radius = [0.5, 0.5]
+                ar_radius = [(0.5, 0.5), (0.5, 0.5)]
 
             ar_prox_center, ar_dist_center = _find_ais_centers(st)
 
@@ -434,8 +438,8 @@ class ArbFileMorphology(Morphology, DictMixin):
                                            ar_tags):
             axon_parent = pruned_st.append(
                 axon_parent,
-                arbor.mpoint(*prox, radius),
-                arbor.mpoint(*dist, radius),
+                arbor.mpoint(*prox, radius[0]),
+                arbor.mpoint(*dist, radius[1]),
                 tag)
 
         return arbor.morphology(pruned_st)
