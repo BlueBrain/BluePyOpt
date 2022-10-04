@@ -22,6 +22,7 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
 import os
 import json
+from xmlrpc.server import DocXMLRPCRequestHandler
 
 import l5pc_model  # NOQA
 
@@ -35,16 +36,10 @@ config_dir = os.path.join(script_dir, 'config')
 # TODO add functionality to read settings of every object from config format
 
 
-def define_protocols():
-    """Define protocols for Neuron"""
+def define_protocols(do_replace_axon=True, sim='nrn'):
+    """Define protocols"""
     protocol_definitions = load_protocols()
-    return create_protocols(protocol_definitions)
-
-
-def define_protocols_arb(do_replace_axon):
-    """Define protocols for Arbor"""
-    protocol_definitions = load_protocols()
-    return create_protocols(protocol_definitions, do_replace_axon, sim='arb')
+    return create_protocols(protocol_definitions, do_replace_axon, sim=sim)
 
 
 def load_protocols():
@@ -187,23 +182,32 @@ def define_fitness_calculator(protocols):
     return fitcalc
 
 
-def create():
+def create(do_replace_axon=True, sim='nrn'):
     """Setup"""
 
-    l5pc_cell = l5pc_model.create()
+    l5pc_cell = l5pc_model.create(do_replace_axon=do_replace_axon)
 
-    fitness_protocols = define_protocols()
+    fitness_protocols = define_protocols(
+        do_replace_axon=do_replace_axon, sim=sim)
     fitness_calculator = define_fitness_calculator(fitness_protocols)
 
     param_names = [param.name
                    for param in l5pc_cell.params.values()
                    if not param.frozen]
 
-    sim = ephys.simulators.NrnSimulator()
+    if sim == 'nrn':
+        simulator = ephys.simulators.NrnSimulator()
+    elif sim == 'arb':
+        simulator = ephys.simulators.ArbSimulator()
+        if do_replace_axon:
+            nrn_sim = ephys.simulators.NrnSimulator()
+            l5pc_cell.instantiate_morphology(nrn_sim)
+    else:
+        raise ValueError('Simulator must be either \'nrn\' or \'arb\'.')
 
     return ephys.evaluators.CellEvaluator(
         cell_model=l5pc_cell,
         param_names=param_names,
         fitness_protocols=fitness_protocols,
         fitness_calculator=fitness_calculator,
-        sim=sim)
+        sim=simulator)

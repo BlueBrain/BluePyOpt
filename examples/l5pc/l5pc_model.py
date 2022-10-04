@@ -49,7 +49,6 @@ def load_mechanisms():
                 'mechanisms.json')))
 
 
-
 def create_mechanisms(mech_definitions):
 
     mechanisms = []

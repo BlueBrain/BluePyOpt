@@ -374,8 +374,6 @@ class ArbFileMorphology(Morphology, DictMixin):
         elif len(axon_roots) == 1:
             axon_root = axon_roots[0]
             pruned_st, axon_st = st.split_at(axon_root)
-            logger.debug('Pruned %s of segment tree %s.',
-                         axon_st, st)
         else:
             pruned_st = st
 

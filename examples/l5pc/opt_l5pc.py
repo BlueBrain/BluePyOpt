@@ -63,7 +63,7 @@ def create_optimizer(args):
     else:
         map_function = None
 
-    evaluator = l5pc_evaluator.create()
+    evaluator = l5pc_evaluator.create(sim=args.sim)
     seed = os.getenv('BLUEPYOPT_SEED', args.seed)
     opt = bluepyopt.optimisations.DEAPOptimisation(
         evaluator=evaluator,
@@ -83,6 +83,7 @@ The folling environment variables are considered:
     IPYTHON_PROFILE: if set, used as the path to the ipython profile
     BLUEPYOPT_SEED: The seed used for initial randomization
         '''))
+    parser.add_argument('--sim', default='nrn', choices=['nrn', 'arb'])
     parser.add_argument('--start', action="store_true")
     parser.add_argument('--continu', action="store_false", default=False)
     parser.add_argument('--checkpoint', required=False, default=None,
@@ -128,6 +129,9 @@ def main():  # pylint: disable=too-many-statements
         commands.getstatusoutput('cd mechanisms/; nrnivmodl; cd ..')
 
     if args.hocanalyse:
+        if args.sim != 'nrn':
+            raise argparse.ArgumentError(
+                'Simulator must be \'nrn\' with option --hocanalyse.')
         logger.debug('Doing hocanalyse')
         try:
             import bglibpy  # NOQA
@@ -159,7 +163,7 @@ def main():  # pylint: disable=too-many-statements
         l5pc_analysis.analyse_releasecircuit_model(
             opt=opt, figs=(
                 (release_responses_fig, box),
-                (release_objectives_fig, box), ), box=box)
+                (release_objectives_fig, box), ), box=box, sim=args.sim)
         release_objectives_fig.savefig('figures/l5pc_release_objectives.eps')
         release_responses_fig.savefig('figures/l5pc_release_responses.eps')
 
@@ -173,7 +177,8 @@ def main():  # pylint: disable=too-many-statements
                                      responses_filename=args.responses,
                                      figs=((responses_fig, box),
                                            (objectives_fig, box),
-                                           (evol_fig, box),))
+                                           (evol_fig, box),),
+                                     sim=args.sim)
 
             responses_fig.savefig('figures/l5pc_responses.eps')
             objectives_fig.savefig('figures/l5pc_objectives.eps')
