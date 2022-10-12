@@ -40,10 +40,15 @@ def main():
         cell.instantiate_morphology_3d(nrn_sim)
 
     if args.output_dir is not None:
-        ephys.create_acc.output_acc(args.output_dir, cell, param_values)
+        ephys.create_acc.output_acc(args.output_dir,
+                                    cell,
+                                    param_values,
+                                    create_mod_acc=True)
     else:
         output = cell.create_acc(
-            param_values, template='acc/*_template.jinja2')
+            param_values,
+            template='acc/*_template.jinja2',
+            create_mod_acc=True)
         for el, val in output.items():
             print("%s:\n%s\n" % (el, val))
 

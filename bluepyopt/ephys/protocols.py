@@ -582,7 +582,6 @@ class ArbSweepProtocol(Protocol):
         for i, stim in enumerate(self.stimuli):
             if isinstance(stim, stimuli.SynapticStimulus):
                 for acc_events in stim.acc_events():
-                    # cell_model.spike_source(**acc_stim, delay=delay)
                     cell_model.event_generator(acc_events)
 
         return cell_model

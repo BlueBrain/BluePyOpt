@@ -173,7 +173,6 @@ class NrnNetStimStimulus(SynapticStimulus):
         self.connections = {}
 
     def acc_events(self):
-        # spike_sources = []
         event_generators = []
 
         for loc in self.locations:
@@ -191,21 +190,13 @@ class NrnNetStimStimulus(SynapticStimulus):
                 raise ValueError(
                     'Only noise = 0 or 1 for NrnNetStimStimulus'
                     ' supported in Arbor.')
-            # spike_cell = arbor.spike_source_cell(
-            #     loc.name, schedule)
-            # spike_sources.append(dict(
-            #     source=spike_cell,
-            #     synapse=loc.pprocess_mech.name,
-            #     weight=self.weight
-            # ))
+
             event_generators.append(
                 arbor.event_generator(target=loc.pprocess_mech.name,
                                       weight=self.weight,
                                       sched=schedule))
 
         return event_generators
-
-        # return spike_sources
 
     def __str__(self):
         """String representation"""

@@ -560,7 +560,7 @@ def create_acc(mechs,
                morphology_dir=None,
                ignored_globals=(),
                replace_axon=None,
-               replace_axon_create_mod_acc=False,
+               create_mod_acc=False,
                template_name='CCell',
                template_filename='acc/*_template.jinja2',
                disable_banner=None,
@@ -575,7 +575,7 @@ def create_acc(mechs,
         morphology_dir (str): Directory of morphology
         ignored_globals (iterable str): Skipped NrnGlobalParameter in decor
         replace_axon (): Axon replacement morphology
-        replace_axon_create_mod_acc (): Create ACC with axon replacement
+        create_mod_acc (): Create ACC morphology with axon replacement
         template_filename (str): file path of the cell.json , decor.acc and
         label_dict.acc jinja2 templates (with wildcards expanded by glob)
         template_dir (str): dir name of the jinja2 templates
@@ -601,7 +601,7 @@ def create_acc(mechs,
         arbor.write_component(replace_axon, replace_axon_acc)
         replace_axon_acc.seek(0)
 
-        if replace_axon_create_mod_acc:
+        if create_mod_acc:
             modified_morphology_path = \
                 pathlib.Path(morphology).stem + '_modified.acc'
             modified_morpho = ArbFileMorphology.load(
@@ -724,6 +724,7 @@ def create_acc(mechs,
 
 def output_acc(output_dir, cell, parameters,
                template_filename='acc/*_template.jinja2',
+               create_mod_acc=False,
                sim=None):
     '''Output mixed JSON/ACC format for Arbor cable cell to files
 
@@ -733,10 +734,12 @@ def output_acc(output_dir, cell, parameters,
         parameters (): Values for mechanism parameters, etc.
         template_filename (str): file path of the cell.json , decor.acc and
         label_dict.acc jinja2 templates (with wildcards expanded by glob)
+        create_mod_acc (str): Output ACC with axon replacement
         sim (): Neuron simulator instance (only used used with axon
         replacement if morphology has not yet been instantiated)
     '''
-    output = cell.create_acc(parameters, template_filename, sim=sim)
+    output = cell.create_acc(parameters, template_filename,
+                             create_mod_acc=create_mod_acc, sim=sim)
 
     cell_json = [comp_rendered
                  for comp, comp_rendered in output.items()
