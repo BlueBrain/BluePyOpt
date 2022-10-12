@@ -225,7 +225,7 @@ class CellModel(Model):
         return template_function()
 
     def instantiate_morphology(self, sim=None):
-        """Instantiate model in simulator"""
+        """Instantiate morphology in simulator"""
 
         # TODO replace this with the real template name
         if not hasattr(sim.neuron.h, self.name):
@@ -244,6 +244,12 @@ class CellModel(Model):
         self.icell_existing_secs = [
             sec for sec in self.secarray_names
             if sim.neuron.h.section_exists(sec, self.icell)]
+
+    def instantiate_morphology_3d(self, sim=None):
+        """Instantiate morphology and fill in 3d pts for stylized geometry"""
+
+        self.instantiate_morphology(sim=sim)
+        sim.neuron.h.define_shape()
 
     def instantiate(self, sim=None):
         """Instantiate model in simulator"""
@@ -307,6 +313,7 @@ class CellModel(Model):
 
         template_name = self.name
         morphology = os.path.basename(self.morphology.morphology_path)
+        morphology_dir = os.path.dirname(self.morphology.morphology_path)
 
         if sim_desc_creator is create_hoc.create_hoc:
             if self.morphology.do_replace_axon:
@@ -331,28 +338,107 @@ class CellModel(Model):
                     replace_axon += morph_modifier_hoc
         elif sim_desc_creator is create_acc.create_acc:
             if self.morphology.do_replace_axon:
-                replace_axon = []
-                for sec in ['axon', 'myelin']:
-                    if sec in self.icell_existing_secs:
-                        for section in getattr(self.icell, sec):
-                            seg_bounds = [seg for seg
-                                          in section.allseg()]
-                            replace_axon += \
-                                [dict(
-                                    length=(dist.x - prox.x) * section.L,
-                                    prox_radius=0.5 * prox.diam,
-                                    dist_radius=0.5 * dist.diam,
-                                    tag=morphologies.
-                                    ArbFileMorphology.tags[sec])
-                                    for prox, dist
-                                    in zip(seg_bounds[:-1],
-                                           seg_bounds[1:])]
+
+                replace_axon = morphologies.\
+                    ArbFileMorphology.extract_nrn_seclists(
+                        self.icell, [sl for sl in ['axon', 'myelin']
+                                     if sl in self.icell_existing_secs])
+# FIXME
+# # replace_axon = []
+# # for sec in ['axon', 'myelin']:
+# #     if sec in self.icell_existing_secs:
+# #         for section in getattr(self.icell, sec):
+# #             seg_bounds = [seg for seg
+# #                           in section.allseg()]
+# #             replace_axon += \
+# #                 [dict(
+# #                     length=(dist.x - prox.x) * section.L,
+# #                     prox_radius=0.5 * prox.diam,
+# #                     dist_radius=0.5 * dist.diam,
+# #                     tag=morphologies.
+# #                     ArbFileMorphology.tags[sec])
+# #                     for prox, dist
+# #                     in zip(seg_bounds[:-1],
+# #                            seg_bounds[1:])]
+# import arbor
+# import bisect
+# import numpy
+
+# replace_axon = arbor.segment_tree()
+# nrn_seg_to_dist = dict()
+# nrn_seg_to_arb_seg = dict()
+# for sec in ['axon', 'myelin']:
+#     if sec in self.icell_existing_secs:
+#         for section in getattr(self.icell, sec):
+
+#             if replace_axon.size == 0:
+#                 arb_parent_seg = arbor.mnpos
+#             else:
+#                 parent_seg = section.parentseg()
+#                 parent_sec = parent_seg.sec.name()
+#                 parent_x = parent_seg.x
+#                 parent_seg_id = bisect.bisect_left(
+#                     nrn_seg_to_dist[parent_sec],
+#                     parent_x)
+#                 arb_parent_seg = \
+#                     nrn_seg_to_arb_seg[parent_sec][parent_seg_id]
+
+#             pts3d = section.psection()['morphology']['pts3d']
+#             if len(pts3d) == 0:
+#                 # stylized geometry, infer it from original geometry
+#                 raise ValueError(
+#                          'Embed stylized geometry using define_shape()')
+
+#             pts3d = numpy.array(pts3d)
+#             dist_x = numpy.cumsum(
+#                 numpy.linalg.norm(
+#                     pts3d[1:,:3]-pts3d[:-1,:3], axis=1))/\
+#                         section.psection()['morphology']['L']
+#             assert abs(1.-dist_x[-1]) < 1e-4
+#             dist_x[-1] = 1.
+#             nrn_seg_to_dist[section.name()] = dist_x
+
+#             arb_seg_ids = []
+#             for i in range(1,len(pts3d)):
+#                 prox = pts3d[i-1]
+#                 dist = pts3d[i]
+#                 arb_parent_seg = replace_axon.append(
+#                     arb_parent_seg,
+#                     arbor.mpoint(*prox[:3], 0.5 * prox[3]),
+#                     arbor.mpoint(*dist[:3], 0.5 * dist[3]),
+#                     morphologies.ArbFileMorphology.tags[sec])
+#                 arb_seg_ids.append(arb_parent_seg)
+#             nrn_seg_to_arb_seg[section.name()] = arb_seg_ids
+#             # dist, arb_seg_id pairs
+
+#             # allseg = [seg for seg
+#             #           in section.allseg()]
+#             # nseg = len(allseg)
+#             # for i, seg in enumerate(allseg):
+#             #     prox_seg = allseg[max(i-1, 0)]
+#             #     dist_seg = allseg[min(i+1, nseg)]
+#             #     prox_x = 0.5 * (prox_seg.x + seg.x)
+#             #     dist_x = 0.5 * (dist_seg.x + seg.x)
+#             #     prox_radius = 0.25 * (prox_seg.diam + seg.diam)
+#             #     dist_radius = 0.25 * (dist_seg.diam + seg.diam)
+#             #     arb_parent_seg = replace_axon.append(
+#             #         arb_parent_seg,
+#             #         # FIXME: geometry
+#             #         arbor.mpoint(prox_x * section.L, 0, 0, prox_radius),
+#             #         arbor.mpoint(dist_x * section.L, 0, 0, dist_radius),
+#             #         morphologies.ArbFileMorphology.tags[sec])
+#             #     nrn_seg_to_arb_seg[seg.sec()] = arb_parent_seg
+# replace_axon = arbor.morphology(replace_axon)
             else:
                 replace_axon = None
         else:
             raise ValueError('Unsupported sim_desc_creator %s '
                              '(choose either create_hoc.create_hoc or '
                              'create_acc.create_acc)', str(sim_desc_creator))
+
+        extra_params = dict()
+        if sim_desc_creator is create_acc.create_acc:
+            extra_params['morphology_dir'] = morphology_dir
 
         ret = sim_desc_creator(mechs=self.mechanisms,
                                parameters=self.params.values(),
@@ -362,7 +448,8 @@ class CellModel(Model):
                                template_name=template_name,
                                template_filename=template,
                                template_dir=template_dir,
-                               disable_banner=disable_banner)
+                               disable_banner=disable_banner,
+                               **extra_params)
 
         self.unfreeze(to_unfreeze)
 
@@ -393,7 +480,7 @@ class CellModel(Model):
                                      ' to instantiate morphology in order to'
                                      ' create JSON/ACC-description with'
                                      ' axon replacement.')
-                self.instantiate_morphology(sim=sim)
+                self.instantiate_morphology_3d(sim=sim)
                 destroy_cell = True
 
         ret = self._create_sim_desc(param_values,

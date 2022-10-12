@@ -3,6 +3,7 @@
 # pylint: disable=R0914
 
 import os
+import io
 import logging
 import pathlib
 from collections import namedtuple
@@ -556,8 +557,10 @@ def _read_templates(template_dir, template_filename):
 def create_acc(mechs,
                parameters,
                morphology=None,
+               morphology_dir=None,
                ignored_globals=(),
                replace_axon=None,
+               replace_axon_create_mod_acc=False,
                template_name='CCell',
                template_filename='acc/*_template.jinja2',
                disable_banner=None,
@@ -569,9 +572,10 @@ def create_acc(mechs,
         mechs (): All the mechs for the decor template
         parameters (): All the parameters in the decor/label-dict template
         morphology (str): Name of morphology
+        morphology_dir (str): Directory of morphology
         ignored_globals (iterable str): Skipped NrnGlobalParameter in decor
-        replace_axon (str): String replacement for the 'replace_axon' command.
-        Only False is supported at the moment.
+        replace_axon (): Axon replacement morphology
+        replace_axon_create_mod_acc (): Create ACC with axon replacement
         template_filename (str): file path of the cell.json , decor.acc and
         label_dict.acc jinja2 templates (with wildcards expanded by glob)
         template_dir (str): dir name of the jinja2 templates
@@ -585,18 +589,37 @@ def create_acc(mechs,
                            % morphology)
 
     if replace_axon is not None:
+        if not hasattr(arbor.segment_tree, 'tag_roots'):
+            raise NotImplementedError("Need a newer version of Arbor"
+                                      " for axon replacement.")
         logger.debug("Obtain axon replacement by applying "
                      "ArbFileMorphology.replace_axon after loading "
                      "morphology in Arbor.")
-        replace_axon_json = json.dumps(replace_axon)
-        if hasattr(arbor.segment_tree, 'tag_roots'):
-            modified_morphology = \
+        replace_axon_path = \
+            pathlib.Path(morphology).stem + '_axon_replacement.acc'
+        replace_axon_acc = io.StringIO()
+        arbor.write_component(replace_axon, replace_axon_acc)
+        replace_axon_acc.seek(0)
+
+        if replace_axon_create_mod_acc:
+            modified_morphology_path = \
                 pathlib.Path(morphology).stem + '_modified.acc'
+            modified_morpho = ArbFileMorphology.load(
+                os.path.join(morphology_dir, morphology), replace_axon_acc)
+            replace_axon_acc.seek(0)
+            modified_morphology_acc = io.StringIO()
+            arbor.write_component(
+                modified_morpho, modified_morphology_acc)
+            modified_morphology_acc.seek(0)
+            modified_morphology_acc = modified_morphology_acc.read()
         else:
-            modified_morphology = None
+            modified_morphology_path = None
+            modified_morphology_acc = None
+
+        replace_axon_acc = replace_axon_acc.read()
     else:
-        replace_axon_json = None
-        modified_morphology = None
+        replace_axon_path = None
+        modified_morphology_path = None
 
     templates = _read_templates(template_dir, template_filename)
 
@@ -675,52 +698,28 @@ def create_acc(mechs,
     section_scaled_mechs = {loc: _arb_project_scaled_mechs(mechs)
                             for loc, mechs in section_mechs.items()}
 
-    return {filenames[name]:
-            template.render(template_name=template_name,
-                            banner=banner,
-                            morphology=morphology,
-                            replace_axon=replace_axon_json,
-                            modified_morphology=modified_morphology,
-                            filenames=filenames,
-                            regions=ArbFileMorphology.region_labels,
-                            global_mechs=global_mechs,
-                            global_scaled_mechs=global_scaled_mechs,
-                            section_mechs=section_mechs,
-                            section_scaled_mechs=section_scaled_mechs,
-                            pprocess_mechs=pprocess_mechs,
-                            **custom_jinja_params)
-            for name, template in templates.items()}
+    ret = {filenames[name]:
+           template.render(template_name=template_name,
+                           banner=banner,
+                           morphology=morphology,
+                           replace_axon=replace_axon_path,
+                           modified_morphology=modified_morphology_path,
+                           filenames=filenames,
+                           regions=ArbFileMorphology.region_labels,
+                           global_mechs=global_mechs,
+                           global_scaled_mechs=global_scaled_mechs,
+                           section_mechs=section_mechs,
+                           section_scaled_mechs=section_scaled_mechs,
+                           pprocess_mechs=pprocess_mechs,
+                           **custom_jinja_params)
+           for name, template in templates.items()}
 
+    if replace_axon is not None:
+        ret[replace_axon_path] = replace_axon_acc
+        if modified_morphology_path is not None:  # TODO: make optional
+            ret[modified_morphology_path] = modified_morphology_acc
 
-def _instantiate_morphology(morpho_filename, replace_axon):
-    '''Load morphology and optionally perform axon replacement
-    Args:
-        morpho_filename (str): Path to file with original morphology.
-        replace_axon (): list of segments to replace axon with (if not None).
-    '''
-
-    morpho_suffix = pathlib.Path(morpho_filename).suffix
-
-    if morpho_suffix == '.acc':
-        morpho = arbor.load_component(morpho_filename).component
-        if replace_axon is not None:
-            morpho = ArbFileMorphology.replace_axon(morpho, replace_axon)
-    elif morpho_suffix == '.swc':
-        morpho = arbor.load_swc_arbor(morpho_filename)
-        if replace_axon is not None:
-            morpho = ArbFileMorphology.replace_axon(morpho, replace_axon)
-    elif morpho_suffix == '.asc':
-        morpho = arbor.load_asc(morpho_filename)
-        if replace_axon is not None:
-            morpho = \
-                ArbFileMorphology.replace_axon(morpho.morphology, replace_axon)
-        else:
-            morpho = morpho.morphology
-    else:
-        raise RuntimeError(
-            'Unsupported morphology {} (only .swc and .asc supported)'.format(
-                morpho_filename))
-    return morpho
+    return ret
 
 
 def output_acc(output_dir, cell, parameters,
@@ -760,14 +759,6 @@ def output_acc(output_dir, cell, parameters,
         raise RuntimeError("%s already exists!" % morpho_filename)
     shutil.copy2(cell.morphology.morphology_path, morpho_filename)
 
-    if 'replace_axon' in cell_json['morphology']:
-        if hasattr(arbor.segment_tree, 'tag_roots'):
-            morpho = _instantiate_morphology(
-                morpho_filename, cell_json['morphology']['replace_axon'])
-            arbor.write_component(
-                morpho,
-                os.path.join(output_dir, cell_json['morphology']['modified']))
-
 
 # Read the mixed JSON/ACC-output, to be moved to Arbor in future release
 def read_acc(cell_json_filename):
@@ -785,9 +776,10 @@ def read_acc(cell_json_filename):
 
     morpho_filename = os.path.join(cell_json_dir,
                                    cell_json['morphology']['original'])
-    morpho = _instantiate_morphology(
-        morpho_filename,
-        cell_json['morphology'].get('replace_axon', None))
+    replace_axon = cell_json['morphology'].get('replace_axon', None)
+    if replace_axon is not None:
+        replace_axon = os.path.join(cell_json_dir, replace_axon)
+    morpho = ArbFileMorphology.load(morpho_filename, replace_axon)
 
     labels = arbor.load_component(
         os.path.join(cell_json_dir, cell_json['label_dict'])).component

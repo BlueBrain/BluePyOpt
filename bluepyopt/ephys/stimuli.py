@@ -24,10 +24,27 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 import logging
 logger = logging.getLogger(__name__)
 
+try:
+    import arbor
+except ImportError as e:
+    class arbor:
+        def __getattribute__(self, _):
+            raise ImportError("Loading an ACC/JSON-exported cell model into an"
+                              " Arbor morphology and cable cell components"
+                              " requires missing dependency arbor."
+                              " To install BluePyOpt with arbor,"
+                              " run 'pip install bluepyopt[arbor]'.")
+
 
 class Stimulus(object):
 
     """Stimulus protocol"""
+    pass
+
+
+class SynapticStimulus(Stimulus):
+
+    """Synaptic stimulus protocol"""
     pass
 
 
@@ -96,7 +113,7 @@ class NrnCurrentPlayStimulus(Stimulus):
         return "Current play at %s" % (self.location)
 
 
-class NrnNetStimStimulus(Stimulus):
+class NrnNetStimStimulus(SynapticStimulus):
 
     """Current stimulus based on current amplitude and time series"""
 
@@ -116,7 +133,7 @@ class NrnNetStimStimulus(Stimulus):
             number: average number of spikes
             start: most likely start time of first spike (ms)
             noise: fractional randomness (0 deterministic,
-                   1 negexp interval distrubtion)
+                   1 negexp interval distribution)
         """
 
         super(NrnNetStimStimulus, self).__init__()
@@ -153,7 +170,42 @@ class NrnNetStimStimulus(Stimulus):
     def destroy(self, sim=None):
         """Destroy stimulus"""
 
-        self.connections = None
+        self.connections = {}
+
+    def acc_events(self):
+        # spike_sources = []
+        event_generators = []
+
+        for loc in self.locations:
+            if self.noise == 0.:
+                schedule = arbor.explicit_schedule(
+                    [self.start + i * self.interval
+                     for i in range(self.number)])
+            elif self.noise == 1.:
+                schedule = arbor.poisson_schedule(
+                    tstart=self.start,
+                    freq=1. / self.interval,
+                    seed=0,
+                    tstop=self.start + self.number * self.interval)
+            else:
+                raise ValueError(
+                    'Only noise = 0 or 1 for NrnNetStimStimulus'
+                    ' supported in Arbor.')
+            # spike_cell = arbor.spike_source_cell(
+            #     loc.name, schedule)
+            # spike_sources.append(dict(
+            #     source=spike_cell,
+            #     synapse=loc.pprocess_mech.name,
+            #     weight=self.weight
+            # ))
+            event_generators.append(
+                arbor.event_generator(target=loc.pprocess_mech.name,
+                                      weight=self.weight,
+                                      sched=schedule))
+
+        return event_generators
+
+        # return spike_sources
 
     def __str__(self):
         """String representation"""

@@ -676,7 +676,10 @@ class ArbRegionLocation(ArbLocation):
 
     def acc_label(self):
         """Arbor label"""
-        return ArbLabel('region', self.name, self.region)
+        raise EPhysLocAccException(
+            'Support for %s not yet implemented in create_acc.' %
+            type(self).__name__)
+        # return ArbLabel('region', self.name, self.region)
 
     def __str__(self):
         """String representation"""
@@ -698,7 +701,10 @@ class ArbIexprLocation(ArbLocation):
 
     def acc_label(self):
         """Arbor label"""
-        return ArbLabel('iexpr', self.name, self.iexpr)
+        raise EPhysLocAccException(
+            'Support for %s not yet implemented in create_acc.' %
+            type(self).__name__)
+        # return ArbLabel('iexpr', self.name, self.iexpr)
 
     def __str__(self):
         """String representation"""

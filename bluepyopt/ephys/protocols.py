@@ -413,11 +413,16 @@ class ArbSweepProtocol(Protocol):
                 labels = self.instantiate_locations(labels)
 
             # Adding stimuli to decor (could also be written/loaded from ACC)
-            decor = self.instantiate_stimuli(
+            decor = self.instantiate_iclamp_stimuli(
                 decor,
                 use_labels=self.use_labels)
 
             arb_cell_model = sim.instantiate(morph, labels, decor)
+
+            # Adding synaptic stimuli to cell model (no representation in ACC)
+            arb_cell_model = self.instantiate_synaptic_stimuli(
+                arb_cell_model,
+                use_labels=self.use_labels)
 
             # Adding recordings to cell model (no representation in ACC)
             arb_cell_model = self.instantiate_recordings(
@@ -468,7 +473,7 @@ class ArbSweepProtocol(Protocol):
             cell_json = os.path.join(acc_dir, cell_model.name + '.json')
 
             # protocols are directly instantiated on Arbor cell
-            # (serialization would require representation for probes)
+            # (serialization would require representation for probes, events)
 
             if isolate is None:
                 isolate = True
@@ -550,24 +555,37 @@ class ArbSweepProtocol(Protocol):
 
         return label_dict
 
-    def instantiate_stimuli(self, decor, use_labels=False):
-        """Instantiate stimuli"""
+    def instantiate_iclamp_stimuli(self, decor, use_labels=False):
+        """Instantiate iclamp stimuli"""
 
         for i, stim in enumerate(self.stimuli):
-            if hasattr(stim, 'envelope'):
-                arb_iclamp = arbor.iclamp(stim.envelope())
-            else:
-                raise ValueError('Stimulus must provide envelope method '
-                                 ' to be supported in Arbor.')
+            if not isinstance(stim, stimuli.SynapticStimulus):
+                if hasattr(stim, 'envelope'):
+                    arb_iclamp = arbor.iclamp(stim.envelope())
+                else:
+                    raise ValueError('Stimulus must provide envelope method '
+                                     ' or be of type NrnNetStimStimulus to be'
+                                     ' supported in Arbor.')
 
-            arb_loc = stim.location.acc_label()
-            for loc in (arb_loc if isinstance(arb_loc, list)
-                        else [arb_loc]):
-                decor.place(loc.ref if use_labels else loc.loc,
-                            arb_iclamp,
-                            '%s.iclamp.%d.%s' % (self.name, i, loc.name))
+                arb_loc = stim.location.acc_label()
+                for loc in (arb_loc if isinstance(arb_loc, list)
+                            else [arb_loc]):
+                    decor.place(loc.ref if use_labels else loc.loc,
+                                arb_iclamp,
+                                '%s.iclamp.%d.%s' % (self.name, i, loc.name))
 
         return decor
+
+    def instantiate_synaptic_stimuli(self, cell_model, use_labels=False):
+        """Instantiate synaptic stimuli"""
+
+        for i, stim in enumerate(self.stimuli):
+            if isinstance(stim, stimuli.SynapticStimulus):
+                for acc_events in stim.acc_events():
+                    # cell_model.spike_source(**acc_stim, delay=delay)
+                    cell_model.event_generator(acc_events)
+
+        return cell_model
 
     def instantiate_recordings(self, cell_model, use_labels=False):
         """Instantiate recordings"""
@@ -577,6 +595,15 @@ class ArbSweepProtocol(Protocol):
             # alternatively arbor.cable_probe_membrane_voltage
             arb_loc = rec.location.acc_label()
             assert not isinstance(arb_loc, list) or len(arb_loc) == 1
+
+            if hasattr(cell_model, 'cable_cell'):
+                rec_locations = cell_model.cable_cell.locations(arb_loc.loc)
+                if len(rec_locations) != 1:
+                    raise ValueError(
+                        'Recording %s\'s' % rec.name +
+                        ' location "%s"' % arb_loc.loc +
+                        ' is non-unique in Arbor: %s.' % rec_locations)
+
             cell_model.probe('voltage',
                              arb_loc.ref if use_labels else arb_loc.loc,
                              frequency=10)  # could be a parameter

@@ -37,7 +37,7 @@ def main():
     cell = simplecell_model.create(do_replace_axon=args.replace_axon)
     if args.replace_axon:
         nrn_sim = ephys.simulators.NrnSimulator()
-        cell.instantiate_morphology(nrn_sim)
+        cell.instantiate_morphology_3d(nrn_sim)
 
     if args.output_dir is not None:
         ephys.create_acc.output_acc(args.output_dir, cell, param_values)

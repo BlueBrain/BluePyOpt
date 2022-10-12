@@ -22,7 +22,6 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
 import os
 import json
-from xmlrpc.server import DocXMLRPCRequestHandler
 
 import l5pc_model  # NOQA
 
@@ -201,7 +200,7 @@ def create(do_replace_axon=True, sim='nrn'):
         simulator = ephys.simulators.ArbSimulator()
         if do_replace_axon:
             nrn_sim = ephys.simulators.NrnSimulator()
-            l5pc_cell.instantiate_morphology(nrn_sim)
+            l5pc_cell.instantiate_morphology_3d(nrn_sim)
     else:
         raise ValueError('Simulator must be either \'nrn\' or \'arb\'.')
 

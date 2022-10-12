@@ -62,26 +62,15 @@ def main(args):
     number = 5
     interval = 5
 
+    netstim = ephys.stimuli.NrnNetStimStimulus(
+        total_duration=200,
+        number=5,
+        interval=5,
+        start=stim_start,
+        weight=5e-4,
+        locations=[expsyn_loc])
+
     stim_end = stim_start + interval * number
-
-    if args.sim == 'nrn':
-        netstim = ephys.stimuli.NrnNetStimStimulus(
-            total_duration=200,
-            number=5,
-            interval=5,
-            start=stim_start,
-            weight=5e-4,
-            locations=[expsyn_loc])
-    else:
-        # emulating NrnNetStimStimulus as not yet supported in Arbor
-        netstim = [
-            ephys.stimuli.NrnSquarePulse(
-                step_amplitude=5e-4,
-                step_delay=stim_start + i*interval,
-                step_duration=1,
-                location=expsyn_loc,
-                total_duration=200) for i in range(number)]
-
 
     cm_param = ephys.parameters.NrnSectionParameter(
         name='cm',
@@ -109,7 +98,7 @@ def main(args):
     else:
         protocol = ephys.protocols.ArbSweepProtocol(
             'netstim_protocol',
-            netstim,
+            [netstim],
             [rec])
 
     max_volt_feature = ephys.efeatures.eFELFeature(

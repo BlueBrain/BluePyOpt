@@ -7,7 +7,7 @@
   {%- if replace_axon is not none %}
   "morphology": {
      "original": "{{morphology}}",
-     "replace_axon": {{replace_axon}}{%- if modified_morphology is not none %},
+     "replace_axon": "{{replace_axon}}"{%- if modified_morphology is not none %},
      "modified": "{{modified_morphology}}"{%- endif %}
   },
   {%- else %}

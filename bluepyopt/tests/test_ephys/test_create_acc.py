@@ -7,6 +7,8 @@ import re
 import json
 import tempfile
 
+from bluepyopt.ephys.morphologies import ArbFileMorphology
+
 from . import utils
 
 from bluepyopt import ephys
@@ -159,21 +161,42 @@ def test_create_acc_replace_axon():
     """ephys.create_acc: Test create_acc with axon replacement"""
     mech = utils.make_mech()
     parameters = utils.make_parameters()
-    replace_axon = [dict(nseg=1, L=30., diam=1.0),
-                    dict(nseg=1, L=30., diam=1.0)]
 
-    acc = create_acc.create_acc([mech, ], parameters,
-                                morphology='CCell.swc',
-                                template_name='CCell',
-                                replace_axon=replace_axon)
+    replace_axon_st = arbor.segment_tree()
+    latest_seg = arbor.mnpos
+
+    for prox_x, dist_x in [(5, 35), (35, 65)]:
+        latest_seg = replace_axon_st.append(
+            latest_seg,
+            arbor.mpoint(prox_x, 0, 0, 0.5),
+            arbor.mpoint(dist_x, 0, 0, 0.5),
+            ArbFileMorphology.tags['axon']
+        )
+
+    replace_axon = arbor.morphology(replace_axon_st)
+
+    try:
+        acc = create_acc.create_acc([mech, ], parameters,
+                                    morphology_dir=testdata_dir,
+                                    morphology='simple.swc',
+                                    template_name='CCell',
+                                    replace_axon=replace_axon)
+    except Exception as e:  # fail with an older Arbor version
+        assert isinstance(e, NotImplementedError)
+        assert len(e.args) == 1 and e.args[0] == \
+            "Need a newer version of Arbor for axon replacement."
+        return
 
     cell_json = "CCell.json"
     cell_json_dict = json.loads(acc[cell_json])
     assert 'replace_axon' in cell_json_dict['morphology']
-    assert 'nseg' in cell_json_dict['morphology']['replace_axon'][0]
-    assert 'L' in cell_json_dict['morphology']['replace_axon'][0]
-    assert 'diam' in cell_json_dict['morphology']['replace_axon'][0]
-    assert cell_json_dict['morphology']['replace_axon'] == replace_axon
+
+    with open(os.path.join(testdata_dir,
+                           'acc/CCell/simple_axon_replacement.acc')) as f:
+        replace_axon_ref = f.read()
+
+    assert acc[cell_json_dict['morphology']['replace_axon']] == \
+        replace_axon_ref
 
 
 def make_cell(replace_axon):
@@ -250,19 +273,20 @@ def test_cell_model_output_and_read_acc_replace_axon():
                     'gkbar_hh': 0.03}
 
     with tempfile.TemporaryDirectory() as acc_dir:
-        create_acc.output_acc(acc_dir, cell, param_values,
-                              sim=ephys.simulators.NrnSimulator())
         try:
-            cell_json, arb_morph, arb_labels, arb_decor = \
-                create_acc.read_acc(
-                    os.path.join(acc_dir, cell.name + '.json'))
+            create_acc.output_acc(acc_dir, cell, param_values,
+                                  sim=ephys.simulators.NrnSimulator())
         except Exception as e:  # fail with an older Arbor version
             assert isinstance(e, NotImplementedError)
             assert len(e.args) == 1 and e.args[0] == \
                 "Need a newer version of Arbor for axon replacement."
             return
 
-    # Axon replacement implemented in installed Arbor version
+        # Axon replacement implemented in installed Arbor version
+        cell_json, arb_morph, arb_labels, arb_decor = \
+            create_acc.read_acc(
+                os.path.join(acc_dir, cell.name + '.json'))
+
     assert 'replace_axon' in cell_json['morphology']
     cable_cell = arbor.cable_cell(arb_morph, arb_labels, arb_decor)
     assert isinstance(cable_cell, arbor.cable_cell)

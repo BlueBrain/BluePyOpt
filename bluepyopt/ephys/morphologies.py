@@ -28,8 +28,10 @@ from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
 try:
-    import arbor
+    import pathlib
+    import bisect
     import numpy
+    import arbor
 except ImportError as e:
     class arbor:
         def __getattribute__(self, _):
@@ -320,42 +322,113 @@ class ArbFileMorphology(Morphology, DictMixin):
     )
 
     @staticmethod
-    def replace_axon(morphology, replacement=None):
-        '''return a morphology with the axon replaced by two 30 um segments
+    def load(morpho_filename, replace_axon):
+        '''Load morphology and optionally perform axon replacement
 
         Args:
-            morphology (arbor.morphology): An Arbor morphology
-            replacement (): A list of dictionaries containing Arbor segment
-            parameters including nseg, length, radius and tag of the axon
-            replacement (derived from Neuron's stylized specification of
-            geometry, cf. Neuron topology/geometry docs). Each of these is
-            interpreted so that the axon replacement is formed from a single
-            branch of stacked cylindrical segments.
+            morpho_filename (str): Path to file with original morphology.
+            replace_axon (): Path to/ACC string for morphology to replace
+            axon with (if not None).
         '''
 
-        def _mpt_to_coord(mpt):
-            '''Convert arbor.mpoint 3d center coordinates to numpy array'''
-            return numpy.array([mpt.x, mpt.y, mpt.z])
+        morpho_suffix = pathlib.Path(morpho_filename).suffix
 
-        def _find_ais_centers(st, axon_parent=None):
-            if axon_parent is None or axon_parent == arbor.mnpos:
-                soma_segs = [i for i, s in enumerate(st.segments)
-                             if s.tag == ArbFileMorphology.tags['soma']]
-                soma_terminals = [i for i in soma_segs if st.is_terminal(i)]
-                if len(soma_terminals) > 0:
-                    axon_parent = soma_terminals[-1]
-                elif len(soma_segs) > 0:
-                    axon_parent = soma_segs[-1]
+        if morpho_suffix == '.acc':
+            morpho = arbor.load_component(morpho_filename).component
+        elif morpho_suffix == '.swc':
+            morpho = arbor.load_swc_arbor(morpho_filename)
+        elif morpho_suffix == '.asc':
+            morpho = arbor.load_asc(morpho_filename).morphology
+        else:
+            raise RuntimeError(
+                'Unsupported morphology %s' % morpho_filename +
+                ' (only .swc and .asc supported)')
+
+        if replace_axon is not None:
+            replacement = arbor.load_component(replace_axon).component
+            morpho = ArbFileMorphology.replace_axon(morpho, replacement)
+
+        return morpho
+
+    @staticmethod
+    def extract_nrn_seclists(icell, seclists):
+        '''Extract section lists from an instantiated cell (axon replacement)
+
+        Args:
+            icell (): Instantiated cell model in the NEURON simulator.
+            seclists (): List of section lists to extract
+            (typically ['axon'] or ['axon', 'myelin']).
+        '''
+        replace_axon = arbor.segment_tree()
+        nrn_seg_to_dist = dict()
+        nrn_seg_to_arb_seg = dict()
+        for sec in seclists:
+            for section in getattr(icell, sec):
+
+                if replace_axon.size == 0:  # root
+                    arb_parent_seg = arbor.mnpos
                 else:
-                    raise ValueError('Morphology without soma,'
-                                     ' cannot replace axon.')
+                    parent_seg = section.parentseg()
+                    parent_sec = parent_seg.sec.name()
+                    parent_x = parent_seg.x
+                    parent_seg_id = bisect.bisect_left(
+                        nrn_seg_to_dist[parent_sec],
+                        parent_x)
+                    arb_parent_seg = \
+                        nrn_seg_to_arb_seg[parent_sec][parent_seg_id]
 
-            ar_prox = st.segments[axon_parent].dist
-            ar_prox_center = _mpt_to_coord(ar_prox)
-            ar_dist = st.segments[axon_parent].prox
-            ar_dist_center = 2 * ar_prox_center - _mpt_to_coord(ar_dist)
+                pts3d = section.psection()['morphology']['pts3d']
+                if len(pts3d) == 0:
+                    # stylized geometry, must use sim.neuron.h.define_shape()
+                    raise ValueError('Before exporting to ACC, embed'
+                                     ' stylized geometry in 3d'
+                                     ' by instantiating morphology with'
+                                     ' cell_model.instantiate_morphology_3d.')
 
-            return ar_prox_center, ar_dist_center
+                pts3d = numpy.array(pts3d)
+                dist_x = numpy.cumsum(
+                    numpy.linalg.norm(
+                        pts3d[1:, :3] - pts3d[:-1, :3], axis=1)) /\
+                    section.psection()['morphology']['L']
+                relative_length_err = abs(1. - dist_x[-1])
+                if relative_length_err > 1e-4:
+                    logger.warn('pts3d length does not add up to'
+                                ' section length, relative error = %s' %
+                                relative_length_err)
+                    if relative_length_err > 1e-2:
+                        raise ValueError('pts3d length inconsistent'
+                                         ' with section length, relative'
+                                         ' error = %s' %
+                                         relative_length_err)
+
+                dist_x[-1] = 1.
+                nrn_seg_to_dist[section.name()] = dist_x
+
+                arb_seg_ids = []
+                for i in range(1, len(pts3d)):
+                    prox = pts3d[i - 1]
+                    dist = pts3d[i]
+                    arb_parent_seg = replace_axon.append(
+                        arb_parent_seg,
+                        arbor.mpoint(*prox[:3], 0.5 * prox[3]),
+                        arbor.mpoint(*dist[:3], 0.5 * dist[3]),
+                        ArbFileMorphology.tags[sec])
+                    arb_seg_ids.append(arb_parent_seg)
+                # dist, arb_seg_id pairs
+                nrn_seg_to_arb_seg[section.name()] = arb_seg_ids
+
+        replace_axon = arbor.morphology(replace_axon)
+
+        return replace_axon
+
+    @staticmethod
+    def replace_axon(morphology, replacement=None):
+        '''return a morphology with the axon replaced by another morphology
+
+        Args:
+            morphology (arbor.morphology): The original Arbor morphology
+            replacement (): An Arbor morphology to replace the axon with
+        '''
 
         # Check if tag_roots is available
         if not hasattr(arbor.segment_tree, 'tag_roots'):
@@ -365,7 +438,7 @@ class ArbFileMorphology(Morphology, DictMixin):
         # Arbor tags
         axon_tag = ArbFileMorphology.tags['axon']
 
-        # Prune morphology at axon root
+        # prune morphology at axon root
         st = morphology.to_segment_tree()
         axon_roots = st.tag_roots(axon_tag)
         if len(axon_roots) > 1:
@@ -373,71 +446,20 @@ class ArbFileMorphology(Morphology, DictMixin):
                              "morphologies with a single axon root.")
         elif len(axon_roots) == 1:
             axon_root = axon_roots[0]
+            logger.debug('Axon replacement: splitting segment tree'
+                         ' at segment %d.', axon_root)
             pruned_st, axon_st = st.split_at(axon_root)
+            axon_parent = st.parents[axon_root]
         else:
             pruned_st = st
-
-        if replacement is not None:
-            ar_radius = [(r['prox_radius'], r['dist_radius'])
-                         for r in replacement]
-        else:
-            if len(axon_roots) > 1:
-                ValueError('Please specify axon replacement explicitly '
-                           'for morphology with pre-existing axon.')
-            ar_radius = None
-
-        # Create axon replacement building on the pruned root
-        if len(axon_roots) == 1:
-            axon_root = axon_roots[0]
-            axon_parent = st.parents[axon_root]
-
-            ar_prox = st.segments[axon_root].prox
-            ar_prox_center = _mpt_to_coord(ar_prox)
-            ar_dist = st.segments[axon_root].dist
-            ar_dist_center = _mpt_to_coord(ar_dist)
-
-            if all(ar_prox_center == ar_dist_center):
-                ar_prox_center, ar_dist_center = \
-                    _find_ais_centers(st, axon_parent)
-
-            # Could approximate ar_radius based on original morphology
-            # here if it is None (caught above)
-
-            logger.debug('Replacing axon with root %d with AIS'
-                         ' of radii %s.', axon_root, str(ar_radius))
-        else:
-            if ar_radius is None:
-                ar_radius = [(0.5, 0.5), (0.5, 0.5)]
-
-            ar_prox_center, ar_dist_center = _find_ais_centers(st)
-
-            # create new branch for replaced axon not to break
-            # existing location expressions
             axon_parent = arbor.mnpos
-            logger.debug('Replacing non-existent axon with AIS'
-                         ' of radii %s.', str(ar_radius))
 
-        if replacement is not None:
-            ar_seg_scaling = numpy.cumsum([0] +
-                                          [r['length'] for r in replacement])
-        else:
-            ar_seg_scaling = numpy.cumsum([0, 30, 30])
-        ar_seg_scaling /= numpy.linalg.norm(ar_dist_center - ar_prox_center)
+        # join pruned segment tree and replacement at axon parent
+        axon_replacement_st = replacement.to_segment_tree()
 
-        ar_centers = [ar_prox_center +
-                      scale * (ar_dist_center - ar_prox_center)
-                      for scale in ar_seg_scaling]
+        logger.debug('Axon replacement: joining replacement onto'
+                     'pruned tree at parent segment %d.', axon_parent)
+        joined_st = pruned_st.join_at(
+            axon_parent, axon_replacement_st)
 
-        ar_tags = [r['tag'] for r in replacement]
-
-        for prox, dist, radius, tag in zip(ar_centers[:-1],
-                                           ar_centers[1:],
-                                           ar_radius,
-                                           ar_tags):
-            axon_parent = pruned_st.append(
-                axon_parent,
-                arbor.mpoint(*prox, radius[0]),
-                arbor.mpoint(*dist, radius[1]),
-                tag)
-
-        return arbor.morphology(pruned_st)
+        return arbor.morphology(joined_st)
