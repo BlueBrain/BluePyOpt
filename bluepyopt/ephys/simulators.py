@@ -203,6 +203,7 @@ class ArbSimulator(object):
 
     def instantiate(self, morph, labels, decor):
         cable_cell = arbor.cable_cell(morph, labels, decor)
+
         arb_cell_model = arbor.single_cell_model(cable_cell)
 
         # Add catalogues with explicit qualifiers

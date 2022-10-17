@@ -20,13 +20,13 @@
     {%- for mech, params in mech_parameters.items() %}
     {%- if mech is not none %}
     {%- if mech in section_scaled_mechs[loc] %}
-    (paint {{regions[loc].ref}} (scaled-mechanism (density (mechanism "{{ mech }}" {%- for param in params if param.value is not none %} ("{{ param.name }}" {{ param.value }}){%- endfor %})){%- for param in section_scaled_mechs[loc][mech] %} ("{{ param.name }}" {{ param.scale }}){%- endfor %}))
+    (paint {{loc.ref}} (scaled-mechanism (density (mechanism "{{ mech }}" {%- for param in params if param.value is not none %} ("{{ param.name }}" {{ param.value }}){%- endfor %})){%- for param in section_scaled_mechs[loc][mech] %} ("{{ param.name }}" {{ param.scale }}){%- endfor %}))
     {%- else %}
-    (paint {{regions[loc].ref}} (density (mechanism "{{ mech }}" {%- for param in params %} ("{{ param.name }}" {{ param.value }}){%- endfor %})))
+    (paint {{loc.ref}} (density (mechanism "{{ mech }}" {%- for param in params %} ("{{ param.name }}" {{ param.value }}){%- endfor %})))
     {%- endif %}
     {%- else %}
     {%- for param in params %}
-    (paint {{regions[loc].ref}} ({{ param.name }} {{ param.value }}))
+    (paint {{loc.ref}} ({{ param.name }} {{ param.value }}))
     {%- endfor %}
     {%- endif %}
     {%- endfor %}

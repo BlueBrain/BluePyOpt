@@ -23,11 +23,13 @@ from bluepyopt.ephys.parameterscalers import (NrnSegmentSomaDistanceScaler,
                                               FLOAT_FORMAT,
                                               format_float)
 
+PointExpr = namedtuple('PointExpr', 'name, point_loc, value')
+RangeExpr = namedtuple('RangeExpr', 'location, name, value, value_scaler')
+
 # Consider renaming Location as name already used in locations module
 Location = namedtuple('Location', 'name, value')
-PointExpr = namedtuple('PointExpr', 'name, point_loc, value')
-RangeExpr = namedtuple('RangeExpr', 'location, name, value, inst_distribution')
 Range = namedtuple('Range', 'location, param_name, value')
+
 DEFAULT_LOCATION_ORDER = [
     'all',
     'apical',
@@ -37,19 +39,17 @@ DEFAULT_LOCATION_ORDER = [
     'myelinated']
 
 
-def _generate_channels_by_location(mechs, location_order):
+def _generate_channels_by_location(mechs, location_order, loc_desc):
     """Create a OrderedDictionary of all channel mechs for hoc template."""
     channels = OrderedDict((location, []) for location in location_order)
     point_channels = OrderedDict((location, []) for location in location_order)
     for mech in mechs:
         name = mech.suffix
         for location in mech.locations:
-            # TODO this is dangerous, implicitely assumes type of location
-            seclist_name = getattr(location, 'seclist_name', 'all')
             if isinstance(mech, mechanisms.NrnMODPointProcessMechanism):
-                point_channels[seclist_name].append(mech)
+                point_channels[loc_desc(location, mech)].append(mech)
             else:
-                channels[seclist_name].append(name)
+                channels[loc_desc(location, mech)].append(name)
     return channels, point_channels
 
 
@@ -80,7 +80,7 @@ def _range_exprs_to_hoc(range_params):
 
     ret = []
     for param in range_params:
-        value = param.inst_distribution
+        value = param.value_scaler.inst_distribution
         value = re.sub(r'math\.', '', value)
         value = re.sub('{distance}', FLOAT_FORMAT, value)
         value = re.sub('{value}', format_float(param.value), value)
@@ -88,32 +88,46 @@ def _range_exprs_to_hoc(range_params):
     return ret
 
 
-def _generate_parameters(parameters):
+def _loc_desc(location, param_or_mech):
+    """Generate Neuron location description for HOC template"""
+
+    if isinstance(param_or_mech, mechanisms.NrnMODMechanism):
+        # TODO this is dangerous, implicitly assumes type of location
+        return getattr(location, 'seclist_name', 'all')
+    elif isinstance(param_or_mech, mechanisms.NrnMODPointProcessMechanism):
+        raise ValueError("%s is currently not supported by create_hoc." %
+                         type(param_or_mech).__name__)
+    # FIXME: NrnSectionCompLocation
+    elif not isinstance(param_or_mech, NrnPointProcessParameter):
+        return location.seclist_name
+    else:
+        raise ValueError("%s is currently not supported by create_hoc." %
+                         type(param_or_mech).__name__)
+
+
+def _generate_parameters(parameters, location_order, loc_desc):
     """Create a list of parameters that need to be added to the hoc template"""
     param_locations = defaultdict(list)
     global_params = {}
     for param in parameters:
         if isinstance(param, NrnGlobalParameter):
-            global_params[param.name] = param.value
+            global_params[param.param_name] = param.value
         elif isinstance(param, MetaParameter):
             pass
         else:
             assert isinstance(
                 param.locations, (tuple, list)), 'Must have locations list'
             for location in param.locations:  # FIXME: NrnSectionCompLocation
-                if not isinstance(param, NrnPointProcessParameter):
-                    param_locations[location.seclist_name].append(param)
+                locs = loc_desc(location, param)
+                if not isinstance(locs, list):
+                    param_locations[locs].append(param)
                 else:
-                    for pprocess_location in location.pprocess_mech.locations:
-                        pprocess_seclist = getattr(pprocess_location,
-                                                   'seclist_name', 'all')
-                        param_locations[pprocess_seclist].append(param)
+                    for loc in locs:
+                        param_locations[loc].append(param)
 
     section_params = defaultdict(list)
     pprocess_params = defaultdict(list)
     range_params = []
-
-    location_order = DEFAULT_LOCATION_ORDER
 
     for loc in param_locations:
         if loc not in location_order:
@@ -131,7 +145,7 @@ def _generate_parameters(parameters):
                         RangeExpr(loc,
                                   param.param_name,
                                   param.value,
-                                  param.value_scaler.inst_distribution))
+                                  param.value_scaler))
                 elif isinstance(param.value_scaler, NrnSegmentLinearScaler):
                     value = param.value_scale_func(param.value)
                     section_params[loc].append(
@@ -174,8 +188,10 @@ def _read_template(template_dir, template_filename):
 def _get_template_params(
         mechs,
         parameters,
-        ignored_globals=(),
-        disable_banner=None):
+        ignored_globals,
+        disable_banner,
+        default_location_order,
+        loc_desc):
     '''return parameters to render Jinja2 templates with simulator descriptions
 
     Args:
@@ -185,13 +201,18 @@ def _get_template_params(
         NrnGlobalParameter
         that exists, to test that it matches the values set in the parameters.
         This iterable contains parameter names that aren't checked
+        default_location_order (): list of ordered simulator-specific locations
+        to use by default
+        loc_desc (): method that extracts simulator-specific location
+        description from pair of locations and mechanisms/parameters
     '''
 
     global_params, section_params, range_params, \
         pprocess_params, location_order = \
-        _generate_parameters(parameters)
+        _generate_parameters(parameters, default_location_order, loc_desc)
+
     channels, point_channels = _generate_channels_by_location(
-        mechs, location_order)
+        mechs, location_order, loc_desc)
 
     ignored_global_params = {}
     for ignored_global in ignored_globals:
@@ -250,7 +271,9 @@ def create_hoc(mechs,
     template_params = _get_template_params(mechs,
                                            parameters,
                                            ignored_globals,
-                                           disable_banner)
+                                           disable_banner,
+                                           DEFAULT_LOCATION_ORDER,
+                                           _loc_desc)
 
     # delete empty dicts to avoid conflict with custom_jinja_params
     del template_params['pprocess_params']

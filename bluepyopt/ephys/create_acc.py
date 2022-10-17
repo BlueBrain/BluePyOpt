@@ -12,7 +12,6 @@ from glob import glob
 import jinja2
 import json
 import shutil
-import ast
 
 try:
     import arbor
@@ -28,9 +27,8 @@ except ImportError as e:
 logger = logging.getLogger(__name__)
 
 from .create_hoc import Location, RangeExpr, PointExpr, \
-    _get_template_params, format_float, DEFAULT_LOCATION_ORDER
+    _get_template_params, format_float
 from .morphologies import ArbFileMorphology
-
 
 # Define Neuron to Arbor variable conversions
 ArbVar = namedtuple('ArbVar', 'name, conv')  # turn into a class
@@ -82,7 +80,7 @@ def _nrn2arb_param(param, name):
         return RangeExpr(location=param.location,
                          name=_nrn2arb_var_name(name),
                          value=_nrn2arb_var_value(param),
-                         inst_distribution=param.inst_distribution)
+                         value_scaler=param.value_scaler)
     elif isinstance(param, PointExpr):
         return PointExpr(name=_nrn2arb_var_name(name),
                          point_loc=param.point_loc,
@@ -101,7 +99,7 @@ def _nrn2arb_mech_name(name):
 
 def _arb_is_global_property(loc, param):
     """Returns if region-specific variable is a global property in Arbor."""
-    return loc == 'all' and (
+    return loc == ArbFileMorphology.region_labels['all'] and (
         param.name in ['membrane-potential',
                        'temperature-kelvin',
                        'axial-resistivity',
@@ -219,16 +217,19 @@ def _arb_convert_params_and_group_by_mech(params, channels):
     mech_params = [_find_mech_and_convert_param_name(
                    param, channels) for param in params]
     mechs = {mech: [] for mech, _ in mech_params}
+    for mech in channels:
+        if mech not in mechs:
+            mechs[mech] = []
     for mech, param in mech_params:
         mechs[mech].append(param)
     return mechs
 
 
-def _arb_convert_params_and_group_by_mech_global(params, channels):
+def _arb_convert_params_and_group_by_mech_global(params):
     """Group global params by mechanism, rename them to Arbor convention"""
     return _arb_convert_params_and_group_by_mech(
         [Location(name=name, value=value) for name, value in params.items()],
-        channels['all']
+        []  # no default mechanisms
     )
 
 
@@ -257,7 +258,8 @@ def _arb_append_scaled_mechs(mechs, scaled_mechs):
             [RangeIExpr(
                 name=p.name,
                 value=format_float(p.value),
-                scale=_arb_generate_iexpr(p)) for p in scaled_params]
+                scale=p.value_scaler.acc_scale_iexpr(p.value))
+                for p in scaled_params]
 
 
 def _arb_nmodl_global_translate_mech(mech_name, mech_params, arb_cats):
@@ -295,7 +297,8 @@ def _arb_nmodl_global_translate_mech(mech_name, mech_params, arb_cats):
                                        scale=mech_param.scale))
                 else:
                     remaining_mech_params.append(mech_param)
-            mech_name += '/' + ','.join(mech_name_suffix)
+            if len(mech_name_suffix) > 0:
+                mech_name += '/' + ','.join(mech_name_suffix)
             return (mech_name, remaining_mech_params)
 
 
@@ -329,204 +332,6 @@ def _arb_project_scaled_mechs(mechs):
     return scaled_mechs
 
 
-# Translating parameter scaling expressions to Arbor S-expressions
-class ArbIExprValueEliminator(ast.NodeTransformer):
-    """Divide expression (symbolically) by value and replace
-        non-linear occurrences by numeric value"""
-    def __init__(self, value):
-        self._stack = []
-        self._nodes_to_remove = []
-        self._remove_count = 0
-        self._value = value
-
-    def generic_visit(self, node):
-        self._stack.append(node)  # keep track of visitor stack
-
-        node = super(ArbIExprValueEliminator, self).generic_visit(node)
-
-        nodes_removed = []
-        for node_to_remove in self._nodes_to_remove:
-            if node_to_remove in ast.iter_child_nodes(node):
-                # replace this node and remove child
-                node = node.left if node.right == node_to_remove \
-                    else node.right
-                nodes_removed.append(node_to_remove)
-                self._remove_count += 1
-                if self._remove_count > 1:
-                    raise ValueError(
-                        'Unsupported inhomogeneous expression in Arbor'
-                        ' - must be linear in the parameter value.')
-        self._nodes_to_remove = [n for n in self._nodes_to_remove
-                                 if n not in nodes_removed]
-
-        self._stack.pop()
-
-        # top-level expression node that is non-linear in the value
-        if len(self._stack) == 2 and self._remove_count == 0:
-            return ast.BinOp(left=node, op=ast.Div(),
-                             right=ast.Constant(value=self._value))
-        else:
-            return node
-
-    def _is_linear(self, node):
-        """Check if expression is linear in this node"""
-        prev_frame = node
-        for next_frame in reversed(self._stack[2:]):
-            if not isinstance(next_frame, ast.BinOp) or \
-                not (isinstance(next_frame.op, ast.Mult) or
-                     isinstance(next_frame.op, ast.Div) and
-                     next_frame.left == prev_frame):
-                return False
-            prev_frame = next_frame
-        return True
-
-    def visit_Name(self, node):
-        if node.id == '_arb_parse_iexpr_value':
-            # remove if expression is linear in value, else replace by constant
-            if self._is_linear(node) and \
-                    self._remove_count + len(self._nodes_to_remove) == 0:
-                self._nodes_to_remove.append(node)
-                return node
-            else:
-                return ast.Constant(value=self._value)
-        else:
-            return node
-
-
-class ArbIExprEmitter(ast.NodeVisitor):
-    """Emit Arbor S-expression from parse tree"""
-
-    _iexpr_symbols = {
-        ast.Constant: 'scalar',
-        ast.Num: 'scalar',
-        ast.Add: 'add',
-        ast.Sub: 'sub',
-        ast.Mult: 'mul',
-        ast.Div: 'div',
-        'math.pi': 'pi',
-        'math.exp': 'exp',
-        'math.log': 'log',
-    }
-
-    def __init__(self, constant_formatter):
-        self._base_stack = []
-        self._emitted = []
-        self._constant_formatter = constant_formatter
-
-    def emit(self):
-        return ' '.join(self._emitted)
-
-    def _emit(self, expr):
-        return self._emitted.append(expr)
-
-    def generic_visit(self, node):
-        self._base_stack.append(node)
-
-        # fail if more than base stack
-        if len(self._base_stack) > 2:
-            raise ValueError('Arbor inhomogeneous expression generation'
-                             ' failed: Unsupported node %s' % repr(node))
-
-        ret = super(ArbIExprEmitter, self).generic_visit(node)
-        self._base_stack.pop()
-        return ret
-
-    def visit_Constant(self, node):
-        self._emit(
-            '(%s %s)' % (self._iexpr_symbols[type(node)],
-                         self._constant_formatter(node.value))
-        )
-
-    def visit_Num(self, node):
-        self._emit(
-            '(%s %s)' % (self._iexpr_symbols[type(node)],
-                         self._constant_formatter(node.n))
-        )
-
-    def visit_Attribute(self, node):
-        if node.value.id == 'math' and node.attr == 'pi':
-            self._emit(
-                '(%s)' % self._iexpr_symbols['math.pi']
-            )
-        else:
-            raise ValueError('Unsupported attribute %s in Arbor'
-                             % node)
-
-    def visit_UnaryOp(self, node):
-        if isinstance(node.op, ast.UAdd):
-            self.visit(node.value)
-        elif isinstance(node.op, ast.USub):
-            if isinstance(node.operand, ast.Constant):
-                self.visit(ast.Constant(-node.operand.value))
-            else:
-                self.visit(ast.BinOp(left=ast.Constant(-1),
-                                     op=ast.Mult(),
-                                     right=node.operand))
-        else:
-            raise ValueError('Unsupported unary operation %s in Arbor'
-                             % node.op)
-
-    def visit_BinOp(self, node):
-        op_type = type(node.op)
-        if op_type not in self._iexpr_symbols:
-            raise ValueError('Unsupported binary operation %s in Arbor'
-                             % op_type)
-        self._emit(
-            '(' + self._iexpr_symbols[type(node.op)]
-        )
-        self.visit(node.left),
-        self.visit(node.right)
-        self._emit(
-            ')'
-        )
-
-    def visit_Call(self, node):
-        func = node.func
-        if func.value.id == 'math':
-            if len(node.args) > 1:
-                raise ValueError('Arbor iexpr generation failed:'
-                                 ' math functions can only have a'
-                                 ' single argument.')
-            func_symbol = func.value.id + '.' + func.attr
-            if func_symbol not in self._iexpr_symbols:
-                raise ValueError('Arbor iexpr generation failed - '
-                                 ' Unknown symbol %s.' % func_symbol)
-            self._emit(
-                '(' + self._iexpr_symbols[func_symbol]
-            )
-            self.visit(node.args[0])
-            self._emit(
-                ')'
-            )
-
-    def visit_Name(self, node):
-        if node.id == '_arb_parse_iexpr_distance':
-            self._emit(
-                '(distance %s)' %
-                ArbFileMorphology.region_labels['somatic'].ref
-            )
-
-
-def _arb_generate_iexpr(range_expr, constant_formatter=format_float):
-    """Generate Arbor iexpr from instantiated distribution
-     of NrnSegmentSomaDistanceScaler"""
-    scaler_expr = range_expr.inst_distribution.format(
-        value='_arb_parse_iexpr_value',
-        distance='_arb_parse_iexpr_distance')
-
-    # Parse expression
-    scaler_ast = ast.parse(scaler_expr)
-
-    # Turn into scaling expression, replacing non-linear occurrences of value
-    value_eliminator = ArbIExprValueEliminator(range_expr.value)
-    scaler_ast = value_eliminator.visit(scaler_ast)
-
-    # Generate S-expression
-    iexpr_emitter = ArbIExprEmitter(constant_formatter=constant_formatter)
-    iexpr_emitter.visit(scaler_ast)
-    return iexpr_emitter.emit()
-
-
 def _read_templates(template_dir, template_filename):
     """Expand Jinja2 template filepath with glob and
      return dict of target filename -> parsed template"""
@@ -552,6 +357,11 @@ def _read_templates(template_dir, template_filename):
                 name = '.'.join(name.rsplit('_', 1))
             templates[name] = jinja2.Template(template)
     return templates
+
+
+def _arb_loc_desc(location, param_or_mech):
+    """Generate Arbor location description for label dict and decor"""
+    return location.acc_label()
 
 
 def create_acc(mechs,
@@ -623,10 +433,14 @@ def create_acc(mechs,
 
     templates = _read_templates(template_dir, template_filename)
 
+    default_location_order = list(ArbFileMorphology.region_labels.values())
+
     template_params = _get_template_params(mechs,
                                            parameters,
                                            ignored_globals,
-                                           disable_banner)
+                                           disable_banner,
+                                           default_location_order,
+                                           _arb_loc_desc)
 
     if custom_jinja_params is None:
         custom_jinja_params = {}
@@ -644,7 +458,7 @@ def create_acc(mechs,
     # [mech -> param]
     global_mechs = \
         _arb_convert_params_and_group_by_mech_global(
-            template_params['global_params'], channels)
+            template_params['global_params'])
 
     # section_mechs refer to locally painted mechanisms/params in Arbor
     # [loc -> mech -> param.name/.value]
@@ -656,8 +470,8 @@ def create_acc(mechs,
             global_mechs.get(mech, []) + params
 
     # scaled_mechs refer to params with iexprs in Arbor
-    # [loc -> mech -> param.location/.name/.value/.inst_distribution]
-    range_params = {loc: [] for loc in DEFAULT_LOCATION_ORDER}
+    # [loc -> mech -> param.location/.name/.value/.value_scaler]
+    range_params = {loc: [] for loc in default_location_order}
     for param in template_params['range_params']:
         range_params[param.location].append(param)
     range_params = list(range_params.items())
@@ -698,6 +512,23 @@ def create_acc(mechs,
     section_scaled_mechs = {loc: _arb_project_scaled_mechs(mechs)
                             for loc, mechs in section_mechs.items()}
 
+    # populate label dict
+    label_dict = dict()
+
+    for acc_labels in [section_mechs.keys(),
+                       section_scaled_mechs.keys(),
+                       pprocess_mechs.keys()]:
+        for acc_label in acc_labels:
+            if acc_label.name in label_dict and \
+                    acc_label != label_dict[acc_label.name]:
+                raise ValueError(
+                    'Label %s already exists in' % acc_label.name +
+                    ' label_dict with different definition: '
+                    ' %s != %s.' % (label_dict[acc_label.name].defn,
+                                    acc_label.defn))
+            elif acc_label.name not in label_dict:
+                label_dict[acc_label.name] = acc_label
+
     ret = {filenames[name]:
            template.render(template_name=template_name,
                            banner=banner,
@@ -705,7 +536,7 @@ def create_acc(mechs,
                            replace_axon=replace_axon_path,
                            modified_morphology=modified_morphology_path,
                            filenames=filenames,
-                           regions=ArbFileMorphology.region_labels,
+                           label_dict=label_dict,
                            global_mechs=global_mechs,
                            global_scaled_mechs=global_scaled_mechs,
                            section_mechs=section_mechs,
@@ -716,7 +547,7 @@ def create_acc(mechs,
 
     if replace_axon is not None:
         ret[replace_axon_path] = replace_axon_acc
-        if modified_morphology_path is not None:  # TODO: make optional
+        if modified_morphology_path is not None:
             ret[modified_morphology_path] = modified_morphology_acc
 
     return ret

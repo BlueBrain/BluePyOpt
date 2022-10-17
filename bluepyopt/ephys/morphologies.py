@@ -290,6 +290,12 @@ class ArbLabel:
         """Expression defining the location of the label"""
         return self._defn
 
+    def __eq__(self, other):
+        return self.defn == other.defn
+
+    def __hash__(self):
+        return hash(self.defn)
+
 
 class ArbFileMorphology(Morphology, DictMixin):
     """Arbor morphology utilities"""
@@ -303,7 +309,7 @@ class ArbFileMorphology(Morphology, DictMixin):
         myelin=5
     )
 
-    # Correspondence of BluePyOpt to Arbor region labels
+    # Correspondence of BluePyOpt seclists to Arbor region labels
     # (renaming locations according to SWC convention: using
     # 'dend' for basal dendrite, 'apic' for apical dendrite)
     region_labels = dict(

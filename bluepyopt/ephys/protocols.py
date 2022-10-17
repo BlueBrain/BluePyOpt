@@ -519,7 +519,11 @@ class ArbSweepProtocol(Protocol):
         stim_rec_labels = []
 
         for stim in self.stimuli:
-            arb_loc = stim.location.acc_label()
+            if hasattr(stim, 'location'):
+                arb_loc = stim.location.acc_label()
+            else:
+                arb_loc = [label for loc in stim.locations
+                           for label in loc.acc_label()]
             for loc in (arb_loc if isinstance(arb_loc, list)
                         else [arb_loc]):
                 stim_rec_labels.append((loc.name, loc.loc, stim))

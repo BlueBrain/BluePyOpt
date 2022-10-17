@@ -32,10 +32,9 @@ def main(args):
             sec_index=0,
             comp_x=0.5)
     else:
-        somacenter_loc = ephys.locations.ArbBranchRelLocation(
+        somacenter_loc = ephys.locations.ArbLocsetLocation(
             name='somacenter',
-            branch=0,
-            pos=0.5)
+            locset='(location 0 0.5)')
 
     pas_mech = ephys.mechanisms.NrnMODMechanism(
         name='pas',
@@ -142,8 +141,7 @@ def main(args):
     responses = protocol.run(
         cell_model=cell,
         param_values=best_ind_dict,
-        sim=sim,
-        isolate=False)
+        sim=sim)
 
     time = responses['soma.v']['time']
     voltage = responses['soma.v']['voltage']
@@ -166,7 +164,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='expsyn')
-    parser.add_argument('--sim', default='nrn',
+    parser.add_argument('--sim', default='nrn', choices=['nrn', 'arb'],
                         help='Simulator (choose either nrn or arb)')
     parser.add_argument('-o', '--output',
                         help='Path to store voltage trace plot to')

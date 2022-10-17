@@ -640,7 +640,7 @@ class ArbBranchRelLocation(ArbLocation):
 
 
 class ArbLocsetLocation(ArbLocation):
-    """Arbor location set defined by a user-supplied string.
+    """Arbor location set defined by a user-supplied string (S-expression).
     """
 
     def __init__(self, name, locset, comment=''):
@@ -658,11 +658,11 @@ class ArbLocsetLocation(ArbLocation):
 
     def __str__(self):
         """String representation"""
-        return '%s \'%s\'' % (type(self).__name__, self.acc_label().defn)
+        return '%s %s' % (type(self).__name__, self.acc_label().defn)
 
 
 class ArbRegionLocation(ArbLocation):
-    """Arbor region defined by a user-supplied string.
+    """Arbor region defined by a user-supplied string (S-expression).
     """
 
     def __init__(self, name, region, comment=''):
@@ -676,39 +676,11 @@ class ArbRegionLocation(ArbLocation):
 
     def acc_label(self):
         """Arbor label"""
-        raise EPhysLocAccException(
-            'Support for %s not yet implemented in create_acc.' %
-            type(self).__name__)
-        # return ArbLabel('region', self.name, self.region)
+        return ArbLabel('region', self.name, self.region)
 
     def __str__(self):
         """String representation"""
-        return '%s \'%s\'' % (type(self).__name__, self.acc_label().defn)
-
-
-class ArbIexprLocation(ArbLocation):
-    """Arbor iexpr location defined by a user-supplied string.
-    """
-
-    def __init__(self, name, iexpr, comment=''):
-        super().__init__(name, comment)
-        self.iexpr = iexpr
-
-    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
-        """Find the instantiate compartment"""
-        raise EPhysLocInstantiateException(
-            '%s not supported in NEURON.' % type(self).__name__)
-
-    def acc_label(self):
-        """Arbor label"""
-        raise EPhysLocAccException(
-            'Support for %s not yet implemented in create_acc.' %
-            type(self).__name__)
-        # return ArbLabel('iexpr', self.name, self.iexpr)
-
-    def __str__(self):
-        """String representation"""
-        return '%s \'%s\'' % (type(self).__name__, self.acc_label().defn)
+        return '%s %s' % (type(self).__name__, self.acc_label().defn)
 
 
 class EPhysLocInstantiateException(Exception):

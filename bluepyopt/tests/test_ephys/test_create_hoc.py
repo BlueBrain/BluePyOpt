@@ -25,7 +25,7 @@ def test__generate_channels_by_location():
     """ephys.create_hoc: Test _generate_channels_by_location"""
     mech = utils.make_mech()
     channels, point_channels = create_hoc._generate_channels_by_location(
-        [mech, ], DEFAULT_LOCATION_ORDER)
+        [mech, ], DEFAULT_LOCATION_ORDER, create_hoc._loc_desc)
 
     assert len(channels['apical']) == 1
     assert len(channels['basal']) == 1
@@ -44,9 +44,11 @@ def test__generate_parameters():
 
     global_params, section_params, range_params, \
         pprocess_params, location_order = \
-        create_hoc._generate_parameters(parameters)
+        create_hoc._generate_parameters(parameters,
+                                        DEFAULT_LOCATION_ORDER,
+                                        create_hoc._loc_desc)
 
-    assert global_params == {'NrnGlobalParameter': 65}
+    assert global_params == {'gSKv3_1bar_SKv3_1': 65}
     assert len(section_params[1]) == 2
     assert len(section_params[4]) == 2
     assert section_params[4][0] == 'somatic'

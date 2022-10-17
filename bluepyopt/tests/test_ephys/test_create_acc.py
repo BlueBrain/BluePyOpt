@@ -19,10 +19,10 @@ import arbor
 import pytest
 
 DEFAULT_ARBOR_REGION_ORDER = [
-    ('apic', 4),
+    ('soma', 1),
     ('axon', 2),
     ('dend', 3),
-    ('soma', 1),
+    ('apic', 4),
     ('myelin', 5)]
 
 
@@ -143,11 +143,13 @@ def test_create_acc_iexpr_generator():
         location='apic',
         name='gIhbar_Ih',
         value=2.125,
-        inst_distribution='(0.62109375 - 0.546875*math.exp('
-                          '({distance})*0.421875))*{value}')
+        value_scaler=ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
+            name='soma_distance_scaler',
+            distribution='(0.62109375 - 0.546875*math.exp('
+                         '({distance})*0.421875))*{value}'))
 
-    iexpr = ephys.create_acc._arb_generate_iexpr(
-        range_expr,
+    iexpr = range_expr.value_scaler.acc_scale_iexpr(
+        value=range_expr.value,
         constant_formatter=lambda v: '%.9g' % v)
 
     assert iexpr == '(sub (scalar 0.62109375) ' \
@@ -293,9 +295,13 @@ def test_cell_model_output_and_read_acc_replace_axon():
     assert len(cable_cell.cables('"soma"')) == 1
     assert len(cable_cell.cables('"axon"')) == 1
     assert len(arb_morph.branch_segments(
-        cable_cell.cables('"soma"')[0].branch)) == 4
+        cable_cell.cables('"soma"')[0].branch)) == 6
     assert len(arb_morph.branch_segments(
-        cable_cell.cables('"axon"')[0].branch)) == 4
+        cable_cell.cables('"axon"')[0].branch)) == 6
+    assert cable_cell.cables('"soma"')[0].prox == 0.
+    assert abs(cable_cell.cables('"soma"')[0].dist -
+               cable_cell.cables('"axon"')[0].prox) < 1e-6
+    assert cable_cell.cables('"axon"')[0].dist == 1.
 
     run_short_sim(cable_cell)
 
