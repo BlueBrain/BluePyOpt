@@ -469,7 +469,9 @@ class ArbSweepProtocol(Protocol):
 
         # Export cell model to mixed JSON/ACC-format
         with tempfile.TemporaryDirectory() as acc_dir:
-            create_acc.output_acc(acc_dir, cell_model, param_values)
+            create_acc.output_acc(acc_dir, cell_model, param_values,
+                                  ext_catalogues=sim.ext_catalogues)
+
             cell_json = os.path.join(acc_dir, cell_model.name + '.json')
 
             # protocols are directly instantiated on Arbor cell

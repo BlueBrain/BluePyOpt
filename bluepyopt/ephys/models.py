@@ -380,7 +380,8 @@ class CellModel(Model):
                    ignored_globals=(), template='acc/*_template.jinja2',
                    disable_banner=False,
                    template_dir=None,
-                   create_mod_acc=False,
+                   ext_catalogues=None,
+                   create_mod_morph=False,
                    sim=None):
         """Create JSON/ACC-description for this model"""
         destroy_cell = False
@@ -396,7 +397,8 @@ class CellModel(Model):
 
         extra_params = dict(
             morphology_dir=os.path.dirname(self.morphology.morphology_path),
-            create_mod_acc=create_mod_acc
+            create_mod_morph=create_mod_morph,
+            ext_catalogues=ext_catalogues
         )
 
         ret = self._create_sim_desc(param_values,

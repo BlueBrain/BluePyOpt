@@ -6,7 +6,8 @@ import os
 import io
 import logging
 import pathlib
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
+import re
 from glob import glob
 
 import jinja2
@@ -139,49 +140,65 @@ def _arb_eval_point_proc_locs(pprocess_mechs):
     return result
 
 
-def _arb_load_mech_catalogues():
+def _arb_load_catalogue_desc(cat_dir):
+    """Load mechanism catalogue description from NMODL files"""
+    # used to generate arbor_mechanisms.json on NMODL from arbor/mechanisms
+
+    nmodl_pattern = '^\s*%s\s+((?:\w+\,\s*)*?\w+)\s*?$'  # NOQA
+    suffix_pattern = nmodl_pattern % 'SUFFIX'
+    globals_pattern = nmodl_pattern % 'GLOBAL'
+    ranges_pattern = nmodl_pattern % 'RANGE'
+
+    def process_nmodl(nmodl_str):
+        """Inspect NMODL for global and range parameters"""
+        try:
+            nrn = re.search(r'NEURON\s+{([^}]+)}', nmodl_str,
+                            flags=re.MULTILINE).group(1)
+            suffix = re.search(suffix_pattern, nrn,
+                               flags=re.MULTILINE)
+            suffix = suffix if suffix is None else suffix.group(1)
+            globals = re.search(globals_pattern, nrn,
+                                flags=re.MULTILINE)
+            globals = globals if globals is None \
+                else re.findall(r'\w+', globals.group(1))
+            ranges = re.search(ranges_pattern, nrn,
+                               flags=re.MULTILINE)
+            ranges = ranges if ranges is None \
+                else re.findall(r'\w+', ranges.group(1))
+        except Exception as e:
+            raise ValueError('create_acc: NMODL-inspection for'
+                             ' %s failed.' % nmodl_file) from e
+
+        return dict(globals=globals, ranges=ranges)  # suffix skipped
+
+    mechs = dict()
+    for nmodl_file in glob(str(cat_dir / '*.mod')):
+        with open(os.path.join(cat_dir, nmodl_file)) as f:
+            mechs[pathlib.Path(nmodl_file).stem] = process_nmodl(f.read())
+
+    return mechs
+
+
+def _arb_load_mech_catalogues(ext_catalogues):
     """Load Arbor's built-in mechanism catalogues"""
 
-    # # Generated with NMODL in arbor/mechanisms
-    # import os, re
-    #
-    # nmodl_pattern = '^\s*%s\s+((?:\w+\,\s*)*?\w+)\s*?$'
-    # suffix_pattern = nmodl_pattern % 'SUFFIX'
-    # globals_pattern = nmodl_pattern % 'GLOBAL'
-    # ranges_pattern = nmodl_pattern % 'RANGE'
-    #
-    # def process_nmodl(nmodl_str):
-    #     nrn = re.search(r'NEURON\s+{([^}]+)}', nmodl_str,
-    #                     flags=re.MULTILINE).group(1)
-    #     suffix = re.search(suffix_pattern, nrn,
-    #                        flags=re.MULTILINE)
-    #     suffix = suffix if suffix is None else suffix.group(1)
-    #     globals = re.search(globals_pattern, nrn,
-    #                         flags=re.MULTILINE)
-    #     globals = globals if globals is None \
-    #               else re.findall(r'\w+', globals.group(1))
-    #     ranges = re.search(ranges_pattern, nrn,
-    #                        flags=re.MULTILINE)
-    #     ranges = ranges if ranges is None \
-    #              else re.findall(r'\w+', ranges.group(1))
-    #     return dict(globals=globals, ranges=ranges)  # suffix skipped
-    #
-    # mechs = dict()
-    # for cat in ['allen', 'BBP', 'default']:
-    #     mechs[cat] = dict()
-    #     cat_dir = 'arbor/mechanisms/' + cat
-    #     for f in os.listdir(cat_dir):
-    #         with open(os.path.join(cat_dir,f)) as fd:
-    #             print(f"Processing {f}", flush=True)
-    #             mechs[cat][f[:-4]] = process_nmodl(fd.read())
-    # print(json.dumps(mechs, indent=4))
+    arb_cats = OrderedDict()
 
-    catalogues = os.path.abspath(
+    if ext_catalogues is not None:
+        for cat, cat_nmodl in ext_catalogues.items():
+            arb_cats[cat] = _arb_load_catalogue_desc(
+                pathlib.Path(cat_nmodl).resolve())
+
+    builtin_catalogues = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__),
             'static/arbor_mechanisms.json'))
-    with open(catalogues) as f:
-        arb_cats = json.load(f)
+    with open(builtin_catalogues) as f:
+        builtin_arb_cats = json.load(f)
+
+    for cat in ['BBP', 'default', 'allen']:
+        if cat not in arb_cats:
+            arb_cats[cat] = builtin_arb_cats[cat]
 
     return arb_cats
 
@@ -265,15 +282,20 @@ def _arb_append_scaled_mechs(mechs, scaled_mechs):
 def _arb_nmodl_global_translate_mech(mech_name, mech_params, arb_cats):
     """Integrate NMODL GLOBAL parameters of Arbor-built-in mechanisms
      into mechanism name and add catalogue prefix"""
+
     arb_mech = None
     arb_mech_name = _nrn2arb_mech_name(mech_name)
 
-    for cat in ['BBP', 'default', 'allen']:  # in order of precedence
+    for cat in arb_cats:  # in order of precedence
         if arb_mech_name in arb_cats[cat]:
             arb_mech = arb_cats[cat][arb_mech_name]
             mech_name = cat + '::' + arb_mech_name
             break
-    if arb_mech is None:  # not Arbor built-in mech
+
+    if arb_mech is None:  # not Arbor built-in mech, no qualifier added
+        if mech_name is not None:
+            logger.warn('create_acc: Could not find Arbor mech for %s (%s).'
+                        % (mech_name, mech_params))
         return (mech_name, mech_params)
     else:
         if arb_mech['globals'] is None:  # only Arbor range params
@@ -368,9 +390,10 @@ def create_acc(mechs,
                parameters,
                morphology=None,
                morphology_dir=None,
+               ext_catalogues=None,
                ignored_globals=(),
                replace_axon=None,
-               create_mod_acc=False,
+               create_mod_morph=False,
                template_name='CCell',
                template_filename='acc/*_template.jinja2',
                disable_banner=None,
@@ -383,9 +406,11 @@ def create_acc(mechs,
         parameters (): All the parameters in the decor/label-dict template
         morphology (str): Name of morphology
         morphology_dir (str): Directory of morphology
+        ext_catalogues (): Name to path mapping of non-Arbor built-in
+        NMODL mechanism catalogues compiled with modcc
         ignored_globals (iterable str): Skipped NrnGlobalParameter in decor
         replace_axon (): Axon replacement morphology
-        create_mod_acc (): Create ACC morphology with axon replacement
+        create_mod_morph (): Create ACC morphology with axon replacement
         template_filename (str): file path of the cell.json , decor.acc and
         label_dict.acc jinja2 templates (with wildcards expanded by glob)
         template_dir (str): dir name of the jinja2 templates
@@ -411,7 +436,7 @@ def create_acc(mechs,
         arbor.write_component(replace_axon, replace_axon_acc)
         replace_axon_acc.seek(0)
 
-        if create_mod_acc:
+        if create_mod_morph:
             modified_morphology_path = \
                 pathlib.Path(morphology).stem + '_modified.acc'
             modified_morpho = ArbFileMorphology.load(
@@ -499,7 +524,8 @@ def create_acc(mechs,
     pprocess_mechs = _arb_eval_point_proc_locs(pprocess_mechs)
 
     # translate mechs to Arbor's convention
-    arb_cats = _arb_load_mech_catalogues()
+    arb_cats = _arb_load_mech_catalogues(ext_catalogues)
+
     global_mechs = _arb_nmodl_global_translate_density(global_mechs, arb_cats)
     section_mechs = {
         loc: _arb_nmodl_global_translate_density(mechs, arb_cats)
@@ -555,7 +581,8 @@ def create_acc(mechs,
 
 def output_acc(output_dir, cell, parameters,
                template_filename='acc/*_template.jinja2',
-               create_mod_acc=False,
+               ext_catalogues=None,
+               create_mod_morph=False,
                sim=None):
     '''Output mixed JSON/ACC format for Arbor cable cell to files
 
@@ -565,12 +592,16 @@ def output_acc(output_dir, cell, parameters,
         parameters (): Values for mechanism parameters, etc.
         template_filename (str): file path of the cell.json , decor.acc and
         label_dict.acc jinja2 templates (with wildcards expanded by glob)
-        create_mod_acc (str): Output ACC with axon replacement
+        ext_catalogues (): Name to path mapping of non-Arbor built-in
+        NMODL mechanism catalogues compiled with modcc
+        create_mod_morph (str): Output ACC with axon replacement
         sim (): Neuron simulator instance (only used used with axon
         replacement if morphology has not yet been instantiated)
     '''
     output = cell.create_acc(parameters, template_filename,
-                             create_mod_acc=create_mod_acc, sim=sim)
+                             ext_catalogues=ext_catalogues,
+                             create_mod_morph=create_mod_morph,
+                             sim=sim)
 
     cell_json = [comp_rendered
                  for comp, comp_rendered in output.items()

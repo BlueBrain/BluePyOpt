@@ -39,16 +39,21 @@ def main():
         nrn_sim = ephys.simulators.NrnSimulator()
         cell.instantiate_morphology_3d(nrn_sim)
 
+    # Add modcc-compiled external mechanisms catalogues here
+    # ext_catalogues = {'cat-name': 'path/to/nmodl-dir', ...}
+
     if args.output_dir is not None:
         ephys.create_acc.output_acc(args.output_dir,
                                     cell,
                                     param_values,
-                                    create_mod_acc=True)
+                                    # ext_catalogues=ext_catalogues,
+                                    create_mod_morph=True)
     else:
         output = cell.create_acc(
             param_values,
             template='acc/*_template.jinja2',
-            create_mod_acc=True)
+            # ext_catalogues=ext_catalogues,
+            create_mod_morph=True)
         for el, val in output.items():
             print("%s:\n%s\n" % (el, val))
 
