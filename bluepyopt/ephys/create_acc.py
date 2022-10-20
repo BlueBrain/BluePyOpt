@@ -14,20 +14,24 @@ import jinja2
 import json
 import shutil
 
-from .acc_utils import arbor
+from bluepyopt.ephys.acc_utils import arbor
+from bluepyopt.ephys.morphologies import ArbFileMorphology
+from bluepyopt.ephys.create_hoc import \
+    Location, RangeExpr, PointExpr, \
+    _get_template_params, format_float
 
 logger = logging.getLogger(__name__)
-
-from .create_hoc import Location, RangeExpr, PointExpr, \
-    _get_template_params, format_float
-from .morphologies import ArbFileMorphology
 
 # Define Neuron to Arbor variable conversions
 ArbVar = namedtuple('ArbVar', 'name, conv')  # turn into a class
 
 
-# Inhomogeneous expression for soma-distance-scaled parameter in Arbor
+# Inhomogeneous expression for scaled parameter in Arbor
 RangeIExpr = namedtuple('RangeIExpr', 'name, value, scale')
+
+
+# A mechanism's GLOBAL and RANGE variables in Arbor
+MechMetaData = namedtuple('MechMetaData', 'globals, ranges')
 
 
 def _make_var(name, conv=None):  # conv defaults to identity
@@ -114,7 +118,7 @@ def _arb_pop_global_properties(loc, mechs):
     return [(None, global_properties)]  # list of (mech, params) tuples
 
 
-def _arb_eval_point_proc_locs(pprocess_mechs):
+def _arb_filter_point_proc_locs(pprocess_mechs):
     """Evaluate point process locations"""
 
     result = {loc: dict() for loc in pprocess_mechs}
@@ -124,15 +128,13 @@ def _arb_eval_point_proc_locs(pprocess_mechs):
             result[loc][mech.name] = dict(
                 mech=mech.suffix,
                 params=[Location(point_expr.name, point_expr.value)
-                        for point_expr in point_exprs],
-                point_locs=[loc.acc_label()
-                            for loc in mech.locations])
+                        for point_expr in point_exprs])
 
     return result
 
 
-def _arb_load_catalogue_desc(cat_dir):
-    """Load mechanism catalogue description from NMODL files"""
+def _arb_load_catalogue_meta(cat_dir):
+    """Load mechanism catalogue metadata from NMODL files"""
     # used to generate arbor_mechanisms.json on NMODL from arbor/mechanisms
 
     nmodl_pattern = '^\s*%s\s+((?:\w+\,\s*)*?\w+)\s*?$'  # NOQA
@@ -160,7 +162,8 @@ def _arb_load_catalogue_desc(cat_dir):
             raise CreateAccException(
                 'NMODL-inspection for %s failed.' % nmodl_file) from e
 
-        return dict(globals=globals_, ranges=ranges_)  # suffix_ skipped
+        # skipping suffix_
+        return MechMetaData(globals=globals_, ranges=ranges_)
 
     mechs = dict()
     for nmodl_file in glob(str(cat_dir / '*.mod')):
@@ -170,26 +173,27 @@ def _arb_load_catalogue_desc(cat_dir):
     return mechs
 
 
-def _arb_load_mech_catalogues(ext_catalogues):
-    """Load Arbor's built-in mechanism catalogues"""
+def _arb_load_mech_catalogue_meta(ext_catalogues):
+    """Load metadata of external and Arbor's built-in mechanism catalogues"""
 
     arb_cats = OrderedDict()
 
     if ext_catalogues is not None:
         for cat, cat_nmodl in ext_catalogues.items():
-            arb_cats[cat] = _arb_load_catalogue_desc(
+            arb_cats[cat] = _arb_load_catalogue_meta(
                 pathlib.Path(cat_nmodl).resolve())
 
     builtin_catalogues = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__),
-            'static', 'arbor_mechanisms.json'))
+            'static/arbor_mechanisms.json'))
     with open(builtin_catalogues) as f:
         builtin_arb_cats = json.load(f)
 
     for cat in ['BBP', 'default', 'allen']:
         if cat not in arb_cats:
-            arb_cats[cat] = builtin_arb_cats[cat]
+            arb_cats[cat] = {mech: MechMetaData(**meta)
+                             for mech, meta in builtin_arb_cats[cat].items()}
 
     return arb_cats
 
@@ -289,24 +293,24 @@ def _arb_nmodl_global_translate_mech(mech_name, mech_params, arb_cats):
                         % (mech_name, mech_params))
         return (mech_name, mech_params)
     else:
-        if arb_mech['globals'] is None:  # only Arbor range params
+        if arb_mech.globals is None:  # only Arbor range params
             for param in mech_params:
-                if param.name not in arb_mech['ranges']:
+                if param.name not in arb_mech.ranges:
                     raise CreateAccException(
                         '%s not a GLOBAL or RANGE parameter of %s' %
                         (param.name, mech_name))
             return (mech_name, mech_params)
         else:
             for param in mech_params:
-                if param.name not in arb_mech['globals'] and \
-                        param.name not in arb_mech['ranges']:
+                if param.name not in arb_mech.globals and \
+                        param.name not in arb_mech.ranges:
                     raise CreateAccException(
                         '%s not a GLOBAL or RANGE parameter of %s' %
                         (param.name, mech_name))
             mech_name_suffix = []
             remaining_mech_params = []
             for mech_param in mech_params:
-                if mech_param.name in arb_mech['globals']:
+                if mech_param.name in arb_mech.globals:
                     mech_name_suffix.append(mech_param.name + '=' +
                                             mech_param.value)
                     if isinstance(mech_param, RangeIExpr):
@@ -328,21 +332,20 @@ def _arb_nmodl_global_translate_density(mechs, arb_cats):
 
 
 def _arb_nmodl_global_translate_points(mechs, arb_cats):
-    """Translate all point mechanisms in a region"""
+    """Translate all point mechanisms for a specific label"""
     result = dict()
 
     for synapse_name, mech_desc in mechs.items():
         mech, params = _arb_nmodl_global_translate_mech(
             mech_desc['mech'], mech_desc['params'], arb_cats)
         result[synapse_name] = dict(mech=mech,
-                                    params=params,
-                                    point_locs=mech_desc['point_locs'])
+                                    params=params)
 
     return result
 
 
 def _arb_project_scaled_mechs(mechs):
-    """Returns all mechanisms with scaled parameters in Arbor"""
+    """Returns all parameters of scaled mechanisms in Arbor"""
     scaled_mechs = dict()
     for mech, params in mechs.items():
         range_iexprs = [p for p in params if isinstance(p, RangeIExpr)]
@@ -476,39 +479,39 @@ def create_acc(mechs,
     point_channels = template_params['point_channels']
     banner = template_params['banner']
 
-    # global_mechs refer to default mechanisms/params in Arbor
-    # [mech -> param]
+    # global_mechs refer to default density mechs/params in Arbor
+    # [mech -> param] (params under mech == None)
     global_mechs = \
         _arb_convert_params_and_group_by_mech_global(
             template_params['global_params'])
 
-    # section_mechs refer to locally painted mechanisms/params in Arbor
-    # [loc -> mech -> param.name/.value]
-    section_mechs, additional_global_mechs = \
+    # local_mechs refer to locally painted density mechs/params in Arbor
+    # [label -> mech -> param.name/.value] (params under mech == None)
+    local_mechs, additional_global_mechs = \
         _arb_convert_params_and_group_by_mech_local(
             template_params['section_params'], channels)
     for mech, params in additional_global_mechs.items():
         global_mechs[mech] = \
             global_mechs.get(mech, []) + params
 
-    # scaled_mechs refer to params with iexprs in Arbor
-    # [loc -> mech -> param.location/.name/.value/.value_scaler]
+    # scaled_mechs refer to iexpr params of scaled density mechs in Arbor
+    # [label -> mech -> param.location/.name/.value/.value_scaler]
     range_params = {loc: [] for loc in default_location_order}
     for param in template_params['range_params']:
         range_params[param.location].append(param)
     range_params = list(range_params.items())
 
-    section_scaled_mechs, global_scaled_mechs = \
+    local_scaled_mechs, global_scaled_mechs = \
         _arb_convert_params_and_group_by_mech_local(
             range_params, channels)
 
-    # join mechs constant params with inhomogeneous ones on mechanisms
+    # join each mech's constant params with inhomogeneous ones on mechanisms
     _arb_append_scaled_mechs(global_mechs, global_scaled_mechs)
-    for loc in section_scaled_mechs:
-        _arb_append_scaled_mechs(section_mechs[loc], section_scaled_mechs[loc])
+    for loc in local_scaled_mechs:
+        _arb_append_scaled_mechs(local_mechs[loc], local_scaled_mechs[loc])
 
-    # section_pprocess_mechs refer to locally placed mechanisms/params in Arbor
-    # [loc -> mech -> param.name/.value]
+    # pprocess_mechs refer to locally placed mechs/params in Arbor
+    # [label -> mech -> param.name/.value]
     pprocess_mechs, global_pprocess_mechs = \
         _arb_convert_params_and_group_by_mech_local(
             template_params['pprocess_params'], point_channels)
@@ -518,28 +521,30 @@ def create_acc(mechs,
 
     # Evaluate synapse locations
     # (no new labels introduced, but locations explicitly defined)
-    pprocess_mechs = _arb_eval_point_proc_locs(pprocess_mechs)
+    pprocess_mechs = _arb_filter_point_proc_locs(pprocess_mechs)
 
-    # translate mechs to Arbor's convention
-    arb_cats = _arb_load_mech_catalogues(ext_catalogues)
+    # load metadata of external and Arbor's built-in mech catalogues
+    arb_cats = _arb_load_mech_catalogue_meta(ext_catalogues)
 
+    # translate mechs to Arbor's nomenclature
     global_mechs = _arb_nmodl_global_translate_density(global_mechs, arb_cats)
-    section_mechs = {
+    local_mechs = {
         loc: _arb_nmodl_global_translate_density(mechs, arb_cats)
-        for loc, mechs in section_mechs.items()}
+        for loc, mechs in local_mechs.items()}
     pprocess_mechs = {
         loc: _arb_nmodl_global_translate_points(mechs, arb_cats)
         for loc, mechs in pprocess_mechs.items()}
 
+    # get iexpr parameters of scaled density mechs
     global_scaled_mechs = _arb_project_scaled_mechs(global_mechs)
-    section_scaled_mechs = {loc: _arb_project_scaled_mechs(mechs)
-                            for loc, mechs in section_mechs.items()}
+    local_scaled_mechs = {loc: _arb_project_scaled_mechs(mechs)
+                          for loc, mechs in local_mechs.items()}
 
     # populate label dict
     label_dict = dict()
 
-    for acc_labels in [section_mechs.keys(),
-                       section_scaled_mechs.keys(),
+    for acc_labels in [local_mechs.keys(),
+                       local_scaled_mechs.keys(),
                        pprocess_mechs.keys()]:
         for acc_label in acc_labels:
             if acc_label.name in label_dict and \
@@ -562,8 +567,8 @@ def create_acc(mechs,
                            label_dict=label_dict,
                            global_mechs=global_mechs,
                            global_scaled_mechs=global_scaled_mechs,
-                           section_mechs=section_mechs,
-                           section_scaled_mechs=section_scaled_mechs,
+                           local_mechs=local_mechs,
+                           local_scaled_mechs=local_scaled_mechs,
                            pprocess_mechs=pprocess_mechs,
                            **custom_jinja_params)
            for name, template in templates.items()}

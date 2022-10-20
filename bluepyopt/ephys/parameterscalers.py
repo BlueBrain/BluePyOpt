@@ -356,26 +356,31 @@ class ArbIExprEmitter(ast.NodeVisitor):
 
     def visit_Call(self, node):
         func = node.func
-        if hasattr(func, 'value'):
-            if func.value.id == 'math':
-                if len(node.args) > 1:
+        if isinstance(func, ast.Attribute):
+            if isinstance(func.value, ast.Name):
+                if func.value.id == 'math':
+                    if len(node.args) > 1:
+                        raise ValueError('Arbor iexpr generation failed -'
+                                         ' math functions can only have a'
+                                         ' single argument.')
+                    func_symbol = func.value.id + '.' + func.attr
+                    if func_symbol not in self._iexpr_symbols:
+                        raise ValueError('Arbor iexpr generation failed -'
+                                         ' unknown symbol %s.' % func_symbol)
+                    self._emit(
+                        '(' + self._iexpr_symbols[func_symbol]
+                    )
+                    self.visit(node.args[0])
+                    self._emit(
+                        ')'
+                    )
+                else:
                     raise ValueError('Arbor iexpr generation failed -'
-                                     ' math functions can only have a'
-                                     ' single argument.')
-                func_symbol = func.value.id + '.' + func.attr
-                if func_symbol not in self._iexpr_symbols:
-                    raise ValueError('Arbor iexpr generation failed -'
-                                     ' unknown symbol %s.' % func_symbol)
-                self._emit(
-                    '(' + self._iexpr_symbols[func_symbol]
-                )
-                self.visit(node.args[0])
-                self._emit(
-                    ')'
-                )
+                                     ' unsupported module %s.' % func.value.id)
             else:
                 raise ValueError('Arbor iexpr generation failed -'
-                                 ' unsupported module %s.' % func.value.id)
+                                 ' unsupported attribute %s.' %
+                                 func.value.attr)
         else:
             raise ValueError('Arbor iexpr generation failed -'
                              ' unsupported function %s.' % func.id)

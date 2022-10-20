@@ -16,12 +16,12 @@
     {%- endfor %}
 
 
-    {%- for loc, mech_parameters in section_mechs.items() %}{# paint-to-region instead of default #}
+    {%- for loc, mech_parameters in local_mechs.items() %}{# paint-to-region instead of default #}
 
     {%- for mech, params in mech_parameters.items() %}
     {%- if mech is not none %}
-    {%- if mech in section_scaled_mechs[loc] %}
-    (paint {{loc.ref}} (scaled-mechanism (density (mechanism "{{ mech }}" {%- for param in params if param.value is not none %} ("{{ param.name }}" {{ param.value }}){%- endfor %})){%- for param in section_scaled_mechs[loc][mech] %} ("{{ param.name }}" {{ param.scale }}){%- endfor %}))
+    {%- if mech in local_scaled_mechs[loc] %}
+    (paint {{loc.ref}} (scaled-mechanism (density (mechanism "{{ mech }}" {%- for param in params if param.value is not none %} ("{{ param.name }}" {{ param.value }}){%- endfor %})){%- for param in local_scaled_mechs[loc][mech] %} ("{{ param.name }}" {{ param.scale }}){%- endfor %}))
     {%- else %}
     (paint {{loc.ref}} (density (mechanism "{{ mech }}" {%- for param in params %} ("{{ param.name }}" {{ param.value }}){%- endfor %})))
     {%- endif %}
@@ -32,8 +32,8 @@
     {%- endif %}
     {%- endfor %}
 
-    {%- for synapse_name, mech_param_locs in pprocess_mechs[loc].items() %}
-    (place {{loc.ref}} (synapse (mechanism "{{ mech_param_locs.mech }}" {%- for param in mech_param_locs.params %} ("{{ param.name }}" {{ param.value }}){%- endfor %})) "{{ synapse_name }}")
+    {%- for synapse_name, mech_params in pprocess_mechs[loc].items() %}
+    (place {{loc.ref}} (synapse (mechanism "{{ mech_params.mech }}" {%- for param in mech_params.params %} ("{{ param.name }}" {{ param.value }}){%- endfor %})) "{{ synapse_name }}")
     {%- endfor %}
 
     {%- endfor %}))

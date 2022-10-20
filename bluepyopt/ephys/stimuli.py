@@ -22,9 +22,10 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 # pylint: disable=W0511
 
 import logging
-logger = logging.getLogger(__name__)
 
-from .acc_utils import arbor
+from bluepyopt.ephys.acc_utils import arbor
+
+logger = logging.getLogger(__name__)
 
 
 class Stimulus(object):
