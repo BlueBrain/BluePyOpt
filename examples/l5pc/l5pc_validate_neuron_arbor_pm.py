@@ -11,7 +11,7 @@ try:
     import papermill
 except ImportError:
     raise ImportError('Please install papermill to batch-process'
-                      ' l5pc_soma_arbor notebook.')
+                      ' l5pc_validate_neuron_arbor notebook.')
 
 
 import logging
@@ -21,7 +21,7 @@ logger = logging.getLogger()
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 parser = argparse.ArgumentParser(description=
-    'Run l5pc_soma_arbor notebook with papermill using different options.')
+    'Run l5pc_validate_neuron_arbor notebook with papermill using different options.')
 parser.add_argument('--output-dir', type=str, default='.',
                     help='Output directory')
 parser.add_argument('--regions', type=str, nargs='+',
@@ -141,19 +141,19 @@ for loc, loc_mechs in all_mechanisms.items():
 
     extra_params = get_extra_params(loc, loc_mechs)
 
-    target_file = os.path.join(output_dir, 'l5pc_soma_arbor_%s.ipynb' % loc)
+    target_file = os.path.join(output_dir, 'l5pc_validate_neuron_arbor_%s.ipynb' % loc)
     if os.path.exists(target_file):
         raise FileExistsError('Invalid target file - exists already: ',
                               target_file)
 
-    logger.info('Outputting l5pc_soma_arbor notebook to %s '
+    logger.info('Outputting l5pc_validate_neuron_arbor notebook to %s '
                 'with all local mechs/params...\n'
                 'mechs = %s\nextra_params = %s',
                 target_file, mechanism_defs, extra_params)
 
     try:
         papermill.execute_notebook(
-            'l5pc_soma_arbor.ipynb',
+            'l5pc_validate_neuron_arbor.ipynb',
             target_file,
             parameters=dict(mechanism_defs=mechanism_defs,
                             extra_params=extra_params,
@@ -182,18 +182,18 @@ for loc, loc_mechs in all_mechanisms.items():
 
             extra_params = get_extra_params(loc, mechs)
 
-            target_file = os.path.join(output_dir, 'l5pc_soma_arbor_%s_%s.ipynb' % \
+            target_file = os.path.join(output_dir, 'l5pc_validate_neuron_arbor_%s_%s.ipynb' % \
                 (loc, '_'.join(mechs)))
             if os.path.exists(target_file):
                 raise FileExistsError('Invalid target file - exists already: ',
                                       target_file)
-            logger.info('Outputting l5pc_soma_arbor notebook to %s'
+            logger.info('Outputting l5pc_validate_neuron_arbor notebook to %s'
                         ' with...\nmechs = %s\nextra_params = %s',
                         target_file, mechanism_defs, extra_params)
 
             try:
                 papermill.execute_notebook(
-                    'l5pc_soma_arbor.ipynb',
+                    'l5pc_validate_neuron_arbor.ipynb',
                     target_file,
                     parameters=dict(mechanism_defs=mechanism_defs,
                                     extra_params=extra_params,

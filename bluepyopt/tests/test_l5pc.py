@@ -177,7 +177,7 @@ def test_exec():
 
 
 @pytest.mark.slow
-def test_l5pc_soma_arbor():
+def test_l5pc_validate_neuron_arbor():
     """L5PC Soma Arbor Notebook: test execution"""
     import numpy
     numpy.seterr(all='raise')
@@ -190,12 +190,13 @@ def test_l5pc_soma_arbor():
             # Probably because multiprocessing doesn't work correctly during
             # import
             if sys.version_info[0] < 3:
-                execfile('l5pc_soma_arbor_somatic.py')  # NOQA
+                execfile('l5pc_validate_neuron_arbor_somatic.py')  # NOQA
             else:
-                with open('l5pc_soma_arbor_somatic.py') as l5pc_file:
+                with open('l5pc_validate_neuron_arbor_somatic.py') \
+                        as l5pc_file:
                     l5pc_globals = {}
                     exec(compile(l5pc_file.read(),
-                                 'l5pc_soma_arbor_somatic.py',
+                                 'l5pc_validate_neuron_arbor_somatic.py',
                                  'exec'), l5pc_globals, l5pc_globals)  # NOQA
         stdout = output.getvalue()
         # mean relative L1-deviation between Arbor and Neuron below tolerance
