@@ -183,7 +183,7 @@ def _arb_load_mech_catalogues(ext_catalogues):
     builtin_catalogues = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__),
-            'static/arbor_mechanisms.json'))
+            'static', 'arbor_mechanisms.json'))
     with open(builtin_catalogues) as f:
         builtin_arb_cats = json.load(f)
 
