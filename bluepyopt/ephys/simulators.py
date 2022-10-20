@@ -10,16 +10,8 @@ import platform
 import warnings
 import pathlib
 
-try:
-    import arbor
-except ImportError as e:
-    class arbor:
-        def __getattribute__(self, _):
-            raise ImportError("Loading an ACC/JSON-exported cell model into an"
-                              " Arbor morphology and cable cell components"
-                              " requires missing dependency arbor."
-                              " To install BluePyOpt with arbor,"
-                              " run 'pip install bluepyopt[arbor]'.")
+from .acc_utils import arbor
+
 
 logger = logging.getLogger(__name__)
 

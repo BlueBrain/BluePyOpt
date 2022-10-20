@@ -532,7 +532,9 @@ class ArbSweepProtocol(Protocol):
 
         for rec in self.recordings:
             arb_loc = rec.location.acc_label()
-            assert not isinstance(arb_loc, list) or len(arb_loc) == 1
+            if isinstance(arb_loc, list) and len(arb_loc) != 1:
+                raise ValueError('ArbSweepProtocol: ACC label %s' % arb_loc +
+                                 ' of recording with length != 1.')
             stim_rec_labels.append((arb_loc.name, arb_loc.loc, rec))
 
         stim_rec_label_dict = dict()
@@ -599,7 +601,9 @@ class ArbSweepProtocol(Protocol):
         for i, rec in enumerate(self.recordings):
             # alternatively arbor.cable_probe_membrane_voltage
             arb_loc = rec.location.acc_label()
-            assert not isinstance(arb_loc, list) or len(arb_loc) == 1
+            if isinstance(arb_loc, list) and len(arb_loc) != 1:
+                raise ValueError('ArbSweepProtocol: ACC label %s' % arb_loc +
+                                 ' of recording with length != 1.')
 
             if hasattr(cell_model, 'cable_cell'):
                 rec_locations = cell_model.cable_cell.locations(arb_loc.loc)

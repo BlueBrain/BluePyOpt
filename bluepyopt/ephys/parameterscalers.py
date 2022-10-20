@@ -356,22 +356,29 @@ class ArbIExprEmitter(ast.NodeVisitor):
 
     def visit_Call(self, node):
         func = node.func
-        if func.value.id == 'math':
-            if len(node.args) > 1:
-                raise ValueError('Arbor iexpr generation failed:'
-                                 ' math functions can only have a'
-                                 ' single argument.')
-            func_symbol = func.value.id + '.' + func.attr
-            if func_symbol not in self._iexpr_symbols:
-                raise ValueError('Arbor iexpr generation failed - '
-                                 ' Unknown symbol %s.' % func_symbol)
-            self._emit(
-                '(' + self._iexpr_symbols[func_symbol]
-            )
-            self.visit(node.args[0])
-            self._emit(
-                ')'
-            )
+        if hasattr(func, 'value'):
+            if func.value.id == 'math':
+                if len(node.args) > 1:
+                    raise ValueError('Arbor iexpr generation failed -'
+                                     ' math functions can only have a'
+                                     ' single argument.')
+                func_symbol = func.value.id + '.' + func.attr
+                if func_symbol not in self._iexpr_symbols:
+                    raise ValueError('Arbor iexpr generation failed -'
+                                     ' unknown symbol %s.' % func_symbol)
+                self._emit(
+                    '(' + self._iexpr_symbols[func_symbol]
+                )
+                self.visit(node.args[0])
+                self._emit(
+                    ')'
+                )
+            else:
+                raise ValueError('Arbor iexpr generation failed -'
+                                 ' unsupported module %s.' % func.value.id)
+        else:
+            raise ValueError('Arbor iexpr generation failed -'
+                             ' unsupported function %s.' % func.id)
 
     def visit_Name(self, node):
         if node.id in self._var_name_to_sexpr:
@@ -384,9 +391,11 @@ class ArbIExprEmitter(ast.NodeVisitor):
 
 
 def generate_arbor_iexpr(iexpr, variables, constant_formatter):
-    """Generate Arbor iexpr from parameter-scaler string"""
+    """Generate Arbor iexpr from parameter-scaler python expression"""
 
-    assert 'value' in variables
+    if 'value' not in variables:
+        raise ValueError('Arbor iexpr generation failed for %s:' % iexpr +
+                         ' \'value\' not in variables dict: %s' % variables)
 
     emit_dict = {'_arb_parse_iexpr_' + k: v
                  for k, v in variables.items()}

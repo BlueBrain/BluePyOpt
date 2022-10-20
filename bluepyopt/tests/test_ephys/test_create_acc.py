@@ -145,8 +145,8 @@ def test_create_acc_iexpr_generator():
         value=2.125,
         value_scaler=ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
             name='soma_distance_scaler',
-            distribution='(0.62109375 - 0.546875*math.exp('
-                         '({distance})*0.421875))*{value}'))
+            distribution='(0.62109375 - 0.546875 * math.exp('
+                         '({distance}) * 0.421875)) * {value}'))
 
     iexpr = range_expr.value_scaler.acc_scale_iexpr(
         value=range_expr.value,
@@ -156,6 +156,27 @@ def test_create_acc_iexpr_generator():
                     '(mul (scalar 0.546875) ' \
                     '(exp (mul (distance (region "soma")) ' \
                     '(scalar 0.421875) ) ) ) )'
+
+
+@pytest.mark.unit
+def test_create_acc_iexpr_generator_invalid_op():
+    """ephys.create_acc: Test iexpr generation from range expression
+    with invalid node"""
+    range_expr = ephys.create_hoc.RangeExpr(
+        location='apic',
+        name='gIhbar_Ih',
+        value=2.125,
+        value_scaler=ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
+            name='soma_distance_scaler',
+            distribution='(0.62109375 - 0.546875 * non_existent_func('
+                         '({distance}) * 0.421875)) * {value}'))
+
+    with pytest.raises(ValueError,
+                       match='Arbor iexpr generation failed - '
+                             'unsupported function non_existent_func.'):
+        iexpr = range_expr.value_scaler.acc_scale_iexpr(
+            value=range_expr.value,
+            constant_formatter=lambda v: '%.9g' % v)
 
 
 @pytest.mark.unit

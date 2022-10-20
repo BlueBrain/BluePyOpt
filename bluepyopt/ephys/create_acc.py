@@ -14,16 +14,7 @@ import jinja2
 import json
 import shutil
 
-try:
-    import arbor
-except ImportError as e:
-    class arbor:
-        def __getattribute__(self, _):
-            raise ImportError("Loading an ACC/JSON-exported cell model into an"
-                              " Arbor morphology and cable cell components"
-                              " requires missing dependency arbor."
-                              " To install BluePyOpt with arbor,"
-                              " run 'pip install bluepyopt[arbor]'.")
+from .acc_utils import arbor
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +78,7 @@ def _nrn2arb_param(param, name):
                          point_loc=param.point_loc,
                          value=_nrn2arb_var_value(param))
     else:
-        raise ValueError('Invalid parameter expression type.')
+        raise CreateAccException('Invalid parameter expression type.')
 
 
 def _nrn2arb_mech_name(name):
@@ -154,22 +145,22 @@ def _arb_load_catalogue_desc(cat_dir):
         try:
             nrn = re.search(r'NEURON\s+{([^}]+)}', nmodl_str,
                             flags=re.MULTILINE).group(1)
-            suffix = re.search(suffix_pattern, nrn,
-                               flags=re.MULTILINE)
-            suffix = suffix if suffix is None else suffix.group(1)
-            globals = re.search(globals_pattern, nrn,
+            suffix_ = re.search(suffix_pattern, nrn,
                                 flags=re.MULTILINE)
-            globals = globals if globals is None \
-                else re.findall(r'\w+', globals.group(1))
-            ranges = re.search(ranges_pattern, nrn,
-                               flags=re.MULTILINE)
-            ranges = ranges if ranges is None \
-                else re.findall(r'\w+', ranges.group(1))
+            suffix_ = suffix_ if suffix_ is None else suffix_.group(1)
+            globals_ = re.search(globals_pattern, nrn,
+                                 flags=re.MULTILINE)
+            globals_ = globals_ if globals_ is None \
+                else re.findall(r'\w+', globals_.group(1))
+            ranges_ = re.search(ranges_pattern, nrn,
+                                flags=re.MULTILINE)
+            ranges_ = ranges_ if ranges_ is None \
+                else re.findall(r'\w+', ranges_.group(1))
         except Exception as e:
-            raise ValueError('create_acc: NMODL-inspection for'
-                             ' %s failed.' % nmodl_file) from e
+            raise CreateAccException(
+                'NMODL-inspection for %s failed.' % nmodl_file) from e
 
-        return dict(globals=globals, ranges=ranges)  # suffix skipped
+        return dict(globals=globals_, ranges=ranges_)  # suffix_ skipped
 
     mechs = dict()
     for nmodl_file in glob(str(cat_dir / '*.mod')):
@@ -225,9 +216,9 @@ def _find_mech_and_convert_param_name(param, mechs):
         return mech, _nrn2arb_param(param, name=name)
 
     else:
-        raise RuntimeError("Parameter name %s matches multiple mechanisms %s "
-                           % (param.name,
-                              [repr(mechs[i]) for i in mech_matches]))
+        raise CreateAccException("Parameter name %s matches" % param.name +
+                                 " multiple mechanisms %s" %
+                                 [repr(mechs[i]) for i in mech_matches])
 
 
 def _arb_convert_params_and_group_by_mech(params, channels):
@@ -268,9 +259,9 @@ def _arb_append_scaled_mechs(mechs, scaled_mechs):
     """Append scaled mechanism parameters to constant ones"""
     for mech, scaled_params in scaled_mechs.items():
         if mech is None and len(scaled_params) > 0:
-            raise ValueError('Non-mechanism parameters cannot have'
-                             ' inhomogeneous expressions in Arbor',
-                             scaled_params)
+            raise CreateAccException(
+                'Non-mechanism parameters cannot have inhomogeneous'
+                ' expressions in Arbor %s' % scaled_params)
         mechs[mech] = mechs.get(mech, []) + \
             [RangeIExpr(
                 name=p.name,
@@ -300,12 +291,18 @@ def _arb_nmodl_global_translate_mech(mech_name, mech_params, arb_cats):
     else:
         if arb_mech['globals'] is None:  # only Arbor range params
             for param in mech_params:
-                assert param.name in arb_mech['ranges']
+                if param.name not in arb_mech['ranges']:
+                    raise CreateAccException(
+                        '%s not a GLOBAL or RANGE parameter of %s' %
+                        (param.name, mech_name))
             return (mech_name, mech_params)
         else:
             for param in mech_params:
-                assert param.name in arb_mech['globals'] or \
-                       param.name in arb_mech['ranges']
+                if param.name not in arb_mech['globals'] and \
+                        param.name not in arb_mech['ranges']:
+                    raise CreateAccException(
+                        '%s not a GLOBAL or RANGE parameter of %s' %
+                        (param.name, mech_name))
             mech_name_suffix = []
             remaining_mech_params = []
             for mech_param in mech_params:
@@ -419,9 +416,9 @@ def create_acc(mechs,
     '''
 
     if pathlib.Path(morphology).suffix.lower() not in ['.swc', '.asc']:
-        raise RuntimeError("Morphology file %s not supported in Arbor "
-                           " (only supported types are .swc and .asc)."
-                           % morphology)
+        raise CreateAccException("Morphology file %s not supported in Arbor "
+                                 " (only supported types are .swc and .asc)."
+                                 % morphology)
 
     if replace_axon is not None:
         if not hasattr(arbor.segment_tree, 'tag_roots'):
@@ -516,8 +513,8 @@ def create_acc(mechs,
         _arb_convert_params_and_group_by_mech_local(
             template_params['pprocess_params'], point_channels)
     if any(len(params) > 0 for params in global_pprocess_mechs.values()):
-        raise ValueError('Point process mechanisms cannot be'
-                         ' placed globally in Arbor.')
+        raise CreateAccException('Point process mechanisms cannot be'
+                                 ' placed globally in Arbor.')
 
     # Evaluate synapse locations
     # (no new labels introduced, but locations explicitly defined)
@@ -547,7 +544,7 @@ def create_acc(mechs,
         for acc_label in acc_labels:
             if acc_label.name in label_dict and \
                     acc_label != label_dict[acc_label.name]:
-                raise ValueError(
+                raise CreateAccException(
                     'Label %s already exists in' % acc_label.name +
                     ' label_dict with different definition: '
                     ' %s != %s.' % (label_dict[acc_label.name].defn,
@@ -606,7 +603,10 @@ def output_acc(output_dir, cell, parameters,
     cell_json = [comp_rendered
                  for comp, comp_rendered in output.items()
                  if pathlib.Path(comp).suffix == '.json']
-    assert len(cell_json) == 1
+    if len(cell_json) != 1:
+        raise CreateAccException(
+            'JSON file from create_acc is non-unique: %s' % cell_json)
+
     cell_json = json.loads(cell_json[0])
 
     if not os.path.exists(output_dir):
@@ -614,14 +614,14 @@ def output_acc(output_dir, cell, parameters,
     for comp, comp_rendered in output.items():
         comp_filename = os.path.join(output_dir, comp)
         if os.path.exists(comp_filename):
-            raise RuntimeError("%s already exists!" % comp_filename)
+            raise CreateAccException("%s already exists!" % comp_filename)
         with open(os.path.join(output_dir, comp), 'w') as f:
             f.write(comp_rendered)
 
     morpho_filename = os.path.join(
         output_dir, cell_json['morphology']['original'])
     if os.path.exists(morpho_filename):
-        raise RuntimeError("%s already exists!" % morpho_filename)
+        raise CreateAccException("%s already exists!" % morpho_filename)
     shutil.copy2(cell.morphology.morphology_path, morpho_filename)
 
 
@@ -652,3 +652,13 @@ def read_acc(cell_json_filename):
         os.path.join(cell_json_dir, cell_json['decor'])).component
 
     return cell_json, morpho, labels, decor
+
+
+class CreateAccException(Exception):
+
+    """All exceptions generated by create_acc module"""
+
+    def __init__(self, message):
+        """Constructor"""
+
+        super(CreateAccException, self).__init__(message)

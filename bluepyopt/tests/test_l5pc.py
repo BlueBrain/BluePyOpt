@@ -193,10 +193,10 @@ def test_l5pc_soma_arbor():
                 execfile('l5pc_soma_arbor_somatic.py')  # NOQA
             else:
                 with open('l5pc_soma_arbor_somatic.py') as l5pc_file:
-                    globals = {}
+                    l5pc_globals = {}
                     exec(compile(l5pc_file.read(),
                                  'l5pc_soma_arbor_somatic.py',
-                                 'exec'), globals, globals)  # NOQA
+                                 'exec'), l5pc_globals, l5pc_globals)  # NOQA
         stdout = output.getvalue()
         # mean relative L1-deviation between Arbor and Neuron below tolerance
         assert 'Default dt ({:,.3g}): test_l5pc OK!'.format(0.025) + \

@@ -301,7 +301,7 @@ class CellModel(Model):
                          ignored_globals=(), template=None,
                          disable_banner=False,
                          template_dir=None,
-                         extra_params=dict(),
+                         extra_params=None,
                          sim_desc_creator=None):
         """Create simulator description for this model"""
 
@@ -349,6 +349,9 @@ class CellModel(Model):
             raise ValueError('Unsupported sim_desc_creator %s '
                              '(choose either create_hoc.create_hoc or '
                              'create_acc.create_acc)', str(sim_desc_creator))
+
+        if extra_params is None:
+            extra_params = dict()
 
         ret = sim_desc_creator(mechs=self.mechanisms,
                                parameters=self.params.values(),
