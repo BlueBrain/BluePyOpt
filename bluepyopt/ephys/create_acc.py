@@ -2,13 +2,11 @@
 
 # pylint: disable=R0914
 
-import os
 import io
 import logging
 import pathlib
 from collections import namedtuple, OrderedDict
 import re
-from glob import glob
 
 import jinja2
 import json
@@ -55,12 +53,21 @@ _nrn2arb_var = dict(
 
 
 def _nrn2arb_var_name(name):
-    """Neuron to Arbor variable renaming."""
+    """Neuron to Arbor parameter renaming
+
+    Args:
+        name (str): Neuron parameter name
+    """
     return _nrn2arb_var[name].name if name in _nrn2arb_var else name
 
 
 def _nrn2arb_var_value(param):
-    """Neuron to Arbor variable value conversion."""
+    """Neuron to Arbor units conversion for parameter values
+
+    Args:
+        param (): A Neuron parameter with a value in Neuron units
+    """
+
     if param.name in _nrn2arb_var and \
        _nrn2arb_var[param.name].conv is not None:
         return format_float(_nrn2arb_var[param.name].conv(float(param.value)))
@@ -69,6 +76,12 @@ def _nrn2arb_var_value(param):
 
 
 def _nrn2arb_param(param, name):
+    """Convert a Neuron parameter to Arbor format (name and units)
+
+    Args:
+        param (): A Neuron parameter
+    """
+
     if isinstance(param, Location):
         return Location(name=_nrn2arb_var_name(name),
                         value=_nrn2arb_var_value(param))
@@ -86,7 +99,11 @@ def _nrn2arb_param(param, name):
 
 
 def _nrn2arb_mech_name(name):
-    """Neuron to Arbor mechanism name conversion."""
+    """Neuron to Arbor mechanism name conversion
+
+    Args:
+        name (): A Neuron mechanism name
+    """
     if name in ['Exp2Syn', 'ExpSyn']:
         return name.lower()
     else:
@@ -94,7 +111,13 @@ def _nrn2arb_mech_name(name):
 
 
 def _arb_is_global_property(loc, param):
-    """Returns if region-specific variable is a global property in Arbor."""
+    """Returns if a label-specific variable is a global property in Arbor
+
+    Args:
+        loc (): An Arbor label describing the location
+        param (): A parameter in Arbor format (name and units)
+    """
+
     return loc == ArbFileMorphology.region_labels['all'] and (
         param.name in ['membrane-potential',
                        'temperature-kelvin',
@@ -106,6 +129,18 @@ def _arb_is_global_property(loc, param):
 
 
 def _arb_pop_global_properties(loc, mechs):
+    """Pops global properties from a label-specific dict of mechanisms
+
+    Args:
+        loc (): An Arbor label describing the location
+        mechs (): A mapping of mechanism name to list of parameters in
+        Arbor format (None for non-mechanism parameters) from which
+        Arbor global properties will be removed.
+
+    Returns:
+        A list of (mech, params) tuples with Arbor global properties
+    """
+
     global_properties = []
     local_properties = []
     if None in mechs:
@@ -115,11 +150,16 @@ def _arb_pop_global_properties(loc, mechs):
             else:
                 local_properties.append(param)
         mechs[None] = local_properties
-    return [(None, global_properties)]  # list of (mech, params) tuples
+    return [(None, global_properties)]
 
 
 def _arb_filter_point_proc_locs(pprocess_mechs):
-    """Evaluate point process locations"""
+    """Filter locations from point process parameters
+
+    Args:
+        pprocess_mechs (): Point process mechanisms with parameters in
+        Arbor format
+    """
 
     result = {loc: dict() for loc in pprocess_mechs}
 
@@ -134,7 +174,14 @@ def _arb_filter_point_proc_locs(pprocess_mechs):
 
 
 def _arb_load_catalogue_meta(cat_dir):
-    """Load mechanism catalogue metadata from NMODL files"""
+    """Load mechanism catalogue metadata from NMODL files
+
+    Args:
+        cat_dir (): Path to directory with NMODL files of catalogue
+
+    Returns:
+        Mapping of name to meta data for each mechanism in the directory
+    """
     # used to generate arbor_mechanisms.json on NMODL from arbor/mechanisms
 
     nmodl_pattern = '^\s*%s\s+((?:\w+\,\s*)*?\w+)\s*?$'  # NOQA
@@ -143,7 +190,7 @@ def _arb_load_catalogue_meta(cat_dir):
     ranges_pattern = nmodl_pattern % 'RANGE'
 
     def process_nmodl(nmodl_str):
-        """Inspect NMODL for global and range parameters"""
+        """Extract global and range parameters from Arbor-conforming NMODL"""
         try:
             nrn = re.search(r'NEURON\s+{([^}]+)}', nmodl_str,
                             flags=re.MULTILINE).group(1)
@@ -166,15 +213,25 @@ def _arb_load_catalogue_meta(cat_dir):
         return MechMetaData(globals=globals_, ranges=ranges_)
 
     mechs = dict()
-    for nmodl_file in glob(str(cat_dir / '*.mod')):
-        with open(os.path.join(cat_dir, nmodl_file)) as f:
-            mechs[pathlib.Path(nmodl_file).stem] = process_nmodl(f.read())
+    cat_dir = pathlib.Path(cat_dir)
+    for nmodl_file in cat_dir.glob('*.mod'):
+        with open(cat_dir.joinpath(nmodl_file)) as f:
+            mechs[nmodl_file.stem] = process_nmodl(f.read())
 
     return mechs
 
 
 def _arb_load_mech_catalogue_meta(ext_catalogues):
-    """Load metadata of external and Arbor's built-in mechanism catalogues"""
+    """Load metadata of external and Arbor's built-in mechanism catalogues
+
+    Args:
+        ext_catalogues (): Mapping of catalogue name to directory
+        with NMODL files defining the mechanisms
+
+    Returns:
+        Ordered mapping of catalogue name -> mechanism name -> meta data
+        for external and built-in catalogues (external ones taking precedence)
+    """
 
     arb_cats = OrderedDict()
 
@@ -183,10 +240,8 @@ def _arb_load_mech_catalogue_meta(ext_catalogues):
             arb_cats[cat] = _arb_load_catalogue_meta(
                 pathlib.Path(cat_nmodl).resolve())
 
-    builtin_catalogues = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            'static/arbor_mechanisms.json'))
+    builtin_catalogues = pathlib.Path(__file__).parent.joinpath(
+        'static/arbor_mechanisms.json').resolve()
     with open(builtin_catalogues) as f:
         builtin_arb_cats = json.load(f)
 
@@ -199,7 +254,16 @@ def _arb_load_mech_catalogue_meta(ext_catalogues):
 
 
 def _find_mech_and_convert_param_name(param, mechs):
-    """Find a parameter's mechanism and convert name to Arbor convention"""
+    """Find a parameter's mechanism and convert name to Arbor format
+
+    Args:
+        param (): A parameter in Neuron format
+        mechs (): List of co-located NMODL mechanisms
+
+    Returns:
+        A tuple of mechanism name (None for a non-mechanism parameter) and
+        parameter in Arbor format
+    """
     if not isinstance(param, PointExpr):
         mech_matches = [i for i, mech in enumerate(mechs)
                         if param.name.endswith("_" + mech)]
@@ -226,6 +290,15 @@ def _find_mech_and_convert_param_name(param, mechs):
 
 
 def _arb_convert_params_and_group_by_mech(params, channels):
+    """Turn list of Neuron parameters to Arbor format and group by mechanism
+
+    Args:
+        params (): List of parameters in Neuron format
+        channels (): List of co-located NMODL mechanisms
+
+    Returns:
+        Mapping of Arbor mechanism name to list of parameters in Arbor format
+    """
     mech_params = [_find_mech_and_convert_param_name(
                    param, channels) for param in params]
     mechs = {mech: [] for mech, _ in mech_params}
@@ -238,7 +311,7 @@ def _arb_convert_params_and_group_by_mech(params, channels):
 
 
 def _arb_convert_params_and_group_by_mech_global(params):
-    """Group global params by mechanism, rename them to Arbor convention"""
+    """Group global params by mechanism, convert them to Arbor format"""
     return _arb_convert_params_and_group_by_mech(
         [Location(name=name, value=value) for name, value in params.items()],
         []  # no default mechanisms
@@ -246,7 +319,17 @@ def _arb_convert_params_and_group_by_mech_global(params):
 
 
 def _arb_convert_params_and_group_by_mech_local(params, channels):
-    """Group section params by mechanism, rename them to Arbor convention"""
+    """Group local params by mechanism, convert them to Arbor format
+
+    Args:
+        params (): List of Arbor label/local parameters pairs in Neuron format
+        channels (): Mapping of Arbor label to co-located NMODL mechanisms
+
+    Returns:
+        Mapping of Arbor label to mechanisms with their parameters in Arbor
+        format (mechanism name is None for non-mechanism parameters) in the
+        first component, global properties found in the second
+    """
     local_mechs = dict()
     global_properties = dict()
     for loc, params in params:
@@ -274,9 +357,19 @@ def _arb_append_scaled_mechs(mechs, scaled_mechs):
                 for p in scaled_params]
 
 
-def _arb_nmodl_global_translate_mech(mech_name, mech_params, arb_cats):
-    """Integrate NMODL GLOBAL parameters of Arbor-built-in mechanisms
-     into mechanism name and add catalogue prefix"""
+def _arb_nmodl_translate_mech(mech_name, mech_params, arb_cats):
+    """Translate NMODL mechanism to Arbor ACC format
+
+    Args:
+        mech_name (): NMODL mechanism name (suffix)
+        mech_params (): Mechanism parameters in Arbor format
+        arb_cats (): Mapping of catalogue names to mechanisms
+        with theirmeta data
+
+    Returns:
+        Tuple of mechanism name with NMODL GLOBAL parameters integrated and
+        catalogue prefix added as well as the remaining RANGE parameters
+    """
 
     arb_mech = None
     arb_mech_name = _nrn2arb_mech_name(mech_name)
@@ -325,18 +418,18 @@ def _arb_nmodl_global_translate_mech(mech_name, mech_params, arb_cats):
             return (mech_name, remaining_mech_params)
 
 
-def _arb_nmodl_global_translate_density(mechs, arb_cats):
-    """Translate all density mechanisms in a region"""
-    return dict([_arb_nmodl_global_translate_mech(mech, params, arb_cats)
+def _arb_nmodl_translate_density(mechs, arb_cats):
+    """Translate all density mechanisms in a specific region"""
+    return dict([_arb_nmodl_translate_mech(mech, params, arb_cats)
                  for mech, params in mechs.items()])
 
 
-def _arb_nmodl_global_translate_points(mechs, arb_cats):
-    """Translate all point mechanisms for a specific label"""
+def _arb_nmodl_translate_points(mechs, arb_cats):
+    """Translate all point mechanisms for a specific locset"""
     result = dict()
 
     for synapse_name, mech_desc in mechs.items():
-        mech, params = _arb_nmodl_global_translate_mech(
+        mech, params = _arb_nmodl_translate_mech(
             mech_desc['mech'], mech_desc['params'], arb_cats)
         result[synapse_name] = dict(mech=mech,
                                     params=params)
@@ -345,7 +438,7 @@ def _arb_nmodl_global_translate_points(mechs, arb_cats):
 
 
 def _arb_project_scaled_mechs(mechs):
-    """Returns all parameters of scaled mechanisms in Arbor"""
+    """Returns all (iexpr) parameters of scaled mechanisms in Arbor"""
     scaled_mechs = dict()
     for mech, params in mechs.items():
         range_iexprs = [p for p in params if isinstance(p, RangeIExpr)]
@@ -358,19 +451,16 @@ def _read_templates(template_dir, template_filename):
     """Expand Jinja2 template filepath with glob and
      return dict of target filename -> parsed template"""
     if template_dir is None:
-        template_dir = os.path.abspath(
-            os.path.join(
-                os.path.dirname(__file__),
-                'templates'))
+        template_dir = \
+            pathlib.Path(__file__).parent.joinpath('templates').resolve()
 
-    template_paths = glob(os.path.join(template_dir,
-                                       template_filename))
+    template_paths = pathlib.Path(template_dir).glob(template_filename)
 
     templates = dict()
     for template_path in template_paths:
         with open(template_path) as template_file:
             template = template_file.read()
-            name = os.path.basename(template_path)
+            name = template_path.name
             if name.endswith('.jinja2'):
                 name = name[:-7]
             if name.endswith('_template'):
@@ -378,6 +468,7 @@ def _read_templates(template_dir, template_filename):
             if '_' in name:
                 name = '.'.join(name.rsplit('_', 1))
             templates[name] = jinja2.Template(template)
+
     return templates
 
 
@@ -440,7 +531,8 @@ def create_acc(mechs,
             modified_morphology_path = \
                 pathlib.Path(morphology).stem + '_modified.acc'
             modified_morpho = ArbFileMorphology.load(
-                os.path.join(morphology_dir, morphology), replace_axon_acc)
+                pathlib.Path(morphology_dir).joinpath(morphology),
+                replace_axon_acc)
             replace_axon_acc.seek(0)
             modified_morphology_acc = io.StringIO()
             arbor.write_component(
@@ -527,12 +619,12 @@ def create_acc(mechs,
     arb_cats = _arb_load_mech_catalogue_meta(ext_catalogues)
 
     # translate mechs to Arbor's nomenclature
-    global_mechs = _arb_nmodl_global_translate_density(global_mechs, arb_cats)
+    global_mechs = _arb_nmodl_translate_density(global_mechs, arb_cats)
     local_mechs = {
-        loc: _arb_nmodl_global_translate_density(mechs, arb_cats)
+        loc: _arb_nmodl_translate_density(mechs, arb_cats)
         for loc, mechs in local_mechs.items()}
     pprocess_mechs = {
-        loc: _arb_nmodl_global_translate_points(mechs, arb_cats)
+        loc: _arb_nmodl_translate_points(mechs, arb_cats)
         for loc, mechs in pprocess_mechs.items()}
 
     # get iexpr parameters of scaled density mechs
@@ -614,18 +706,18 @@ def output_acc(output_dir, cell, parameters,
 
     cell_json = json.loads(cell_json[0])
 
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    output_dir = pathlib.Path(output_dir)
+    if not output_dir.exists():
+        output_dir.mkdir()
     for comp, comp_rendered in output.items():
-        comp_filename = os.path.join(output_dir, comp)
-        if os.path.exists(comp_filename):
+        comp_filename = output_dir.joinpath(comp)
+        if comp_filename.exists():
             raise CreateAccException("%s already exists!" % comp_filename)
-        with open(os.path.join(output_dir, comp), 'w') as f:
+        with open(output_dir.joinpath(comp), 'w') as f:
             f.write(comp_rendered)
 
-    morpho_filename = os.path.join(
-        output_dir, cell_json['morphology']['original'])
-    if os.path.exists(morpho_filename):
+    morpho_filename = output_dir.joinpath(cell_json['morphology']['original'])
+    if morpho_filename.exists():
         raise CreateAccException("%s already exists!" % morpho_filename)
     shutil.copy2(cell.morphology.morphology_path, morpho_filename)
 
@@ -642,19 +734,19 @@ def read_acc(cell_json_filename):
     with open(cell_json_filename) as cell_json_file:
         cell_json = json.load(cell_json_file)
 
-    cell_json_dir = os.path.dirname(cell_json_filename)
+    cell_json_dir = pathlib.Path(cell_json_filename).parent
 
-    morpho_filename = os.path.join(cell_json_dir,
-                                   cell_json['morphology']['original'])
+    morpho_filename = cell_json_dir.joinpath(
+        cell_json['morphology']['original'])
     replace_axon = cell_json['morphology'].get('replace_axon', None)
     if replace_axon is not None:
-        replace_axon = os.path.join(cell_json_dir, replace_axon)
+        replace_axon = cell_json_dir.joinpath(replace_axon)
     morpho = ArbFileMorphology.load(morpho_filename, replace_axon)
 
     labels = arbor.load_component(
-        os.path.join(cell_json_dir, cell_json['label_dict'])).component
+        cell_json_dir.joinpath(cell_json['label_dict'])).component
     decor = arbor.load_component(
-        os.path.join(cell_json_dir, cell_json['decor'])).component
+        cell_json_dir.joinpath(cell_json['decor'])).component
 
     return cell_json, morpho, labels, decor
 
