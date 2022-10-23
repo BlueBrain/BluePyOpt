@@ -115,9 +115,10 @@ class NrnSeclistCompLocation(Location, DictMixin):
         raise EPhysLocAccException(
             '%s not supported in Arbor' % type(self).__name__ +
             ' (uses branches instead of NEURON sections).'
-            ' Use ArbBranchLocation/ArbSegmentLocation/ArbLocsetLocation'
-            ' instead (consider using the Arbor GUI to identify the'
-            ' precise branch/segment index and relative position).')
+            ' Use ArbBranchRelLocation/ArbSegmentRelLocation/'
+            'ArbLocsetLocation instead (consider using the'
+            ' Arbor GUI to identify the precise branch/segment index'
+            ' and relative position).')
 
     def __str__(self):
         """String representation"""
@@ -170,9 +171,10 @@ class NrnSectionCompLocation(Location, DictMixin):
         raise EPhysLocAccException(
             '%s not supported in Arbor' % type(self).__name__ +
             ' (uses branches instead of NEURON sections).'
-            ' Use ArbBranchLocation/ArbSegmentLocation/ArbLocsetLocation'
-            ' instead (consider using the Arbor GUI to identify the'
-            ' precise branch/segment index and relative position).')
+            ' Use ArbBranchRelLocation/ArbSegmentRelLocation/'
+            'ArbLocsetLocation instead (consider using the'
+            ' Arbor GUI to identify the precise branch/segment index'
+            ' and relative position).')
 
     def __str__(self):
         return '%s(%s)' % (self.sec_name, self.comp_x)
@@ -286,7 +288,7 @@ class NrnSeclistSecLocation(Location, DictMixin):
         raise EPhysLocAccException(
             '%s not supported in Arbor' % type(self).__name__ +
             ' (uses branches instead of NEURON sections).'
-            ' Use ArbBranchLocation/ArbSegmentLocation/ArbLocsetLocation'
+            ' Use ArbBranchLocation/ArbSegmentLocation/ArbRegionLocation'
             ' instead (consider using the Arbor GUI to identify the'
             ' precise branch/segment index).')
 

@@ -10,8 +10,17 @@ from datetime import datetime
 
 import jinja2
 import bluepyopt
-from bluepyopt.ephys.locations import NrnSectionCompLocation
-from . import mechanisms
+from bluepyopt.ephys.locations import (NrnSeclistCompLocation,
+                                       NrnSeclistLocation,
+                                       NrnSectionCompLocation,
+                                       NrnSomaDistanceCompLocation,
+                                       NrnSecSomaDistanceCompLocation,
+                                       NrnTrunkSomaDistanceCompLocation,
+                                       ArbLocation)
+
+from bluepyopt.ephys.mechanisms import (Mechanism,
+                                        NrnMODMechanism,
+                                        NrnMODPointProcessMechanism)
 
 from bluepyopt.ephys.parameters import (NrnGlobalParameter,
                                         NrnSectionParameter,
@@ -47,7 +56,7 @@ def _generate_channels_by_location(mechs, location_order, loc_desc):
     for mech in mechs:
         name = mech.suffix
         for location in mech.locations:
-            if isinstance(mech, mechanisms.NrnMODPointProcessMechanism):
+            if isinstance(mech, NrnMODPointProcessMechanism):
                 point_channels[loc_desc(location, mech)].append(mech)
             else:
                 channels[loc_desc(location, mech)].append(name)
@@ -58,7 +67,7 @@ def _generate_reinitrng(mechs):
     """Create re_init_rng function"""
 
     for mech in mechs:
-        if isinstance(mech, mechanisms.NrnMODPointProcessMechanism):
+        if isinstance(mech, NrnMODPointProcessMechanism):
             raise NotImplementedError(
                 'HOC generation for models with point process mechanisms'
                 ' is not yet supported.')
@@ -68,9 +77,9 @@ def _generate_reinitrng(mechs):
     for mech in mechs:
         reinitrng_hoc_blocks += mech.generate_reinitrng_hoc_block()
 
-    reinitrng_content = mechanisms.NrnMODMechanism.hash_hoc_string
+    reinitrng_content = NrnMODMechanism.hash_hoc_string
 
-    reinitrng_content += mechanisms.NrnMODMechanism.reinitrng_hoc_string % {
+    reinitrng_content += NrnMODMechanism.reinitrng_hoc_string % {
         'reinitrng_hoc_blocks': reinitrng_hoc_blocks}
 
     return reinitrng_content
@@ -92,15 +101,24 @@ def _range_exprs_to_hoc(range_params):
 def _loc_desc(location, param_or_mech):
     """Generate Neuron location description for HOC template"""
 
-    if isinstance(param_or_mech, mechanisms.NrnMODMechanism):
-        # TODO this is dangerous, implicitly assumes type of location
-        return getattr(location, 'seclist_name', 'all')
-    elif isinstance(param_or_mech, mechanisms.NrnMODPointProcessMechanism):
-        raise CreateHocException("%s is currently not supported." %
-                                 type(param_or_mech).__name__)
-    # FIXME: NrnSectionCompLocation has no member seclist_name
-    elif not isinstance(param_or_mech, NrnPointProcessParameter) or \
-            not isinstance(param_or_mech, NrnSectionCompLocation):
+    if isinstance(param_or_mech, Mechanism):
+        if isinstance(param_or_mech, NrnMODMechanism):
+            if isinstance(location, NrnSeclistLocation):
+                return location.seclist_name
+            else:
+                raise CreateHocException(
+                    "%s is currently not supported for mechs." %
+                    type(location).__name__)
+        elif isinstance(param_or_mech, NrnMODPointProcessMechanism):
+            raise CreateHocException("%s is currently not supported." %
+                                     type(param_or_mech).__name__)
+    elif not (isinstance(location, NrnSeclistCompLocation) or
+              isinstance(location, NrnSectionCompLocation) or
+              isinstance(location, NrnSomaDistanceCompLocation) or
+              isinstance(location, NrnSecSomaDistanceCompLocation) or
+              isinstance(location, NrnTrunkSomaDistanceCompLocation)) and \
+            not isinstance(location, ArbLocation) and \
+            not isinstance(param_or_mech, NrnPointProcessParameter):
         return location.seclist_name
     else:
         raise CreateHocException("%s is currently not supported." %
@@ -119,7 +137,7 @@ def _generate_parameters(parameters, location_order, loc_desc):
         else:
             assert isinstance(
                 param.locations, (tuple, list)), 'Must have locations list'
-            for location in param.locations:  # FIXME: NrnSectionCompLocation
+            for location in param.locations:
                 locs = loc_desc(location, param)
                 if not isinstance(locs, list):
                     param_locations[locs].append(param)
