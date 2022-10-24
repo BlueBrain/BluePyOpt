@@ -208,8 +208,10 @@ class ArbSimulator(object):
                         ' arbor-build-catalogue %s %s' % (cat, cat_path))
         # TODO: add parameters for discretization
 
-    def instantiate(self, morph, labels, decor):
-        cable_cell = arbor.cable_cell(morph, labels, decor)
+    def instantiate(self, morph, decor, labels):
+        cable_cell = arbor.cable_cell(morphology=morph,
+                                      decor=decor,
+                                      labels=labels)
 
         arb_cell_model = arbor.single_cell_model(cable_cell)
 

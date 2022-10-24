@@ -229,12 +229,14 @@ def test_cell_model_output_and_read_acc():
 
     with tempfile.TemporaryDirectory() as acc_dir:
         create_acc.output_acc(acc_dir, cell, param_values)
-        cell_json, arb_morph, arb_labels, arb_decor = \
+        cell_json, arb_morph, arb_decor, arb_labels = \
             create_acc.read_acc(
                 os.path.join(acc_dir, cell.name + '.json'))
     assert 'replace_axon' not in cell_json['morphology']
 
-    cable_cell = arbor.cable_cell(arb_morph, arb_labels, arb_decor)
+    cable_cell = arbor.cable_cell(morphology=arb_morph,
+                                  decor=arb_decor,
+                                  labels=arb_labels)
     assert isinstance(cable_cell, arbor.cable_cell)
     assert len(cable_cell.cables('"soma"')) == 1
     assert len(cable_cell.cables('"axon"')) == 1
@@ -263,12 +265,14 @@ def test_cell_model_output_and_read_acc_replace_axon():
             return
 
         # Axon replacement implemented in installed Arbor version
-        cell_json, arb_morph, arb_labels, arb_decor = \
+        cell_json, arb_morph, arb_decor, arb_labels = \
             create_acc.read_acc(
                 os.path.join(acc_dir, cell.name + '.json'))
 
     assert 'replace_axon' in cell_json['morphology']
-    cable_cell = arbor.cable_cell(arb_morph, arb_labels, arb_decor)
+    cable_cell = arbor.cable_cell(morphology=arb_morph,
+                                  decor=arb_decor,
+                                  labels=arb_labels)
     assert isinstance(cable_cell, arbor.cable_cell)
     assert len(cable_cell.cables('"soma"')) == 1
     assert len(cable_cell.cables('"axon"')) == 1

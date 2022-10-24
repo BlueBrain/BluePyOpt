@@ -743,12 +743,12 @@ def read_acc(cell_json_filename):
         replace_axon = cell_json_dir.joinpath(replace_axon)
     morpho = ArbFileMorphology.load(morpho_filename, replace_axon)
 
-    labels = arbor.load_component(
-        cell_json_dir.joinpath(cell_json['label_dict'])).component
     decor = arbor.load_component(
         cell_json_dir.joinpath(cell_json['decor'])).component
+    labels = arbor.load_component(
+        cell_json_dir.joinpath(cell_json['label_dict'])).component
 
-    return cell_json, morpho, labels, decor
+    return cell_json, morpho, decor, labels
 
 
 class CreateAccException(Exception):

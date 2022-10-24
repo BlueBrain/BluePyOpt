@@ -6,10 +6,10 @@
 
  Will save 'l5pc.json', 'l5pc_label_dict.acc' and 'l5pc_decor.acc'
  into the folder 'test_acc' that can be loaded in Arbor with:
-     'cell_json, morpho, labels, decor = \
+     'cell_json, morpho, decor, labels = \
         ephys.create_acc.read_acc("test_acc/l5pc_cell.json")'
  An Arbor cable cell can then be created with
-     'cell = arbor.cable_cell(morpho, labels, decor)'
+     'cell = arbor.cable_cell(morphology=morpho, decor=decor, labels=labels)'
  The resulting cable cell can be output to ACC for visual inspection 
  and e.g. validating/deriving custom Arbor locset/region/iexpr 
  expressions in the Arbor GUI (File > Cable cell > Load) using

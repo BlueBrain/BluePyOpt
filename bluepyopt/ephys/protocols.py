@@ -401,7 +401,7 @@ class ArbSweepProtocol(Protocol):
 
         try:
             # Loading cell constituents from ACC
-            cell_json, morph, labels, decor = \
+            cell_json, morph, decor, labels = \
                 create_acc.read_acc(cell_json)
 
             # Locations of stimuli and recordings can be instantiated
@@ -414,7 +414,7 @@ class ArbSweepProtocol(Protocol):
                 decor,
                 use_labels=self.use_labels)
 
-            arb_cell_model = sim.instantiate(morph, labels, decor)
+            arb_cell_model = sim.instantiate(morph, decor, labels)
 
             # Adding synaptic stimuli to cell model (no representation in ACC)
             arb_cell_model = self.instantiate_synaptic_stimuli(
