@@ -24,7 +24,7 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 import string
 
 from bluepyopt.ephys.base import BaseEPhys
-from bluepyopt.ephys.parameterscalers.arbor_dsl import generate_arbor_iexpr
+from bluepyopt.ephys.parameterscalers.acc_iexpr import generate_acc_scale_iexpr
 from bluepyopt.ephys.serializer import DictMixin
 from bluepyopt.ephys.morphologies import ArbFileMorphology
 
@@ -190,7 +190,7 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
             distance='(distance %s)' %  # could be a ctor param if required
             ArbFileMorphology.region_labels['somatic'].ref
         )
-        return generate_arbor_iexpr(iexpr, variables, constant_formatter)
+        return generate_acc_scale_iexpr(iexpr, variables, constant_formatter)
 
     def __str__(self):
         """String representation"""

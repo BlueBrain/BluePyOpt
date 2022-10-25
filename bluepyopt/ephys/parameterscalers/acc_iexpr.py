@@ -1,4 +1,4 @@
-"""Module that generates Arbor's iexpr expression language."""
+"""Translate spatially varying parameter-scaler expressions to Arbor iexprs"""
 
 """
 Copyright (c) 2016-2022, EPFL/Blue Brain Project
@@ -218,8 +218,18 @@ class ArbIExprEmitter(ast.NodeVisitor):
                              ' No valid substitution for %s.' % node.id)
 
 
-def generate_arbor_iexpr(iexpr, variables, constant_formatter):
-    """Generate Arbor iexpr from parameter-scaler python expression"""
+def generate_acc_scale_iexpr(iexpr, variables, constant_formatter):
+    """Translate parameter-scaler python arithmetic expression to Arbor iexpr
+
+    Args:
+        iexpr (str): Python arithmetic expression (instantiated distribution)
+        variables (): Mapping of variable name (referenced in the iexpr
+        argument) to Arbor iexpr representation
+
+    Returns:
+        The Arbor iexpr corresponding to the python arithmetic expression
+        with the variables substituted by their value.
+    """
 
     if 'value' not in variables:
         raise ValueError('Arbor iexpr generation failed for %s:' % iexpr +
