@@ -228,6 +228,8 @@ def create_acc(mechs,
         custom_jinja_params (dict): dict of additional jinja2 params in case
         of a custom template
     '''
+    if custom_jinja_params is None:
+        custom_jinja_params = {}
 
     if pathlib.Path(morphology).suffix.lower() not in ['.swc', '.asc']:
         raise CreateAccException("Morphology file %s not supported in Arbor "
@@ -278,9 +280,6 @@ def create_acc(mechs,
                                            disable_banner,
                                            default_location_order,
                                            _arb_loc_desc)
-
-    if custom_jinja_params is None:
-        custom_jinja_params = {}
 
     filenames = {
         name: template_name + (name if name.startswith('.') else "_" + name)
