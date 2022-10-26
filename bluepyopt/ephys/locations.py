@@ -23,10 +23,10 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
 import itertools
 
+from bluepyopt.ephys.acc.acc_utils import ArbLabel
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 from bluepyopt.ephys.parameterscalers import format_float
-from bluepyopt.ephys.acc_utils import ArbLabel
 from bluepyopt.ephys.morphologies import ArbFileMorphology
 import numpy as np
 

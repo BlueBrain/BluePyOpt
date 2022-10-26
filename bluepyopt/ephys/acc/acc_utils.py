@@ -1,6 +1,3 @@
-"""Arbor label."""
-
-
 class ArbLabel:
     """Arbor label"""
 
