@@ -33,8 +33,8 @@ from . import locations
 from . import simulators
 from . import stimuli
 from .responses import TimeVoltageResponse
-from . import create_acc
-arbor = create_acc.arbor
+from .acc import create_acc
+from bluepyopt import _arbor as arbor
 
 
 class Protocol(object):

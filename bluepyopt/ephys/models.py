@@ -31,7 +31,8 @@ import os
 import collections
 import string
 
-from . import create_hoc, create_acc
+from . import create_hoc
+from .acc import create_acc
 from . import morphologies
 
 import logging

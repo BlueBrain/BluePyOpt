@@ -13,7 +13,7 @@ from bluepyopt.ephys.morphologies import ArbFileMorphology
 from . import utils
 
 from bluepyopt import ephys
-from bluepyopt.ephys import create_acc
+from bluepyopt.ephys.acc import create_acc
 
 
 import pytest

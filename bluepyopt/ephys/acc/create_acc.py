@@ -12,7 +12,7 @@ import jinja2
 import json
 import shutil
 
-from bluepyopt.ephys.acc_utils import arbor
+from bluepyopt import _arbor as arbor
 from bluepyopt.ephys.morphologies import ArbFileMorphology
 from bluepyopt.ephys.create_hoc import \
     Location, RangeExpr, PointExpr, \
@@ -127,19 +127,21 @@ def _arb_is_global_property(loc, param):
                                      'ion-external-concentration',
                                      'ion-reversal-potential'])
 
+
 def get_global_arbor_properties(loc, mechs):
     """Returns global properties from a label-specific dict of mechanisms
-    
+
     Args:
         loc: An Arbor label describing the location
         mechs: A mapping of mechanism name to list of parameters in
-    
+
     Returns:
         A list of global properties
     """
     if None not in mechs:
         return []
     return [p for p in mechs[None] if _arb_is_global_property(loc, p)]
+
 
 def get_local_arbor_properties(loc, mechs):
     """Returns local properties from a label-specific dict of mechanisms
@@ -345,6 +347,7 @@ def _arb_convert_params_and_group_by_mech_local(params, channels):
         local_mechs[loc] = mechs
     return local_mechs, global_properties
 
+
 def _arb_add_global_scaled_mechs(mechs, global_scaled_mechs):
     """Add the global scaled mechs to mechs."""
     for scaled_params in global_scaled_mechs:
@@ -354,6 +357,7 @@ def _arb_add_global_scaled_mechs(mechs, global_scaled_mechs):
                 value=format_float(p.value),
                 scale=p.value_scaler.acc_scale_iexpr(p.value))
                 for p in scaled_params]
+
 
 def _arb_append_scaled_mechs(mechs, scaled_mechs):
     """Append scaled mechanism parameters to constant ones"""
@@ -465,7 +469,7 @@ def _read_templates(template_dir, template_filename):
      return dict of target filename -> parsed template"""
     if template_dir is None:
         template_dir = \
-            pathlib.Path(__file__).parent.joinpath('templates').resolve()
+            (pathlib.Path(__file__).parent.parent / 'templates').resolve()
 
     template_paths = pathlib.Path(template_dir).glob(template_filename)
 
