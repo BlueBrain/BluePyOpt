@@ -127,30 +127,33 @@ def _arb_is_global_property(loc, param):
                                      'ion-external-concentration',
                                      'ion-reversal-potential'])
 
+def get_global_arbor_properties(loc, mechs):
+    """Returns global properties from a label-specific dict of mechanisms
+    
+    Args:
+        loc: An Arbor label describing the location
+        mechs: A mapping of mechanism name to list of parameters in
+    
+    Returns:
+        A list of global properties
+    """
+    if None not in mechs:
+        return []
+    return [p for p in mechs[None] if _arb_is_global_property(loc, p)]
 
-def _arb_pop_global_properties(loc, mechs):
-    """Pops global properties from a label-specific dict of mechanisms
+def get_local_arbor_properties(loc, mechs):
+    """Returns local properties from a label-specific dict of mechanisms
 
     Args:
-        loc (): An Arbor label describing the location
-        mechs (): A mapping of mechanism name to list of parameters in
-        Arbor format (None for non-mechanism parameters) from which
-        Arbor global properties will be removed.
+        loc: An Arbor label describing the location
+        mechs: A mapping of mechanism name to list of parameters in
 
     Returns:
-        A list of Arbor global properties
+        A list of local properties
     """
-
-    global_properties = []
-    local_properties = []
-    if None in mechs:
-        for param in mechs[None]:
-            if _arb_is_global_property(loc, param):
-                global_properties.append(param)
-            else:
-                local_properties.append(param)
-        mechs[None] = local_properties
-    return global_properties
+    if None not in mechs:
+        return []
+    return [p for p in mechs[None] if not _arb_is_global_property(loc, p)]
 
 
 def _arb_filter_point_proc_locs(pprocess_mechs):
@@ -335,7 +338,10 @@ def _arb_convert_params_and_group_by_mech_local(params, channels):
         mechs = _arb_convert_params_and_group_by_mech(params, channels[loc])
 
         # move Arbor global properties to global_params
-        global_properties = _arb_pop_global_properties(loc, mechs)
+        global_properties = get_global_arbor_properties(loc, mechs)
+        local_properties = get_local_arbor_properties(loc, mechs)
+        if local_properties != []:
+            mechs[None] = local_properties
         local_mechs[loc] = mechs
     return local_mechs, global_properties
 
