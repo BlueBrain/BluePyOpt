@@ -486,6 +486,8 @@ def _read_templates(template_dir, template_filename):
                 name = '.'.join(name.rsplit('_', 1))
             templates[name] = jinja2.Template(template)
 
+    if templates == {}:
+        raise FileNotFoundError(f'No templates found in {template_dir}')
     return templates
 
 

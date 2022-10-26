@@ -33,6 +33,18 @@ testdata_dir = os.path.join(
 
 
 @pytest.mark.unit
+def test_read_templates():
+    """Unit test for _read_templates function."""
+    template_dir = os.path.join(testdata_dir, 'acc', 'templates')
+    template_filename = "*_template.jinja2"
+    templates = create_acc._read_templates(template_dir, template_filename)
+    assert templates.keys() == {'label_dict.acc', 'cell.json', 'decor.acc'}
+
+    with pytest.raises(FileNotFoundError):
+        create_acc._read_templates("DOES_NOT_EXIST", template_filename)
+
+
+@pytest.mark.unit
 def test_create_acc():
     """ephys.create_acc: Test create_acc"""
     mech = utils.make_mech()
