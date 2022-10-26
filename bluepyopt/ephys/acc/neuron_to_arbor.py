@@ -24,86 +24,101 @@ RangeIExpr = namedtuple('RangeIExpr', 'name, value, scale')
 MechMetaData = namedtuple('MechMetaData', 'globals, ranges')
 
 
-# Define Neuron to Arbor variable conversions
-ArbVar = namedtuple('ArbVar', 'name, conv')  # turn into a class
+class ArbVar:
+    """Arbor variable with conversion function"""
+    def __init__(self, name, conv=None):
+        self.name = name
+        self.conv = conv
+
+    def __repr__(self):
+        return 'ArbVar(%s, %s)' % (self.name, self.conv)
 
 
-def _make_var(name, conv=None):  # conv defaults to identity
-    return ArbVar(name=name, conv=conv)
+class Nrn2ArbAdapter:
+    """Adapter from NEURON to Arbor."""
 
+    mapping = dict(
+        v_init=ArbVar(name="membrane-potential"),
+        celsius=ArbVar(
+            name="temperature-kelvin", conv=lambda celsius: celsius + 273.15
+        ),
+        Ra=ArbVar(name="axial-resistivity"),
+        cm=ArbVar(
+            name="membrane-capacitance", conv=lambda cm: cm / 100.0
+        ),  # NEURON: uF/cm^2, Arbor: F/m^2
+        **{
+            species
+            + loc[0]: ArbVar(
+                name='ion-%sternal-concentration "%s"' % (loc, species)
+            )
+            for species in ["na", "k", "ca"]
+            for loc in ["in", "ex"]
+        },
+        **{
+            "e" + species: ArbVar(name='ion-reversal-potential "%s"' % species)
+            for species in ["na", "k", "ca"]
+        },
+    )
 
-_nrn2arb_var = dict(
-    v_init=_make_var(name='membrane-potential'),
-    celsius=_make_var(name='temperature-kelvin',
-                      conv=lambda celsius: celsius + 273.15),
-    Ra=_make_var(name='axial-resistivity'),
-    cm=_make_var(name='membrane-capacitance',
-                 conv=lambda cm: cm / 100.),  # NEURON: uF/cm^2, Arbor: F/m^2
-    **{species + loc[0]:
-       _make_var(name='ion-%sternal-concentration \"%s\"' % (loc, species))
-       for species in ['na', 'k', 'ca'] for loc in ['in', 'ex']},
-    **{'e' + species:
-       _make_var(name='ion-reversal-potential \"%s\"' % species)
-       for species in ['na', 'k', 'ca']}
-)
+    @classmethod
+    def var_name(cls, name) -> str:
+        return cls.mapping[name].name if name in cls.mapping else name
 
+    @classmethod
+    def var_value(cls, param):
+        """Neuron to Arbor units conversion for parameter values
 
-def _nrn2arb_var_name(name):
-    """Neuron to Arbor parameter renaming
+        Args:
+            param (): A Neuron parameter with a value in Neuron units
+        """
+        if (
+            param.name in cls.mapping
+            and cls.mapping[param.name].conv is not None
+        ):
+            return format_float(
+                cls.mapping[param.name].conv(float(param.value))
+            )
+        else:
+            return param.value
 
-    Args:
-        name (str): Neuron parameter name
-    """
-    return _nrn2arb_var[name].name if name in _nrn2arb_var else name
+    @classmethod
+    def parameter(cls, param, name):
+        """Convert a Neuron parameter to Arbor format (name and units)
 
+        Args:
+            param (): A Neuron parameter
+        """
 
-def _nrn2arb_var_value(param):
-    """Neuron to Arbor units conversion for parameter values
+        if isinstance(param, Location):
+            return Location(name=cls.var_name(name),
+                            value=cls.var_value(param))
+        elif isinstance(param, RangeExpr):
+            return RangeExpr(
+                location=param.location,
+                name=cls.var_name(name),
+                value=cls.var_value(param),
+                value_scaler=param.value_scaler,
+            )
+        elif isinstance(param, PointExpr):
+            return PointExpr(
+                name=cls.var_name(name),
+                point_loc=param.point_loc,
+                value=cls.var_value(param),
+            )
+        else:
+            raise TypeError("Invalid parameter expression type.")
 
-    Args:
-        param (): A Neuron parameter with a value in Neuron units
-    """
+    @staticmethod
+    def mech_name(name):
+        """Neuron to Arbor mechanism name conversion
 
-    if param.name in _nrn2arb_var and \
-       _nrn2arb_var[param.name].conv is not None:
-        return format_float(_nrn2arb_var[param.name].conv(float(param.value)))
-    else:
-        return param.value
-
-
-def _nrn2arb_param(param, name):
-    """Convert a Neuron parameter to Arbor format (name and units)
-
-    Args:
-        param (): A Neuron parameter
-    """
-
-    if isinstance(param, Location):
-        return Location(name=_nrn2arb_var_name(name),
-                        value=_nrn2arb_var_value(param))
-    elif isinstance(param, RangeExpr):
-        return RangeExpr(location=param.location,
-                         name=_nrn2arb_var_name(name),
-                         value=_nrn2arb_var_value(param),
-                         value_scaler=param.value_scaler)
-    elif isinstance(param, PointExpr):
-        return PointExpr(name=_nrn2arb_var_name(name),
-                         point_loc=param.point_loc,
-                         value=_nrn2arb_var_value(param))
-    else:
-        raise TypeError('Invalid parameter expression type.')
-
-
-def _nrn2arb_mech_name(name):
-    """Neuron to Arbor mechanism name conversion
-
-    Args:
-        name (): A Neuron mechanism name
-    """
-    if name in ['Exp2Syn', 'ExpSyn']:
-        return name.lower()
-    else:
-        return name
+        Args:
+            name (): A Neuron mechanism name
+        """
+        if name in ['Exp2Syn', 'ExpSyn']:
+            return name.lower()
+        else:
+            return name
 
 
 def _arb_nmodl_translate_mech(mech_name, mech_params, arb_cats):
@@ -121,7 +136,7 @@ def _arb_nmodl_translate_mech(mech_name, mech_params, arb_cats):
     """
 
     arb_mech = None
-    arb_mech_name = _nrn2arb_mech_name(mech_name)
+    arb_mech_name = Nrn2ArbAdapter.mech_name(mech_name)
 
     for cat in arb_cats:  # in order of precedence
         if arb_mech_name in arb_cats[cat]:
@@ -206,7 +221,7 @@ def _find_mech_and_convert_param_name(param, mechs):
                         if mech in param_pprocesses]
 
     if len(mech_matches) == 0:
-        return None, _nrn2arb_param(param, name=param.name)
+        return None, Nrn2ArbAdapter.parameter(param, name=param.name)
 
     elif len(mech_matches) == 1:
         mech = mechs[mech_matches[0]]
@@ -214,7 +229,7 @@ def _find_mech_and_convert_param_name(param, mechs):
             name = param.name[:-(len(mech) + 1)]
         else:
             name = param.name
-        return mech, _nrn2arb_param(param, name=name)
+        return mech, Nrn2ArbAdapter.parameter(param, name=name)
 
     else:
         raise ParamMechMappingError(
