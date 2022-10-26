@@ -270,8 +270,6 @@ def create_acc(mechs,
         replace_axon_path = None
         modified_morphology_path = None
 
-    templates = _read_templates(template_dir, template_filename)
-
     default_location_order = list(ArbFileMorphology.region_labels.values())
 
     template_params = _get_template_params(mechs,
@@ -280,10 +278,6 @@ def create_acc(mechs,
                                            disable_banner,
                                            default_location_order,
                                            _arb_loc_desc)
-
-    filenames = {
-        name: template_name + (name if name.startswith('.') else "_" + name)
-        for name in templates.keys()}
 
     # postprocess template parameters for Arbor
     channels = template_params['channels']
@@ -367,6 +361,12 @@ def create_acc(mechs,
                                     acc_label.defn))
             elif acc_label.name not in label_dict:
                 label_dict[acc_label.name] = acc_label
+
+    templates = _read_templates(template_dir, template_filename)
+
+    filenames = {
+        name: template_name + (name if name.startswith('.') else "_" + name)
+        for name in templates.keys()}
 
     ret = {filenames[name]:
            template.render(template_name=template_name,
