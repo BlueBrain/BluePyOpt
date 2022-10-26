@@ -138,7 +138,7 @@ def _arb_pop_global_properties(loc, mechs):
         Arbor global properties will be removed.
 
     Returns:
-        A list of (mech, params) tuples with Arbor global properties
+        A list of Arbor global properties
     """
 
     global_properties = []
@@ -150,7 +150,7 @@ def _arb_pop_global_properties(loc, mechs):
             else:
                 local_properties.append(param)
         mechs[None] = local_properties
-    return [(None, global_properties)]
+    return global_properties
 
 
 def _arb_filter_point_proc_locs(pprocess_mechs):
@@ -331,16 +331,23 @@ def _arb_convert_params_and_group_by_mech_local(params, channels):
         first component, global properties found in the second
     """
     local_mechs = dict()
-    global_properties = dict()
     for loc, params in params:
         mechs = _arb_convert_params_and_group_by_mech(params, channels[loc])
 
         # move Arbor global properties to global_params
-        for mech, props in _arb_pop_global_properties(loc, mechs):
-            global_properties[mech] = global_properties.get(mech, []) + props
+        global_properties = _arb_pop_global_properties(loc, mechs)
         local_mechs[loc] = mechs
     return local_mechs, global_properties
 
+def _arb_add_global_scaled_mechs(mechs, global_scaled_mechs):
+    """Add the global scaled mechs to mechs."""
+    for scaled_params in global_scaled_mechs:
+        mechs[None] = mechs.get(None, []) + \
+            [RangeIExpr(
+                name=p.name,
+                value=format_float(p.value),
+                scale=p.value_scaler.acc_scale_iexpr(p.value))
+                for p in scaled_params]
 
 def _arb_append_scaled_mechs(mechs, scaled_mechs):
     """Append scaled mechanism parameters to constant ones"""
@@ -582,9 +589,9 @@ def create_acc(mechs,
     local_mechs, additional_global_mechs = \
         _arb_convert_params_and_group_by_mech_local(
             template_params['section_params'], channels)
-    for mech, params in additional_global_mechs.items():
-        global_mechs[mech] = \
-            global_mechs.get(mech, []) + params
+    for params in additional_global_mechs:
+        global_mechs[None] = \
+            global_mechs.get(None, []) + params
 
     # scaled_mechs refer to iexpr params of scaled density mechs in Arbor
     # [label -> mech -> param.location/.name/.value/.value_scaler]
@@ -598,7 +605,7 @@ def create_acc(mechs,
             range_params, channels)
 
     # join each mech's constant params with inhomogeneous ones on mechanisms
-    _arb_append_scaled_mechs(global_mechs, global_scaled_mechs)
+    _arb_add_global_scaled_mechs(global_mechs, global_scaled_mechs)
     for loc in local_scaled_mechs:
         _arb_append_scaled_mechs(local_mechs[loc], local_scaled_mechs[loc])
 
@@ -607,7 +614,7 @@ def create_acc(mechs,
     pprocess_mechs, global_pprocess_mechs = \
         _arb_convert_params_and_group_by_mech_local(
             template_params['pprocess_params'], point_channels)
-    if any(len(params) > 0 for params in global_pprocess_mechs.values()):
+    if any(len(params) > 0 for params in global_pprocess_mechs):
         raise CreateAccException('Point process mechanisms cannot be'
                                  ' placed globally in Arbor.')
 
