@@ -725,13 +725,13 @@ def output_acc(output_dir, cell, parameters,
     for comp, comp_rendered in output.items():
         comp_filename = output_dir.joinpath(comp)
         if comp_filename.exists():
-            raise CreateAccException("%s already exists!" % comp_filename)
+            raise FileExistsError("%s already exists!" % comp_filename)
         with open(output_dir.joinpath(comp), 'w') as f:
             f.write(comp_rendered)
 
     morpho_filename = output_dir.joinpath(cell_json['morphology']['original'])
     if morpho_filename.exists():
-        raise CreateAccException("%s already exists!" % morpho_filename)
+        raise FileExistsError("%s already exists!" % morpho_filename)
     shutil.copy2(cell.morphology.morphology_path, morpho_filename)
 
 
