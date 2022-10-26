@@ -5,7 +5,7 @@
 import io
 import logging
 import pathlib
-from collections import namedtuple, OrderedDict
+from collections import OrderedDict
 import re
 
 import jinja2
@@ -15,147 +15,18 @@ import shutil
 from bluepyopt import _arbor as arbor
 from bluepyopt.ephys.morphologies import ArbFileMorphology
 from bluepyopt.ephys.create_hoc import \
-    Location, RangeExpr, PointExpr, \
-    _get_template_params, format_float
-
-logger = logging.getLogger(__name__)
-
-# Define Neuron to Arbor variable conversions
-ArbVar = namedtuple('ArbVar', 'name, conv')  # turn into a class
-
-
-# Inhomogeneous expression for scaled parameter in Arbor
-RangeIExpr = namedtuple('RangeIExpr', 'name, value, scale')
-
-
-# A mechanism's GLOBAL and RANGE variables in Arbor
-MechMetaData = namedtuple('MechMetaData', 'globals, ranges')
-
-
-def _make_var(name, conv=None):  # conv defaults to identity
-    return ArbVar(name=name, conv=conv)
-
-
-_nrn2arb_var = dict(
-    v_init=_make_var(name='membrane-potential'),
-    celsius=_make_var(name='temperature-kelvin',
-                      conv=lambda celsius: celsius + 273.15),
-    Ra=_make_var(name='axial-resistivity'),
-    cm=_make_var(name='membrane-capacitance',
-                 conv=lambda cm: cm / 100.),  # NEURON: uF/cm^2, Arbor: F/m^2
-    **{species + loc[0]:
-       _make_var(name='ion-%sternal-concentration \"%s\"' % (loc, species))
-       for species in ['na', 'k', 'ca'] for loc in ['in', 'ex']},
-    **{'e' + species:
-       _make_var(name='ion-reversal-potential \"%s\"' % species)
-       for species in ['na', 'k', 'ca']}
+    Location, _get_template_params, format_float
+from bluepyopt.ephys.acc.exceptions import CreateAccException
+from bluepyopt.ephys.acc.neuron_to_arbor import (
+    MechMetaData,
+    RangeIExpr,
+    _arb_convert_params_and_group_by_mech_global,
+    _arb_convert_params_and_group_by_mech_local,
+    _arb_nmodl_translate_density,
+    _arb_nmodl_translate_points,
 )
 
-
-def _nrn2arb_var_name(name):
-    """Neuron to Arbor parameter renaming
-
-    Args:
-        name (str): Neuron parameter name
-    """
-    return _nrn2arb_var[name].name if name in _nrn2arb_var else name
-
-
-def _nrn2arb_var_value(param):
-    """Neuron to Arbor units conversion for parameter values
-
-    Args:
-        param (): A Neuron parameter with a value in Neuron units
-    """
-
-    if param.name in _nrn2arb_var and \
-       _nrn2arb_var[param.name].conv is not None:
-        return format_float(_nrn2arb_var[param.name].conv(float(param.value)))
-    else:
-        return param.value
-
-
-def _nrn2arb_param(param, name):
-    """Convert a Neuron parameter to Arbor format (name and units)
-
-    Args:
-        param (): A Neuron parameter
-    """
-
-    if isinstance(param, Location):
-        return Location(name=_nrn2arb_var_name(name),
-                        value=_nrn2arb_var_value(param))
-    elif isinstance(param, RangeExpr):
-        return RangeExpr(location=param.location,
-                         name=_nrn2arb_var_name(name),
-                         value=_nrn2arb_var_value(param),
-                         value_scaler=param.value_scaler)
-    elif isinstance(param, PointExpr):
-        return PointExpr(name=_nrn2arb_var_name(name),
-                         point_loc=param.point_loc,
-                         value=_nrn2arb_var_value(param))
-    else:
-        raise CreateAccException('Invalid parameter expression type.')
-
-
-def _nrn2arb_mech_name(name):
-    """Neuron to Arbor mechanism name conversion
-
-    Args:
-        name (): A Neuron mechanism name
-    """
-    if name in ['Exp2Syn', 'ExpSyn']:
-        return name.lower()
-    else:
-        return name
-
-
-def _arb_is_global_property(loc, param):
-    """Returns if a label-specific variable is a global property in Arbor
-
-    Args:
-        loc (): An Arbor label describing the location
-        param (): A parameter in Arbor format (name and units)
-    """
-
-    return loc == ArbFileMorphology.region_labels['all'] and (
-        param.name in ['membrane-potential',
-                       'temperature-kelvin',
-                       'axial-resistivity',
-                       'membrane-capacitance'] or
-        param.name.split(' ')[0] in ['ion-internal-concentration',
-                                     'ion-external-concentration',
-                                     'ion-reversal-potential'])
-
-
-def get_global_arbor_properties(loc, mechs):
-    """Returns global properties from a label-specific dict of mechanisms
-
-    Args:
-        loc: An Arbor label describing the location
-        mechs: A mapping of mechanism name to list of parameters in
-
-    Returns:
-        A list of global properties
-    """
-    if None not in mechs:
-        return []
-    return [p for p in mechs[None] if _arb_is_global_property(loc, p)]
-
-
-def get_local_arbor_properties(loc, mechs):
-    """Returns local properties from a label-specific dict of mechanisms
-
-    Args:
-        loc: An Arbor label describing the location
-        mechs: A mapping of mechanism name to list of parameters in
-
-    Returns:
-        A list of local properties
-    """
-    if None not in mechs:
-        return []
-    return [p for p in mechs[None] if not _arb_is_global_property(loc, p)]
+logger = logging.getLogger(__name__)
 
 
 def _arb_filter_point_proc_locs(pprocess_mechs):
@@ -258,96 +129,6 @@ def _arb_load_mech_catalogue_meta(ext_catalogues):
     return arb_cats
 
 
-def _find_mech_and_convert_param_name(param, mechs):
-    """Find a parameter's mechanism and convert name to Arbor format
-
-    Args:
-        param (): A parameter in Neuron format
-        mechs (): List of co-located NMODL mechanisms
-
-    Returns:
-        A tuple of mechanism name (None for a non-mechanism parameter) and
-        parameter in Arbor format
-    """
-    if not isinstance(param, PointExpr):
-        mech_matches = [i for i, mech in enumerate(mechs)
-                        if param.name.endswith("_" + mech)]
-    else:
-        param_pprocesses = [loc.pprocess_mech for loc in param.point_loc]
-        mech_matches = [i for i, mech in enumerate(mechs)
-                        if mech in param_pprocesses]
-
-    if len(mech_matches) == 0:
-        return None, _nrn2arb_param(param, name=param.name)
-
-    elif len(mech_matches) == 1:
-        mech = mechs[mech_matches[0]]
-        if not isinstance(param, PointExpr):
-            name = param.name[:-(len(mech) + 1)]
-        else:
-            name = param.name
-        return mech, _nrn2arb_param(param, name=name)
-
-    else:
-        raise CreateAccException("Parameter name %s matches" % param.name +
-                                 " multiple mechanisms %s" %
-                                 [repr(mechs[i]) for i in mech_matches])
-
-
-def _arb_convert_params_and_group_by_mech(params, channels):
-    """Turn list of Neuron parameters to Arbor format and group by mechanism
-
-    Args:
-        params (): List of parameters in Neuron format
-        channels (): List of co-located NMODL mechanisms
-
-    Returns:
-        Mapping of Arbor mechanism name to list of parameters in Arbor format
-    """
-    mech_params = [_find_mech_and_convert_param_name(
-                   param, channels) for param in params]
-    mechs = {mech: [] for mech, _ in mech_params}
-    for mech in channels:
-        if mech not in mechs:
-            mechs[mech] = []
-    for mech, param in mech_params:
-        mechs[mech].append(param)
-    return mechs
-
-
-def _arb_convert_params_and_group_by_mech_global(params):
-    """Group global params by mechanism, convert them to Arbor format"""
-    return _arb_convert_params_and_group_by_mech(
-        [Location(name=name, value=value) for name, value in params.items()],
-        []  # no default mechanisms
-    )
-
-
-def _arb_convert_params_and_group_by_mech_local(params, channels):
-    """Group local params by mechanism, convert them to Arbor format
-
-    Args:
-        params (): List of Arbor label/local parameters pairs in Neuron format
-        channels (): Mapping of Arbor label to co-located NMODL mechanisms
-
-    Returns:
-        Mapping of Arbor label to mechanisms with their parameters in Arbor
-        format (mechanism name is None for non-mechanism parameters) in the
-        first component, global properties found in the second
-    """
-    local_mechs = dict()
-    for loc, params in params:
-        mechs = _arb_convert_params_and_group_by_mech(params, channels[loc])
-
-        # move Arbor global properties to global_params
-        global_properties = get_global_arbor_properties(loc, mechs)
-        local_properties = get_local_arbor_properties(loc, mechs)
-        if local_properties != []:
-            mechs[None] = local_properties
-        local_mechs[loc] = mechs
-    return local_mechs, global_properties
-
-
 def _arb_add_global_scaled_mechs(mechs, global_scaled_mechs):
     """Add the global scaled mechs to mechs."""
     for scaled_params in global_scaled_mechs:
@@ -372,86 +153,6 @@ def _arb_append_scaled_mechs(mechs, scaled_mechs):
                 value=format_float(p.value),
                 scale=p.value_scaler.acc_scale_iexpr(p.value))
                 for p in scaled_params]
-
-
-def _arb_nmodl_translate_mech(mech_name, mech_params, arb_cats):
-    """Translate NMODL mechanism to Arbor ACC format
-
-    Args:
-        mech_name (): NMODL mechanism name (suffix)
-        mech_params (): Mechanism parameters in Arbor format
-        arb_cats (): Mapping of catalogue names to mechanisms
-        with theirmeta data
-
-    Returns:
-        Tuple of mechanism name with NMODL GLOBAL parameters integrated and
-        catalogue prefix added as well as the remaining RANGE parameters
-    """
-
-    arb_mech = None
-    arb_mech_name = _nrn2arb_mech_name(mech_name)
-
-    for cat in arb_cats:  # in order of precedence
-        if arb_mech_name in arb_cats[cat]:
-            arb_mech = arb_cats[cat][arb_mech_name]
-            mech_name = cat + '::' + arb_mech_name
-            break
-
-    if arb_mech is None:  # not Arbor built-in mech, no qualifier added
-        if mech_name is not None:
-            logger.warn('create_acc: Could not find Arbor mech for %s (%s).'
-                        % (mech_name, mech_params))
-        return (mech_name, mech_params)
-    else:
-        if arb_mech.globals is None:  # only Arbor range params
-            for param in mech_params:
-                if param.name not in arb_mech.ranges:
-                    raise CreateAccException(
-                        '%s not a GLOBAL or RANGE parameter of %s' %
-                        (param.name, mech_name))
-            return (mech_name, mech_params)
-        else:
-            for param in mech_params:
-                if param.name not in arb_mech.globals and \
-                        param.name not in arb_mech.ranges:
-                    raise CreateAccException(
-                        '%s not a GLOBAL or RANGE parameter of %s' %
-                        (param.name, mech_name))
-            mech_name_suffix = []
-            remaining_mech_params = []
-            for mech_param in mech_params:
-                if mech_param.name in arb_mech.globals:
-                    mech_name_suffix.append(mech_param.name + '=' +
-                                            mech_param.value)
-                    if isinstance(mech_param, RangeIExpr):
-                        remaining_mech_params.append(
-                            RangeIExpr(name=mech_param.name,
-                                       value=None,
-                                       scale=mech_param.scale))
-                else:
-                    remaining_mech_params.append(mech_param)
-            if len(mech_name_suffix) > 0:
-                mech_name += '/' + ','.join(mech_name_suffix)
-            return (mech_name, remaining_mech_params)
-
-
-def _arb_nmodl_translate_density(mechs, arb_cats):
-    """Translate all density mechanisms in a specific region"""
-    return dict([_arb_nmodl_translate_mech(mech, params, arb_cats)
-                 for mech, params in mechs.items()])
-
-
-def _arb_nmodl_translate_points(mechs, arb_cats):
-    """Translate all point mechanisms for a specific locset"""
-    result = dict()
-
-    for synapse_name, mech_desc in mechs.items():
-        mech, params = _arb_nmodl_translate_mech(
-            mech_desc['mech'], mech_desc['params'], arb_cats)
-        result[synapse_name] = dict(mech=mech,
-                                    params=params)
-
-    return result
 
 
 def _arb_project_scaled_mechs(mechs):
@@ -768,13 +469,3 @@ def read_acc(cell_json_filename):
         cell_json_dir.joinpath(cell_json['label_dict'])).component
 
     return cell_json, morpho, decor, labels
-
-
-class CreateAccException(Exception):
-
-    """All exceptions generated by create_acc module"""
-
-    def __init__(self, message):
-        """Constructor"""
-
-        super(CreateAccException, self).__init__(message)
