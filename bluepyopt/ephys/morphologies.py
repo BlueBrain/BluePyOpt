@@ -28,7 +28,7 @@ import pathlib
 import bisect
 import numpy
 from bluepyopt import _arbor as arbor
-from bluepyopt.ephys.acc.acc_utils import ArbLabel
+from bluepyopt.ephys.acc.acc_label import ArbLabel
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
 
