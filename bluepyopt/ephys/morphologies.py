@@ -27,9 +27,10 @@ import logging
 import pathlib
 import bisect
 import numpy
+from bluepyopt import _arbor as arbor
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
-from bluepyopt.ephys.acc_utils import arbor, ArbLabel
+from bluepyopt.ephys.acc_utils import ArbLabel
 
 logger = logging.getLogger(__name__)
 

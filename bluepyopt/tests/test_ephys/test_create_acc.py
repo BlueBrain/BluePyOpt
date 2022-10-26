@@ -7,7 +7,7 @@ import re
 import json
 import tempfile
 
-from bluepyopt.ephys.acc_utils import arbor
+from bluepyopt import _arbor as arbor
 from bluepyopt.ephys.morphologies import ArbFileMorphology
 
 from . import utils
