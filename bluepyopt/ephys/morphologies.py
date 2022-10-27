@@ -62,7 +62,7 @@ class NrnFileMorphology(Morphology, DictMixin):
         """Constructor
 
         Args:
-            morphology_path (str): location of the file describing the
+            morphology_path (str or Path): location of the file describing the
                 morphology
             do_replace_axon (bool): Does the axon need to be replaced by an AIS
                 stub with default function ?
@@ -83,6 +83,8 @@ class NrnFileMorphology(Morphology, DictMixin):
         super(NrnFileMorphology, self).__init__(name=name, comment=comment)
         # TODO speed up loading of morphologies from files
         # Path to morphology
+        if isinstance(morphology_path, pathlib.Path):
+            morphology_path = str(morphology_path)
         self.morphology_path = morphology_path
         self.do_replace_axon = do_replace_axon
         self.do_set_nseg = do_set_nseg
