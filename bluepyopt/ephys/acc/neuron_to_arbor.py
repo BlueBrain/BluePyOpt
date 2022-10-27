@@ -134,7 +134,6 @@ def _arb_nmodl_translate_mech(mech_name, mech_params, arb_cats):
         Tuple of mechanism name with NMODL GLOBAL parameters integrated and
         catalogue prefix added as well as the remaining RANGE parameters
     """
-
     arb_mech = None
     arb_mech_name = Nrn2ArbAdapter.mech_name(mech_name)
 
@@ -259,7 +258,7 @@ def _arb_convert_params_and_group_by_mech(params, channels):
     return mechs
 
 
-def _arb_convert_params_and_group_by_mech_global(params):
+def _arb_convert_params_and_group_by_mech_global(params: dict):
     """Group global params by mechanism, convert them to Arbor format"""
     return _arb_convert_params_and_group_by_mech(
         [Location(name=name, value=value) for name, value in params.items()],
