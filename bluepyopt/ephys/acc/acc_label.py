@@ -31,3 +31,6 @@ class ArbLabel:
 
     def __hash__(self):
         return hash(self.defn)
+
+    def __repr__(self):
+        return self.defn
