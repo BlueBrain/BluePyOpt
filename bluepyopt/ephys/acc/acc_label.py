@@ -27,6 +27,8 @@ class ArbLabel:
         return self._defn
 
     def __eq__(self, other):
+        if not hasattr(other, 'defn'):
+            return False
         return self.defn == other.defn
 
     def __hash__(self):
