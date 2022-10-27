@@ -8,9 +8,9 @@ from bluepyopt.ephys.acc.neuron_to_arbor import (
     _arb_nmodl_translate_density,
     _find_mech_and_convert_param_name,
     _arb_convert_params_and_group_by_mech_global,
-    _arb_convert_params_and_group_by_mech_local,
-    RangeIExpr
+    RangeIExpr,
 )
+from bluepyopt.ephys.acc.acc_label import ArbLabel
 from bluepyopt.ephys.acc import create_acc
 from bluepyopt.ephys.create_hoc import RangeExpr, PointExpr, Location
 
@@ -86,7 +86,7 @@ def test__arb_nmodl_translate_mech():
     ]
     arb_cats = create_acc._arb_load_mech_catalogue_meta(None)
     result = _arb_nmodl_translate_mech(mech_name, mech_params, arb_cats)
-    assert result[0] == 'default::hh'
+    assert result[0] == "default::hh"
     assert result[1][0] == mech_params[0]
     assert result[1][1] == mech_params[1]
 
@@ -94,7 +94,7 @@ def test__arb_nmodl_translate_mech():
 @pytest.mark.unit
 def test_arb_nmodl_translate_density():
     """Unit test for the _arb_nmodl_translate_density function."""
-    mechs = {None: [Location(name='gSKv3_1bar_SKv3_1', value=65)]}
+    mechs = {None: [Location(name="gSKv3_1bar_SKv3_1", value=65)]}
     arb_cats = create_acc._arb_load_mech_catalogue_meta(None)
     result = _arb_nmodl_translate_density(mechs, arb_cats)
     assert result == mechs
@@ -103,15 +103,16 @@ def test_arb_nmodl_translate_density():
 @pytest.mark.unit
 def test_find_mech_and_convert_param_name():
     """Unit test for the _find_mech_and_convert_param_name function."""
-    param = Location(name='gSKv3_1bar_SKv3_1', value=65)
+    param = Location(name="gSKv3_1bar_SKv3_1", value=65)
     mechs = []
     result = _find_mech_and_convert_param_name(param, mechs)
-    assert result == (None, Location(name='gSKv3_1bar_SKv3_1', value=65))
+    assert result == (None, Location(name="gSKv3_1bar_SKv3_1", value=65))
 
 
 @pytest.mark.unit
 def test_arb_convert_params_and_group_by_mech_global():
     """Unit test for the _arb_convert_params_and_group_by_mech function."""
-    params = {'gSKv3_1bar_SKv3_1': 65}
+    params = {"gSKv3_1bar_SKv3_1": 65}
     result = _arb_convert_params_and_group_by_mech_global(params)
-    assert result == {None: [Location(name='gSKv3_1bar_SKv3_1', value=65)]}
+    assert result == {None: [Location(name="gSKv3_1bar_SKv3_1", value=65)]}
+
