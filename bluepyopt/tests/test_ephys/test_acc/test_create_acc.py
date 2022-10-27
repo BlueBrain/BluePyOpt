@@ -43,6 +43,15 @@ def test_read_templates():
 
 
 @pytest.mark.unit
+def test_arb_load_mech_catalogue_meta():
+    """Unit test for _arb_load_mech_catalogue_meta function."""
+    mech_catalogue_meta = create_acc._arb_load_mech_catalogue_meta(None)
+    assert isinstance(mech_catalogue_meta, dict)
+    assert mech_catalogue_meta.keys() == {'BBP', 'default', 'allen'}
+    assert "Ca_HVA" in mech_catalogue_meta['BBP']
+
+
+@pytest.mark.unit
 def test_create_acc():
     """ephys.create_acc: Test create_acc"""
     mech = utils.make_mech()
