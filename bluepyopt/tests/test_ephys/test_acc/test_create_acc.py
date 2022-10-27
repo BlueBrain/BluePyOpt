@@ -3,6 +3,7 @@
 # pylint: disable=W0212
 
 import os
+from pathlib import Path
 import re
 import json
 import tempfile
@@ -10,7 +11,7 @@ import tempfile
 from bluepyopt import _arbor as arbor
 from bluepyopt.ephys.morphologies import ArbFileMorphology
 
-from . import utils
+from .. import utils
 
 from bluepyopt import ephys
 from bluepyopt.ephys.acc import create_acc
@@ -26,16 +27,13 @@ DEFAULT_ARBOR_REGION_ORDER = [
     ('myelin', 5)]
 
 
-testdata_dir = os.path.join(
-    os.path.dirname(
-        os.path.abspath(__file__)),
-    'testdata')
+testdata_dir = (Path(__file__).parent.parent) / "testdata"
 
 
 @pytest.mark.unit
 def test_read_templates():
     """Unit test for _read_templates function."""
-    template_dir = os.path.join(testdata_dir, 'acc', 'templates')
+    template_dir = testdata_dir / 'acc' / 'templates'
     template_filename = "*_template.jinja2"
     templates = create_acc._read_templates(template_dir, template_filename)
     assert templates.keys() == {'label_dict.acc', 'cell.json', 'decor.acc'}
@@ -54,7 +52,7 @@ def test_create_acc():
                                 morphology='CCell.swc',
                                 template_name='CCell')
 
-    ref_dir = os.path.join(testdata_dir, 'acc/CCell')
+    ref_dir = testdata_dir / 'acc/CCell'
     cell_json = "CCell.json"
     decor_acc = "CCell_decor.acc"
     label_dict_acc = "CCell_label_dict.acc"
@@ -68,7 +66,7 @@ def test_create_acc():
     assert 'label_dict' in cell_json_dict
     assert 'decor' in cell_json_dict
     # Testing values
-    with open(os.path.join(ref_dir, cell_json)) as f:
+    with open(ref_dir / cell_json) as f:
         ref_cell_json = json.load(f)
     for k in ref_cell_json:
         if k != 'produced_by':
@@ -79,7 +77,7 @@ def test_create_acc():
     assert acc[decor_acc].startswith('(arbor-component')
     assert '(decor' in acc[decor_acc]
     # Testing values
-    with open(os.path.join(ref_dir, decor_acc)) as f:
+    with open(ref_dir / decor_acc) as f:
         ref_decor = f.read()
     assert ref_decor == acc[decor_acc]  # decor data not exposed in Python
 
@@ -94,7 +92,7 @@ def test_create_acc():
         assert matches[pos][1] == str(loc_tag[1])
     # Testing values
     ref_labels = arbor.load_component(
-        os.path.join(ref_dir, label_dict_acc)).component
+        ref_dir / label_dict_acc).component
     with tempfile.TemporaryDirectory() as test_dir:
         test_labels_filename = os.path.join(test_dir, label_dict_acc)
         with open(test_labels_filename, 'w') as f:
@@ -183,8 +181,7 @@ def test_create_acc_replace_axon():
     cell_json_dict = json.loads(acc[cell_json])
     assert 'replace_axon' in cell_json_dict['morphology']
 
-    with open(os.path.join(testdata_dir,
-                           'acc/CCell/simple_axon_replacement.acc')) as f:
+    with open((testdata_dir / "acc/CCell/simple_axon_replacement.acc")) as f:
         replace_axon_ref = f.read()
 
     assert acc[cell_json_dict['morphology']['replace_axon']] == \
@@ -192,7 +189,7 @@ def test_create_acc_replace_axon():
 
 
 def make_cell(replace_axon):
-    morph_filename = os.path.join(testdata_dir, 'simple_ax2.swc')
+    morph_filename = testdata_dir / 'simple_ax2.swc'
     morph = ephys.morphologies.NrnFileMorphology(morph_filename,
                                                  do_replace_axon=replace_axon)
     somatic_loc = ephys.locations.NrnSeclistLocation(
@@ -275,7 +272,6 @@ def test_cell_model_output_and_read_acc_replace_axon():
             assert len(e.args) == 1 and e.args[0] == \
                 "Need a newer version of Arbor for axon replacement."
             return
-
         # Axon replacement implemented in installed Arbor version
         cell_json, arb_morph, arb_decor, arb_labels = \
             create_acc.read_acc(
