@@ -167,7 +167,7 @@ def _arb_project_scaled_mechs(mechs):
     return scaled_mechs
 
 
-def _read_templates(template_dir, template_filename):
+def read_templates(template_dir, template_filename):
     """Expand Jinja2 template filepath with glob and
      return dict of target filename -> parsed template"""
     if template_dir is None:
@@ -364,7 +364,7 @@ def create_acc(mechs,
             elif acc_label.name not in label_dict:
                 label_dict[acc_label.name] = acc_label
 
-    templates = _read_templates(template_dir, template_filename)
+    templates = read_templates(template_dir, template_filename)
 
     filenames = {
         name: template_name + (name if name.startswith('.') else "_" + name)
