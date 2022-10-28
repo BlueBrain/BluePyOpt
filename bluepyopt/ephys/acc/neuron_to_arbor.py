@@ -283,23 +283,22 @@ def _arb_convert_params_and_group_by_mech_local(params, channels):
         mechs = _arb_convert_params_and_group_by_mech(params, channels[loc])
 
         # move Arbor global properties to global_params
-        global_properties = get_global_arbor_properties(loc, mechs)
-        local_properties = get_local_arbor_properties(loc, mechs)
+        global_properties = _get_global_arbor_properties(loc, mechs)
+        local_properties = _get_local_arbor_properties(loc, mechs)
         if local_properties != []:
             mechs[None] = local_properties
         local_mechs[loc] = mechs
     return local_mechs, global_properties
 
 
-def _arb_is_global_property(loc, param):
+def _arb_is_global_property(label, param):
     """Returns if a label-specific variable is a global property in Arbor
 
     Args:
-        loc (): An Arbor label describing the location
-        param (): A parameter in Arbor format (name and units)
+        label (ArbLabel): An Arbor label describing the location
+        param: A parameter in Arbor format (name and units)
     """
-
-    return loc == ArbFileMorphology.region_labels['all'] and (
+    return label == ArbFileMorphology.region_labels['all'] and (
         param.name in ['membrane-potential',
                        'temperature-kelvin',
                        'axial-resistivity',
@@ -309,11 +308,11 @@ def _arb_is_global_property(loc, param):
                                      'ion-reversal-potential'])
 
 
-def get_global_arbor_properties(loc, mechs):
+def _get_global_arbor_properties(label, mechs):
     """Returns global properties from a label-specific dict of mechanisms
 
     Args:
-        loc: An Arbor label describing the location
+        label: An Arbor label describing the location
         mechs: A mapping of mechanism name to list of parameters in
 
     Returns:
@@ -321,14 +320,14 @@ def get_global_arbor_properties(loc, mechs):
     """
     if None not in mechs:
         return []
-    return [p for p in mechs[None] if _arb_is_global_property(loc, p)]
+    return [p for p in mechs[None] if _arb_is_global_property(label, p)]
 
 
-def get_local_arbor_properties(loc, mechs):
+def _get_local_arbor_properties(label, mechs):
     """Returns local properties from a label-specific dict of mechanisms
 
     Args:
-        loc: An Arbor label describing the location
+        label: An Arbor label describing the location
         mechs: A mapping of mechanism name to list of parameters in
 
     Returns:
@@ -336,4 +335,4 @@ def get_local_arbor_properties(loc, mechs):
     """
     if None not in mechs:
         return []
-    return [p for p in mechs[None] if not _arb_is_global_property(loc, p)]
+    return [p for p in mechs[None] if not _arb_is_global_property(label, p)]

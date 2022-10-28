@@ -4,10 +4,14 @@ import pytest
 
 from bluepyopt.ephys.acc.neuron_to_arbor import (
     Nrn2ArbAdapter,
+    ArbVar,
     _arb_nmodl_translate_mech,
     _arb_nmodl_translate_density,
     _find_mech_and_convert_param_name,
     _arb_convert_params_and_group_by_mech_global,
+    _arb_is_global_property,
+    _get_global_arbor_properties,
+    _get_local_arbor_properties,
     RangeIExpr,
 )
 from bluepyopt.ephys.acc.acc_label import ArbLabel
@@ -33,7 +37,8 @@ def test_nrn2arbor_adapter_value():
 
     assert Nrn2ArbAdapter.var_value(nonmapped_loc) == 65
     assert Nrn2ArbAdapter.var_value(mapped_loc) == -65
-    assert Nrn2ArbAdapter.var_value(mapped_loc_with_conv) == "273.14999999999998"
+    assert Nrn2ArbAdapter.var_value(mapped_loc_with_conv) == (
+        "273.14999999999998")
 
 
 @pytest.mark.unit
@@ -79,8 +84,8 @@ def test__arb_nmodl_translate_mech():
             value="0.029999999999999999",
             scale=(
                 "(add (scalar -0.62109375) (mul (scalar 0.546875) "
-                '(log (add (mul (distance (region "soma")) (scalar 0.421875) ) '
-                "(scalar 1.25) ) ) ) )"
+                '(log (add (mul (distance (region "soma")) (scalar 0.421875) )'
+                " (scalar 1.25) ) ) ) )"
             ),
         ),
     ]
@@ -116,3 +121,22 @@ def test_arb_convert_params_and_group_by_mech_global():
     result = _arb_convert_params_and_group_by_mech_global(params)
     assert result == {None: [Location(name="gSKv3_1bar_SKv3_1", value=65)]}
 
+
+@pytest.mark.unit
+def test_arb_is_global_property():
+    """Unit test for the _arb_is_global_property function."""
+    label = ArbLabel("region", "all", "(all)")
+    param = ArbVar(name="axial-resistivity")
+    assert _arb_is_global_property(label, param) is True
+
+    label2 = ArbLabel("region", "all", "(tag 1)")
+    assert _arb_is_global_property(label2, param) is False
+
+
+@pytest.mark.unit
+def test_get_arbor_properties():
+    """Unit test to get global and local arbor properties."""
+    label = ArbLabel("region", "all", "(all)")
+    mechs = {None: [Location(name="gSKv3_1bar_SKv3_1", value=65)]}
+    assert _get_global_arbor_properties(label, mechs) == []
+    assert _get_local_arbor_properties(label, mechs) == mechs[None]
