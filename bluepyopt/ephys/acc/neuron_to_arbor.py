@@ -181,13 +181,13 @@ def _arb_nmodl_translate_mech(mech_name, mech_params, arb_cats):
             return (mech_name, remaining_mech_params)
 
 
-def _arb_nmodl_translate_density(mechs, arb_cats):
+def arb_nmodl_translate_density(mechs, arb_cats):
     """Translate all density mechanisms in a specific region"""
     return dict([_arb_nmodl_translate_mech(mech, params, arb_cats)
                  for mech, params in mechs.items()])
 
 
-def _arb_nmodl_translate_points(mechs, arb_cats):
+def arb_nmodl_translate_points(mechs, arb_cats):
     """Translate all point mechanisms for a specific locset"""
     result = dict()
 
@@ -258,7 +258,7 @@ def _arb_convert_params_and_group_by_mech(params, channels):
     return mechs
 
 
-def _arb_convert_params_and_group_by_mech_global(params: dict):
+def arb_convert_params_and_group_by_mech_global(params: dict):
     """Group global params by mechanism, convert them to Arbor format"""
     return _arb_convert_params_and_group_by_mech(
         [Location(name=name, value=value) for name, value in params.items()],
@@ -266,7 +266,7 @@ def _arb_convert_params_and_group_by_mech_global(params: dict):
     )
 
 
-def _arb_convert_params_and_group_by_mech_local(params, channels):
+def arb_convert_params_and_group_by_mech_local(params, channels):
     """Group local params by mechanism, convert them to Arbor format
 
     Args:

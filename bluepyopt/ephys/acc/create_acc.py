@@ -20,10 +20,10 @@ from bluepyopt.ephys.acc.exceptions import CreateAccException
 from bluepyopt.ephys.acc.neuron_to_arbor import (
     MechMetaData,
     RangeIExpr,
-    _arb_convert_params_and_group_by_mech_global,
-    _arb_convert_params_and_group_by_mech_local,
-    _arb_nmodl_translate_density,
-    _arb_nmodl_translate_points,
+    arb_convert_params_and_group_by_mech_global,
+    arb_convert_params_and_group_by_mech_local,
+    arb_nmodl_translate_density,
+    arb_nmodl_translate_points,
 )
 
 logger = logging.getLogger(__name__)
@@ -287,13 +287,13 @@ def create_acc(mechs,
     # global_mechs refer to default density mechs/params in Arbor
     # [mech -> param] (params under mech == None)
     global_mechs = \
-        _arb_convert_params_and_group_by_mech_global(
+        arb_convert_params_and_group_by_mech_global(
             template_params['global_params'])
 
     # local_mechs refer to locally painted density mechs/params in Arbor
     # [label -> mech -> param.name/.value] (params under mech == None)
     local_mechs, additional_global_mechs = \
-        _arb_convert_params_and_group_by_mech_local(
+        arb_convert_params_and_group_by_mech_local(
             template_params['section_params'], channels)
     for params in additional_global_mechs:
         global_mechs[None] = \
@@ -307,7 +307,7 @@ def create_acc(mechs,
     range_params = list(range_params.items())
 
     local_scaled_mechs, global_scaled_mechs = \
-        _arb_convert_params_and_group_by_mech_local(
+        arb_convert_params_and_group_by_mech_local(
             range_params, channels)
 
     # join each mech's constant params with inhomogeneous ones on mechanisms
@@ -318,7 +318,7 @@ def create_acc(mechs,
     # pprocess_mechs refer to locally placed mechs/params in Arbor
     # [label -> mech -> param.name/.value]
     pprocess_mechs, global_pprocess_mechs = \
-        _arb_convert_params_and_group_by_mech_local(
+        arb_convert_params_and_group_by_mech_local(
             template_params['pprocess_params'], point_channels)
     if any(len(params) > 0 for params in global_pprocess_mechs):
         raise CreateAccException('Point process mechanisms cannot be'
@@ -332,12 +332,12 @@ def create_acc(mechs,
     arb_cats = _arb_load_mech_catalogue_meta(ext_catalogues)
 
     # translate mechs to Arbor's nomenclature
-    global_mechs = _arb_nmodl_translate_density(global_mechs, arb_cats)
+    global_mechs = arb_nmodl_translate_density(global_mechs, arb_cats)
     local_mechs = {
-        loc: _arb_nmodl_translate_density(mechs, arb_cats)
+        loc: arb_nmodl_translate_density(mechs, arb_cats)
         for loc, mechs in local_mechs.items()}
     pprocess_mechs = {
-        loc: _arb_nmodl_translate_points(mechs, arb_cats)
+        loc: arb_nmodl_translate_points(mechs, arb_cats)
         for loc, mechs in pprocess_mechs.items()}
 
     # get iexpr parameters of scaled density mechs

@@ -6,9 +6,9 @@ from bluepyopt.ephys.acc.neuron_to_arbor import (
     Nrn2ArbAdapter,
     ArbVar,
     _arb_nmodl_translate_mech,
-    _arb_nmodl_translate_density,
+    arb_nmodl_translate_density,
     _find_mech_and_convert_param_name,
-    _arb_convert_params_and_group_by_mech_global,
+    arb_convert_params_and_group_by_mech_global,
     _arb_is_global_property,
     _get_global_arbor_properties,
     _get_local_arbor_properties,
@@ -101,7 +101,7 @@ def test_arb_nmodl_translate_density():
     """Unit test for the _arb_nmodl_translate_density function."""
     mechs = {None: [Location(name="gSKv3_1bar_SKv3_1", value=65)]}
     arb_cats = create_acc._arb_load_mech_catalogue_meta(None)
-    result = _arb_nmodl_translate_density(mechs, arb_cats)
+    result = arb_nmodl_translate_density(mechs, arb_cats)
     assert result == mechs
 
 
@@ -118,7 +118,7 @@ def test_find_mech_and_convert_param_name():
 def test_arb_convert_params_and_group_by_mech_global():
     """Unit test for the _arb_convert_params_and_group_by_mech function."""
     params = {"gSKv3_1bar_SKv3_1": 65}
-    result = _arb_convert_params_and_group_by_mech_global(params)
+    result = arb_convert_params_and_group_by_mech_global(params)
     assert result == {None: [Location(name="gSKv3_1bar_SKv3_1", value=65)]}
 
 
