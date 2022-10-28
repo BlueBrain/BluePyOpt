@@ -39,7 +39,6 @@ def _arb_filter_point_proc_locs(pprocess_mechs):
         pprocess_mechs (): Point process mechanisms with parameters in
         Arbor format
     """
-
     result = {loc: dict() for loc in pprocess_mechs}
 
     for loc, mechs in pprocess_mechs.items():
@@ -132,8 +131,8 @@ def _arb_load_mech_catalogue_meta(ext_catalogues):
     return arb_cats
 
 
-def _arb_add_global_scaled_mechs(mechs, global_scaled_mechs):
-    """Add the global scaled mechs to mechs."""
+def _arb_append_global_scaled_mechs(mechs, global_scaled_mechs):
+    """Append the global scaled mechs to mechs."""
     for scaled_params in global_scaled_mechs:
         mechs[None] = mechs.get(None, []) + \
             [RangeIExpr(
@@ -314,7 +313,7 @@ def create_acc(mechs,
             range_params, channels)
 
     # join each mech's constant params with inhomogeneous ones on mechanisms
-    _arb_add_global_scaled_mechs(global_mechs, global_scaled_mechs)
+    _arb_append_global_scaled_mechs(global_mechs, global_scaled_mechs)
     for loc in local_scaled_mechs:
         _arb_append_scaled_mechs(local_mechs[loc], local_scaled_mechs[loc])
 
