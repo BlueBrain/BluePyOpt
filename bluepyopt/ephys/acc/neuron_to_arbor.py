@@ -20,10 +20,6 @@ logger = logging.getLogger(__name__)
 RangeIExpr = namedtuple('RangeIExpr', 'name, value, scale')
 
 
-# A mechanism's GLOBAL and RANGE variables in Arbor
-MechMetaData = namedtuple('MechMetaData', 'globals, ranges')
-
-
 class ArbVar:
     """Arbor variable with conversion function"""
     def __init__(self, name, conv=None):

@@ -5,7 +5,7 @@
 import io
 import logging
 import pathlib
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 import re
 
 import jinja2
@@ -18,7 +18,6 @@ from bluepyopt.ephys.create_hoc import \
     Location, _get_template_params, format_float
 from bluepyopt.ephys.acc.exceptions import CreateAccException
 from bluepyopt.ephys.acc.neuron_to_arbor import (
-    MechMetaData,
     RangeIExpr,
     arb_convert_params_and_group_by_mech_global,
     arb_convert_params_and_group_by_mech_local,
@@ -27,6 +26,10 @@ from bluepyopt.ephys.acc.neuron_to_arbor import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+# A mechanism's GLOBAL and RANGE variables in Arbor
+MechMetaData = namedtuple('MechMetaData', 'globals, ranges')
 
 
 def _arb_filter_point_proc_locs(pprocess_mechs):
