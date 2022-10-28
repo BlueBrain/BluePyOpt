@@ -2,6 +2,7 @@
 
 from bluepyopt.ephys.acc.acc_label import ArbLabel
 
+
 def test_arb_label():
     """Test ArbLabel class."""
     _type = "region"
@@ -15,6 +16,6 @@ def test_arb_label():
     assert arb.name == name
     assert arb.loc == defn
     assert arb == arb
-    assert arb != None
+    assert arb is not None
     assert hash(arb) == hash(arb.defn)
     assert repr(arb) == arb.defn
