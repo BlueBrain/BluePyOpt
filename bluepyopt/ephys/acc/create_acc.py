@@ -389,7 +389,7 @@ def _populate_label_dict(local_mechs, local_scaled_mechs, pprocess_mechs):
     for acc_label in acc_labels:
         if acc_label.name in label_dict and \
                 acc_label != label_dict[acc_label.name]:
-            raise CreateAccException(
+            raise LookupError(
                 'Label %s already exists in' % acc_label.name +
                 ' label_dict with different definition: '
                 ' %s != %s.' % (label_dict[acc_label.name].defn,

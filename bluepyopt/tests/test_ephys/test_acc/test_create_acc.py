@@ -10,7 +10,6 @@ import tempfile
 
 from bluepyopt import _arbor as arbor
 from bluepyopt.ephys.acc.acc_label import ArbLabel
-from bluepyopt.ephys.acc.exceptions import CreateAccException
 from bluepyopt.ephys.morphologies import ArbFileMorphology
 
 from .. import utils
@@ -62,7 +61,7 @@ def test_populate_label_dict():
     result = create_acc._populate_label_dict(mechs_1, mechs_2, mechs_3)
     assert result.keys() == {"tag1", "all"}
 
-    with pytest.raises(CreateAccException):
+    with pytest.raises(LookupError):
         mechs_4 = {ArbLabel("region", "all", "(tag 1)"): {}}
         create_acc._populate_label_dict(mechs_1, mechs_2, mechs_4)
 
