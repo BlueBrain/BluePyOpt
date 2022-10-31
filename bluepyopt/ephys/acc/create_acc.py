@@ -347,20 +347,9 @@ def create_acc(mechs,
     local_scaled_mechs = {loc: _arb_project_scaled_mechs(mechs)
                           for loc, mechs in local_mechs.items()}
 
-    # populate label dict
-    label_dict = dict()
-    acc_labels = ChainMap(local_mechs, local_scaled_mechs, pprocess_mechs)
-
-    for acc_label in acc_labels:
-        if acc_label.name in label_dict and \
-                acc_label != label_dict[acc_label.name]:
-            raise CreateAccException(
-                'Label %s already exists in' % acc_label.name +
-                ' label_dict with different definition: '
-                ' %s != %s.' % (label_dict[acc_label.name].defn,
-                                acc_label.defn))
-        elif acc_label.name not in label_dict:
-            label_dict[acc_label.name] = acc_label
+    label_dict = _populate_label_dict(
+        local_mechs, local_scaled_mechs, pprocess_mechs
+    )
 
     templates = read_templates(template_dir, template_filename)
 
@@ -390,6 +379,24 @@ def create_acc(mechs,
             ret[modified_morphology_path] = modified_morphology_acc
 
     return ret
+
+
+def _populate_label_dict(local_mechs, local_scaled_mechs, pprocess_mechs):
+    """Returns the label dict populated with mechanism names."""
+    label_dict = dict()
+    acc_labels = ChainMap(local_mechs, local_scaled_mechs, pprocess_mechs)
+
+    for acc_label in acc_labels:
+        if acc_label.name in label_dict and \
+                acc_label != label_dict[acc_label.name]:
+            raise CreateAccException(
+                'Label %s already exists in' % acc_label.name +
+                ' label_dict with different definition: '
+                ' %s != %s.' % (label_dict[acc_label.name].defn,
+                                acc_label.defn))
+        elif acc_label.name not in label_dict:
+            label_dict[acc_label.name] = acc_label
+    return label_dict
 
 
 def output_acc(output_dir, cell, parameters,

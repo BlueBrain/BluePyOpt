@@ -9,6 +9,8 @@ import json
 import tempfile
 
 from bluepyopt import _arbor as arbor
+from bluepyopt.ephys.acc.acc_label import ArbLabel
+from bluepyopt.ephys.acc.exceptions import CreateAccException
 from bluepyopt.ephys.morphologies import ArbFileMorphology
 
 from .. import utils
@@ -49,6 +51,20 @@ def test_arb_load_mech_catalogue_meta():
     assert isinstance(mech_catalogue_meta, dict)
     assert mech_catalogue_meta.keys() == {'BBP', 'default', 'allen'}
     assert "Ca_HVA" in mech_catalogue_meta['BBP']
+
+
+@pytest.mark.unit
+def test_populate_label_dict():
+    """Unit test for _populate_label_dict."""
+    mechs_1 = {ArbLabel("region", "all", "(all)"): {}}
+    mechs_2 = {ArbLabel("region", "tag1", "(tag 1)"): {}}
+    mechs_3 = {}
+    result = create_acc._populate_label_dict(mechs_1, mechs_2, mechs_3)
+    assert result.keys() == {"tag1", "all"}
+
+    with pytest.raises(CreateAccException):
+        mechs_4 = {ArbLabel("region", "all", "(tag 1)"): {}}
+        create_acc._populate_label_dict(mechs_1, mechs_2, mechs_4)
 
 
 @pytest.mark.unit
