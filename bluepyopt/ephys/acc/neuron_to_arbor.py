@@ -7,7 +7,7 @@ from bluepyopt.ephys.create_hoc import (
     RangeExpr, PointExpr, Location, format_float)
 from bluepyopt.ephys.morphologies import ArbFileMorphology
 
-from bluepyopt.ephys.acc.exceptions import (
+from bluepyopt.exceptions import (
     MechAttributeError,
     ParamMechMappingError,
 )

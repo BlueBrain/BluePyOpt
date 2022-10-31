@@ -1,4 +1,4 @@
-"""Contains the custom exceptions for acc module."""
+"""Contains BluePyOpt specific exceptions."""
 
 
 class MechAttributeError(AttributeError):

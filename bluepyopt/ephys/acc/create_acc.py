@@ -16,7 +16,6 @@ from bluepyopt import _arbor as arbor
 from bluepyopt.ephys.morphologies import ArbFileMorphology
 from bluepyopt.ephys.create_hoc import \
     Location, _get_template_params, format_float
-from bluepyopt.ephys.acc.exceptions import CreateAccException
 from bluepyopt.ephys.acc.neuron_to_arbor import (
     RangeIExpr,
     arb_convert_params_and_group_by_mech_global,
@@ -24,6 +23,7 @@ from bluepyopt.ephys.acc.neuron_to_arbor import (
     arb_nmodl_translate_density,
     arb_nmodl_translate_points,
 )
+from bluepyopt.exceptions import CreateAccException
 
 logger = logging.getLogger(__name__)
 
