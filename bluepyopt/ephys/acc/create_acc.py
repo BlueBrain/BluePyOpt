@@ -5,7 +5,7 @@
 import io
 import logging
 import pathlib
-from collections import OrderedDict, namedtuple
+from collections import ChainMap, OrderedDict, namedtuple
 import re
 
 import jinja2
@@ -349,20 +349,18 @@ def create_acc(mechs,
 
     # populate label dict
     label_dict = dict()
+    acc_labels = ChainMap(local_mechs, local_scaled_mechs, pprocess_mechs)
 
-    for acc_labels in [local_mechs.keys(),
-                       local_scaled_mechs.keys(),
-                       pprocess_mechs.keys()]:
-        for acc_label in acc_labels:
-            if acc_label.name in label_dict and \
-                    acc_label != label_dict[acc_label.name]:
-                raise CreateAccException(
-                    'Label %s already exists in' % acc_label.name +
-                    ' label_dict with different definition: '
-                    ' %s != %s.' % (label_dict[acc_label.name].defn,
-                                    acc_label.defn))
-            elif acc_label.name not in label_dict:
-                label_dict[acc_label.name] = acc_label
+    for acc_label in acc_labels:
+        if acc_label.name in label_dict and \
+                acc_label != label_dict[acc_label.name]:
+            raise CreateAccException(
+                'Label %s already exists in' % acc_label.name +
+                ' label_dict with different definition: '
+                ' %s != %s.' % (label_dict[acc_label.name].defn,
+                                acc_label.defn))
+        elif acc_label.name not in label_dict:
+            label_dict[acc_label.name] = acc_label
 
     templates = read_templates(template_dir, template_filename)
 
