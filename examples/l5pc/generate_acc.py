@@ -43,11 +43,10 @@ def main():
     # ext_catalogues = {'cat-name': 'path/to/nmodl-dir', ...}
 
     if args.output_dir is not None:
-        ephys.create_acc.output_acc(args.output_dir,
-                                    cell,
-                                    param_values,
-                                    # ext_catalogues=ext_catalogues,
-                                    create_mod_morph=True)
+        cell.write_acc(args.output_dir,
+                       param_values,
+                       # ext_catalogues=ext_catalogues,
+                       create_mod_morph=True)
     else:
         output = cell.create_acc(
             param_values,

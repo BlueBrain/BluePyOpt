@@ -178,7 +178,7 @@ def test_exec():
 
 @pytest.mark.slow
 def test_l5pc_validate_neuron_arbor():
-    """L5PC Soma Arbor Notebook: test execution"""
+    """L5PC Neuron/Arbor validation Notebook: test execution"""
     import numpy
     numpy.seterr(all='raise')
     old_cwd = os.getcwd()

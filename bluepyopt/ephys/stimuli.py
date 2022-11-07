@@ -23,7 +23,7 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
 import logging
 
-from bluepyopt.ephys.acc_utils import arbor
+from bluepyopt.ephys.acc import arbor
 
 logger = logging.getLogger(__name__)
 

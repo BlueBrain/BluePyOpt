@@ -1,3 +1,5 @@
+'''Dependencies of Arbor simulator backend'''
+
 try:
     import arbor
 except ImportError as e:
@@ -13,15 +15,17 @@ except ImportError as e:
 class ArbLabel:
     """Arbor label"""
 
-    def __init__(self, type, name, defn):
+    def __init__(self, type, name, s_expr):
+        if type not in ['locset', 'region', 'iexpr']:
+            raise ValueError('Invalid Arbor label type %s' % type)
         self._type = type
         self._name = name
-        self._defn = defn
+        self._s_expr = s_expr
 
     @property
     def defn(self):
         """Label definition for label-dict"""
-        return '(%s-def "%s" %s)' % (self._type, self._name, self._defn)
+        return '(%s-def "%s" %s)' % (self._type, self._name, self._s_expr)
 
     @property
     def ref(self):
@@ -35,11 +39,19 @@ class ArbLabel:
 
     @property
     def loc(self):
-        """Expression defining the location of the label"""
-        return self._defn
+        """S-expression defining the location of the label"""
+        return self._s_expr
 
     def __eq__(self, other):
-        return self.defn == other.defn
+        if other is None:
+            return False
+        elif not isinstance(other, ArbLabel):
+            raise TypeError('%s is not an ArbLabel' % str(other))
+        else:
+            return self._s_expr == other._s_expr
 
     def __hash__(self):
-        return hash(self.defn)
+        return hash(self._s_expr)
+
+    def __repr__(self):
+        return self.defn

@@ -33,8 +33,8 @@ from . import locations
 from . import simulators
 from . import stimuli
 from .responses import TimeVoltageResponse
+from .acc import arbor
 from . import create_acc
-arbor = create_acc.arbor
 
 
 class Protocol(object):
@@ -463,8 +463,8 @@ class ArbSweepProtocol(Protocol):
 
         # Export cell model to mixed JSON/ACC-format
         with tempfile.TemporaryDirectory() as acc_dir:
-            create_acc.output_acc(acc_dir, cell_model, param_values,
-                                  ext_catalogues=sim.ext_catalogues)
+            cell_model.write_acc(acc_dir, param_values,
+                                 ext_catalogues=sim.ext_catalogues)
 
             cell_json = os.path.join(acc_dir, cell_model.name + '.json')
 

@@ -29,7 +29,7 @@ import bisect
 import numpy
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
-from bluepyopt.ephys.acc_utils import arbor, ArbLabel
+from bluepyopt.ephys.acc import arbor, ArbLabel
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ class NrnFileMorphology(Morphology, DictMixin):
         """Constructor
 
         Args:
-            morphology_path (str): location of the file describing the
+            morphology_path (str or Path): location of the file describing the
                 morphology
             do_replace_axon (bool): Does the axon need to be replaced by an AIS
                 stub with default function ?
@@ -82,6 +82,8 @@ class NrnFileMorphology(Morphology, DictMixin):
         super(NrnFileMorphology, self).__init__(name=name, comment=comment)
         # TODO speed up loading of morphologies from files
         # Path to morphology
+        if isinstance(morphology_path, pathlib.Path):
+            morphology_path = str(morphology_path)
         self.morphology_path = morphology_path
         self.do_replace_axon = do_replace_axon
         self.do_set_nseg = do_set_nseg
@@ -268,17 +270,17 @@ class ArbFileMorphology(Morphology, DictMixin):
     # 'dend' for basal dendrite, 'apic' for apical dendrite)
     region_labels = dict(
         all=ArbLabel(
-            type='region', name='all', defn='(all)'),
+            type='region', name='all', s_expr='(all)'),
         somatic=ArbLabel(
-            type='region', name='soma', defn='(tag %i)' % tags['soma']),
+            type='region', name='soma', s_expr='(tag %i)' % tags['soma']),
         axonal=ArbLabel(
-            type='region', name='axon', defn='(tag %i)' % tags['axon']),
+            type='region', name='axon', s_expr='(tag %i)' % tags['axon']),
         basal=ArbLabel(
-            type='region', name='dend', defn='(tag %i)' % tags['dend']),
+            type='region', name='dend', s_expr='(tag %i)' % tags['dend']),
         apical=ArbLabel(
-            type='region', name='apic', defn='(tag %i)' % tags['apic']),
+            type='region', name='apic', s_expr='(tag %i)' % tags['apic']),
         myelinated=ArbLabel(
-            type='region', name='myelin', defn='(tag %i)' % tags['myelin']),
+            type='region', name='myelin', s_expr='(tag %i)' % tags['myelin']),
     )
 
     @staticmethod

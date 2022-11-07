@@ -415,6 +415,18 @@ class CellModel(Model):
             self.destroy(sim=sim)
         return ret
 
+    def write_acc(self, output_dir, param_values,
+                  template_filename='acc/*_template.jinja2',
+                  ext_catalogues=None,
+                  create_mod_morph=False,
+                  sim=None):
+        """Write JSON/ACC-description for this model to output directory"""
+        create_acc.write_acc(output_dir, self, param_values,
+                             template_filename=template_filename,
+                             ext_catalogues=ext_catalogues,
+                             create_mod_morph=create_mod_morph,
+                             sim=sim)
+
     def __str__(self):
         """Return string representation"""
 

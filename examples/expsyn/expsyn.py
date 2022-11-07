@@ -10,22 +10,24 @@ import bluepyopt as bpopt
 import bluepyopt.ephys as ephys
 
 
-def main(args):
-    """Main"""
-    if args.sim == 'nrn':
-        sim = ephys.simulators.NrnSimulator()
-    else:
-        sim = ephys.simulators.ArbSimulator()
+def create_model(sim, do_replace_axon, return_locations=False):
+    """Create model and optionally return locations dict"""
+    if sim not in ['nrn', 'arb']:
+        raise ValueError("Invalid simulator %s." % sim)
+
+    locations = dict()
 
     morph = ephys.morphologies.NrnFileMorphology(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            'simple.swc'))
+            'simple.swc'),
+        do_replace_axon=do_replace_axon)
     somatic_loc = ephys.locations.NrnSeclistLocation(
         'somatic',
         seclist_name='somatic')
+    locations['somatic_loc'] = somatic_loc
 
-    if args.sim == 'nrn':
+    if sim == 'nrn':
         somacenter_loc = ephys.locations.NrnSeclistCompLocation(
             name='somacenter',
             seclist_name='somatic',
@@ -35,6 +37,7 @@ def main(args):
         somacenter_loc = ephys.locations.ArbLocsetLocation(
             name='somacenter',
             locset='(location 0 0.5)')
+    locations['somacenter_loc'] = somacenter_loc
 
     pas_mech = ephys.mechanisms.NrnMODMechanism(
         name='pas',
@@ -49,6 +52,7 @@ def main(args):
     expsyn_loc = ephys.locations.NrnPointProcessLocation(
         'expsyn_loc',
         pprocess_mech=expsyn_mech)
+    locations['expsyn_loc'] = expsyn_loc
 
     expsyn_tau_param = ephys.parameters.NrnPointProcessParameter(
         name='expsyn_tau',
@@ -56,20 +60,6 @@ def main(args):
         value=2,
         bounds=[0, 50],
         locations=[expsyn_loc])
-
-    stim_start = 20
-    number = 5
-    interval = 5
-
-    netstim = ephys.stimuli.NrnNetStimStimulus(
-        total_duration=200,
-        number=5,
-        interval=5,
-        start=stim_start,
-        weight=5e-4,
-        locations=[expsyn_loc])
-
-    stim_end = stim_start + interval * number
 
     cm_param = ephys.parameters.NrnSectionParameter(
         name='cm',
@@ -84,9 +74,40 @@ def main(args):
         mechs=[pas_mech, expsyn_mech],
         params=[cm_param, expsyn_tau_param])
 
+    if return_locations is True:
+        return cell, locations
+    else:
+        return cell
+
+
+def main(args):
+    """Main"""
+    if args.sim == 'nrn':
+        sim = ephys.simulators.NrnSimulator()
+    else:
+        sim = ephys.simulators.ArbSimulator()
+
+    cell, locations = create_model(sim=args.sim,
+                                   do_replace_axon=False,
+                                   return_locations=True)
+
+    stim_start = 20
+    number = 5
+    interval = 5
+
+    netstim = ephys.stimuli.NrnNetStimStimulus(
+        total_duration=200,
+        number=5,
+        interval=5,
+        start=stim_start,
+        weight=5e-4,
+        locations=[locations['expsyn_loc']])
+
+    stim_end = stim_start + interval * number
+
     rec = ephys.recordings.CompRecording(
         name='soma.v',
-        location=somacenter_loc,
+        location=locations['somacenter_loc'],
         variable='v')
 
     if args.sim == 'nrn':
