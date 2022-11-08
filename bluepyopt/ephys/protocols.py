@@ -195,7 +195,10 @@ class SweepProtocol(Protocol):
             self.instantiate(sim=sim, icell=cell_model.icell)
 
             try:
-                sim.run(self.total_duration, cvode_active=self.cvode_active)
+                sim.run(
+                    self.total_duration,
+                    cvode_active=self.cvode_active,
+                    icell=cell_model.icell)
             except (RuntimeError, simulators.NrnSimulatorException):
                 logger.debug(
                     'SweepProtocol: Running of parameter set {%s} generated '
