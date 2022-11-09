@@ -532,13 +532,16 @@ def test_cell_model_write_and_read_acc_replace_axon():
 
     with tempfile.TemporaryDirectory() as acc_dir:
         try:
+            nrn_sim = ephys.simulators.NrnSimulator()
             cell.write_acc(acc_dir, param_values,
-                           sim=ephys.simulators.NrnSimulator())
+                           sim=nrn_sim)
         except Exception as e:  # fail with an older Arbor version
             assert isinstance(e, NotImplementedError)
             assert len(e.args) == 1 and e.args[0] == \
                 "Need a newer version of Arbor for axon replacement."
             return
+        finally:
+            cell.destroy(nrn_sim)
 
         # Axon replacement implemented in installed Arbor version
         cell_json, arb_morph, arb_decor, arb_labels = \
@@ -630,6 +633,7 @@ def test_write_acc_simple():
         assert len(e.args) == 1 and e.args[0] == \
             "Need a newer version of Arbor for axon replacement."
     finally:
+        cell.destroy(nrn_sim)
         os.chdir(old_cwd)
         sys.path.pop(0)
 
@@ -682,6 +686,7 @@ def test_write_acc_l5pc():
         assert len(e.args) == 1 and e.args[0] == \
             "Need a newer version of Arbor for axon replacement."
     finally:
+        cell.destroy(nrn_sim)
         os.chdir(old_cwd)
         sys.path.pop(0)
 
