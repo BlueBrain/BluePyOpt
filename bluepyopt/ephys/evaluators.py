@@ -220,7 +220,7 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
         self, param_list=None, target='scores'
     ):
         """Set neuron variables and run evaluation with lists.
-        
+
         Setting the neuron variables is necessary when using ipyparallel,
         since the new subprocesses have pristine neuron.
         """
