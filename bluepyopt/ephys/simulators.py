@@ -40,15 +40,14 @@ class NrnSimulator(object):
         self.disable_banner = platform.system() not in ['Windows', 'Darwin']
         self.banner_disabled = False
         self.mechanisms_directory = mechanisms_directory
-        self.neuron.h.load_file('stdrun.hoc')
 
         self.dt = dt if dt is not None else self.neuron.h.dt
-        self.neuron.h.dt = self.dt
 
-        self.neuron.h.cvode_active(1 if cvode_active else 0)
         self.cvode_minstep_value = cvode_minstep
 
         self.cvode_active = cvode_active
+
+        self.set_neuron_variables()
 
         self.random123_globalindex = random123_globalindex
 
@@ -104,6 +103,12 @@ class NrnSimulator(object):
             )
 
         return neuron
+
+    def set_neuron_variables(self):
+        """Set neuron variables"""
+        self.neuron.h.load_file('stdrun.hoc')
+        self.neuron.h.dt = self.dt
+        self.neuron.h.cvode_active(1 if self.cvode_active else 0)
 
     def run(
             self,
