@@ -21,8 +21,8 @@ class NrnSimulator(object):
         """Constructor
 
         Args:
-            dt (float): the integration time step used by neuron.
-            cvode_active (bool): should neuron use the variable time step
+            dt (float): the integration time step used by Neuron.
+            cvode_active (bool): should Neuron use the variable time step
                 integration method
             cvode_minstep (float): the minimum time step allowed for a cvode
                 step. Default is 0.0.
@@ -40,15 +40,14 @@ class NrnSimulator(object):
         self.disable_banner = platform.system() not in ['Windows', 'Darwin']
         self.banner_disabled = False
         self.mechanisms_directory = mechanisms_directory
-        self.neuron.h.load_file('stdrun.hoc')
 
         self.dt = dt if dt is not None else self.neuron.h.dt
-        self.neuron.h.dt = self.dt
 
-        self.neuron.h.cvode_active(1 if cvode_active else 0)
         self.cvode_minstep_value = cvode_minstep
 
         self.cvode_active = cvode_active
+
+        self.set_neuron_variables()
 
         self.random123_globalindex = random123_globalindex
 
@@ -90,7 +89,7 @@ class NrnSimulator(object):
     # pylint: disable=R0201
     @property
     def neuron(self):
-        """Return neuron module"""
+        """Return Neuron module"""
 
         if self.disable_banner and not self.banner_disabled:
             NrnSimulator._nrn_disable_banner()
@@ -104,6 +103,12 @@ class NrnSimulator(object):
             )
 
         return neuron
+
+    def set_neuron_variables(self):
+        """Set Neuron variables"""
+        self.neuron.h.load_file('stdrun.hoc')
+        self.neuron.h.dt = self.dt
+        self.neuron.h.cvode_active(1 if self.cvode_active else 0)
 
     def run(
             self,

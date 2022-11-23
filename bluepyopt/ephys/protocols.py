@@ -245,12 +245,20 @@ class SweepProtocol(Protocol):
             copyreg.pickle(types.MethodType, _reduce_method)
             import pebble
             from concurrent.futures import TimeoutError
+            import multiprocessing
+
+            # Default context for python>=3.8 on macos is spawn.
+            # Spwan context would reset NEURON properties, such as dt.
+            multiprocessing_context = multiprocessing.get_context('fork')
 
             if timeout is not None:
                 if timeout < 0:
                     raise ValueError("timeout should be > 0")
-
-            with pebble.ProcessPool(max_workers=1, max_tasks=1) as pool:
+            with pebble.ProcessPool(
+                max_workers=1,
+                max_tasks=1,
+                context=multiprocessing_context
+            ) as pool:
                 tasks = pool.schedule(self._run_func, kwargs={
                     'cell_model': cell_model,
                     'param_values': param_values,
