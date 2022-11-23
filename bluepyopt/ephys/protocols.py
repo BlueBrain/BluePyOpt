@@ -248,7 +248,7 @@ class SweepProtocol(Protocol):
             import multiprocessing
 
             # Default context for python>=3.8 on macos is spawn.
-            # Spwan context would reset neuron properties, such as dt.
+            # Spwan context would reset NEURON properties, such as dt.
             multiprocessing_context = multiprocessing.get_context('fork')
 
             if timeout is not None:
