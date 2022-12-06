@@ -211,7 +211,10 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         )
 
         # Register the evaluation function for the individuals
-        self.toolbox.register("evaluate", self.evaluator.evaluate_with_lists)
+        self.toolbox.register(
+            "evaluate",
+            self.evaluator.set_neuron_variables_and_evaluate_with_lists
+        )
 
         import copyreg
         import types

@@ -216,6 +216,17 @@ class CellEvaluator(bpopt.evaluators.Evaluator):
 
         return self.objective_list(obj_dict)
 
+    def set_neuron_variables_and_evaluate_with_lists(
+        self, param_list=None, target='scores'
+    ):
+        """Set NEURON variables and run evaluation with lists.
+
+        Setting the NEURON variables is necessary when using ipyparallel,
+        since the new subprocesses have pristine NEURON.
+        """
+        self.sim.set_neuron_variables()
+        return self.evaluate_with_lists(param_list=param_list, target=target)
+
     def evaluate(self, param_list=None, target='scores'):
         """Run evaluation with lists as input and outputs"""
 

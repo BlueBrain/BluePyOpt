@@ -23,7 +23,7 @@ def catch_event(event):
 
     # event is set by another process case
     time.sleep(2)
-    assert not(utils.run_next_gen(True, event))
+    assert not (utils.run_next_gen(True, event))
 
 
 @pytest.mark.unit

@@ -1,5 +1,5 @@
-TITLE skm95.mod  
- 
+TITLE skm95.mod
+
 COMMENT
 ----------------------------------------------------------------
 Stochastic version of the K channel mechanism kd3h5.mod by
@@ -9,8 +9,8 @@ This represents a potassium channel, with Hodgkin-Huxley like kinetics,
 based on the gates model, assuming stochastic opening and closing.
 
 Kinetic rates based roughly on Sah et al. and Hamill et al. (1991)
-The main kinetic difference from the standard H-H model (shh.mod) is 
-that the K+ kinetic is different, not n^4, but just n, 
+The main kinetic difference from the standard H-H model (shh.mod) is
+that the K+ kinetic is different, not n^4, but just n,
 and the activation curves are different.
 
 The rate functions are adapted directly from the Kd3h5.mod file
@@ -20,12 +20,12 @@ The stochastic model is as following:
 
 Potassium
 
-       = alpha_n =>      
+       = alpha_n =>
    [N0]             [N1]
-      <= beta_n =      
+      <= beta_n =
 
 
-The model keeps track on the number of channels in each state, and 
+The model keeps track on the number of channels in each state, and
 uses a binomial distribution to update these number.
 
 Jan 1999, Mickey London, Hebrew University, mikilon@lobster.ls.huji.ac.il
@@ -34,6 +34,13 @@ Jan 1999, Mickey London, Hebrew University, mikilon@lobster.ls.huji.ac.il
 19 May 2002 Kamran Diba.  Changed gamma and deterministic from GLOBAL to RANGE.
 23 Nov 2011 Werner Van Geit @ BBP. Changed the file so that it can use the neuron random number generator. Tuned voltage dependence
 16 Mar 2016 James G King @ BBP.  Incorporate modifications suggested by Michael Hines to improve stiching to deterministic mode, thread safety, and using Random123
+
+16 Jan 2017 Christian Roessert @ BBP:
+
+WARNING unit declaration is wrong! modlunit gives errors!
+To maintain backward compatibility this channel is not corrected but usage is DISCOURAGED!
+StochKv.mod and inactivating version of this channel uses corrected units!
+
 ----------------------------------------------------------------
 ENDCOMMENT
 
@@ -43,12 +50,12 @@ NEURON {
     SUFFIX StochKv
     THREADSAFE
     USEION k READ ek WRITE ik
-    RANGE N,eta, gk, gamma, gkbar, ik, N0, N1, n0_n1, n1_n0
-    RANGE ninf, ntau,a,b,P_a,P_b, deterministic
-    GLOBAL Ra, Rb
-    GLOBAL vmin, vmax, q10, temp, tadj
-    :BBCOREPOINTER rng
-    POINTER rng
+    RANGE N, eta, gk, gamma, deterministic, gkbar, ik
+    RANGE N0, N1, n0_n1, n1_n0
+    RANGE ninf, ntau, a, b, P_a, P_b
+    RANGE Ra, Rb, tadj
+    GLOBAL vmin, vmax, q10, temp
+    BBCOREPOINTER rng
 }
 
 UNITS {
@@ -57,30 +64,30 @@ UNITS {
     (pS) = (picosiemens)
     (S) = (siemens)
     (um) = (micron)
-} 
+}
 
 PARAMETER {
     v           (mV)
     dt      (ms)
     area    (um2)
-    
+
     gamma  =  30          (pS)
     eta              (1/um2)
     gkbar = .75      (S/cm2)
-    
+
     tha  = -40   (mV)        : v 1/2 for inf
-    qa   = 9            : inf slope     
+    qa   = 9            : inf slope
     Ra   = 0.02 (/ms)       : max act rate
     Rb   = 0.002    (/ms)       : max deact rate
-    
+
     celsius (degC)
     temp = 23 (degC)   : original temperature for kinetic set
     q10 = 2.3               : temperature sensitivity
-    
+
     deterministic = 0   : if non-zero, will use deterministic version
     vmin = -120 (mV)    : range to construct tables for
     vmax = 100  (mV)
-} 
+}
 
 ASSIGNED {
     a       (/ms)
@@ -92,8 +99,8 @@ ASSIGNED {
     ntau (ms)   : time constant for relaxation
     tadj
 
-    N 
-    scale_dens (pS/um2) 
+    N
+    scale_dens (pS/um2)
     P_a     : probability of one channel making alpha transition
     P_b     : probability of one channel making beta transition
 
@@ -109,15 +116,16 @@ STATE {
 }
 ASSIGNED {
     N0 N1     : N states populations (These currently will not be saved via the bbsavestate functionality.  Would need to be STATE again)
-    n0_n1 n1_n0 : number of channels moving from one state to the other 
+    n0_n1 n1_n0 : number of channels moving from one state to the other
 }
 
 COMMENT
-The Verbatim block is needed to generate random nos. from a uniform distribution between 0 and 1 
+The Verbatim block is needed to generate random nos. from a uniform distribution between 0 and 1
 for comparison with Pr to decide whether to activate the synapse or not
 ENDCOMMENT
-   
+
 VERBATIM
+#ifndef NRN_VERSION_GTEQ_8_2_0
 #include "nrnran123.h"
 extern int cvode_active_;
 
@@ -127,29 +135,37 @@ extern int cvode_active_;
 
 double nrn_random_pick(void* r);
 void* nrn_random_arg(int argpos);
+#define RANDCAST
+#else
+#define RANDCAST (Rand*)
+#endif
 
 ENDVERBATIM
 : ----------------------------------------------------------------
 : initialization
-INITIAL { 
+INITIAL {
     VERBATIM
     if (cvode_active_ && !deterministic) {
         hoc_execerror("StochKv with deterministic=0", "cannot be used with cvode");
     }
+
+    if( usingR123 ) {
+        nrnran123_setseq((nrnran123_State*)_p_rng, 0, 0);
+    }
     ENDVERBATIM
-    
-    eta = gkbar / gamma
+
+    eta = (gkbar / gamma) : * (10000) for proper fix
     trates(v)
     n = ninf
     scale_dens = gamma/area
     N = floor(eta*area + 0.5)
-    
+
     N1 = n*N
     if( !deterministic) {
         N1 = floor(N1 + 0.5)
     }
     N0 = N-N1       : any round off into non-conducting state
-    
+
     n0_n1 = 0
     n1_n0 = 0
 }
@@ -158,11 +174,11 @@ INITIAL {
 : Breakpoint for each integration step
 BREAKPOINT {
   SOLVE states METHOD cnexp
-  
-  gk =  (strap(N1) * scale_dens * tadj)
-  
-  ik = 1e-4 * gk * (v - ek)
-} 
+
+  gk = (strap(N1) * scale_dens * tadj) : * (0.0001) for proper fix
+
+  ik = 1e-4 * gk * (v - ek) : remove 1e-4 for proper fix
+}
 
 
 : ----------------------------------------------------------------
@@ -170,19 +186,23 @@ BREAKPOINT {
 DERIVATIVE states {
 
     trates(v)
-    
+
     n' = a - (a + b)*n
     if (deterministic || dt > 1) { : ForwardSkip is also deterministic
         N1 = n*N
     }else{
-    
+
+    : ensure that N0 is an integer for when transitioning from deterministic mode to stochastic mode
+    N0 = floor(N0+0.5)
+    N1 = N - N0
+
     P_a = strap(a*dt)
     P_b = strap(b*dt)
 
     : check that will represent probabilities when used
     ChkProb( P_a)
     ChkProb( P_b)
-    
+
     : transitions
     n0_n1 = BnlDev(P_a, N0)
     n1_n0 = BnlDev(P_b, N1)
@@ -198,11 +218,11 @@ DERIVATIVE states {
 
 : ----------------------------------------------------------------
 : trates - compute rates, using table if possible
-PROCEDURE trates(v (mV)) {     
+PROCEDURE trates(v (mV)) {
     TABLE ntau, ninf, a, b, tadj
     DEPEND dt, Ra, Rb, tha, qa, q10, temp, celsius
     FROM vmin TO vmax WITH 199
-    
+
     tadj = q10 ^ ((celsius - temp)/(10 (K)))
     a = SigmoidRate(v, tha, Ra, qa)
     a = a * tadj
@@ -214,7 +234,7 @@ PROCEDURE trates(v (mV)) {
 
 
 : ----------------------------------------------------------------
-: SigmoidRate - Compute a sigmoid rate function given the 
+: SigmoidRate - Compute a sigmoid rate function given the
 : 50% point th, the slope q, and the amplitude a.
 FUNCTION SigmoidRate(v (mV),th (mV),a (1/ms),q) (1/ms){
     UNITSOFF
@@ -225,7 +245,7 @@ FUNCTION SigmoidRate(v (mV),th (mV),a (1/ms),q) (1/ms){
     } else {
         SigmoidRate = a * q
     }
-}   
+}
 
 
 : ----------------------------------------------------------------
@@ -258,20 +278,24 @@ PROCEDURE setRNG() {
 VERBATIM
     // For compatibility, allow for either MCellRan4 or Random123.  Distinguish by the arg types
     // Object => MCellRan4, seeds (double) => Random123
-#if !NRNBBCORE
+#ifndef CORENEURON_BUILD
     usingR123 = 0;
     if( ifarg(1) && hoc_is_double_arg(1) ) {
         nrnran123_State** pv = (nrnran123_State**)(&_p_rng);
         uint32_t a2 = 0;
-        
+        uint32_t a3 = 0;
+
         if (*pv) {
             nrnran123_deletestream(*pv);
             *pv = (nrnran123_State*)0;
-        } 
+        }
         if (ifarg(2)) {
             a2 = (uint32_t)*getarg(2);
         }
-        *pv = nrnran123_newstream((uint32_t)*getarg(1), a2);
+        if (ifarg(3)) {
+            a3 = (uint32_t)*getarg(3);
+        }
+        *pv = nrnran123_newstream3((uint32_t)*getarg(1), a2, a3);
         usingR123 = 1;
     } else if( ifarg(1) ) {
         void** pv = (void**)(&_p_rng);
@@ -291,7 +315,9 @@ VERBATIM
     if( usingR123 ) {
         value = nrnran123_dblpick((nrnran123_State*)_p_rng);
     } else if (_p_rng) {
-        value = nrn_random_pick(_p_rng);
+#ifndef CORENEURON_BUILD
+        value = nrn_random_pick(RANDCAST _p_rng);
+#endif
     } else {
         value = 0.5;
     }
@@ -300,33 +326,37 @@ ENDVERBATIM
 }
 
 VERBATIM
-/*
 static void bbcore_write(double* x, int* d, int* xx, int* offset, _threadargsproto_) {
     if (d) {
         uint32_t* di = ((uint32_t*)d) + *offset;
       // temporary just enough to see how much space is being used
       if (!_p_rng) {
-        di[0] = 0; di[1] = 0;
+        di[0] = 0; di[1] = 0, di[2] = 0;
       }else{
         nrnran123_State** pv = (nrnran123_State**)(&_p_rng);
-        nrnran123_getids(*pv, di, di+1);
+        nrnran123_getids3(*pv, di, di+1, di+2);
+        // write stream sequence
+        char which;
+        nrnran123_getseq(*pv, di+3, &which);
+        di[4] = (int)which;
       }
-//printf("StochKv.mod %p: bbcore_write offset=%d %d %d\n", _p, *offset, d?di[0]:-1, d?di[1]:-1);
+      //printf("StochKv.mod %p: bbcore_write offset=%d %d %d\n", _p, *offset, d?di[0]:-1, d?di[1]:-1);
     }
-    *offset += 2;
+    *offset += 5;
 }
 static void bbcore_read(double* x, int* d, int* xx, int* offset, _threadargsproto_) {
     assert(!_p_rng);
     uint32_t* di = ((uint32_t*)d) + *offset;
-        if (di[0] != 0 || di[1] != 0)
+        if (di[0] != 0 || di[1] != 0|| di[2] != 0)
         {
       nrnran123_State** pv = (nrnran123_State**)(&_p_rng);
-      *pv = nrnran123_newstream(di[0], di[1]);
+      *pv = nrnran123_newstream3(di[0], di[1], di[2]);
+      // restore stream sequence
+      nrnran123_setseq(*pv, di[3], (char)di[4]);
         }
-//printf("StochKv.mod %p: bbcore_read offset=%d %d %d\n", _p, *offset, di[0], di[1]);
-    *offset += 2;
+      //printf("StochKv.mod %p: bbcore_read offset=%d %d %d\n", _p, *offset, di[0], di[1]);
+    *offset += 5;
 }
-*/
 ENDVERBATIM
 
 : Returns random numbers drawn from a binomial distribution
@@ -398,9 +428,9 @@ VERBATIM
         int j;
         double am,em,g,angle,p,bnl,sq,bt,y;
         double pc,plog,pclog,en,oldg;
-        
+
         /* prepare to always ignore errors within this routine */
-        
+
         p=(_lppr <= 0.5 ? _lppr : 1.0-_lppr);
         am=_lnnr*p;
         if (_lnnr < 25) {
@@ -436,66 +466,82 @@ VERBATIM
                     em=sq*y+am;
                 } while (em < 0.0 || em >= (en+1.0));
                 em=floor(em);
-                    bt=1.2*sq*(1.0+y*y)*exp(oldg-gammln(em+1.0) - 
+                    bt=1.2*sq*(1.0+y*y)*exp(oldg-gammln(em+1.0) -
                     gammln(en-em+1.0)+em*plog+(en-em)*pclog);
             } while (urand(_threadargs_) > bt);
             bnl=em;
         }
         if (p != _lppr) bnl=_lnnr-bnl;
-        
+
         /* recover error if changed during this routine, thus ignoring
             any errors during this routine */
-       
-        
+
+
         return bnl;
-        
+
     ENDVERBATIM
     BnlDev = bnl
-}  
+}
 
 FUNCTION bbsavestate() {
         bbsavestate = 0
 VERBATIM
-#ifdef ENABLE_SAVE_STATE
+ #ifndef CORENEURON_BUILD
         // TODO: since N0,N1 are no longer state variables, they will need to be written using this callback
         //  provided that it is the version that supports multivalue writing
         /* first arg is direction (-1 get info, 0 save, 1 restore), second is value*/
-        double *xdir, *xval, *hoc_pgetarg();
+        double *xdir, *xval;
+        #ifndef NRN_VERSION_GTEQ_8_2_0
+        double *hoc_pgetarg();
         long nrn_get_random_sequence(void* r);
         void nrn_set_random_sequence(void* r, int val);
+        #endif
         xdir = hoc_pgetarg(1);
         xval = hoc_pgetarg(2);
-        if (_p_rng) {
-                // tell how many items need saving
-                if (*xdir == -1.) {
-                    if( usingR123 ) {
-                        *xdir = 2.0;
-                    } else {
-                        *xdir = 1.0;
-                    }
-                    return 0.0;
-                }
-                else if (*xdir == 0.) {
-                    if( usingR123 ) {
-                        uint32_t seq;
-                        char which;
-                        nrnran123_getseq( (nrnran123_State*)_p_rng, &seq, &which );
-                        xval[0] = (double) seq;
-                        xval[1] = (double) which;
-                    } else {
-                        xval[0] = (double)nrn_get_random_sequence(_p_rng);
-                    }
-                } else{
-                    if( usingR123 ) {
-                        nrnran123_setseq( (nrnran123_State*)_p_rng, (uint32_t)xval[0], (char)xval[1] );
-                    } else {
-                        nrn_set_random_sequence(_p_rng, (long)(xval[0]));
-                    }
-                }
+        int saveCount = 0;
+
+        // N0 always needs to be saved (N1 is computed from N and N0)
+        if( *xdir == -1. ) {
+            saveCount = 1;
+        } else if ( *xdir == 0. ) {
+            xval[0] = N0;
+        } else {
+            N0 = xval[0];
+            N1 = N - N0;
         }
 
-        // TODO: check for random123 and get the seq values
+        // Handle RNG
+        if (_p_rng) {
+            if (*xdir == -1.) {
+                if( usingR123 ) {
+                    saveCount += 2.0;
+                } else {
+                    saveCount += 1.0;
+                }
+            } else if (*xdir == 0.) {
+                if( usingR123 ) {
+                    uint32_t seq;
+                    char which;
+                    nrnran123_getseq( (nrnran123_State*)_p_rng, &seq, &which );
+                    xval[1] = (double) seq;
+                    xval[2] = (double) which;
+                } else {
+                    xval[1] = (double)nrn_get_random_sequence(RANDCAST _p_rng);
+                }
+            } else {
+                if( usingR123 ) {
+                    nrnran123_setseq( (nrnran123_State*)_p_rng, (uint32_t)xval[1], (char)xval[2] );
+                } else {
+                    nrn_set_random_sequence(RANDCAST _p_rng, (long)(xval[1]));
+                }
+            }
+        }
+
+        if( *xdir == -1 ) {
+            *xdir = saveCount;
+        }
+
+        return 0.0;
 #endif
 ENDVERBATIM
 }
-

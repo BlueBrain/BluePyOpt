@@ -1,0 +1,520 @@
+
+@techreport{amsalemDenseComputerReplica2020,
+  type = {Preprint},
+  title = {Dense {{Computer Replica}} of {{Cortical Microcircuits Unravels Cellular Underpinnings}} of {{Auditory Surprise Response}}},
+  author = {Amsalem, Oren and King, James and Reimann, Michael and Ramaswamy, Srikanth and Muller, Eilif and Markram, Henry and Nelken, Israel and Segev, Idan},
+  year = {2020},
+  month = jun,
+  institution = {{Neuroscience}},
+  doi = {10.1101/2020.05.31.126466},
+  abstract = {The nervous system is notorious for its strong response evoked by a surprising sensory input, but the biophysical and anatomical underpinnings of this phenomenon are only partially understood. Here we utilized in-silico experiments of a biologicallydetailed model of a neocortical microcircuit to study stimulus specific adaptation (SSA) in the auditory cortex, whereby the neuronal response adapts significantly for a repeated (``expected'') tone but not for a rare (``surprise'') tone. SSA experiments were mimicked by stimulating tonotopically-mapped thalamo-cortical afferents projecting to the microcircuit; the activity of these afferents was modeled based on our in-vivo recordings from individual thalamic neurons. The modeled microcircuit expressed naturally many experimentally-observed properties of SSA, suggesting that SSA is a general property of neocortical microcircuits. By systematically modulating circuit parameters, we found that key features of SSA depended on synergistic effects of synaptic depression, spike frequency adaptation and recurrent network connectivity. The relative contribution of each of these mechanisms in shaping SSA was explored, additional SSA-related experimental results were explained and new experiments for further studying SSA were suggested.},
+  langid = {english}
+}
+
+@article{amsalemEfficientAnalyticalReduction2020,
+  title = {An Efficient Analytical Reduction of Detailed Nonlinear Neuron Models},
+  author = {Amsalem, Oren and Eyal, Guy and Rogozinski, Noa and Gevaert, Michael and Kumbhar, Pramod and Sch{\"u}rmann, Felix and Segev, Idan},
+  year = {2020},
+  month = dec,
+  journal = {Nature Communications},
+  volume = {11},
+  number = {1},
+  pages = {288},
+  issn = {2041-1723},
+  doi = {10.1038/s41467-019-13932-6},
+  abstract = {Abstract                            Detailed conductance-based nonlinear neuron models consisting of thousands of synapses are key for understanding of the computational properties of single neurons and large neuronal networks, and for interpreting experimental results. Simulations of these models are computationally expensive, considerably curtailing their utility.               Neuron\_Reduce               is a new analytical approach to reduce the morphological complexity and computational time of nonlinear neuron models. Synapses and active membrane channels are mapped to the reduced model preserving their transfer impedance to the soma; synapses with identical transfer impedance are merged into one NEURON process still retaining their individual activation times.               Neuron\_Reduce               accelerates the simulations by 40\textendash 250 folds for a variety of cell types and realistic number (10,000\textendash 100,000) of synapses while closely replicating voltage dynamics and specific dendritic computations. The reduced neuron-models will enable realistic simulations of neural networks at unprecedented scale, including networks emerging from micro-connectomics efforts and biologically-inspired ``deep networks''.               Neuron\_Reduce               is publicly available and is straightforward to implement.},
+  langid = {english}
+}
+
+@techreport{awileModernizingNEURONSimulator2022,
+  type = {Preprint},
+  title = {Modernizing the {{NEURON Simulator}} for {{Sustainability}}, {{Portability}}, and {{Performance}}},
+  author = {Awile, Omar and Kumbhar, Pramod and Cornu, Nicolas and {Dura-Bernal}, Salvador and King, James Gonzalo and Lupton, Olli and Magkanaris, Ioannis and McDougal, Robert A. and Newton, Adam J.H. and Pereira, Fernando and S{\u a}vulescu, Alexandru and Carnevale, Nicholas T. and Lytton, William W. and Hines, Michael L. and Sch{\"u}rmann, Felix},
+  year = {2022},
+  month = mar,
+  institution = {{Neuroscience}},
+  doi = {10.1101/2022.03.03.482816},
+  abstract = {The need for reproducible, credible, multiscale biological modeling has led to the development of standardized simulation platforms, such as the widely-used NEURON environment for computational neuroscience. Developing and maintaining NEURON over several decades has required attention to the competing needs of backwards compatibility, evolving computer architectures, the addition of new scales and physical processes, accessibility to new users, and efficiency and flexibility for specialists. In order to meet these challenges, we have now substantially modernized NEURON, providing continuous integration, an improved build system and release workflow, and better documentation. With the help of a new source-to-source compiler of the NMODL domain-specific language we have enhanced NEURON's ability to run efficiently, via the CoreNEURON simulation engine, on a variety of hardware platforms, including GPUs. Through the implementation of an optimized in-memory transfer mechanism this performance optimized backend is made easily accessible to users, providing training and model-development paths from laptop to workstation to supercomputer and cloud platform. Similarly, we have been able to accelerate NEURON's reaction-diffusion simulation performance through the use of just-in-time compilation. We show that these efforts have led to a growing developer base, a simpler and more robust software distribution, a wider range of supported computer architectures, a better integration of NEURON with other scientific workflows, and substantially improved performance for the simulation of biophysical and biochemical models.},
+  langid = {english}
+}
+
+@article{beiningT2NNewTool2017,
+  title = {{{T2N}} as a New Tool for Robust Electrophysiological Modeling Demonstrated for Mature and Adult-Born Dentate Granule Cells},
+  author = {Beining, Marcel and Mongiat, Lucas Alberto and Schwarzacher, Stephan Wolfgang and Cuntz, Hermann and Jedlicka, Peter},
+  year = {2017},
+  month = nov,
+  journal = {eLife},
+  volume = {6},
+  pages = {e26517},
+  issn = {2050-084X},
+  doi = {10.7554/eLife.26517},
+  abstract = {Compartmental models are the theoretical tool of choice for understanding single neuron computations. However, many models are incomplete, built ad hoc and require tuning for each novel condition rendering them of limited usability. Here, we present T2N, a powerful interface to control NEURON with Matlab and TREES toolbox, which supports generating models stable over a broad range of reconstructed and synthetic morphologies. We illustrate this for a novel, highly detailed active model of dentate granule cells (GCs) replicating a wide palette of experiments from various labs. By implementing known differences in ion channel composition and morphology, our model reproduces data from mouse or rat, mature or adult-born GCs as well as pharmacological interventions and epileptic conditions. This work sets a new benchmark for detailed compartmental modeling. T2N is suitable for creating robust models useful for large-scale networks that could lead to novel predictions. We discuss possible T2N application in degeneracy studies.},
+  langid = {english}
+}
+
+@techreport{ben-shalomInferringNeuronalIonic2019,
+  type = {Preprint},
+  title = {Inferring Neuronal Ionic Conductances from Membrane Potentials Using {{CNNs}}},
+  author = {{Ben-Shalom}, Roy and Balewski, Jan and Siththaranjan, Anand and Baratham, Vyassa and Kyoung, Henry and Kim, Kyung Geun and Bender, Kevin J. and Bouchard, Kristofer E.},
+  year = {2019},
+  month = aug,
+  institution = {{Neuroscience}},
+  doi = {10.1101/727974},
+  abstract = {Abstract           The neuron is the fundamental unit of computation in the nervous system, and different neuron types produce different temporal patterns of voltage fluctuations in response to input currents. Understanding the mechanism of single neuron firing patterns requires accurate knowledge of the spatial densities of diverse ion channels along the membrane. However, direct measurements of these microscopic variables are difficult to obtain experimentally. Alternatively, one can attempt to infer those microscopic variables from the membrane potential (a mesoscopic variable), or features thereof, which are more experimentally tractable. One approach in this direction is to infer the ionic densities as parameters of a neuronal model. Traditionally this is done using a Multi-Objective Optimization (MOO) method to minimize the differences between features extracted from a simulated neuron's membrane potential and the same features extracted from target data. Here, we use Convolutional Neural Networks (CNNs) to directly regress generative parameters (e.g., ionic conductances, membrane resistance, etc.,) from simulated time-varying membrane potentials in response to an input stimulus. We simulated diverse neuron models of increasing complexity (Izikivich: 4 parameters; Hodgkin-Huxley: 7 parameters; Mainen-Sejnowski: 10 parameters) with a large range of variation in the underlying parameter values. We show that hyperparameter optimized CNNs can accurately infer the values of generative variables for these neuron models, and that these results far surpass the previous state-of-the-art method (MOO). We discuss the benefits of optimizing the CNN architecture, improvements in accuracy with additional training data, and some observed limitations. Based on these results, we propose that CNNs may be able to infer the spatial distribution of diverse ionic densities from spatially resolved measurements of neuronal membrane potentials (e.g. voltage imaging).},
+  langid = {english}
+}
+
+@article{bolognaEBRAINSNeuroFeatureExtractOnline2021,
+  title = {The {{EBRAINS NeuroFeatureExtract}}: {{An Online Resource}} for the {{Extraction}} of {{Neural Activity Features From Electrophysiological Data}}},
+  shorttitle = {The {{EBRAINS NeuroFeatureExtract}}},
+  author = {Bologna, Luca L. and Smiriglia, Roberto and Curreri, Dario and Migliore, Michele},
+  year = {2021},
+  month = aug,
+  journal = {Frontiers in Neuroinformatics},
+  volume = {15},
+  pages = {713899},
+  issn = {1662-5196},
+  doi = {10.3389/fninf.2021.713899},
+  abstract = {The description of neural dynamics, in terms of precise characterizations of action potential timings and shape and voltage related measures, is fundamental for a deeper understanding of the neural code and its information content. Not only such measures serve the scientific questions posed by experimentalists but are increasingly being used by computational neuroscientists for the construction of biophysically detailed datadriven models. Nonetheless, online resources enabling users to perform such feature extraction operation are lacking. To address this problem, in the framework of the Human Brain Project and the EBRAINS research infrastructure, we have developed and made available to the scientific community the NeuroFeatureExtract, an open-access online resource for the extraction of electrophysiological features from neural activity data. This tool allows to select electrophysiological traces of interest, fetched from public repositories or from users' own data, and provides ad hoc functionalities to extract relevant features. The output files are properly formatted for further analysis, including data-driven neural model optimization.},
+  langid = {english}
+}
+
+@article{carrilloMetricEvaluatingNeural2018,
+  title = {A {{Metric}} for {{Evaluating Neural Input Representation}} in {{Supervised Learning Networks}}},
+  author = {Carrillo, Richard R. and Naveros, Francisco and Ros, Eduardo and Luque, Niceto R.},
+  year = {2018},
+  month = dec,
+  journal = {Frontiers in Neuroscience},
+  volume = {12},
+  pages = {913},
+  issn = {1662-453X},
+  doi = {10.3389/fnins.2018.00913},
+  abstract = {Supervised learning has long been attributed to several feed-forward neural circuits within the brain, with particular attention being paid to the cerebellar granular layer. The focus of this study is to evaluate the input activity representation of these feed-forward neural networks. The activity of cerebellar granule cells is conveyed by parallel fibers and translated into Purkinje cell activity, which constitutes the sole output of the cerebellar cortex. The learning process at this parallel-fiber-to-Purkinje-cell connection makes each Purkinje cell sensitive to a set of specific cerebellar states, which are roughly determined by the granule-cell activity during a certain time window. A Purkinje cell becomes sensitive to each neural input state and, consequently, the network operates as a function able to generate a desired output for each provided input by means of supervised learning. However, not all sets of Purkinje cell responses can be assigned to any set of input states due to the network's own limitations (inherent to the network neurobiological substrate), that is, not all input-output mapping can be learned. A key limiting factor is the representation of the input states through granule-cell activity. The quality of this representation (e.g., in terms of heterogeneity) will determine the capacity of the network to learn a varied set of outputs. Assessing the quality of this representation is interesting when developing and studying models of these networks to identify those neuron or network characteristics that enhance this representation. In this study we present an algorithm for evaluating quantitatively the level of compatibility/interference amongst a set of given cerebellar states according to their representation (granule-cell activation patterns) without the need for actually conducting simulations and network training. The algorithm input consists of a real-number matrix that codifies the activity level of every considered granule-cell in each state. The capability of this representation to generate a varied set of outputs is evaluated geometrically, thus resulting in a real number that assesses the goodness of the representation.},
+  langid = {english}
+}
+
+@article{diaz-parraStructuralFunctionalEmpirical2017,
+  title = {Structural and Functional, Empirical and Modeled Connectivity in the Cerebral Cortex of the Rat},
+  author = {{D{\'i}az-Parra}, Antonio and Osborn, Zachary and Canals, Santiago and Moratal, David and Sporns, Olaf},
+  year = {2017},
+  month = oct,
+  journal = {NeuroImage},
+  volume = {159},
+  pages = {170--184},
+  issn = {10538119},
+  doi = {10.1016/j.neuroimage.2017.07.046},
+  abstract = {Connectomics data from animal models provide an invaluable opportunity to reveal the complex interplay between structure and function in the mammalian brain. In this work, we investigate the relationship between structural and functional connectivity in the rat brain cortex using a directed anatomical network generated from a carefully curated meta-analysis of published tracing data, along with resting-state functional MRI data obtained from a group of 14 anesthetized Wistar rats. We found a high correspondence between the strength of functional connections, measured as blood oxygen level dependent (BOLD) signal correlations between cortical regions, and the weight of the corresponding anatomical links in the connectome graph (maximum Spearman rank-order correlation {$\rho$} {$\frac{1}{4}$} 0:48). At the network-level, regions belonging to the same functionally defined community tend to form more mutual weighted connections between each other compared to regions located in different communities. We further found that functional communities in resting-state networks are enriched in densely connected anatomical motifs. Importantly, these higher-order structural subgraphs cannot be explained by lowerorder topological properties, suggesting that dense structural patterns support functional associations in the resting brain. Simulations of brain-wide resting-state activity based on neural mass models implemented on the empirical rat anatomical connectome demonstrated high correlation between the simulated and the measured functional connectivity (maximum Pearson correlation {$\rho$} {$\frac{1}{4}$} 0:53), further suggesting that the topology of structural connections plays an important role in shaping functional cortical networks.},
+  langid = {english}
+}
+
+@article{dura-bernalNetPyNEToolDatadriven2019,
+  title = {{{NetPyNE}}, a Tool for Data-Driven Multiscale Modeling of Brain Circuits},
+  author = {{Dura-Bernal}, Salvador and Suter, Benjamin A and Gleeson, Padraig and Cantarelli, Matteo and Quintana, Adrian and Rodriguez, Facundo and Kedziora, David J and Chadderdon, George L and Kerr, Cliff C and Neymotin, Samuel A and McDougal, Robert A and Hines, Michael and Shepherd, Gordon MG and Lytton, William W},
+  year = {2019},
+  month = apr,
+  journal = {eLife},
+  volume = {8},
+  pages = {e44494},
+  issn = {2050-084X},
+  doi = {10.7554/eLife.44494},
+  abstract = {Biophysical modeling of neuronal networks helps to integrate and interpret rapidly growing and disparate experimental datasets at multiple scales. The NetPyNE tool (www.netpyne.org) provides both programmatic and graphical interfaces to develop data-driven multiscale network models in NEURON. NetPyNE clearly separates model parameters from implementation code. Users provide specifications at a high level via a standardized declarative language, for example connectivity rules, to create millions of cell-to-cell connections. NetPyNE then enables users to generate the NEURON network, run efficiently parallelized simulations, optimize and explore network parameters through automated batch runs, and use built-in functions for visualization and analysis \textendash{} connectivity matrices, voltage traces, spike raster plots, local field potentials, and information theoretic measures. NetPyNE also facilitates model sharing by exporting and importing standardized formats (NeuroML and SONATA). NetPyNE is already being used to teach computational neuroscience students and by modelers to investigate brain regions and phenomena.           ,              The approximately 100 billion neurons in our brain are responsible for everything we do and experience. Experiments aimed at discovering how these cells encode and process information generate vast amounts of data. These data span multiple scales, from interactions between individual molecules to coordinated waves of electrical activity that spread across the entire brain surface. To understand how the brain works, we must combine and make sense of these diverse types of information.             Computational modeling provides one way of doing this. Using equations, we can calculate the chemical and electrical changes that take place in neurons. We can then build models of neurons and neural circuits that reproduce the patterns of activity seen in experiments. Exploring these models can provide insights into how the brain itself works. Several software tools are available to simulate neural circuits, but none provide an easy way of incorporating data that span different scales, from molecules to cells to networks. Moreover, most of the models require familiarity with computer programming.             Dura-Bernal et al. have now developed a new software tool called NetPyNE, which allows users without programming expertise to build sophisticated models of brain circuits. It features a user-friendly interface for defining the properties of the model at molecular, cellular and circuit scales. It also provides an easy and automated method to identify the properties of the model that enable it to reproduce experimental data. Finally, NetPyNE makes it possible to run the model on supercomputers and offers a variety of ways to visualize and analyze the resulting output. Users can save the model and output in standardized formats, making them accessible to as many people as possible.             Researchers in labs across the world have used NetPyNE to study different brain regions, phenomena and diseases. The software also features in courses that introduce students to neurobiology and computational modeling. NetPyNE can help to interpret isolated experimental findings, and also makes it easier to explore interactions between brain activity at different scales. This will enable researchers to decipher how the brain encodes and processes information, and ultimately could make it easier to understand and treat brain disorders.},
+  langid = {english}
+}
+
+@article{economidesBiocytinRecovery3D2018,
+  title = {Biocytin {{Recovery}} and {{3D Reconstructions}} of {{Filled Hippocampal CA2 Interneurons}}},
+  author = {Economides, Georgia and Falk, Svenja and Mercer, Audrey},
+  year = {2018},
+  month = nov,
+  journal = {Journal of Visualized Experiments},
+  number = {141},
+  pages = {58592},
+  issn = {1940-087X},
+  doi = {10.3791/58592},
+  abstract = {How cortical network activity processes information is of importance to a large number of basic and clinical scientific questions. The protocol described here identifies the basic building blocks of this circuitry. The in-depth studies of cortical regions will ultimately provide other scientists with the circuit components needed for an understanding of how the brain acquires, processes and stores information and what goes wrong in disease, while the electrophysiological and morphological data are widely used by computational neuroscientists in the construction of model networks that explore information processing. The protocol outlined here describes how biocytin-filled cells recorded in the CA2 region of the hippocampus are recovered and then reconstructed in 3D. Additionally, the protocol describes the demonstration of calcium binding protein or peptide content in recorded interneurons.},
+  langid = {english}
+}
+
+@inproceedings{farnerEvolvingSpikingNeuron2021,
+  title = {Evolving Spiking Neuron Cellular Automata and Networks to Emulate in Vitro Neuronal Activity},
+  booktitle = {2021 {{IEEE Symposium Series}} on {{Computational Intelligence}} ({{SSCI}})},
+  author = {Farner, Jorgen Jensen and Weydahl, Hakon and Jahren, Ruben and Ramstad, Ola Huse and Nichele, Stefano and Heiney, Kristine},
+  year = {2021},
+  month = dec,
+  pages = {1--10},
+  publisher = {{IEEE}},
+  address = {{Orlando, FL, USA}},
+  doi = {10.1109/SSCI50451.2021.9660185},
+  abstract = {Neuro-inspired models and systems have great potential for applications in unconventional computing. Often, the mechanisms of biological neurons are modeled or mimicked in simulated or physical systems in an attempt to harness some of the computational power of the brain. However, the biological mechanisms at play in neural systems are complicated and challenging to capture and engineer; thus, it can be simpler to turn to a data-driven approach to transfer features of neural behavior to artificial substrates. In the present study, we used an evolutionary algorithm (EA) to produce spiking neural systems that emulate the patterns of behavior of biological neurons in vitro. The aim of this approach was to develop a method of producing models capable of exhibiting complex behavior that may be suitable for use as computational substrates. Our models were able to produce a level of network-wide synchrony and showed a range of behaviors depending on the target data used for their evolution, which was from a range of neuronal culture densities and maturities. The genomes of the top-performing models indicate the excitability and density of connections in the model play an important role in determining the complexity of the produced activity.},
+  isbn = {978-1-72819-048-8},
+  langid = {english}
+}
+
+@article{frostnylenDopaminergicCholinergicModulation2021,
+  title = {Dopaminergic and {{Cholinergic Modulation}} of {{Large Scale Networks}} in Silico {{Using Snudda}}},
+  author = {Frost Nylen, Johanna and Hjorth, Jarl Jacob Johannes and Grillner, Sten and Hellgren Kotaleski, Jeanette},
+  year = {2021},
+  month = oct,
+  journal = {Frontiers in Neural Circuits},
+  volume = {15},
+  pages = {748989},
+  issn = {1662-5110},
+  doi = {10.3389/fncir.2021.748989},
+  abstract = {Neuromodulation is present throughout the nervous system and serves a critical role for circuit function and dynamics. The computational investigations of neuromodulation in large scale networks require supportive software platforms. Snudda is a software for the creation and simulation of large scale networks of detailed microcircuits consisting of multicompartmental neuron models. We have developed an extension to Snudda to incorporate neuromodulation in large scale simulations. The extended Snudda framework implements neuromodulation at the level of single cells incorporated into large-scale microcircuits. We also developed Neuromodcell, a software for optimizing neuromodulation in detailed multicompartmental neuron models. The software adds parameters within the models modulating the conductances of ion channels and ionotropic receptors. Bath application of neuromodulators is simulated and models which reproduce the experimentally measured effects are selected. In Snudda, we developed an extension to accommodate large scale simulations of neuromodulation. The simulator has two modes of simulation \textendash{} denoted replay and adaptive. In the replay mode, transient levels of neuromodulators can be defined as a time-varying function which modulates the receptors and ion channels within the network in a cell-type specific manner. In the adaptive mode, spiking neuromodulatory neurons are connected via integrative modulating mechanisms to ion channels and receptors. Both modes of simulating neuromodulation allow for simultaneous modulation by several neuromodulators that can interact dynamically with each other. Here, we used the Neuromodcell software to simulate dopaminergic and muscarinic modulation of neurons from the striatum. We also demonstrate how to simulate different neuromodulatory states with dopamine and acetylcholine using Snudda. All software is freely available on Github, including tutorials on Neuromodcell and Snudda-neuromodulation.},
+  langid = {english}
+}
+
+@article{galindoSimulationVisualizationAnalysis2020,
+  title = {Simulation, Visualization and Analysis Tools for Pattern Recognition Assessment with Spiking Neuronal Networks},
+  author = {Galindo, Sergio E. and Toharia, Pablo and Robles, {\'O}scar D. and Ros, Eduardo and Pastor, Luis and Garrido, Jes{\'u}s A.},
+  year = {2020},
+  month = aug,
+  journal = {Neurocomputing},
+  volume = {400},
+  pages = {309--321},
+  issn = {09252312},
+  doi = {10.1016/j.neucom.2020.02.114},
+  langid = {english}
+}
+
+@article{galRoleHubNeurons2021,
+  title = {The {{Role}} of {{Hub Neurons}} in {{Modulating Cortical Dynamics}}},
+  author = {Gal, Eyal and Amsalem, Oren and Schindel, Alon and London, Michael and Sch{\"u}rmann, Felix and Markram, Henry and Segev, Idan},
+  year = {2021},
+  month = sep,
+  journal = {Frontiers in Neural Circuits},
+  volume = {15},
+  pages = {718270},
+  issn = {1662-5110},
+  doi = {10.3389/fncir.2021.718270},
+  abstract = {Many neurodegenerative diseases are associated with the death of specific neuron types in particular brain regions. What makes the death of specific neuron types particularly harmful for the integrity and dynamics of the respective network is not well understood. To start addressing this question we used the most up-to-date biologically realistic dense neocortical microcircuit (NMC) of the rodent, which has reconstructed a volume of 0.3 mm3 and containing 31,000 neurons, {$\sim$}37 million synapses, and 55 morphological cell types arranged in six cortical layers. Using modern network science tools, we identified hub neurons in the NMC, that are connected synaptically to a large number of their neighbors and systematically examined the impact of abolishing these cells. In general, the structural integrity of the network is robust to cells' attack; yet, attacking hub neurons strongly impacted the small-world topology of the network, whereas similar attacks on random neurons have a negligible effect. Such hub-specific attacks are also impactful on the network dynamics, both when the network is at its spontaneous synchronous state and when it was presented with synchronized thalamocortical visual-like input. We found that attacking layer 5 hub neurons is most harmful to the structural and functional integrity of the NMC. The significance of our results for understanding the role of specific neuron types and cortical layers for disease manifestation is discussed.},
+  langid = {english}
+}
+
+@article{gouwensSystematicGenerationBiophysically2018,
+  title = {Systematic Generation of Biophysically Detailed Models for Diverse Cortical Neuron Types},
+  author = {Gouwens, Nathan W. and Berg, Jim and Feng, David and Sorensen, Staci A. and Zeng, Hongkui and Hawrylycz, Michael J. and Koch, Christof and Arkhipov, Anton},
+  year = {2018},
+  month = dec,
+  journal = {Nature Communications},
+  volume = {9},
+  number = {1},
+  pages = {710},
+  issn = {2041-1723},
+  doi = {10.1038/s41467-017-02718-3},
+  langid = {english}
+}
+
+@article{gutzenReproducibleNeuralNetwork2018,
+  title = {Reproducible {{Neural Network Simulations}}: {{Statistical Methods}} for {{Model Validation}} on the {{Level}} of {{Network Activity Data}}},
+  shorttitle = {Reproducible {{Neural Network Simulations}}},
+  author = {Gutzen, Robin and {von Papen}, Michael and Trensch, Guido and Quaglio, Pietro and Gr{\"u}n, Sonja and Denker, Michael},
+  year = {2018},
+  month = dec,
+  journal = {Frontiers in Neuroinformatics},
+  volume = {12},
+  pages = {90},
+  issn = {1662-5196},
+  doi = {10.3389/fninf.2018.00090},
+  abstract = {Computational neuroscience relies on simulations of neural network models to bridge the gap between the theory of neural networks and the experimentally observed activity dynamics in the brain. The rigorous validation of simulation results against reference data is thus an indispensable part of any simulation workflow. Moreover, the availability of different simulation environments and levels of model description require also validation of model implementations against each other to evaluate their equivalence. Despite rapid advances in the formalized description of models, data, and analysis workflows, there is no accepted consensus regarding the terminology and practical implementation of validation workflows in the context of neural simulations. This situation prevents the generic, unbiased comparison between published models, which is a key element of enhancing reproducibility of computational research in neuroscience. In this study, we argue for the establishment of standardized statistical test metrics that enable the quantitative validation of network models on the level of the population dynamics. Despite the importance of validating the elementary components of a simulation, such as single cell dynamics, building networks from validated building blocks does not entail the validity of the simulation on the network scale. Therefore, we introduce a corresponding set of validation tests and present an example workflow that practically demonstrates the iterative model validation of a spiking neural network model against its reproduction on the SpiNNaker neuromorphic hardware system. We formally implement the workflow using a generic Python library that we introduce for validation tests on neural network activity data. Together with the companion study (Trensch et al., 2018), the work presents a consistent definition, formalization, and implementation of the verification and validation process for neural network simulations.},
+  langid = {english}
+}
+
+@article{iyengarCuratedModelDevelopment2019,
+  title = {Curated {{Model Development Using NEUROiD}}: {{A Web-Based NEUROmotor Integration}} and {{Design Platform}}},
+  shorttitle = {Curated {{Model Development Using NEUROiD}}},
+  author = {Iyengar, Raghu Sesha and Pithapuram, Madhav Vinodh and Singh, Avinash Kumar and Raghavan, Mohan},
+  year = {2019},
+  month = aug,
+  journal = {Frontiers in Neuroinformatics},
+  volume = {13},
+  pages = {56},
+  issn = {1662-5196},
+  doi = {10.3389/fninf.2019.00056},
+  abstract = {Decades of research on neuromotor circuits and systems has provided valuable information on neuronal control of movement. Computational models of several elements of the neuromotor system have been developed at various scales, from sub-cellular to system. While several small models abound, their structured integration is the key to building larger and more biologically realistic models which can predict the behavior of the system in different scenarios. This effort calls for integration of elements across neuroscience and musculoskeletal biomechanics. There is also a need for development of methods and tools for structured integration that yield larger in silico models demonstrating a set of desired system responses. We take a small step in this direction with the NEUROmotor integration and Design (NEUROiD) platform. NEUROiD helps integrate results from motor systems anatomy, physiology, and biomechanics into an integrated neuromotor system model. Simulation and visualization of the model across multiple scales is supported. Standard electrophysiological operations such as slicing, current injection, recording of membrane potential, and local field potential are part of NEUROiD. The platform allows traceability of model parameters to primary literature. We illustrate the power and utility of NEUROiD by building a simple ankle model and its controlling neural circuitry by curating a set of published components. NEUROiD allows researchers to utilize remote high-performance computers for simulation, while controlling the model using a web browser.},
+  langid = {english}
+}
+
+@article{jedrzejewski-szmekParameterOptimizationUsing2018,
+  title = {Parameter {{Optimization Using Covariance Matrix Adaptation}}\textemdash{{Evolutionary Strategy}} ({{CMA-ES}}), an {{Approach}} to {{Investigate Differences}} in {{Channel Properties Between Neuron Subtypes}}},
+  author = {{J{\c e}drzejewski-Szmek}, Zbigniew and Abrahao, Karina P. and {J{\c e}drzejewska-Szmek}, Joanna and Lovinger, David M. and Blackwell, Kim T.},
+  year = {2018},
+  month = jul,
+  journal = {Frontiers in Neuroinformatics},
+  volume = {12},
+  pages = {47},
+  issn = {1662-5196},
+  doi = {10.3389/fninf.2018.00047},
+  abstract = {Computational models in neuroscience can be used to predict causal relationships between biological mechanisms in neurons and networks, such as the effect of blocking an ion channel or synaptic connection on neuron activity. Since developing a biophysically realistic, single neuron model is exceedingly difficult, software has been developed for automatically adjusting parameters of computational neuronal models. The ideal optimization software should work with commonly used neural simulation software; thus, we present software which works with models specified in declarative format for the MOOSE simulator. Experimental data can be specified using one of two different file formats. The fitness function is customizable as a weighted combination of feature differences. The optimization itself uses the covariance matrix adaptation-evolutionary strategy, because it is robust in the face of local fluctuations of the fitness function, and deals well with a high-dimensional and discontinuous fitness landscape. We demonstrate the versatility of the software by creating several model examples of each of four types of neurons (two subtypes of spiny projection neurons and two subtypes of globus pallidus neurons) by tuning to current clamp data. Optimizations reached convergence within 1,600\textendash 4,000 model evaluations (200\textendash 500 generations \texttimes{} population size of 8). Analysis of the parameters of the best fitting models revealed differences between neuron subtypes, which are consistent with prior experimental results. Overall our results suggest that this easy-to-use, automatic approach for finding neuron channel parameters may be applied to current clamp recordings from neurons exhibiting different biochemical markers to help characterize ionic differences between other neuron subtypes.},
+  langid = {english}
+}
+
+@article{jungDynamicCausalModeling2019,
+  title = {Dynamic Causal Modeling for Calcium Imaging: {{Exploration}} of Differential Effective Connectivity for Sensory Processing in a Barrel Cortical Column},
+  shorttitle = {Dynamic Causal Modeling for Calcium Imaging},
+  author = {Jung, Kyesam and Kang, Jiyoung and Chung, Seungsoo and Park, Hae-Jeong},
+  year = {2019},
+  month = nov,
+  journal = {NeuroImage},
+  volume = {201},
+  pages = {116008},
+  issn = {10538119},
+  doi = {10.1016/j.neuroimage.2019.116008},
+  abstract = {Multi-photon calcium imaging (CaI) is an important tool to assess activities of neural populations within a column in the sensory cortex. However, the complex asymmetrical interactions among neural populations, termed effective connectivity, cannot be directly assessed by measuring the activity of each neuron or neural population using CaI but calls for computational modeling. To estimate effective connectivity among neural populations, we proposed a dynamic causal model (DCM) for CaI by combining a convolution-based dynamic neural state model and a dynamic calcium ion concentration model for CaI signals. After conducting a simulation study to evaluate DCM for CaI, we applied it to an experimental CaI signals measured at the layer 2/3 of a barrel cortical column that differentially responds to hit and error whisking trials in mice. We first identified neural populations and constructed computational models with intrinsic connectivity of neural populations within the layer 2/3 of the barrel cortex and extrinsic connectivity with latent external modes. Bayesian model inversion and comparison shows that interactions with latent inhibitory and excitatory external modes explain the observed CaI signals within the barrel cortical column better than any other tested models, with a single external mode or without any latent modes. The best model also showed differential intrinsic and extrinsic effective connectivity between hit and error trials in the functional hierarchy. Both simulation and experimental results suggest the usefulness of DCM for CaI in terms of exploration of hierarchical interactions among neural populations observed in CaI.},
+  langid = {english}
+}
+
+@article{kanariComputationalSynthesisCortical2022,
+  title = {Computational Synthesis of Cortical Dendritic Morphologies},
+  author = {Kanari, Lida and Dictus, Hugo and Chalimourda, Athanassia and Arnaudon, Alexis and Van Geit, Werner and Coste, Benoit and Shillcock, Julian and Hess, Kathryn and Markram, Henry},
+  year = {2022},
+  month = apr,
+  journal = {Cell Reports},
+  volume = {39},
+  number = {1},
+  pages = {110586},
+  issn = {22111247},
+  doi = {10.1016/j.celrep.2022.110586},
+  abstract = {Neuronal morphologies provide the foundation for the electrical behavior of neurons, the connectomes they form, and the dynamical properties of the brain. Comprehensive neuron models are essential for defining cell types, discerning their functional roles, and investigating brain-disease-related dendritic alterations. However, a lack of understanding of the principles underlying neuron morphologies has hindered attempts to computationally synthesize morphologies for decades. We introduce a synthesis algorithm based on a topological descriptor of neurons, which enables the rapid digital reconstruction of entire brain regions from few reference cells. This topology-guided synthesis generates dendrites that are statistically similar to biological reconstructions in terms of morpho-electrical and connectivity properties and offers a significant opportunity to investigate the links between neuronal morphology and brain function across different spatiotemporal scales. Synthesized cortical networks based on structurally altered dendrites associated with diverse brain pathologies revealed principles linking branching properties to the structure of large-scale networks.},
+  langid = {english}
+}
+
+@article{linneNeuroinformaticsComputationalModelling2018,
+  title = {Neuroinformatics and {{Computational Modelling}} as {{Complementary Tools}} for {{Neurotoxicology Studies}}},
+  author = {Linne, Marja-Leena},
+  year = {2018},
+  month = sep,
+  journal = {Basic \& Clinical Pharmacology \& Toxicology},
+  volume = {123},
+  pages = {56--61},
+  issn = {17427835},
+  doi = {10.1111/bcpt.13075},
+  abstract = {Neuroinformatics is an area of science that aims to integrate neuroscience data and develop modern computational tools to increase our understanding of the functions of the nervous system in health and disease. Neuroinformatics tools include, among others, databases for storing and sharing data, repositories for managing documents and source code, and software tools for analysing, modelling and simulating signals and images. This MiniReview aims to present the state of the art in neuroinformatics and computational in silico modelling of neurobiological processes and neuroscientific phenomena as well as to discuss the use of in silico models in neurotoxicology research. In silico modelling can be considered a new, complementary tool in chemical design to predict potential neurotoxicity and in neurotoxicity testing to help clarify initial hypothesis obtained in in vitro and in vivo. Validated in silico models can be used to identify pharmacological targets, to help bridge in vitro and in vivo studies and, ultimately, to develop safer chemicals and efficient therapeutic strategies.},
+  langid = {english}
+}
+
+@article{maki-marttunenStepwiseNeuronModel2018,
+  title = {A Stepwise Neuron Model Fitting Procedure Designed for Recordings with High Spatial Resolution: {{Application}} to Layer 5 Pyramidal Cells},
+  shorttitle = {A Stepwise Neuron Model Fitting Procedure Designed for Recordings with High Spatial Resolution},
+  author = {{M{\"a}ki-Marttunen}, Tuomo and Halnes, Geir and Devor, Anna and Metzner, Christoph and Dale, Anders M. and Andreassen, Ole A. and Einevoll, Gaute T.},
+  year = {2018},
+  month = jan,
+  journal = {Journal of Neuroscience Methods},
+  volume = {293},
+  pages = {264--283},
+  issn = {01650270},
+  doi = {10.1016/j.jneumeth.2017.10.007},
+  abstract = {Background: Recent progress in electrophysiological and optical methods for neuronal recordings provides vast amounts of high-resolution data. In parallel, the development of computer technology has allowed simulation of ever-larger neuronal circuits. A challenge in taking advantage of these developments is the construction of single-cell and network models in a way that faithfully reproduces neuronal biophysics with subcellular level of details while keeping the simulation costs at an acceptable level. New method: In this work, we develop and apply an automated, stepwise method for fitting a neuron model to data with fine spatial resolution, such as that achievable with voltage sensitive dyes (VSDs) and Ca2+ imaging. Result: We apply our method to simulated data from layer 5 pyramidal cells (L5PCs) and construct a model with reduced neuronal morphology. We connect the reduced-morphology neurons into a network and validate against simulated data from a high-resolution L5PC network model. Comparison with existing methods: Our approach combines features from several previously applied model-fitting strategies. The reduced-morphology neuron model obtained using our approach reliably reproduces the membrane-potential dynamics across the dendrites as predicted by the full-morphology model. Conclusions: The network models produced using our method are cost-efficient and predict that interconnected L5PCs are able to amplify delta-range oscillatory inputs across a large range of network sizes and topologies, largely due to the medium after hyperpolarization mediated by the Ca2+-activated SK current.},
+  langid = {english}
+}
+
+@article{marinUseMultimodalOptimizer2021,
+  title = {On the {{Use}} of a {{Multimodal Optimizer}} for {{Fitting Neuron Models}}. {{Application}} to the {{Cerebellar Granule Cell}}},
+  author = {Mar{\'i}n, Milagros and Cruz, Nicol{\'a}s C. and Ortigosa, Eva M. and {S{\'a}ez-Lara}, Mar{\'i}a J. and Garrido, Jes{\'u}s A. and Carrillo, Richard R.},
+  year = {2021},
+  month = jun,
+  journal = {Frontiers in Neuroinformatics},
+  volume = {15},
+  pages = {663797},
+  issn = {1662-5196},
+  doi = {10.3389/fninf.2021.663797},
+  abstract = {This article extends a recent methodological workflow for creating realistic and computationally efficient neuron models whilst capturing essential aspects of singleneuron dynamics. We overcome the intrinsic limitations of the extant optimization methods by proposing an alternative optimization component based on multimodal algorithms. This approach can natively explore a diverse population of neuron model configurations. In contrast to methods that focus on a single global optimum, the multimodal method allows directly obtaining a set of promising solutions for a single but complex multi-feature objective function. The final sparse population of candidate solutions has to be analyzed and evaluated according to the biological plausibility and their objective to the target features by the expert. In order to illustrate the value of this approach, we base our proposal on the optimization of cerebellar granule cell (GrC) models that replicate the essential properties of the biological cell. Our results show the emerging variability of plausible sets of values that this type of neuron can adopt underlying complex spiking characteristics. Also, the set of selected cerebellar GrC models captured spiking dynamics closer to the reference model than the single model obtained with off-the-shelf parameter optimization algorithms used in our previous article. The method hereby proposed represents a valuable strategy for adjusting a varied population of realistic and simplified neuron models. It can be applied to other kinds of neuron models and biological contexts.},
+  langid = {english}
+}
+
+@article{meyerPypetPythonToolkit2016,
+  title = {Pypet: {{A Python Toolkit}} for {{Data Management}} of {{Parameter Explorations}}},
+  shorttitle = {Pypet},
+  author = {Meyer, Robert and Obermayer, Klaus},
+  year = {2016},
+  month = aug,
+  journal = {Frontiers in Neuroinformatics},
+  volume = {10},
+  issn = {1662-5196},
+  doi = {10.3389/fninf.2016.00038},
+  langid = {english}
+}
+
+@article{neymotinOptimizingComputerModels2017,
+  title = {Optimizing Computer Models of Corticospinal Neurons to Replicate in Vitro Dynamics},
+  author = {Neymotin, Samuel A. and Suter, Benjamin A. and {Dura-Bernal}, Salvador and Shepherd, Gordon M. G. and Migliore, Michele and Lytton, William W.},
+  year = {2017},
+  month = jan,
+  journal = {Journal of Neurophysiology},
+  volume = {117},
+  number = {1},
+  pages = {148--162},
+  issn = {0022-3077, 1522-1598},
+  doi = {10.1152/jn.00570.2016},
+  abstract = {Corticospinal neurons (SPI), thick-tufted pyramidal neurons in motor cortex layer 5B that project caudally via the medullary pyramids, display distinct class-specific electrophysiological properties in vitro: strong sag with hyperpolarization, lack of adaptation, and a nearly linear frequency-current ( F\textendash{} I) relationship. We used our electrophysiological data to produce a pair of large archives of SPI neuron computer models in two model classes: 1) detailed models with full reconstruction; and 2) simplified models with six compartments. We used a PRAXIS and an evolutionary multiobjective optimization (EMO) in sequence to determine ion channel conductances. EMO selected good models from each of the two model classes to form the two model archives. Archived models showed tradeoffs across fitness functions. For example, parameters that produced excellent F\textendash{} I fit produced a less-optimal fit for interspike voltage trajectory. Because of these tradeoffs, there was no single best model but rather models that would be best for particular usages for either single neuron or network explorations. Further exploration of exemplar models with strong F\textendash{} I fit demonstrated that both the detailed and simple models produced excellent matches to the experimental data. Although dendritic ion identities and densities cannot yet be fully determined experimentally, we explored the consequences of a demonstrated proximal to distal density gradient of I               h               , demonstrating that this would lead to a gradient of resonance properties with increased resonant frequencies more distally. We suggest that this dynamical feature could serve to make the cell particularly responsive to major frequency bands that differ by cortical layer.                          NEW \& NOTEWORTHY We developed models of motor cortex corticospinal neurons that replicate in vitro dynamics, including hyperpolarization-induced sag and realistic firing patterns. Models demonstrated resonance in response to synaptic stimulation, with resonance frequency increasing in apical dendrites with increasing distance from soma, matching the increasing oscillation frequencies spanning deep to superficial cortical layers. This gradient may enable specific corticospinal neuron dendrites to entrain to relevant oscillations in different cortical layers, contributing to appropriate motor output commands.},
+  langid = {english}
+}
+
+@article{nolteCorticalReliabilityNoise2019,
+  title = {Cortical Reliability amid Noise and Chaos},
+  author = {Nolte, Max and Reimann, Michael W. and King, James G. and Markram, Henry and Muller, Eilif B.},
+  year = {2019},
+  month = dec,
+  journal = {Nature Communications},
+  volume = {10},
+  number = {1},
+  pages = {3792},
+  issn = {2041-1723},
+  doi = {10.1038/s41467-019-11633-8},
+  langid = {english}
+}
+
+@article{ramaswamyDataDrivenModelingCholinergic2018,
+  title = {Data-{{Driven Modeling}} of {{Cholinergic Modulation}} of {{Neural Microcircuits}}: {{Bridging Neurons}}, {{Synapses}} and {{Network Activity}}},
+  shorttitle = {Data-{{Driven Modeling}} of {{Cholinergic Modulation}} of {{Neural Microcircuits}}},
+  author = {Ramaswamy, Srikanth and Colangelo, Cristina and Markram, Henry},
+  year = {2018},
+  month = oct,
+  journal = {Frontiers in Neural Circuits},
+  volume = {12},
+  pages = {77},
+  issn = {1662-5110},
+  doi = {10.3389/fncir.2018.00077},
+  abstract = {Neuromodulators, such as acetylcholine (ACh), control information processing in neural microcircuits by regulating neuronal and synaptic physiology. Computational models and simulations enable predictions on the potential role of ACh in reconfiguring network activity. As a prelude into investigating how the cellular and synaptic effects of ACh collectively influence emergent network dynamics, we developed a data-driven framework incorporating phenomenological models of the physiology of cholinergic modulation of neocortical cells and synapses. The first-draft models were integrated into a biologically detailed tissue model of neocortical microcircuitry to investigate the effects of levels of ACh on diverse neuron types and synapses, and consequently on emergent network activity. Preliminary simulations from the framework, which was not tuned to reproduce any specific ACh-induced network effects, not only corroborate the long-standing notion that ACh desynchronizes spontaneous network activity, but also predict that a dose-dependent activation of ACh gives rise to a spectrum of neocortical network activity. We show that low levels of ACh, such as during non-rapid eye movement (nREM) sleep, drive microcircuit activity into slow oscillations and network synchrony, whereas high ACh concentrations, such as during wakefulness and REM sleep, govern fast oscillations and network asynchrony. In addition, spontaneous network activity modulated by ACh levels shape spike-time cross-correlations across distinct neuronal populations in strikingly different ways. These effects are likely due to the regulation of neurons and synapses caused by increasing levels of ACh, which enhances cellular excitability and decreases the efficacy of local synaptic transmission. We conclude by discussing future directions to refine the biological accuracy of the framework, which will extend its utility and foster the development of hypotheses to investigate the role of neuromodulators in neural information processing.},
+  langid = {english}
+}
+
+@article{ezra-tsurRealisticRetinalModeling2021,
+  title = {Realistic Retinal Modeling Unravels the Differential Role of Excitation and Inhibition to Starburst Amacrine Cells in Direction Selectivity},
+  author = {{Ezra-Tsur}, Elishai and Amsalem, Oren and Ankri, Lea and Patil, Pritish and Segev, Idan and {Rivlin-Etzion}, Michal},
+  editor = {Macke, Jakob H.},
+  year = {2021},
+  month = dec,
+  journal = {PLOS Computational Biology},
+  volume = {17},
+  number = {12},
+  pages = {e1009754},
+  issn = {1553-7358},
+  doi = {10.1371/journal.pcbi.1009754},
+  abstract = {Retinal direction-selectivity originates in starburst amacrine cells (SACs), which display a centrifugal preference, responding with greater depolarization to a stimulus expanding from soma to dendrites than to a collapsing stimulus. Various mechanisms were hypothesized to underlie SAC centrifugal preference, but dissociating them is experimentally challenging and the mechanisms remain debatable. To address this issue, we developed the Retinal Stimulation Modeling Environment (RSME), a multifaceted data-driven retinal model that encompasses detailed neuronal morphology and biophysical properties, retina-tailored connectivity scheme and visual input. Using a genetic algorithm, we demonstrated that spatiotemporally diverse excitatory inputs\textendash sustained in the proximal and transient in the distal processes\textendash are sufficient to generate experimentally validated centrifugal preference in a single SAC. Reversing these input kinetics did not produce any centrifugal-preferring SAC. We then explored the contribution of SAC-SAC inhibitory connections in establishing the centrifugal preference. SAC inhibitory network enhanced the centrifugal preference, but failed to generate it in its absence. Embedding a direction selective ganglion cell (DSGC) in a SAC network showed that the known SAC-DSGC asymmetric connectivity by itself produces direction selectivity. Still, this selectivity is sharpened in a centrifugal-preferring SAC network. Finally, we use RSME to demonstrate the contribution of SAC-SAC inhibitory connections in mediating direction selectivity and recapitulate recent experimental findings. Thus, using RSME, we obtained a mechanistic understanding of SACs' centrifugal preference and its contribution to direction selectivity.},
+  langid = {english}
+}
+
+@misc{sarmaIntegrativeBiologicalSimulation2019,
+  title = {Integrative {{Biological Simulation}}, {{Neuropsychology}}, and {{AI Safety}}},
+  author = {Sarma, Gopal P. and Safron, Adam and Hay, Nick J.},
+  year = {2019},
+  month = jan,
+  number = {arXiv:1811.03493},
+  eprint = {1811.03493},
+  eprinttype = {arxiv},
+  primaryclass = {cs, q-bio},
+  publisher = {{arXiv}},
+  abstract = {We describe a biologically-inspired research agenda with parallel tracks aimed at AI and AI safety. The bottomup component consists of building a sequence of biophysically realistic simulations of simple organisms such as the nematode Caenorhabditis elegans, the fruit fly Drosophila melanogaster, and the zebrafish Danio rerio to serve as platforms for research into AI algorithms and system architectures. The top-down component consists of an approach to value alignment that grounds AI goal structures in neuropsychology, broadly considered. Our belief is that parallel pursuit of these tracks will inform the development of value-aligned AI systems that have been inspired by embodied organisms with sensorimotor integration. An important set of side benefits is that the research trajectories we describe here are grounded in long-standing intellectual traditions within existing research communities and funding structures. In addition, these research programs overlap with significant contemporary themes in the biological and psychological sciences such as data/model integration and reproducibility.},
+  archiveprefix = {arXiv},
+  langid = {english},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Computer Science - Neural and Evolutionary Computing,Quantitative Biology - Neurons and Cognition}
+}
+
+@inproceedings{shenAutomaticFittingNeuron2018,
+  title = {Automatic Fitting of Neuron Parameters},
+  booktitle = {2018 {{IEEE}} 3rd {{International Conference}} on {{Cloud Computing}} and {{Big Data Analysis}} ({{ICCCBDA}})},
+  author = {Shen, Jiamin and Wang, Ye and Cao, Lihong},
+  year = {2018},
+  month = apr,
+  pages = {558--562},
+  publisher = {{IEEE}},
+  address = {{Chengdu}},
+  doi = {10.1109/ICCCBDA.2018.8386578},
+  abstract = {Artificial neural networks are inspired by biological neural networks formed by many real neurons with spiking activities. It is important to simulate the spiking activities under different conditions. It is well known that the HodgkinHuxley (HH) equations can be used for simulation. However, we usually don't know the conductance of ion channels in the equation, which is required for simulation. In this paper, we develop a parallel genetic algorithm to estimate the conductance with a visual software tool. By fitting the experimental data, it is shown that when the number of individuals in the genetic algorithm is above 2000, the 5th generation can yield a near optimal solution and achieve a good fitting result.},
+  isbn = {978-1-5386-4301-3},
+  langid = {english}
+}
+
+@article{sinhaActiveDendritesLocal2022,
+  title = {Active {{Dendrites}} and {{Local Field Potentials}}: {{Biophysical Mechanisms}} and {{Computational Explorations}}},
+  shorttitle = {Active {{Dendrites}} and {{Local Field Potentials}}},
+  author = {Sinha, Manisha and Narayanan, Rishikesh},
+  year = {2022},
+  month = may,
+  journal = {Neuroscience},
+  volume = {489},
+  pages = {111--142},
+  issn = {03064522},
+  doi = {10.1016/j.neuroscience.2021.08.035},
+  abstract = {Neurons and glial cells are endowed with membranes that express a rich repertoire of ion channels, transporters, and receptors. The constant flux of ions across the neuronal and glial membranes results in voltage fluctuations that can be recorded from the extracellular matrix. The high frequency components of this voltage signal contain information about the spiking activity, reflecting the output from the neurons surrounding the recording location. The low frequency components of the signal, referred to as the local field potential (LFP), have been traditionally thought to provide information about the synaptic inputs that impinge on the large dendritic trees of various neurons. In this review, we discuss recent computational and experimental studies pointing to a critical role of several active dendritic mechanisms that can influence the genesis and the locationdependent spectro-temporal dynamics of LFPs, spanning different brain regions. We strongly emphasize the need to account for the several fast and slow dendritic events and associated active mechanisms \textemdash{} including gradients in their expression profiles, inter- and intra-cellular spatio-temporal interactions spanning neurons and glia, heterogeneities and degeneracy across scales, neuromodulatory influences, and activitydependent plasticity \textemdash{} towards gaining important insights about the origins of LFP under different behavioral states in health and disease. We provide simple but essential guidelines on how to model LFPs taking into account these dendritic mechanisms, with detailed methodology on how to account for various heterogeneities and electrophysiological properties of neurons and synapses while studying LFPs.},
+  langid = {english}
+}
+
+@inproceedings{sivagnanamNeuroscienceGatewayEnabling2018,
+  title = {The {{Neuroscience Gateway}}: {{Enabling Large Scale Modeling}} and {{Data Processing}} in {{Neuroscience}}},
+  shorttitle = {The {{Neuroscience Gateway}}},
+  booktitle = {Proceedings of the {{Practice}} and {{Experience}} on {{Advanced Research Computing}}},
+  author = {Sivagnanam, Subhashini and Yoshimoto, Kenneth and Carnevale, Nicholas T. and Majumdar, Amit},
+  year = {2018},
+  month = jul,
+  pages = {1--7},
+  publisher = {{ACM}},
+  address = {{Pittsburgh PA USA}},
+  doi = {10.1145/3219104.3219139},
+  abstract = {The NSF funded Neuroscience Gateway (NSG) has been in operation since the early 2013. We originally designed NSG to reduce technical and administrative barriers that exist to using high performance computing resources for computational neuroscientists. In the last two years, in addition to computational neuroscientists, cognitive and experimental neuroscientists are also using NSG. Currently NSG has over 600 registered users and it is steadily growing. Users can access NSG via a web portal and via RESTful programmatic access. A particular usage mode of programmatic access to NSG enables users of community neuroscience projects such as the Open Source Brain, research projects within the European Human Brain Project and others to access HPC resources via NSG without having to obtain their own accounts on NSG. Based on demand and usage, over the last five years we have successfully acquired increasingly larger allocations (millions to \textasciitilde ten million core hours) on resources of the Extreme Science and Engineering Discovery Environment (XSEDE) program via the competitive peer review process. We will discuss the overall NSG architecture. We implemented NSG from the generic CIPRES science gateway software to create the NSG specifically for the neuroscience community. We will describe the front end user interface, based on web portal and RESTful programmatic access, and the backend architecture. We will discuss how NSG is evolving over time in response to the interests and needs of the neuroscience community, adapting itself to become a dissemination platform for new tools and pipelines, and becoming an environment for modelers and experimentalists to jointly develop models.},
+  isbn = {978-1-4503-6446-1},
+  langid = {english}
+}
+
+@article{stocktonIntegratingAllenBrain2017,
+  title = {Integrating the {{Allen Brain Institute Cell Types Database}} into {{Automated Neuroscience Workflow}}},
+  author = {Stockton, David B. and Santamaria, Fidel},
+  year = {2017},
+  month = oct,
+  journal = {Neuroinformatics},
+  volume = {15},
+  number = {4},
+  pages = {333--342},
+  issn = {1539-2791, 1559-0089},
+  doi = {10.1007/s12021-017-9337-x},
+  abstract = {We developed software tools to download, extract features, and organize the Cell Types Database from the Allen Brain Institute (ABI) in order to integrate its whole cell patch clamp characterization data into the automated modeling/data analysis cycle. To expand the potential user base we employed both Python and MATLAB. The basic set of tools downloads selected raw data and extracts cell, sweep, and spike features, using ABI's feature extraction code. To facilitate data manipulation we added a tool to build a local specialized database of raw data plus extracted features. Finally, to maximize automation, we extended our NeuroManager workflow automation suite to include these tools plus a separate investigation database. The extended suite allows the user to integrate ABI experimental and modeling data into an automated workflow deployed on heterogeneous computer infrastructures, from local servers, to high performance computing environments, to the cloud. Since our approach is focused on workflow procedures our tools can be modified to interact with the increasing number of neuroscience databases being developed to cover all scales and properties of the nervous system.},
+  langid = {english}
+}
+
+@misc{yegenogluExploringHyperparameterSpaces2022,
+  title = {Exploring Hyper-Parameter Spaces of Neuroscience Models on High Performance Computers with {{Learning}} to {{Learn}}},
+  author = {Yegenoglu, Alper and Subramoney, Anand and Hater, Thorsten and {Jimenez-Romero}, Cristian and Klijn, Wouter and Martin, Aaron Perez and {van der Vlag}, Michiel and Herty, Michael and Morrison, Abigail and {Diaz-Pier}, Sandra},
+  year = {2022},
+  month = feb,
+  number = {arXiv:2202.13822},
+  eprint = {2202.13822},
+  eprinttype = {arxiv},
+  primaryclass = {cs},
+  publisher = {{arXiv}},
+  abstract = {Neuroscience models commonly have a high number of degrees of freedom and only specific regions within the parameter space are able to produce dynamics of interest. This makes the development of tools and strategies to efficiently find these regions of high importance to advance brain research. Exploring the high dimensional parameter space using numerical simulations has been a frequently used technique in the last years in many areas of computational neuroscience. High performance computing (HPC) can provide today a powerful infrastructure to speed up explorations and increase our general understanding of the model's behavior in reasonable times.},
+  archiveprefix = {arXiv},
+  langid = {english},
+  keywords = {Computer Science - Neural and Evolutionary Computing}
+}
+
+@article{erikssonCombiningHypothesisDatadriven2022,
+  title = {Combining Hypothesis- and Data-Driven Neuroscience Modeling in {{FAIR}} Workflows},
+  author = {Eriksson, Olivia and Bhalla, Upinder Singh and Blackwell, Kim T and Crook, Sharon M and Keller, Daniel and Kramer, Andrei and Linne, Marja-Leena and Saudargien{\.e}, Ausra and Wade, Rebecca C and Hellgren Kotaleski, Jeanette},
+  year = {2022},
+  month = jul,
+  journal = {eLife},
+  volume = {11},
+  pages = {e69013},
+  issn = {2050-084X},
+  doi = {10.7554/eLife.69013},
+  abstract = {Modeling in neuroscience occurs at the intersection of different points of view and approaches. Typically, hypothesis-\-driven modeling brings a question into focus so that a model is constructed to investigate a specific hypothesis about how the system works or why certain phenomena are observed. Data-d\- riven modeling, on the other hand, follows a more unbiased approach, with model construction informed by the computationally intensive use of data. At the same time, researchers employ models at different biological scales and at different levels of abstraction. Combining these models while validating them against experimental data increases understanding of the multiscale brain. However, a lack of interoperability, transparency, and reusability of both models and the workflows used to construct them creates barriers for the integration of models representing different biological scales and built using different modeling philosophies. We argue that the same imperatives that drive resources and policy for data \textendash{} such as the FAIR (Findable, Accessible, Interoperable, Reusable) principles \textendash{} also support the integration of different modeling approaches. The FAIR principles require that data be shared in formats that are Findable, Accessible, Interoperable, and Reusable. Applying these principles to models and modeling workflows, as well as the data used to constrain and validate them, would allow researchers to find, reuse, question, validate, and extend published models, regardless of whether they are implemented phenomenologically or mechanistically, as a few equations or as a multiscale, hierarchical system. To illustrate these ideas, we use a classical synaptic plasticity model, the Bienenstock\textendash Cooper\textendash Munro rule, as an example due to its long history, different levels of abstraction, and implementation at many scales.},
+  langid = {english}
+}
+
+@article{jedlickaParetoOptimalityEconomy2022,
+  title = {Pareto Optimality, Economy\textendash Effectiveness Trade-Offs and Ion Channel Degeneracy: Improving Population Modelling for Single Neurons},
+  shorttitle = {Pareto Optimality, Economy\textendash Effectiveness Trade-Offs and Ion Channel Degeneracy},
+  author = {Jedlicka, Peter and Bird, Alexander D. and Cuntz, Hermann},
+  year = {2022},
+  month = jul,
+  journal = {Open Biology},
+  volume = {12},
+  number = {7},
+  pages = {220073},
+  issn = {2046-2441},
+  doi = {10.1098/rsob.220073},
+  abstract = {Neurons encounter unavoidable evolutionary trade-offs between multiple tasks. They must consume as little energy as possible while effectively fulfilling their functions. Cells displaying the best performance for such multi-task trade-offs are said to be Pareto optimal, with their ion channel configurations underpinning their functionality. Ion channel degeneracy, however, implies that multiple ion channel configurations can lead to functionally similar behaviour. Therefore, instead of a single model, neuroscientists often use populations of models with distinct combinations of ionic conductances. This approach is called population (database or ensemble) modelling. It remains unclear, which ion channel parameters in the vast population of functional models are more likely to be found in the brain. Here we argue that Pareto optimality can serve as a guiding principle for addressing this issue by helping to identify the subpopulations of conductance-based models that perform best for the trade-off between economy and functionality. In this way, the high-dimensional parameter space of neuronal models might be reduced to geometrically simple low-dimensional manifolds, potentially explaining experimentally observed ion channel correlations. Conversely, Pareto inference might also help deduce neuronal functions from high-dimensional Patch-seq data. In summary, Pareto optimality is a promising framework for improving population modelling of neurons and their circuits.},
+  langid = {english}
+}
+
