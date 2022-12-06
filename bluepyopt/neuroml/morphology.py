@@ -32,6 +32,8 @@ def create_loadcell_hoc(
     morph_path = Path(morphology_path)
     morph_dir = morph_path.parent
     morph_file = morph_path.name
+    cell_cmd = '"cell = new %s(\\"%s\\", \\"%s\\")"'
+    cell = f'{cell_cmd}, "{cell_name}", "{morph_dir}", "{morph_file}"'
     loadcell_hoc = f"""
         load_file("nrngui.hoc")
         load_file("import3d.hoc")
@@ -39,12 +41,12 @@ def create_loadcell_hoc(
 
         // ================== constants ==================
         v_init={v_init}
-        //=================== creating cell object ===========================
+        // ================== creating cell object ==================
         objref cell
 
         proc create_cell() {{ localobj cellstring
             cellstring = new String()
-            sprint(cellstring.s, "cell = new %s(\\"%s\\", \\"%s\\")", "{cell_name}", "{morph_dir}", "{morph_file}")
+            sprint(cellstring.s, {cell})
             execute(cellstring.s)
         }}
         create_cell(0)
@@ -76,12 +78,14 @@ def create_morph_nml(bpo_cell, network_filename, release_params):
 
     if not os.path.isdir("x86_64"):
         logger.warning(
-            "It seems you have not compiled the mechanisms. This program will likely fail."
+            "It seems you have not compiled the mechanisms. "
+            "This program will likely fail."
         )
 
     # isolate the export_to_neuroml to a subprocess
     # so that the cell remain non-instantiated in the main process
-    # that way, using this function will not prevent us to run the cell with bluepyopt
+    # that way, using this function will not prevent us to run the cell
+    # with bluepyopt
     with pebble.ProcessPool(max_workers=1, max_tasks=1) as pool:
         tasks = pool.schedule(
             export_to_neuroml2,
@@ -128,10 +132,14 @@ def add_segment_groups(cell):
             )
 
     cell.morphology.segment_groups.append(
-        neuroml.SegmentGroup(id="soma_group", includes=[neuroml.Include("somatic")])
+        neuroml.SegmentGroup(
+            id="soma_group", includes=[neuroml.Include("somatic")]
+        )
     )
     cell.morphology.segment_groups.append(
-        neuroml.SegmentGroup(id="axon_group", includes=[neuroml.Include("axonal")])
+        neuroml.SegmentGroup(
+            id="axon_group", includes=[neuroml.Include("axonal")]
+        )
     )
     cell.morphology.segment_groups.append(
         neuroml.SegmentGroup(

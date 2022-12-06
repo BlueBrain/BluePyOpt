@@ -25,7 +25,8 @@ from bluepyopt import ephys
 
 ignore_params = ["cm", "Ra", "ena", "ek"]
 
-# Due to the use of 1e-4 in BREAKPOINT in StochKv.mod: ik = 1e-4 * gk * (v - ek)
+# Due to the use of 1e-4 in BREAKPOINT in StochKv.mod:
+# ik = 1e-4 * gk * (v - ek)
 density_scales = {"StochKv": 1e-4}
 
 channel_substitutes = {"StochKv": "StochKv_deterministic"}
@@ -95,8 +96,10 @@ def adapt_CaDynamics_nml(
         channel_dir (str): repo in which to copy the channel files
     """
     place_after = (
-        '    <concentrationModel id="CaDynamics_E2_NML2" type="concentrationModelHayEtAl" '
-        'minCai="1e-4 mM" decay="80 ms" depth="0.1 um" gamma="0.05" ion="ca"/>\n'
+        '    <concentrationModel id="CaDynamics_E2_NML2" '
+        'type="concentrationModelHayEtAl" '
+        'minCai="1e-4 mM" decay="80 ms" depth="0.1 um" '
+        'gamma="0.05" ion="ca"/>\n'
     )
     cadyn_filename = "baseCaDynamics_E2_NML2.nml"
     new_cadyn_filename = "CaDynamics_E2_NML2.nml"
@@ -112,7 +115,7 @@ def adapt_CaDynamics_nml(
             f'gamma="{value_dict["gamma"]}" '
             f'decay="{value_dict["decay"]} ms" depth="0.1 um"/>\n'
         )
-        if not new_concentration in lines:
+        if new_concentration not in lines:
             idx = lines.index(place_after) + 2  # 2 to account for blank line
             lines.insert(idx, f"{new_concentration}\n")
 
@@ -136,7 +139,9 @@ def get_channel_from_param_name(param_name):
     elif len(split_name) == 2:
         channel = split_name[1]
     else:
-        raise Exception(f"Could not extract channel from parameter name {param_name}")
+        raise Exception(
+            f"Could not extract channel from parameter name {param_name}"
+        )
 
     return channel
 
@@ -152,7 +157,8 @@ def format_dist_fun(raw_expr, value, dist_param_names):
     """
     if dist_param_names is not None:
         raise NotImplementedError(
-            "Functions that depend on other parameters, like decay function, are not implemented yet."
+            "Functions that depend on other parameters, "
+            "like decay function, are not implemented yet."
         )
     new_expr = raw_expr.format(distance="p", value=value)
     if "math" in new_expr:
@@ -224,8 +230,10 @@ def get_arguments(
         parameter_name (str): name of the parameter (e.g. e_pas)
         section_list (str): name of the location of the parameter (e.g. axonal)
         channel (str): ion channel (e.g. StochKv)
-        channel_name (str): ion channel name used in the neuroML channel file (e.g. StochKv_deterministic)
-        variable_parameters (list of neuroml.VariableParameter): parameters for non-uniform distributions
+        channel_name (str): ion channel name used in the neuroML channel file
+            (e.g. StochKv_deterministic)
+        variable_parameters (list of neuroml.VariableParameter):
+            parameters for non-uniform distributions
         cond_density (str): conductance density
         release_params (dict): optimized parameters
     """
@@ -240,7 +248,6 @@ def get_arguments(
         erev = None
         channel_class = "ChannelDensityNernst"
     elif erev == "pas":
-        # do all pas have the same section_list? e.g. does it happen to have g_pas.all and e_pas.somatic?
         erev = params[f"e_pas.{section_list}"].value
         if erev is None:
             # non frozen parameter
@@ -338,7 +345,8 @@ def get_density(
         cell (ephys.CellModel)
         parameter (ephys.parameters)
         section_list (str): location
-        included_channels (list): list of channels already included in the nml file
+        included_channels (list): list of channels already included
+            in the nml file
         skip_non_uniform (bool): True to skip non uniform distributions
         release_params (dict): optimized parameters
         skip_channels_copy (bool): True to skip the copy pasting
@@ -397,7 +405,9 @@ def get_specific_capacitance(capacitance_overwrites):
             capacitance = default_capacitances[section_list]
 
         specific_capacitances.append(
-            neuroml.SpecificCapacitance(value=capacitance, segment_groups=section_list)
+            neuroml.SpecificCapacitance(
+                value=capacitance, segment_groups=section_list
+            )
         )
 
     return specific_capacitances
@@ -426,7 +436,7 @@ def get_biophys(
     included_channels = []
     channel_densities = []
     channel_density_nernsts = []
-    channel_density_non_uniform_nernsts = []
+    channel_density_non_unif_nernsts = []
     channel_density_non_uniforms = []
     species = []
 
@@ -460,8 +470,12 @@ def get_biophys(
                         # add density to list of densities
                         if channel_class == "ChannelDensityNernst":
                             channel_density_nernsts.append(density)
-                        elif channel_class == "ChannelDensityNernstNonUniform":
-                            channel_density_non_uniform_nernsts.append(density)
+                        elif (
+                            channel_class == "ChannelDensityNernstNonUniform"
+                        ):
+                            channel_density_non_unif_nernsts.append(
+                                density
+                            )
                         elif channel_class == "ChannelDensityNonUniform":
                             channel_density_non_uniforms.append(density)
                         else:
@@ -474,7 +488,7 @@ def get_biophys(
                         # non frozen parameter
                         value = release_params[parameter.name]
 
-                    if not model in concentrationModels:
+                    if model not in concentrationModels:
                         concentrationModels[model] = {}
                     concentrationModels[model]["gamma"] = value
 
@@ -493,7 +507,9 @@ def get_biophys(
 
                     channel_nml2_file = "CaDynamics_E2_NML2.nml"
                     add_nml_channel_to_nml_cell_file(
-                        cell_doc, included_channels, channel_nml2_file=channel_nml2_file
+                        cell_doc,
+                        included_channels,
+                        channel_nml2_file=channel_nml2_file,
                     )
 
                     value = parameter.value
@@ -501,7 +517,7 @@ def get_biophys(
                         # non frozen parameter
                         value = release_params[parameter.name]
 
-                    if not model in concentrationModels:
+                    if model not in concentrationModels:
                         concentrationModels[model] = {}
                     concentrationModels[model]["decay"] = value
 
@@ -524,7 +540,7 @@ def get_biophys(
     membrane_properties = neuroml.MembraneProperties(
         channel_densities=channel_densities,
         channel_density_nernsts=channel_density_nernsts,
-        channel_density_non_uniform_nernsts=channel_density_non_uniform_nernsts,
+        channel_density_non_uniform_nernsts=channel_density_non_unif_nernsts,
         channel_density_non_uniforms=channel_density_non_uniforms,
         specific_capacitances=specific_capacitances,
         init_memb_potentials=init_memb_potentials,
@@ -532,7 +548,9 @@ def get_biophys(
 
     # Intracellular Properties
     Ra = cell.params["Ra.all"].value
-    resistivities = [neuroml.Resistivity(value=f"{Ra} ohm_cm", segment_groups="all")]
+    resistivities = [
+        neuroml.Resistivity(value=f"{Ra} ohm_cm", segment_groups="all")
+    ]
 
     intracellular_properties = neuroml.IntracellularProperties(
         resistivities=resistivities,

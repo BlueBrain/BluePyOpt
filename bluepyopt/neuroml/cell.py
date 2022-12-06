@@ -31,7 +31,8 @@ def create_neuroml_cell(bpo_cell, release_params, skip_channels_copy=False):
     """Create the cell.
 
     Arguments:
-        nml_mech_files (list): paths to the nml files containing the mechanisms
+        nml_mech_files (list): paths to the nml files
+            containing the mechanisms
         bpo_cell
         release_params (dict): the optimized parameters
         skip_channels_copy (bool): True to skip the copy pasting
@@ -45,11 +46,13 @@ def create_neuroml_cell(bpo_cell, release_params, skip_channels_copy=False):
     network_filename = f"{bpo_cell.name}.net.nml"
 
     # Morphology
-    logger.info("This will create a cell hoc file in order to create a cell nml file")
+    logger.info(
+        "This will create a cell hoc file in order to create a cell nml file"
+    )
     create_morph_nml(bpo_cell, network_filename, release_params)
 
     # change the network temperature.
-    # For some reason, the pyneurom.export_to_neuroml2 sets it automatically to 6C.
+    # because the pyneurom.export_to_neuroml2 sets it automatically to 6C.
     network_doc = pynml.read_neuroml2_file(network_filename)
     network = network_doc.networks[0]
     network.temperature = f"{bpo_cell.params['celsius'].value} degC"

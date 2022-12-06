@@ -74,11 +74,18 @@ def test_get_nml_mech_dir():
 
 @pytest.mark.unit
 def test_get_channel_from_param_name():
-    """biophys.get_channel_from_param_name: Test get_channel_from_param_name"""
+    """biophys.get_channel_from_param_name:
+
+    Test get_channel_from_param_name
+    """
     # 3 underscores case
-    assert biophys.get_channel_from_param_name("gNaTs2_tbar_NaTs2_t") == "NaTs2_t"
+    assert biophys.get_channel_from_param_name(
+        "gNaTs2_tbar_NaTs2_t"
+    ) == "NaTs2_t"
     # 2 underscores case
-    assert biophys.get_channel_from_param_name("gamma_CaDynamics_E2") == "CaDynamics_E2"
+    assert biophys.get_channel_from_param_name(
+        "gamma_CaDynamics_E2"
+    ) == "CaDynamics_E2"
     # 1 underscore case
     assert biophys.get_channel_from_param_name("gIhbar_Ih") == "Ih"
 
@@ -93,7 +100,10 @@ def test_format_dist_fun():
 
 @pytest.mark.unit
 def test_add_nml_channel_to_nml_cell_file():
-    """biophys.add_nml_channel_to_nml_cell_file: Test add_nml_channel_to_nml_cell_file"""
+    """biophys.add_nml_channel_to_nml_cell_file:
+
+    Test add_nml_channel_to_nml_cell_file
+    """
     empty_cell_doc = neuroml.NeuroMLDocument(id="test_nml_cell")
     included_channels = []
 
@@ -211,7 +221,11 @@ def test_extract_parameter_value():
     section_list = "apical"
     channel = "SKv3_1"
     cond_density, variable_parameters = biophys.extract_parameter_value(
-        l5pc_cell.params[".".join((param_name, section_list))], section_list, channel, True, release_params
+        l5pc_cell.params[".".join((param_name, section_list))],
+        section_list,
+        channel,
+        True,
+        release_params,
     )
     assert cond_density == "0.004226 S_per_cm2"
     assert variable_parameters is None
@@ -221,7 +235,11 @@ def test_extract_parameter_value():
     section_list = "apical"
     channel = "Ih"
     cond_density, variable_parameters = biophys.extract_parameter_value(
-        l5pc_cell.params[".".join((param_name, section_list))], section_list, channel, True, release_params
+        l5pc_cell.params[".".join((param_name, section_list))],
+        section_list,
+        channel,
+        True,
+        release_params,
     )
     assert cond_density is None
     assert variable_parameters is None
@@ -231,7 +249,11 @@ def test_extract_parameter_value():
     section_list = "apical"
     channel = "Ih"
     cond_density, variable_parameters = biophys.extract_parameter_value(
-        l5pc_cell.params[".".join((param_name, section_list))], section_list, channel, False, release_params
+        l5pc_cell.params[".".join((param_name, section_list))],
+        section_list,
+        channel,
+        False,
+        release_params,
     )
     assert cond_density is None
     assert variable_parameters[0].segment_groups == section_list
@@ -277,26 +299,52 @@ def test_get_specific_capacitance():
     """biophys.get_specific_capacitance: Test get_specific_capacitance"""
     # case: default
     specific_capacitances = biophys.get_specific_capacitance({})
-    assert neuroml.SpecificCapacitance(value="1.0 uF_per_cm2", segment_groups="axonal") in specific_capacitances
-    assert neuroml.SpecificCapacitance(value="1.0 uF_per_cm2", segment_groups="somatic") in specific_capacitances
-    assert neuroml.SpecificCapacitance(value="1.0 uF_per_cm2", segment_groups="basal") in specific_capacitances
-    assert neuroml.SpecificCapacitance(value="1.0 uF_per_cm2", segment_groups="apical") in specific_capacitances
+    assert neuroml.SpecificCapacitance(
+        value="1.0 uF_per_cm2", segment_groups="axonal"
+    ) in specific_capacitances
+    assert neuroml.SpecificCapacitance(
+        value="1.0 uF_per_cm2", segment_groups="somatic"
+    ) in specific_capacitances
+    assert neuroml.SpecificCapacitance(
+        value="1.0 uF_per_cm2", segment_groups="basal"
+    ) in specific_capacitances
+    assert neuroml.SpecificCapacitance(
+        value="1.0 uF_per_cm2", segment_groups="apical"
+    ) in specific_capacitances
 
     # case: all
-    specific_capacitances = biophys.get_specific_capacitance({"all": "2.0 uF_per_cm2"})
-    assert neuroml.SpecificCapacitance(value="2.0 uF_per_cm2", segment_groups="axonal") in specific_capacitances
-    assert neuroml.SpecificCapacitance(value="2.0 uF_per_cm2", segment_groups="somatic") in specific_capacitances
-    assert neuroml.SpecificCapacitance(value="2.0 uF_per_cm2", segment_groups="basal") in specific_capacitances
-    assert neuroml.SpecificCapacitance(value="2.0 uF_per_cm2", segment_groups="apical") in specific_capacitances
+    specific_capacitances = biophys.get_specific_capacitance(
+        {"all": "2.0 uF_per_cm2"}
+    )
+    assert neuroml.SpecificCapacitance(
+        value="2.0 uF_per_cm2", segment_groups="axonal"
+    ) in specific_capacitances
+    assert neuroml.SpecificCapacitance(
+        value="2.0 uF_per_cm2", segment_groups="somatic"
+    ) in specific_capacitances
+    assert neuroml.SpecificCapacitance(
+        value="2.0 uF_per_cm2", segment_groups="basal"
+    ) in specific_capacitances
+    assert neuroml.SpecificCapacitance(
+        value="2.0 uF_per_cm2", segment_groups="apical"
+    ) in specific_capacitances
 
     # case: specific section(s)
     specific_capacitances = biophys.get_specific_capacitance(
         {"somatic": "2.0 uF_per_cm2", "axonal": "3.0 uF_per_cm2"}
     )
-    assert neuroml.SpecificCapacitance(value="3.0 uF_per_cm2", segment_groups="axonal") in specific_capacitances
-    assert neuroml.SpecificCapacitance(value="2.0 uF_per_cm2", segment_groups="somatic") in specific_capacitances
-    assert neuroml.SpecificCapacitance(value="1.0 uF_per_cm2", segment_groups="basal") in specific_capacitances
-    assert neuroml.SpecificCapacitance(value="1.0 uF_per_cm2", segment_groups="apical") in specific_capacitances
+    assert neuroml.SpecificCapacitance(
+        value="3.0 uF_per_cm2", segment_groups="axonal"
+    ) in specific_capacitances
+    assert neuroml.SpecificCapacitance(
+        value="2.0 uF_per_cm2", segment_groups="somatic"
+    ) in specific_capacitances
+    assert neuroml.SpecificCapacitance(
+        value="1.0 uF_per_cm2", segment_groups="basal"
+    ) in specific_capacitances
+    assert neuroml.SpecificCapacitance(
+        value="1.0 uF_per_cm2", segment_groups="apical"
+    ) in specific_capacitances
 
 
 @pytest.mark.unit
@@ -310,14 +358,16 @@ def test_get_biophys():
         skip_non_uniform=True,
         skip_channels_copy=True,
     )
+    membrane_props = bio_prop.membrane_properties
+    intracell_props = bio_prop.intracellular_properties
 
     assert bio_prop.id == "biophys"
-    assert bio_prop.membrane_properties.init_memb_potentials[0].value == "-65 mV"
-    assert len(bio_prop.membrane_properties.specific_capacitances) == 4
-    assert len(bio_prop.membrane_properties.channel_density_nernsts) == 4
-    assert len(bio_prop.membrane_properties.channel_densities) == 15
-    assert bio_prop.intracellular_properties.resistivities[0].value == "100 ohm_cm"
-    assert len(bio_prop.intracellular_properties.species) == 2
+    assert membrane_props.init_memb_potentials[0].value == "-65 mV"
+    assert len(membrane_props.specific_capacitances) == 4
+    assert len(membrane_props.channel_density_nernsts) == 4
+    assert len(membrane_props.channel_densities) == 15
+    assert intracell_props.resistivities[0].value == "100 ohm_cm"
+    assert len(intracell_props.species) == 2
 
 
 @pytest.mark.unit
@@ -332,7 +382,9 @@ def test_add_segment_groups():
     cell.morphology = morph
 
     morphology.add_segment_groups(cell)
-    segment_group_names = [group.id for group in cell.morphology.segment_groups]
+    segment_group_names = [
+        group.id for group in cell.morphology.segment_groups
+    ]
     assert "somatic" in segment_group_names
     assert "axonal" in segment_group_names
     assert "basal" in segment_group_names
