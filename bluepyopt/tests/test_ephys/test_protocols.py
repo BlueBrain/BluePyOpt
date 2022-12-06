@@ -366,6 +366,57 @@ def test_sweepprotocol_run_unisolated():
 
 
 @pytest.mark.unit
+def test_sweepprotocol_run_isolated():
+    """ephys.protocols: Test SweepProtocol isolated run"""
+
+    nrn_sim = ephys.simulators.NrnSimulator(dt=0.1)
+    dummy_cell = dummycells.DummyCellModel1()
+    soma_loc = ephys.locations.NrnSeclistCompLocation(
+        name='soma_loc',
+        seclist_name='somatic',
+        sec_index=0,
+        comp_x=.5)
+    unknown_loc = ephys.locations.NrnSomaDistanceCompLocation(
+        name='unknown_loc',
+        seclist_name='somatic',
+        soma_distance=100)
+
+    rec_soma = ephys.recordings.CompRecording(
+        name='soma.v',
+        location=soma_loc,
+        variable='v')
+    rec_unknown = ephys.recordings.CompRecording(
+        name='unknown.v',
+        location=unknown_loc,
+        variable='v')
+
+    stim = ephys.stimuli.NrnSquarePulse(
+        step_amplitude=0.0,
+        step_delay=0.0,
+        step_duration=50,
+        total_duration=50,
+        location=soma_loc)
+
+    protocol = ephys.protocols.SweepProtocol(
+        name='prot',
+        stimuli=[stim],
+        recordings=[rec_soma, rec_unknown])
+
+    responses = protocol.run(
+        cell_model=dummy_cell,
+        param_values={},
+        sim=nrn_sim,
+        isolate=True)
+
+    assert 'soma.v' in responses
+    assert 'unknown.v' in responses
+    assert responses['unknown.v'] is None
+
+    protocol.destroy(sim=nrn_sim)
+    dummy_cell.destroy(sim=nrn_sim)
+
+
+@pytest.mark.unit
 def test_nrnsimulator_exception():
     """ephys.protocols: test if protocol raise nrn sim exception"""
 
