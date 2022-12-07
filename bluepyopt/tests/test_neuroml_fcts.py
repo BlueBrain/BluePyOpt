@@ -3,10 +3,16 @@
 import os
 import sys
 
+import efel
 import neuroml
+import numpy
 import pytest
+from pyneuroml import pynml
+from bluepyopt import ephys
 from bluepyopt.neuroml import biophys
+from bluepyopt.neuroml import cell
 from bluepyopt.neuroml import morphology
+from bluepyopt.neuroml import simulation
 
 L5PC_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../../examples/l5pc")
@@ -14,9 +20,11 @@ L5PC_PATH = os.path.abspath(
 
 sys.path.insert(0, L5PC_PATH)
 
+import l5pc_evaluator
 import l5pc_model  # NOQA
 
 l5pc_cell = l5pc_model.create()
+protocols = l5pc_evaluator.define_protocols()
 
 release_params = {
     "gNaTs2_tbar_NaTs2_t.apical": 0.026145,
@@ -392,3 +400,91 @@ def test_add_segment_groups():
     assert "soma_group" in segment_group_names
     assert "axon_group" in segment_group_names
     assert "dendrite_group" in segment_group_names
+
+
+@pytest.mark.slow
+@pytest.mark.neuroml
+def test_neuroml_run():
+    """Test neuroml conversion and simulation"""
+    # replace axon is not supported yet
+    l5pc_cell.morphology.do_replace_axon = False
+    dt = 0.025
+    protocol_name = "Step3"
+    bpo_test_protocol = protocols[protocol_name]
+
+    # create neuroml cell
+    cell.create_neuroml_cell(
+        l5pc_cell, release_params, skip_channels_copy=False
+    )
+
+    # create LEMS simulation
+    network_filename = f"{l5pc_cell.name}.net.nml"
+    lems_filename = f"LEMS_{l5pc_cell.name}.xml"
+    simulation.create_neuroml_simulation(
+        network_filename, bpo_test_protocol, dt, l5pc_cell.name, lems_filename
+    )
+
+    # remove compiled mechanisms if any before running LEMS simulation
+    os.system("rm -rf x86_64/")
+
+    # run the simulation with the NEURON simulator,
+    # since the default jNeuroML simulator can only simulate single
+    # compartment cells
+    pynml.run_lems_with_jneuroml_neuron(
+        lems_filename, nogui=True, plot=False)
+
+    # re-compile the mechanisms before running with bluepyopt
+    os.system("rm -rf x86_64/")
+    os.system("nrnivmodl examples/l5pc/mechanisms/")
+
+    lems_output = numpy.loadtxt("l5pc.Pop_l5pc_0_0.v.dat")
+    lems_voltage = lems_output[:, 1] * 1000  # *1000 -> mV
+    lems_time = lems_output[:, 0] * 1000  # *1000 -> ms
+
+    # remove non uniform parameter to be coherent with LEMS simulation
+    to_remove = []
+    for key, param in l5pc_cell.params.items():
+        if hasattr(param, "value_scaler"):
+            if isinstance(
+                param.value_scaler,
+                ephys.parameterscalers.NrnSegmentSomaDistanceScaler,
+            ):
+                to_remove.append(key)
+
+    for param_name in to_remove:
+        l5pc_cell.params.pop(param_name)
+
+    # run with regular bluepyopt
+    sim = ephys.simulators.NrnSimulator(dt=dt, cvode_active=False)
+    bpo_output = bpo_test_protocol.run(
+        cell_model=l5pc_cell, param_values=release_params, sim=sim
+    )
+
+    response_name = f"{protocol_name}.soma.v"
+    bpo_voltage = bpo_output[response_name]["voltage"]
+    bpo_time = bpo_output[response_name]["time"]
+
+    # we don't expect the two traces to be exactly the same,
+    # but to be pretty similar
+    # we consider it satisfactory if they fire within 3 ms respectively
+    trace_lems = {
+        "T": lems_time,
+        "V": lems_voltage,
+        "stim_start": [700],
+        "stim_end": [2700]
+    }
+    trace_bpo = {
+        "T": bpo_time,
+        "V": bpo_voltage,
+        "stim_start": [700],
+        "stim_end": [2700]
+    }
+    traces = [trace_lems, trace_bpo]
+    features = ["peak_time"]
+    feature_values = efel.getFeatureValues(
+        traces, features, raise_warnings=False
+    )
+    lems_peak_time = feature_values[0]["peak_time"]
+    bpo_peak_time = feature_values[1]["peak_time"]
+
+    numpy.testing.assert_allclose(lems_peak_time, bpo_peak_time, atol=3)

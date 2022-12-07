@@ -27,6 +27,10 @@ import versioneer
 EXTRA_SCOOP = [
     'scoop>=0.7',
 ]
+EXTRA_NEUROML = [
+    'pyneuroml>=0.5.20',
+    'libNeuroML>=0.3.1',
+]
 
 setuptools.setup(
     name="bluepyopt",
@@ -42,12 +46,11 @@ setuptools.setup(
         'Jinja2>=2.8',
         'future',
         'Pebble>=4.3.10',
-        'pyneuroml>=0.5.20',
-        'libNeuroML>=0.3.1'
         ],
     extras_require={
-        'all': EXTRA_SCOOP,
+        'all': EXTRA_SCOOP + EXTRA_NEUROML,
         'scoop': EXTRA_SCOOP,
+        'neuroml': EXTRA_NEUROML,
         },
     packages=setuptools.find_packages(
         exclude=(
