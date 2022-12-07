@@ -412,6 +412,8 @@ def test_neuroml_run():
     protocol_name = "Step3"
     bpo_test_protocol = protocols[protocol_name]
 
+    os.system("nrnivmodl examples/l5pc/mechanisms/")
+    
     # create neuroml cell
     cell.create_neuroml_cell(
         l5pc_cell, release_params, skip_channels_copy=False
