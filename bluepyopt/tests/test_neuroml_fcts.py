@@ -413,7 +413,7 @@ def test_neuroml_run():
     bpo_test_protocol = protocols[protocol_name]
 
     os.system("nrnivmodl examples/l5pc/mechanisms/")
-    
+
     # create neuroml cell
     cell.create_neuroml_cell(
         l5pc_cell, release_params, skip_channels_copy=False
