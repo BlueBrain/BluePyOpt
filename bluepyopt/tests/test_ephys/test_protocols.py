@@ -467,3 +467,47 @@ def test_nrnsimulator_exception():
 
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
+
+
+@pytest.mark.unit
+def test_sweepprotocol_instantiate_with_LFPyCellModel():
+    """ephys.protocols: Test SweepProtocol instantiate with LFPyCellModel"""
+    import LFPy
+
+    dummy_cell = dummycells.DummyLFPyCellModel1()
+    nrn_sim = ephys.simulators.LFPySimulator()
+
+    soma_loc = ephys.locations.NrnSeclistCompLocation(
+        name='soma_loc',
+        seclist_name='somatic',
+        sec_index=0,
+        comp_x=.5
+    )
+
+    rec = ephys.recordings.LFPRecording(
+        name='lfpy_rec'
+    )
+
+    stim = ephys.stimuli.LFPySquarePulse(
+        step_amplitude=0.1,
+        step_delay=70,
+        step_duration=100,
+        location=soma_loc,
+        total_duration=300
+    )
+
+    protocol = ephys.protocols.SweepProtocol(
+        name='prot',
+        stimuli=[stim],
+        recordings=[rec])
+
+    dummy_cell.instantiate(sim=nrn_sim)
+    protocol.instantiate(sim=nrn_sim, cell_model=dummy_cell)
+
+    # check that recording and stimuli have been instantiated with LFPy
+    assert rec.instantiated
+    assert isinstance(rec.cell, LFPy.Cell)
+    assert isinstance(stim.iclamp, LFPy.StimIntElectrode)
+
+    protocol.destroy(sim=nrn_sim)
+    dummy_cell.destroy(sim=nrn_sim)

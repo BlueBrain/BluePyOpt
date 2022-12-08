@@ -108,3 +108,72 @@ class CompRecording(Recording):
         """String representation"""
 
         return '%s: %s at %s' % (self.name, self.variable, self.location)
+
+
+class LFPRecording(Recording):
+
+    """Extracellular electrode response to stimulus"""
+
+    location = "extracellular"
+    variable = "v"
+
+    def __init__(self, name=None):
+        """Constructor
+        Args:
+            name (str): name of this object
+        """
+
+        super(LFPRecording, self).__init__(name=name)
+
+        self.electrode = None
+        self.cell = None
+        self.tvector = None
+        self.time = None
+        self.sim = None
+
+        self.instantiated = False
+
+    @property
+    def response(self):
+        """Return recording response"""
+
+        if not self.instantiated:
+            return None
+        self.tvector = self.cell.tvec
+        return responses.TimeLFPResponse(
+            self.name, self.tvector, self.electrode.data
+        )
+
+    def instantiate(self, sim=None, lfpy_cell=None, electrode=None):
+        import LFPy
+
+        """Instantiate recording"""
+
+        logger.debug(
+            "Adding recording of %s at %s", self.variable, self.location
+        )
+
+        assert isinstance(
+            lfpy_cell, LFPy.Cell
+        ), "LFPRecording is only available for LFPCellModel"
+        self.cell = lfpy_cell
+        self.tvector = None
+        self.electrode = electrode
+        self.sim = sim
+
+        self.instantiated = True
+
+    def destroy(self, sim=None):
+        """Destroy recording"""
+
+        self.electrode = None
+        self.LFP = None
+        self.tvector = None
+        self.electrode = None
+        self.cell = None
+        self.instantiated = False
+
+    def __str__(self):
+        """String representation"""
+
+        return "%s: %s at %s" % (self.name, self.variable, self.location)

@@ -28,6 +28,10 @@ EXTRA_SCOOP = [
     'scoop>=0.7',
 ]
 
+EXTRA_LFP = [
+    'LFPy @ git+https://github.com/LFPy/LFPy.git@master',
+]
+
 setuptools.setup(
     name="bluepyopt",
     version=versioneer.get_version(),
@@ -44,9 +48,10 @@ setuptools.setup(
         'Pebble>=4.3.10'
         ],
     extras_require={
-        'all': EXTRA_SCOOP,
+        'all': EXTRA_SCOOP + EXTRA_LFP,
         'scoop': EXTRA_SCOOP,
-        },
+        'lfpy': EXTRA_LFP
+    },
     packages=setuptools.find_packages(
         exclude=(
             'examples',
