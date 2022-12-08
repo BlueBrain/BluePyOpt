@@ -84,3 +84,24 @@ class TimeVoltageResponse(Response):
             self.response['voltage'],
             label='%s' %
             self.name)
+
+
+class TimeLFPResponse(TimeVoltageResponse):
+
+    """Response to stimulus"""
+
+    def __init__(self, name, time=None, lfp=None):
+        """Constructor
+        Args:
+            name (str): name of this object
+            time (list of floats): time series
+            lfp (list of floats): voltage series
+        """
+
+        super(TimeLFPResponse, self).__init__(name, time=time, voltage=None)
+        self.response = {}
+        self.response["time"] = time
+        self.response["voltage"] = lfp
+
+    def plot(self, axes):
+        raise NotImplementedError

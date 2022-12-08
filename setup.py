@@ -32,6 +32,10 @@ EXTRA_NEUROML = [
     'libNeuroML>=0.3.1',
 ]
 
+EXTRA_LFP = [
+    'LFPy @ git+https://github.com/LFPy/LFPy.git@master',
+]
+
 setuptools.setup(
     name="bluepyopt",
     version=versioneer.get_version(),
@@ -48,9 +52,11 @@ setuptools.setup(
         'Pebble>=4.3.10',
         ],
     extras_require={
-        'all': EXTRA_SCOOP + EXTRA_NEUROML,
+        'all': EXTRA_SCOOP + EXTRA_NEUROML + EXTRA_LPP,
+        'tests': EXTRA_NEUROML + EXTRA_LPP,
         'scoop': EXTRA_SCOOP,
         'neuroml': EXTRA_NEUROML,
+        'lfpy': EXTRA_LFP,
         },
     packages=setuptools.find_packages(
         exclude=(

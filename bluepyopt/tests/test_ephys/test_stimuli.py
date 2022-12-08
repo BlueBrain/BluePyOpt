@@ -214,3 +214,64 @@ def test_NrnRampPulse_instantiate():
     recording.destroy(sim=nrn_sim)
     stim.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
+
+
+@pytest.mark.unit
+def test_LFPySquarePulse_init():
+    """ephys.stimuli: test if LFPySquarePulse constructor works"""
+    soma_loc = ephys.locations.NrnSeclistCompLocation(
+        name=None,
+        seclist_name='somatic',
+        sec_index=0,
+        comp_x=.5)
+    stim = ephys.stimuli.LFPySquarePulse(
+        step_amplitude=0.1,
+        step_delay=70,
+        step_duration=100,
+        location=soma_loc,
+        total_duration=300
+    )
+    assert isinstance(stim, ephys.stimuli.LFPySquarePulse)
+    assert stim.step_amplitude == 0.1
+    assert stim.step_delay == 70
+    assert stim.step_duration == 100
+    assert isinstance(stim.location, ephys.locations.NrnSeclistCompLocation)
+    assert stim.total_duration == 300
+
+    assert str(stim) == (
+        "Square pulse amp 0.100000 delay 70.000000 duration 100.000000 "
+        "totdur 300.000000 at somatic[0](0.5)"
+    )
+
+
+@pytest.mark.unit
+def test_LFPySquarePulse_instantiate():
+    """ephys.stimuli: test if LFPySquarePulse instantiate works"""
+
+    lfpy_sim = ephys.simulators.LFPySimulator()
+    dummy_cell = dummycells.DummyLFPyCellModel1()
+    _, lfpy_cell = dummy_cell.instantiate(sim=lfpy_sim)
+
+    soma_loc = ephys.locations.NrnSeclistCompLocation(
+        name=None,
+        seclist_name='somatic',
+        sec_index=0,
+        comp_x=.5)
+
+    stim = ephys.stimuli.LFPySquarePulse(
+        step_amplitude=0.1,
+        step_delay=70,
+        step_duration=100,
+        location=soma_loc,
+        total_duration=300
+    )
+
+    stim.instantiate(sim=lfpy_sim, lfpy_cell=lfpy_cell)
+    lfpy_sim.run(
+        lfpy_cell=lfpy_cell,
+        lfpy_electrode=dummy_cell.lfpy_electrode,
+        tstop=stim.total_duration
+    )
+
+    stim.destroy(sim=lfpy_sim)
+    dummy_cell.destroy(sim=lfpy_sim)

@@ -24,7 +24,8 @@ class Parameter(object):
 
     """Base parameter class"""
 
-    def __init__(self, name, value=None, frozen=False, bounds=None):
+    def __init__(self, name, value=None, frozen=False, bounds=None,
+                 param_dependencies=None):
         """Constructor"""
 
         self.name = name
@@ -33,6 +34,9 @@ class Parameter(object):
         self._value = value
         self.check_bounds()
         self.frozen = frozen
+        self.param_dependencies = param_dependencies
+        if param_dependencies is None:
+            self.param_dependencies = []
 
     @property
     def lower_bound(self):

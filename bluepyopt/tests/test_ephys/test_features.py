@@ -7,7 +7,7 @@ import pytest
 import numpy
 
 from bluepyopt.ephys import efeatures
-from bluepyopt.ephys.responses import TimeVoltageResponse
+from bluepyopt.ephys.responses import TimeVoltageResponse, TimeLFPResponse
 from bluepyopt.ephys.serializer import instantiator
 
 
@@ -246,3 +246,114 @@ def test_eFELFeature_serialize():
     assert isinstance(deserialized, efeatures.eFELFeature)
     assert deserialized.stim_start == 700
     assert deserialized.recording_names == recording_names
+
+
+@pytest.mark.unit
+def test_extraFELFeature():
+    """ephys.efeatures: Testing extraFELFeature calculation"""
+    import pandas as pd
+
+    somatic_recording_name = 'soma_response'
+    recording_names = {'': 'lfp_response'}
+    channel_ids = 0
+    extrafel_feature_name = 'halfwidth'
+    name = 'test_extraFELFeature'
+    stim_start = 400
+    stim_end = 1750
+    fs = 10
+    ms_cut = [10, 25]
+
+    # load responses from file
+    testdata_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), 'testdata'
+    )
+    soma_time = numpy.load(os.path.join(testdata_dir, 'lfpy_soma_time.npy'))
+    soma_voltage = numpy.load(
+        os.path.join(testdata_dir, 'lfpy_soma_voltage.npy')
+    )
+    lfpy_time = numpy.load(os.path.join(testdata_dir, 'lfpy_time.npy'))
+    lfpy_voltage = numpy.load(os.path.join(testdata_dir, 'lfpy_voltage.npy'))
+
+    soma_response = TimeVoltageResponse(
+        name='soma_response', time=soma_time, voltage=soma_voltage
+    )
+    lfpy_response = TimeLFPResponse(
+        name="lfpy_response", time=lfpy_time, lfp=lfpy_voltage
+    )
+    responses = {
+        somatic_recording_name: soma_response,
+        recording_names['']: lfpy_response,
+    }
+
+    # compute for all electrodes
+    efeature = efeatures.extraFELFeature(
+        name=name,
+        extrafel_feature_name=extrafel_feature_name,
+        somatic_recording_name=somatic_recording_name,
+        recording_names=recording_names,
+        channel_ids=None,
+        exp_mean=0.001,
+        exp_std=0.001,
+        stim_start=stim_start,
+        stim_end=stim_end,
+        fs=fs,
+        ms_cut=ms_cut
+    )
+
+    ret = efeature.calculate_feature(responses, raise_warnings=True)
+    assert len(ret) == 209
+
+    # compute for 1 electrode
+    efeature = efeatures.extraFELFeature(
+        name=name,
+        extrafel_feature_name=extrafel_feature_name,
+        somatic_recording_name=somatic_recording_name,
+        recording_names=recording_names,
+        channel_ids=channel_ids,
+        exp_mean=0.001,
+        exp_std=0.001,
+        stim_start=stim_start,
+        stim_end=stim_end,
+        fs=fs,
+        ms_cut=ms_cut
+    )
+
+    ret = efeature.calculate_feature(responses, raise_warnings=True)
+    numpy.testing.assert_almost_equal(ret, 0.0015)
+
+    score = efeature.calculate_score(responses)
+    numpy.testing.assert_almost_equal(score, 0.5)
+
+    assert efeature.name == name
+    assert extrafel_feature_name in str(efeature)
+
+
+@pytest.mark.unit
+def test_masked_cosine_distance():
+    """ephys.efeatures: Testing masked_cosine_distance"""
+    from scipy.spatial import distance
+
+    exp = numpy.array([0.5, 0.5, 0.5])
+    model = numpy.array([0.7, 0.8, 0.4])
+
+    score = efeatures.masked_cosine_distance(exp, model)
+    assert score == distance.cosine(exp, model)
+
+    # test nan in model feature values
+    model = numpy.array([0.7, numpy.nan, 0.4])
+    score = efeatures.masked_cosine_distance(exp, model)
+    assert score == distance.cosine([0.5, 0.5], [0.7, 0.4])
+
+    # test nan in experimental feature values
+    exp = numpy.array([0.5, 0.5, numpy.nan])
+    model = numpy.array([0.7, 0.8, 0.4])
+
+    score = efeatures.masked_cosine_distance(exp, model)
+    assert score == distance.cosine([0.5, 0.5], [0.7, 0.8]) * 2. / 3.
+
+    # test na in both exp and model feature values
+    exp = numpy.array([0.5, 0.5, numpy.nan])
+    model = numpy.array([0.7, numpy.nan, 0.4])
+
+    score = efeatures.masked_cosine_distance(exp, model)
+    assert score == distance.cosine([0.5], [0.7]) * 2. / 3.
