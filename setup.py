@@ -52,8 +52,8 @@ setuptools.setup(
         'Pebble>=4.3.10',
         ],
     extras_require={
-        'all': EXTRA_SCOOP + EXTRA_NEUROML + EXTRA_LPP,
-        'tests': EXTRA_NEUROML + EXTRA_LPP,
+        'all': EXTRA_SCOOP + EXTRA_NEUROML + EXTRA_LFP,
+        'tests': EXTRA_NEUROML + EXTRA_LFP,
         'scoop': EXTRA_SCOOP,
         'neuroml': EXTRA_NEUROML,
         'lfpy': EXTRA_LFP,
