@@ -27,6 +27,10 @@ import versioneer
 EXTRA_SCOOP = [
     'scoop>=0.7',
 ]
+EXTRA_NEUROML = [
+    'pyneuroml>=0.5.20',
+    'libNeuroML>=0.3.1',
+]
 
 EXTRA_LFP = [
     'LFPy @ git+https://github.com/LFPy/LFPy.git@master',
@@ -45,13 +49,15 @@ setuptools.setup(
         'pickleshare>=0.7.3',
         'Jinja2>=2.8',
         'future',
-        'Pebble>=4.3.10'
+        'Pebble>=4.3.10',
         ],
     extras_require={
-        'all': EXTRA_SCOOP + EXTRA_LFP,
+        'all': EXTRA_SCOOP + EXTRA_NEUROML + EXTRA_LFP,
+        'tests': EXTRA_NEUROML + EXTRA_LFP,
         'scoop': EXTRA_SCOOP,
-        'lfpy': EXTRA_LFP
-    },
+        'neuroml': EXTRA_NEUROML,
+        'lfpy': EXTRA_LFP,
+        },
     packages=setuptools.find_packages(
         exclude=(
             'examples',
