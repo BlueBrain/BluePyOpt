@@ -1,7 +1,7 @@
 name: Test
 
 on:
-  pull_request:
+  pull_request_target:
   # allows this workflow to be reusable (e.g. by the build workflow)
   workflow_call:
 
@@ -61,4 +61,3 @@ jobs:
           user: __token__
           password: ${{ secrets.TEST_PYPI_PASSWORD }}
           repository_url: https://test.pypi.org/legacy/
-
