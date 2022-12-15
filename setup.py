@@ -33,7 +33,7 @@ EXTRA_NEUROML = [
 ]
 
 EXTRA_LFP = [
-    'LFPy @ git+https://github.com/LFPy/LFPy.git@master',
+    'LFPy>=2.3',
 ]
 
 setuptools.setup(
