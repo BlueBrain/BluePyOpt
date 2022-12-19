@@ -299,7 +299,7 @@ def repolarization_slope(waveforms, sampling_frequency, return_idx=False):
 
     rslope = np.empty(waveforms.shape[0])
     rslope[:] = np.nan
-    return_to_base_idx = np.empty(waveforms.shape[0], dtype=np.int)
+    return_to_base_idx = np.empty(waveforms.shape[0], dtype=np.int_)
     return_to_base_idx[:] = 0
 
     time = np.arange(0, waveforms.shape[1]) * (1 / sampling_frequency)  # in s
