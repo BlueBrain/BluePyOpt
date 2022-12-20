@@ -178,7 +178,7 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
 
         # find section
         target_sec = None
-        for sec in sim.neuron.h.allsec():
+        for sec in segment.sec.wholetree():
             if "." in sec.name():  # deal with templates
                 sec_name = sec.name().split(".")[1]
             else:

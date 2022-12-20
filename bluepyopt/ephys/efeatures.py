@@ -563,7 +563,7 @@ def _filter_response(response, fcut=[0.5, 6000], order=2, filt_type="lfilter"):
 
     trace = response["voltage"]
 
-    if isinstance(fcut, (float, int, np.float, np.integer)):
+    if isinstance(fcut, (float, int, np.floating, np.integer)):
         btype = "highpass"
         band = fcut / fn
     else:
