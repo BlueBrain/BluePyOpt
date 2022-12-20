@@ -107,6 +107,8 @@ We are providing support using a chat channel on `Gitter <https://gitter.im/Blue
 
 News
 ====
+- 2022/12: Support for LFPy models merged into master. Examples and preprint: https://github.com/alejoe91/multimodalfitting, https://www.biorxiv.org/content/10.1101/2022.08.03.502468v1.full
+- 2022/12: BluePyOpt now has the ability to write out NeuroML files: https://github.com/BlueBrain/BluePyOpt/tree/master/bluepyopt/neuroml
 - 2021/08/30: BluePyOpt dropped Python 2.7 support.
 - 2017/01/04: BluePyOpt is now considered compatible with Python 3.6+.
 - 2016/11/10: BluePyOpt now supports NEURON point processes. This means we can fit parameters of Adex/GIF/Izhikevich models, and also synapse models.
