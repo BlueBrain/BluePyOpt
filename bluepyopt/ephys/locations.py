@@ -541,7 +541,14 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
 class ArbLocation(Location):
     """Arbor Location"""
 
-    pass
+    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
+        """Find the instantiate compartment (default implementation)"""
+        raise EPhysLocInstantiateException(
+            '%s not supported in NEURON.' % type(self).__name__)
+
+    def __str__(self):
+        """String representation"""
+        return '%s \'%s\'' % (type(self).__name__, self.acc_label().defn)
 
 
 class ArbSegmentLocation(ArbLocation):
@@ -552,18 +559,9 @@ class ArbSegmentLocation(ArbLocation):
         super().__init__(name, comment)
         self.segment = segment
 
-    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
-        """Find the instantiate compartment"""
-        raise EPhysLocInstantiateException(
-            '%s not supported in NEURON.' % type(self).__name__)
-
     def acc_label(self):
         """Arbor label"""
         return ArbLabel('region', self.name, '(segment %s)' % (self.segment))
-
-    def __str__(self):
-        """String representation"""
-        return '%s \'%s\'' % (type(self).__name__, self.acc_label().defn)
 
 
 class ArbBranchLocation(ArbLocation):
@@ -576,18 +574,9 @@ class ArbBranchLocation(ArbLocation):
         super().__init__(name, comment)
         self.branch = branch
 
-    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
-        """Find the instantiate compartment"""
-        raise EPhysLocInstantiateException(
-            '%s not supported in NEURON.' % type(self).__name__)
-
     def acc_label(self):
         """Arbor label"""
         return ArbLabel('region', self.name, '(branch %s)' % (self.branch))
-
-    def __str__(self):
-        """String representation"""
-        return '%s \'%s\'' % (type(self).__name__, self.acc_label().defn)
 
 
 class ArbSegmentRelLocation(ArbLocation):
@@ -599,20 +588,11 @@ class ArbSegmentRelLocation(ArbLocation):
         self.segment = segment
         self.pos = pos
 
-    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
-        """Find the instantiate compartment"""
-        raise EPhysLocInstantiateException(
-            '%s not supported in NEURON.' % type(self).__name__)
-
     def acc_label(self):
         """Arbor label"""
         return ArbLabel('locset', self.name,
                         '(on-components %s (segment %s))' %
                         (format_float(self.pos), self.segment))
-
-    def __str__(self):
-        """String representation"""
-        return '%s \'%s\'' % (type(self).__name__, self.acc_label().defn)
 
 
 class ArbBranchRelLocation(ArbLocation):
@@ -626,20 +606,11 @@ class ArbBranchRelLocation(ArbLocation):
         self.branch = branch
         self.pos = pos
 
-    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
-        """Find the instantiate compartment"""
-        raise EPhysLocInstantiateException(
-            '%s not supported in NEURON.' % type(self).__name__)
-
     def acc_label(self):
         """Arbor label"""
         return ArbLabel('locset', self.name,
                         '(location %s %s)' %
                         (self.branch, format_float(self.pos)))
-
-    def __str__(self):
-        """String representation"""
-        return '%s \'%s\'' % (type(self).__name__, self.acc_label().defn)
 
 
 class ArbLocsetLocation(ArbLocation):
@@ -650,18 +621,9 @@ class ArbLocsetLocation(ArbLocation):
         super().__init__(name, comment)
         self.locset = locset
 
-    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
-        """Find the instantiate compartment"""
-        raise EPhysLocInstantiateException(
-            '%s not supported in NEURON.' % type(self).__name__)
-
     def acc_label(self):
         """Arbor label"""
         return ArbLabel('locset', self.name, self.locset)
-
-    def __str__(self):
-        """String representation"""
-        return '%s %s' % (type(self).__name__, self.acc_label().defn)
 
 
 class ArbRegionLocation(ArbLocation):
@@ -672,18 +634,9 @@ class ArbRegionLocation(ArbLocation):
         super().__init__(name, comment)
         self.region = region
 
-    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
-        """Find the instantiate compartment"""
-        raise EPhysLocInstantiateException(
-            '%s not supported in NEURON.' % type(self).__name__)
-
     def acc_label(self):
         """Arbor label"""
         return ArbLabel('region', self.name, self.region)
-
-    def __str__(self):
-        """String representation"""
-        return '%s %s' % (type(self).__name__, self.acc_label().defn)
 
 
 class EPhysLocInstantiateException(Exception):

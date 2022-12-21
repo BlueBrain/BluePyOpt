@@ -112,12 +112,12 @@ def _loc_desc(location, param_or_mech):
         elif isinstance(param_or_mech, NrnMODPointProcessMechanism):
             raise CreateHocException("%s is currently not supported." %
                                      type(param_or_mech).__name__)
-    elif not (isinstance(location, NrnSeclistCompLocation) or
-              isinstance(location, NrnSectionCompLocation) or
-              isinstance(location, NrnSomaDistanceCompLocation) or
-              isinstance(location, NrnSecSomaDistanceCompLocation) or
-              isinstance(location, NrnTrunkSomaDistanceCompLocation)) and \
-            not isinstance(location, ArbLocation) and \
+    elif not isinstance(location, (NrnSeclistCompLocation,
+                                   NrnSectionCompLocation,
+                                   NrnSomaDistanceCompLocation,
+                                   NrnSecSomaDistanceCompLocation,
+                                   NrnTrunkSomaDistanceCompLocation,
+                                   ArbLocation)) and \
             not isinstance(param_or_mech, NrnPointProcessParameter):
         return location.seclist_name
     else:

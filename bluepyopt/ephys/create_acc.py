@@ -31,7 +31,7 @@ class ArbVar:
         self.conv = conv
 
 
-class Nrn2ArbParamFormatter:
+class Nrn2ArbParamAdapter:
     """Converts a Neuron parameter to Arbor format (name and value)"""
 
     _mapping = dict(
@@ -202,7 +202,7 @@ class Nrn2ArbMechGrouper:
             Mapping of Arbor mechanism name to list of parameters in Arbor
             format
         """
-        mech_params = [Nrn2ArbParamFormatter.format(
+        mech_params = [Nrn2ArbParamAdapter.format(
                        param, channels) for param in params]
         mechs = {mech: [] for mech, _ in mech_params}
         for mech in channels:
@@ -214,7 +214,8 @@ class Nrn2ArbMechGrouper:
 
     @classmethod
     def process_global(cls, params):
-        """Group global params by mechanism, convert them to Arbor format
+        """Group global BluePyOpt params by mech, convert them to Arbor format
+
         Args:
             params (): List of global parameters in Neuron format
 
@@ -231,7 +232,7 @@ class Nrn2ArbMechGrouper:
 
     @classmethod
     def process_local(cls, params, channels):
-        """Group local params by mechanism, convert them to Arbor format
+        """Group local BluePyOpt params by mech, convert them to Arbor format
 
         Args:
             params (): List of Arbor label/local parameters pairs in Neuron

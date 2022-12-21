@@ -17,7 +17,7 @@ from . import utils
 
 from bluepyopt import ephys
 from bluepyopt.ephys import create_acc
-from bluepyopt.ephys.create_acc import (Nrn2ArbParamFormatter,
+from bluepyopt.ephys.create_acc import (Nrn2ArbParamAdapter,
                                         Nrn2ArbMechGrouper,
                                         ArbNmodlMechFormatter)
 
@@ -48,52 +48,52 @@ def test_read_templates():
 
 
 @pytest.mark.unit
-def test_Nrn2ArbParamFormatter_param_name():
+def test_Nrn2ArbParamAdapter_param_name():
     """Test Neuron to Arbor parameter mapping."""
     # Identity
     mech_param_name = "gSKv3_1bar_SKv3_1"
-    assert Nrn2ArbParamFormatter._param_name(mech_param_name) \
+    assert Nrn2ArbParamAdapter._param_name(mech_param_name) \
         == mech_param_name
 
     # Non-trivial transformation
     global_property_name = "v_init"
-    assert Nrn2ArbParamFormatter._param_name(global_property_name) \
+    assert Nrn2ArbParamAdapter._param_name(global_property_name) \
         == "membrane-potential"
 
 
 @pytest.mark.unit
-def test_Nrn2ArbParamFormatter_param_value():
+def test_Nrn2ArbParamAdapter_param_value():
     """Test Neuron to Arbor parameter units conversion."""
     # Identity for region parameter
     mech_param = create_acc.Location(name="gSKv3_1bar_SKv3_1", value="1.025")
-    assert Nrn2ArbParamFormatter._param_value(mech_param) == "1.025"
+    assert Nrn2ArbParamAdapter._param_value(mech_param) == "1.025"
 
     # Non-trivial name transformation, but identical value/units
     global_property = create_acc.Location(name="v_init", value=-65)
-    assert Nrn2ArbParamFormatter._param_value(global_property) == "-65"
+    assert Nrn2ArbParamAdapter._param_value(global_property) == "-65"
 
     # Non-trivial name and value/units transformation
     global_property = create_acc.Location(name="celsius", value=34)
-    assert Nrn2ArbParamFormatter._param_value(global_property) == (
+    assert Nrn2ArbParamAdapter._param_value(global_property) == (
         "307.14999999999998")
 
 
 @pytest.mark.unit
-def test_Nrn2ArbParamFormatter_format():
+def test_Nrn2ArbParamAdapter_format():
     """Test Neuron to Arbor parameter reformatting."""
     # Constant mechanism parameter
     mech_param = create_acc.Location(name="gSKv3_1bar_SKv3_1", value="1.025")
     mech = "SKv3_1"
     arb_mech_param = create_acc.Location(name="gSKv3_1bar", value="1.025")
     assert (
-        Nrn2ArbParamFormatter.format(
+        Nrn2ArbParamAdapter.format(
             mech_param, mechs=[mech])
         == (mech, arb_mech_param)
     )
 
     # Non-unique mapping to mechanisms
     with pytest.raises(create_acc.CreateAccException):
-        Nrn2ArbParamFormatter.format(
+        Nrn2ArbParamAdapter.format(
             mech_param, mechs=["SKv3_1", "1"])
 
     # Global property with non-trivial transformation
@@ -102,7 +102,7 @@ def test_Nrn2ArbParamFormatter_format():
     arb_global_property = create_acc.Location(
         name="temperature-kelvin", value="273.14999999999998")
     # Non-trivial name and value/units transformation
-    assert Nrn2ArbParamFormatter.format(global_property, []) == \
+    assert Nrn2ArbParamAdapter.format(global_property, []) == \
         (mech, arb_global_property)
 
     # Inhomogeneuos mechanism parameter
@@ -126,7 +126,7 @@ def test_Nrn2ArbParamFormatter_format():
         value_scaler=param_scaler,
     )
     assert (
-        Nrn2ArbParamFormatter.format(
+        Nrn2ArbParamAdapter.format(
             iexpr_param, mechs=[mech])
         == (mech, arb_iexpr_param)
     )
@@ -151,7 +151,7 @@ def test_Nrn2ArbParamFormatter_format():
     arb_point_expr_param = create_acc.PointExpr(
         name="tau", value="10", point_loc=[mech_loc])
     assert (
-        Nrn2ArbParamFormatter.format(
+        Nrn2ArbParamAdapter.format(
             point_expr_param, mechs=[mech])
         == (mech, arb_point_expr_param)
     )
@@ -540,8 +540,6 @@ def test_cell_model_write_and_read_acc_replace_axon():
             assert len(e.args) == 1 and e.args[0] == \
                 "Need a newer version of Arbor for axon replacement."
             return
-        finally:
-            cell.destroy(nrn_sim)
 
         # Axon replacement implemented in installed Arbor version
         cell_json, arb_morph, arb_decor, arb_labels = \
