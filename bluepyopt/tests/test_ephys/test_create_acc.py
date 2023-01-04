@@ -583,11 +583,20 @@ def test_cell_model_create_acc_replace_axon_without_instantiate():
 def check_acc_dir(test_dir, ref_dir):
     assert os.listdir(ref_dir) == os.listdir(test_dir)
 
+    ref_dir_ver_suffix = '_py' + ''.join(sys.version.split('.')[:2])
+    ref_dir_ver = ref_dir.parent / (ref_dir.name + ref_dir_ver_suffix)
+
     for file in os.listdir(ref_dir):
+
+        if (ref_dir_ver / file).exists():
+            ref_dir_file = ref_dir_ver
+        else:
+            ref_dir_file = ref_dir
+
         if file.endswith('.json'):
             with open(os.path.join(test_dir, file)) as f:
                 cell_json_dict = json.load(f)
-            with open(ref_dir / file) as f:
+            with open(ref_dir_file / file) as f:
                 ref_cell_json = json.load(f)
             for k in ref_cell_json:
                 if k != 'produced_by':
@@ -595,7 +604,7 @@ def check_acc_dir(test_dir, ref_dir):
         else:
             with open(os.path.join(test_dir, file)) as f:
                 test_file = f.read()
-            with open(ref_dir / file) as f:
+            with open(ref_dir_file / file) as f:
                 ref_file = f.read()
             assert ref_file == test_file
 

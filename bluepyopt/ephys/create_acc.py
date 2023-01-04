@@ -5,7 +5,7 @@
 import io
 import logging
 import pathlib
-from collections import namedtuple, OrderedDict
+from collections import ChainMap, namedtuple, OrderedDict
 import re
 
 import jinja2
@@ -24,11 +24,22 @@ logger = logging.getLogger(__name__)
 RangeIExpr = namedtuple('RangeIExpr', 'name, value, scale')
 
 
-# Define Neuron to Arbor parameter conversions (conv defaults to identity)
 class ArbVar:
+    """Definition of a Neuron to Arbor parameter conversion"""
+
     def __init__(self, name, conv=None):
+        """Constructor
+
+        Args:
+            name (str): Arbor parameter name
+            conv (): Conversion of parameter value from Neuron units
+            to Arbor (defaults to identity)
+        """
         self.name = name
         self.conv = conv
+
+    def __repr__(self):
+        return 'ArbVar(%s, %s)' % (self.name, self.conv)
 
 
 class Nrn2ArbParamAdapter:
@@ -220,9 +231,9 @@ class Nrn2ArbMechGrouper:
             params (): List of global parameters in Neuron format
 
         Returns:
-            A mapping of mechanism to parameters. The mechanism parameters are
-            in Arbor format (mechanism name is None for non-mechanism
-            parameters).
+            A mapping of mechanism to parameters representing Arbor global
+            properties. The mechanism parameters are in Arbor format
+            (mechanism name is None for non-mechanism parameters).
         """
         return cls._format_params_and_group_by_mech(
             [Location(name=name, value=value)
@@ -240,10 +251,11 @@ class Nrn2ArbMechGrouper:
             channels (): Mapping of Arbor label to co-located NMODL mechanisms
 
         Returns:
-            In the first component, a two-level mapping of Arbor label to
-            mechanism to parameters. The mechanism parameters are in Arbor
-            format (mechanism name is None for non-mechanism parameters).
-            In the second component, the global properties found are returned.
+            The return value is a tuple. In the first component, a two-level
+            mapping of Arbor label to mechanism to parameters. The mechanism
+            parameters are in Arbor format (mechanism name is None for
+            non-mechanism parameters). In the second component, the
+            Arbor global properties found are returned.
         """
         local_mechs = dict()
         global_properties = dict()
@@ -253,9 +265,12 @@ class Nrn2ArbMechGrouper:
 
             # move Arbor global properties to global_params
             mechs, global_props = cls._separate_global_properties(loc, mechs)
-            for mech, props in global_props.items():
-                global_properties[mech] = \
-                    global_properties.get(mech, []) + props
+            if global_props.keys() != {None}:
+                raise CreateAccException(
+                    'Support for Arbor default mechanisms not implemented.')
+            # iterate over global_props items if above exception triggers
+            global_properties[None] = \
+                global_properties.get(None, []) + global_props[None]
             local_mechs[loc] = mechs
         return local_mechs, global_properties
 
@@ -509,19 +524,18 @@ def _arb_populate_label_dict(local_mechs, local_scaled_mechs, pprocess_mechs):
 
     label_dict = dict()
 
-    for acc_labels in [local_mechs.keys(),
-                       local_scaled_mechs.keys(),
-                       pprocess_mechs.keys()]:
-        for acc_label in acc_labels:
-            if acc_label.name in label_dict and \
-                    acc_label != label_dict[acc_label.name]:
-                raise CreateAccException(
-                    'Label %s already exists in' % acc_label.name +
-                    ' label_dict with different s-expression: '
-                    ' %s != %s.' % (label_dict[acc_label.name].loc,
-                                    acc_label.loc))
-            elif acc_label.name not in label_dict:
-                label_dict[acc_label.name] = acc_label
+    acc_labels = ChainMap(local_mechs, local_scaled_mechs, pprocess_mechs)
+
+    for acc_label in acc_labels:
+        if acc_label.name in label_dict and \
+                acc_label != label_dict[acc_label.name]:
+            raise CreateAccException(
+                'Label %s already exists in' % acc_label.name +
+                ' label_dict with different s-expression: '
+                ' %s != %s.' % (label_dict[acc_label.name].loc,
+                                acc_label.loc))
+        elif acc_label.name not in label_dict:
+            label_dict[acc_label.name] = acc_label
 
     return label_dict
 
@@ -592,6 +606,9 @@ def create_acc(mechs,
         of a custom template
     '''
 
+    if custom_jinja_params is None:
+        custom_jinja_params = {}
+
     if pathlib.Path(morphology).suffix.lower() not in ['.swc', '.asc']:
         raise CreateAccException("Morphology file %s not supported in Arbor "
                                  " (only supported types are .swc and .asc)."
@@ -641,9 +658,6 @@ def create_acc(mechs,
                                            disable_banner,
                                            default_location_order,
                                            _arb_loc_desc)
-
-    if custom_jinja_params is None:
-        custom_jinja_params = {}
 
     filenames = {
         name: template_name + (name if name.startswith('.') else "_" + name)
@@ -825,7 +839,7 @@ def read_acc(cell_json_filename):
 
 class CreateAccException(Exception):
 
-    """All exceptions generated by create_acc module"""
+    """Exceptions generated by create_acc module"""
 
     def __init__(self, message):
         """Constructor"""
