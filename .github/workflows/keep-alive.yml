@@ -23,14 +23,14 @@ jobs:
           echo "datelimit=$datethen" >> $GITHUB_ENV
 
       - name: setup git config
-        if: github.event.base.repo.updated_at <= env.datelimit
+        if: github.event.repository.pushed_at <= env.datelimit
         run: |
           # setup the username and email.
           git config user.name "Github Actions Keepalive Bot"
           git config user.email "<>"
 
       - name: commit IF last commit is older than 50 days
-        if: github.event.base.repo.updated_at <= env.datelimit
+        if: github.event.repository.pushed_at <= env.datelimit
         run: |
           git commit -m "Empty commit to keep the gihub workflows alive" --allow-empty
           git push origin master
