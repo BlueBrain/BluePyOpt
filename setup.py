@@ -94,5 +94,6 @@ setuptools.setup(
     package_data={
         'bluepyopt': [
             'ephys/templates/cell_template.jinja2',
-            'ephys/examples/simplecell/simple.swc'],
+            'ephys/examples/simplecell/simple.swc',
+            'neuroml/NeuroML2_mechanisms/*.nml'],
     })
