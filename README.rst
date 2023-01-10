@@ -195,6 +195,14 @@ With 2 notebooks:
 https://github.com/BlueBrain/BluePyOpt/blob/master/examples/tsodyksmarkramstp/tsodyksmarkramstp.ipynb
 https://github.com/BlueBrain/BluePyOpt/blob/master/examples/tsodyksmarkramstp/tsodyksmarkramstp_multiplefreqs.ipynb
 
+Exporting cell in neuroml format
+--------------------------------
+An iPython notebook showing how to export a BluePyOpt cell in the neuroml format, how to create a LEMS simulation,
+and how to run the LEMS simulation with the neuroml cell can be found at:
+
+https://github.com/BlueBrain/BluePyOpt/blob/master/examples/neuroml/neuroml.ipynb
+
+
 API documentation
 =================
 The API documentation can be found on `ReadTheDocs <http://bluepyopt.readthedocs.io/en/latest/>`_.
