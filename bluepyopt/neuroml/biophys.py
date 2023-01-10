@@ -336,7 +336,7 @@ def get_density(
 
     Arguments:
         cell_doc (NeuroMLDocument): nml document of the cell model
-        cell (ephys.CellModel)
+        cell (ephys.CellModel): bluepyopt cell
         parameter (ephys.parameters)
         section_list (str): location
         included_channels (list): list of channels already included
@@ -417,10 +417,10 @@ def get_biophys(
     """Get biophys in neuroml format.
 
     Arguments:
-        cell (ephys.CellModel)
+        cell (ephys.CellModel): bluepyopt cell
         cell_doc (NeuroMLDocument): nml document of the cell model
-        skip_non_uniform (bool): True to skip non uniform distributions
         release_params (dict): optimized parameters
+        skip_non_uniform (bool): True to skip non uniform distributions
         skip_channels_copy (bool): True to skip the copy pasting
             of the neuroml channel files
     """

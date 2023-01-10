@@ -31,9 +31,7 @@ def create_neuroml_cell(bpo_cell, release_params, skip_channels_copy=False):
     """Create the cell.
 
     Arguments:
-        nml_mech_files (list): paths to the nml files
-            containing the mechanisms
-        bpo_cell
+        bpo_cell (ephys.CellModel): bluepyopt cell
         release_params (dict): the optimized parameters
         skip_channels_copy (bool): True to skip the copy pasting
             of the neuroml channel files
