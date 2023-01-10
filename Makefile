@@ -79,8 +79,20 @@ clean:
 	rm -rf examples/l5pc/l5pc_validate_neuron_arbor_somatic.py
 	rm -rf examples/l5pc/x86_64
 	rm -rf examples/stochkv/x86_64
+	rm -rf x86_64
 	rm -rf .coverage
 	rm -rf coverage.xml
+	rm -rf channels
+	rm -rf LEMS_l5pc.xml
+	rm -rf LEMS_l5pc_nrn.py
+	rm -rf l5pc.Pop_l5pc_0_0.v.dat
+	rm -rf time.dat
+	rm -rf l5pc.hoc
+	rm -rf l5pc.net.nml
+	rm -rf l5pc_0_0.cell.nml
+	rm -rf l5pc_0_0.hoc
+	rm -rf loadcell.hoc
+	rm -rf *.mod
 	find . -name "*.pyc" -exec rm -rf {} \;
 l5pc_start: install
 	cd examples/l5pc && \

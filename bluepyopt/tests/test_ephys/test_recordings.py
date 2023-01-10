@@ -22,6 +22,8 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 # pylint:disable=W0612
 
 
+import os
+
 import pytest
 
 import bluepyopt.ephys as ephys
@@ -74,3 +76,40 @@ def test_comprecording_init():
     protocol.destroy(sim=nrn_sim)
     dummy_cell.destroy(sim=nrn_sim)
     '''
+
+
+@pytest.mark.unit
+def test_lfprecording_init():
+    """ephys.recordings: Test LFPRecording init"""
+
+    recording = ephys.recordings.LFPRecording(name="rec")
+
+    assert isinstance(recording, ephys.recordings.LFPRecording)
+
+    assert recording.response is None
+    assert str(recording) == "rec: v at extracellular"
+
+
+@pytest.mark.unit
+def test_lfprecording_instantiate():
+    """ephys.recordings: Test LFPRecording instantiate"""
+    TESTDATA_DIR = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), 'testdata'
+    )
+    simple_morphology_path = os.path.join(TESTDATA_DIR, 'simple.swc')
+    test_morph = ephys.morphologies.NrnFileMorphology(simple_morphology_path)
+
+    recording = ephys.recordings.LFPRecording()
+    lfpy_cell = ephys.models.LFPyCellModel(
+        name="lfpy_cell", morph=test_morph, mechs=[]
+    )
+    neuron_sim = ephys.simulators.LFPySimulator()
+    lfpy_cell.instantiate(sim=neuron_sim)
+
+    recording.instantiate(
+        sim=neuron_sim, lfpy_cell=lfpy_cell.lfpy_cell
+    )
+
+    assert recording.instantiated
+
+    lfpy_cell.destroy(sim=neuron_sim)

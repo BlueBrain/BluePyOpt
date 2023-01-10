@@ -21,6 +21,7 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 
 # pylint: disable=W0511
 
+import numpy as np
 import logging
 
 from bluepyopt.ephys.acc import arbor
@@ -38,6 +39,15 @@ class SynapticStimulus(Stimulus):
 
     """Synaptic stimulus protocol"""
     pass
+
+
+class LFPStimulus(Stimulus):
+
+    """Base class for stimulus supporting LFPy cells."""
+
+    def instantiate(self, sim=None, lfpy_cell=None):
+        """Run stimulus"""
+        raise NotImplementedError
 
 
 class NrnCurrentPlayStimulus(Stimulus):
@@ -386,3 +396,88 @@ class NrnRampPulse(Stimulus):
                 self.ramp_duration,
                 self.total_duration,
                 self.location)
+
+
+class LFPySquarePulse(LFPStimulus):
+
+    """Square pulse current clamp injection"""
+
+    def __init__(self,
+                 step_amplitude=None,
+                 step_delay=None,
+                 step_duration=None,
+                 total_duration=None,
+                 location=None):
+        """Constructor
+        Args:
+            step_amplitude (float): amplitude (nA)
+            step_delay (float): delay (ms)
+            step_duration (float): duration (ms)
+            total_duration (float): total duration (ms)
+            location (Location): stimulus Location
+        """
+
+        super(LFPySquarePulse, self).__init__()
+        self.step_amplitude = step_amplitude
+        self.step_delay = step_delay
+        self.step_duration = step_duration
+        self.location = location
+        self.total_duration = total_duration
+        self.iclamp = None
+
+    def instantiate(self, sim=None, lfpy_cell=None):
+        """Run stimulus"""
+        import LFPy
+        from .locations import NrnSomaDistanceCompLocation
+
+        if hasattr(self.location, "sec_index"):
+            sec_index = self.location.sec_index
+        elif isinstance(self.location, NrnSomaDistanceCompLocation):
+            # compute sec_index closest to soma_distance
+            cell_seg_locs = np.array([lfpy_cell.x, lfpy_cell.y, lfpy_cell.z]).T
+            soma_loc = lfpy_cell.somapos
+            dist_from_soma = np.array(
+                [np.linalg.norm(loc - soma_loc) for loc in cell_seg_locs]
+            )
+            sec_index = np.argmin(
+                np.abs(dist_from_soma - self.location.soma_distance)
+            )
+        else:
+            raise NotImplementedError(
+                f"{type(self.location)} is currently not implemented "
+                "with the LFPy backend"
+            )
+
+        self.iclamp = LFPy.StimIntElectrode(
+            cell=lfpy_cell,
+            idx=sec_index,
+            pptype="IClamp",
+            amp=self.step_amplitude,
+            delay=self.step_delay,
+            dur=self.step_duration,
+            record_current=True
+        )
+        logger.debug(
+            "Adding square step stimulus to %s with delay %f, "
+            "duration %f, and amplitude %f",
+            str(self.location),
+            self.step_delay,
+            self.step_duration,
+            self.step_amplitude,
+        )
+
+    def destroy(self, sim=None):
+        """Destroy stimulus"""
+
+        self.iclamp = None
+
+    def __str__(self):
+        """String representation"""
+
+        return "Square pulse amp %f delay %f duration %f totdur %f at %s" % (
+            self.step_amplitude,
+            self.step_delay,
+            self.step_duration,
+            self.total_duration,
+            self.location,
+        )

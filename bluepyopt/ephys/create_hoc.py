@@ -157,6 +157,11 @@ def _generate_parameters(parameters, location_order, loc_desc):
         if loc not in param_locations:
             continue
         for param in param_locations[loc]:
+            if not isinstance(param.param_dependencies, list) or \
+                    len(param.param_dependencies) > 0:
+                raise CreateHocException(  # also an ACC exception
+                    'Exporting models with parameters that have'
+                    ' param_dependencies is not yet supported.')
             if isinstance(param, NrnRangeParameter):
                 if isinstance(
                         param.value_scaler,

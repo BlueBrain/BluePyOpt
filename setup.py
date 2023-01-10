@@ -27,6 +27,14 @@ import versioneer
 EXTRA_SCOOP = [
     'scoop>=0.7',
 ]
+EXTRA_NEUROML = [
+    'pyneuroml>=0.5.20',
+    'libNeuroML>=0.3.1',
+]
+
+EXTRA_LFP = [
+    'LFPy>=2.3',
+]
 
 EXTRA_ARBOR = [
     'arbor>=0.7',
@@ -45,11 +53,14 @@ setuptools.setup(
         'pickleshare>=0.7.3',
         'Jinja2>=2.8',
         'future',
-        'Pebble>=4.3.10'
+        'Pebble>=4.3.10',
         ],
     extras_require={
-        'all': EXTRA_SCOOP + EXTRA_ARBOR,
+        'all': EXTRA_SCOOP + EXTRA_NEUROML + EXTRA_LFP + EXTRA_ARBOR,
+        'tests': EXTRA_NEUROML + EXTRA_LFP + EXTRA_ARBOR,
         'scoop': EXTRA_SCOOP,
+        'neuroml': EXTRA_NEUROML,
+        'lfpy': EXTRA_LFP,
         'arbor': EXTRA_ARBOR,
         },
     packages=setuptools.find_packages(
@@ -92,5 +103,6 @@ setuptools.setup(
             'ephys/templates/acc/_json_template.jinja2',
             'ephys/templates/acc/decor_acc_template.jinja2',
             'ephys/templates/acc/label_dict_acc_template.jinja2',
-            'ephys/examples/simplecell/simple.swc'],
+            'ephys/examples/simplecell/simple.swc',
+            'neuroml/NeuroML2_mechanisms/*.nml'],
     })

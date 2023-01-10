@@ -76,9 +76,12 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
         self.multiplier = multiplier
         self.offset = offset
 
-    def scale(self, value, segment=None, sim=None):  # pylint: disable=W0613
+    def scale(self, values, segment=None, sim=None):  # pylint: disable=W0613
         """Scale a value based on a segment"""
-
+        if isinstance(values, dict):
+            value = values["value"]
+        else:
+            value = values
         return self.multiplier * value + self.offset
 
     def __str__(self):
@@ -87,10 +90,12 @@ class NrnSegmentLinearScaler(ParameterScaler, DictMixin):
         return '%s * value + %s' % (self.multiplier, self.offset)
 
 
-class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
+class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
 
     """Scaler based on distance from soma"""
-    SERIALIZED_FIELDS = ('name', 'comment', 'distribution', )
+    SERIALIZED_FIELDS = ('name', 'comment', 'distribution',
+                         "distribution", "dist_param_names",
+                         "ref_sec", "ref_location",)
 
     def __init__(
             self,
@@ -98,7 +103,8 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
             distribution=None,
             comment='',
             dist_param_names=None,
-            soma_ref_location=0.5):
+            ref_section='soma[0]',
+            ref_location=0,):
         """Constructor
 
         Args:
@@ -107,30 +113,33 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
                 from soma. string can contain `distance` and/or `value` as
                 placeholders for the distance to the soma and parameter value
                 respectivily
-            dist_params (list): list of names of parameters that parametrise
-                the distribution. These names will become attributes of this
-                object.
+            dist_param_names (list): list of names of parameters that
+                parametrise the distribution. These names will become
+                attributes of this object.
                 The distribution string should contain these names, and they
                 will be replaced by values of the corresponding attributes
-            soma_ref_location (float): location along the soma used as origin
+            ref_section (str): string with name of reference section to
+                compute distance (e.g. "soma[0]", "dend[2]")
+            ref_location (float): location along the soma used as origin
                 from which to compute the distances. Expressed as a fraction
                 (between 0.0 and 1.0).
         """
 
-        super(NrnSegmentSomaDistanceScaler, self).__init__(name, comment)
+        super(NrnSegmentSectionDistanceScaler, self).__init__(name, comment)
         self.distribution = distribution
 
         self.dist_param_names = dist_param_names
-        self.soma_ref_location = soma_ref_location
+        self.ref_location = ref_location
+        self.ref_section = ref_section
 
-        if not (0. <= self.soma_ref_location <= 1.):
-            raise ValueError('soma_ref_location must be between 0 and 1.')
+        if not (0.0 <= self.ref_location <= 1.0):
+            raise ValueError("ref_location must be between 0 and 1.")
 
         if self.dist_param_names is not None:
             for dist_param_name in self.dist_param_names:
                 if dist_param_name not in self.distribution:
                     raise ValueError(
-                        'NrnSegmentSomaDistanceScaler: "{%s}" '
+                        'NrnSegmentSectionDistanceScaler: "{%s}" '
                         'missing from distribution string "%s"' %
                         (dist_param_name, distribution))
                 setattr(self, dist_param_name, None)
@@ -145,31 +154,46 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
             for dist_param_name in self.dist_param_names:
                 dist_param_value = getattr(self, dist_param_name)
                 if dist_param_value is None:
-                    raise ValueError('NrnSegmentSomaDistanceScaler: %s '
-                                     'was uninitialised' % dist_param_name)
+                    raise ValueError("NrnSegmentSomaDistanceScaler: %s "
+                                     "was uninitialised" % dist_param_name)
                 dist_dict[dist_param_name] = dist_param_value
 
         # Use this special formatting to bypass missing keys
         return string.Formatter().vformat(self.distribution, (), dist_dict)
 
-    def eval_dist(self, value, distance):
+    def eval_dist(self, values, distance):
         """Create the final dist string"""
 
         scale_dict = {}
-        scale_dict['distance'] = format_float(distance)
-        scale_dict['value'] = format_float(value)
+        if isinstance(values, dict):
+            for k, v in values.items():
+                scale_dict[k] = format_float(v)
+        else:
+            scale_dict["value"] = format_float(values)
+        scale_dict["distance"] = format_float(distance)
 
         return self.inst_distribution.format(**scale_dict)
 
-    def scale(self, value, segment, sim=None):
+    def scale(self, values, segment, sim=None):
         """Scale a value based on a segment"""
 
-        # TODO soma needs other addressing scheme
+        # find section
+        target_sec = None
+        for sec in segment.sec.wholetree():
+            if "." in sec.name():  # deal with templates
+                sec_name = sec.name().split(".")[1]
+            else:
+                sec_name = sec.name()
+            if self.ref_section in sec_name:
+                target_sec = sec
+                break
 
-        soma = segment.sec.cell().soma[0]
+        if target_sec is None:
+            raise Exception(f"Could not find section {self.ref_section} "
+                            f"in section list")
 
         # Initialise origin
-        sim.neuron.h.distance(0, self.soma_ref_location, sec=soma)
+        sim.neuron.h.distance(0, self.ref_location, sec=target_sec)
 
         distance = sim.neuron.h.distance(1, segment.x, sec=segment.sec)
 
@@ -178,7 +202,53 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
 
         # This eval is unsafe (but is it ever dangerous ?)
         # pylint: disable=W0123
-        return eval(self.eval_dist(value, distance))
+        return eval(self.eval_dist(values, distance))
+
+    def acc_scale_iexpr(self, value, constant_formatter=format_float):
+        """Generate Arbor scale iexpr for a given value"""
+        raise ValueError(
+            "Parameter scaling based on general Neuron segment/section"
+            " distances not supported in Arbor.")
+
+    def __str__(self):
+        """String representation"""
+
+        return self.distribution
+
+
+class NrnSegmentSomaDistanceScaler(NrnSegmentSectionDistanceScaler,
+                                   ParameterScaler, DictMixin):
+
+    """Scaler based on distance from soma"""
+    SERIALIZED_FIELDS = ('name', 'comment', 'distribution', )
+
+    def __init__(
+            self,
+            name=None,
+            distribution=None,
+            comment='',
+            dist_param_names=None,
+            soma_ref_location=0.5):
+        """Constructor
+        Args:
+            name (str): name of this object
+            distribution (str): distribution of parameter dependent on distance
+                from soma. string can contain `distance` and/or `value` as
+                placeholders for the distance to the soma and parameter value
+                respectivily
+            dist_param_names (list): list of names of parameters that
+                parametrise the distribution. These names will become
+                attributes of this object.
+                The distribution string should contain these names, and they
+                will be replaced by values of the corresponding attributes
+            soma_ref_location (float): location along the soma used as origin
+                from which to compute the distances. Expressed as a fraction
+                (between 0.0 and 1.0).
+        """
+
+        super(NrnSegmentSomaDistanceScaler, self).__init__(
+            name, distribution, comment, dist_param_names,
+            ref_section='soma[0]', ref_location=soma_ref_location)
 
     def acc_scale_iexpr(self, value, constant_formatter=format_float):
         """Generate Arbor scale iexpr for a given value"""
@@ -191,8 +261,3 @@ class NrnSegmentSomaDistanceScaler(ParameterScaler, DictMixin):
             ArbFileMorphology.region_labels['somatic'].ref
         )
         return generate_acc_scale_iexpr(iexpr, variables, constant_formatter)
-
-    def __str__(self):
-        """String representation"""
-
-        return self.distribution

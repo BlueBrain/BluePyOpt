@@ -1,4 +1,7 @@
 """Protocol classes"""
+from .recordings import LFPRecording
+from .simulators import LFPySimulator
+from .stimuli import LFPStimulus
 
 """
 Copyright (c) 2016-2020, EPFL/Blue Brain Project
@@ -29,6 +32,7 @@ import tempfile
 import logging
 logger = logging.getLogger(__name__)
 
+from . import models
 from . import locations
 from . import simulators
 from . import stimuli
@@ -198,10 +202,19 @@ class SweepProtocol(Protocol):
             cell_model.freeze(param_values)
             cell_model.instantiate(sim=sim)
 
-            self.instantiate(sim=sim, icell=cell_model.icell)
+            self.instantiate(sim=sim, cell_model=cell_model)
 
             try:
-                sim.run(self.total_duration, cvode_active=self.cvode_active)
+                if isinstance(sim, LFPySimulator):
+                    sim.run(
+                        lfpy_cell=cell_model.lfpy_cell,
+                        lfpy_electrode=cell_model.lfpy_electrode,
+                        tstop=self.total_duration,
+                        cvode_active=self.cvode_active)
+                else:
+                    sim.run(
+                        self.total_duration, cvode_active=self.cvode_active
+                    )
             except (RuntimeError, simulators.NrnSimulatorException):
                 logger.debug(
                     'SweepProtocol: Running of parameter set {%s} generated '
@@ -248,12 +261,20 @@ class SweepProtocol(Protocol):
             copyreg.pickle(types.MethodType, _reduce_method)
             import pebble
             from concurrent.futures import TimeoutError
+            import multiprocessing
+
+            # Default context for python>=3.8 on macos is spawn.
+            # Spwan context would reset NEURON properties, such as dt.
+            multiprocessing_context = multiprocessing.get_context('fork')
 
             if timeout is not None:
                 if timeout < 0:
                     raise ValueError("timeout should be > 0")
-
-            with pebble.ProcessPool(max_workers=1, max_tasks=1) as pool:
+            with pebble.ProcessPool(
+                max_workers=1,
+                max_tasks=1,
+                context=multiprocessing_context
+            ) as pool:
                 tasks = pool.schedule(self._run_func, kwargs={
                     'cell_model': cell_model,
                     'param_values': param_values,
@@ -273,15 +294,23 @@ class SweepProtocol(Protocol):
                                        sim=sim)
         return responses
 
-    def instantiate(self, sim=None, icell=None):
+    def instantiate(self, sim=None, cell_model=None):
         """Instantiate"""
 
         for stimulus in self.stimuli:
-            stimulus.instantiate(sim=sim, icell=icell)
+            if isinstance(stimulus, LFPStimulus):
+                stimulus.instantiate(sim=sim, lfpy_cell=cell_model.lfpy_cell)
+            else:
+                stimulus.instantiate(sim=sim, icell=cell_model.icell)
 
         for recording in self.recordings:
             try:
-                recording.instantiate(sim=sim, icell=icell)
+                if isinstance(recording, LFPRecording):
+                    recording.instantiate(sim=sim,
+                                          lfpy_cell=cell_model.lfpy_cell,
+                                          electrode=cell_model.lfpy_electrode)
+                else:
+                    recording.instantiate(sim=sim, icell=cell_model.icell)
             except locations.EPhysLocInstantiateException:
                 logger.debug(
                     'SweepProtocol: Instantiating recording generated '

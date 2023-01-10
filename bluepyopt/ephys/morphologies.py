@@ -46,7 +46,9 @@ class NrnFileMorphology(Morphology, DictMixin):
 
     """Morphology loaded from a file"""
     SERIALIZED_FIELDS = ('morphology_path', 'do_replace_axon', 'do_set_nseg',
-                         'replace_axon_hoc', )
+                         'replace_axon_hoc', 'nseg_frequency',
+                         'morph_modifiers', 'morph_modifiers_hoc',
+                         'morph_modifiers_kwargs')
 
     def __init__(
             self,
@@ -57,7 +59,8 @@ class NrnFileMorphology(Morphology, DictMixin):
             replace_axon_hoc=None,
             nseg_frequency=40,
             morph_modifiers=None,
-            morph_modifiers_hoc=None):
+            morph_modifiers_hoc=None,
+            morph_modifiers_kwargs=None):
         """Constructor
 
         Args:
@@ -77,6 +80,7 @@ class NrnFileMorphology(Morphology, DictMixin):
                 with (sim, icell) as arguments
             morph_modifiers_hoc (list): list of hoc strings corresponding
                 to morph_modifiers
+            morph_modifiers_kwargs (dict): kwargs for morph_modifiers functions
         """
         name = os.path.basename(morphology_path)
         super(NrnFileMorphology, self).__init__(name=name, comment=comment)
@@ -90,6 +94,9 @@ class NrnFileMorphology(Morphology, DictMixin):
         self.nseg_frequency = nseg_frequency
         self.morph_modifiers = morph_modifiers
         self.morph_modifiers_hoc = morph_modifiers_hoc
+        self.morph_modifiers_kwargs = morph_modifiers_kwargs
+        if self.morph_modifiers_kwargs is None:
+            self.morph_modifiers_kwargs = {}
 
         if replace_axon_hoc is None:
             self.replace_axon_hoc = self.default_replace_axon_hoc
@@ -152,7 +159,8 @@ class NrnFileMorphology(Morphology, DictMixin):
 
         if self.morph_modifiers is not None:
             for morph_modifier in self.morph_modifiers:
-                morph_modifier(sim=sim, icell=icell)
+                morph_modifier(sim=sim, icell=icell,
+                               **self.morph_modifiers_kwargs)
 
     def destroy(self, sim=None):
         """Destroy morphology instantiation"""

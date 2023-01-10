@@ -63,7 +63,7 @@ def _calc_fitness_components(population, kappa):
     population_matrix = numpy.fromiter(
         iter(-x for individual in population
              for x in individual.fitness.wvalues),
-        dtype=numpy.float)
+        dtype=numpy.float64)
     pop_len = len(population)
     feat_len = len(population[0].fitness.wvalues)
     population_matrix = population_matrix.reshape((pop_len, feat_len))
