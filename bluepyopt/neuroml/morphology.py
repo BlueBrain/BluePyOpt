@@ -29,7 +29,7 @@ def create_loadcell_hoc(
     loadcell_hoc_filename, hoc_filename, morphology_path, v_init, cell_name
 ):
     """Create a hoc file able to load the cell.
-    
+
     Arguments:
         loadcell_hoc_filename (str): path to the loadcell hoc file to output
         hoc_filename (str): file name of the cell hoc file
@@ -65,7 +65,7 @@ def create_loadcell_hoc(
 
 def create_morph_nml(bpo_cell, network_filename, release_params):
     """Create cell hoc file, then cell nml file.
-    
+
     Arguments:
         bpo_cell (ephys.CellModel): bluepyopt cell
         network_filename (str): name of the neuroml network file
