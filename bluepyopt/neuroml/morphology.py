@@ -28,7 +28,15 @@ logger = logging.getLogger(__name__)
 def create_loadcell_hoc(
     loadcell_hoc_filename, hoc_filename, morphology_path, v_init, cell_name
 ):
-    """Create a hoc file able to load the cell."""
+    """Create a hoc file able to load the cell.
+
+    Arguments:
+        loadcell_hoc_filename (str): path to the loadcell hoc file to output
+        hoc_filename (str): file name of the cell hoc file
+        morphology_path (str): path to the morphology file
+        v_init (float): inital voltage in mV
+        cell_name (str): cell name
+    """
     morph_path = Path(morphology_path)
     morph_dir = morph_path.parent
     morph_file = morph_path.name
@@ -56,7 +64,13 @@ def create_loadcell_hoc(
 
 
 def create_morph_nml(bpo_cell, network_filename, release_params):
-    """Create cell hoc file, then cell nml file."""
+    """Create cell hoc file, then cell nml file.
+
+    Arguments:
+        bpo_cell (ephys.CellModel): bluepyopt cell
+        network_filename (str): name of the neuroml network file
+        release_params (dict): name and values of optimised parameters
+    """
     import pebble
 
     hoc_filename = f"{bpo_cell.name}.hoc"

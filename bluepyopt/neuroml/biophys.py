@@ -192,7 +192,6 @@ def add_nml_channel_to_nml_cell_file(
         channel_nml2_file = f"{channel_name}.channel.nml"
 
     if channel_nml2_file not in included_channels:
-        nml_mech_dir = get_nml_mech_dir()
         channel_new_path = Path(channel_dir) / channel_nml2_file
         cell_doc.includes.append(neuroml.IncludeType(href=channel_new_path))
 
@@ -200,7 +199,8 @@ def add_nml_channel_to_nml_cell_file(
         # so copy paste files in current directory for the simulation to work
         if not skip_channels_copy:
             Path(channel_dir).mkdir(exist_ok=True)
-            channel_path = Path(nml_mech_dir) / channel_nml2_file
+            nml_mech_dir = Path(get_nml_mech_dir())
+            channel_path = nml_mech_dir / channel_nml2_file
             if channel_path.is_file():
                 shutil.copy(channel_path, channel_new_path)
 
@@ -336,7 +336,7 @@ def get_density(
 
     Arguments:
         cell_doc (NeuroMLDocument): nml document of the cell model
-        cell (ephys.CellModel)
+        cell (ephys.CellModel): bluepyopt cell
         parameter (ephys.parameters)
         section_list (str): location
         included_channels (list): list of channels already included
@@ -417,10 +417,10 @@ def get_biophys(
     """Get biophys in neuroml format.
 
     Arguments:
-        cell (ephys.CellModel)
+        cell (ephys.CellModel): bluepyopt cell
         cell_doc (NeuroMLDocument): nml document of the cell model
-        skip_non_uniform (bool): True to skip non uniform distributions
         release_params (dict): optimized parameters
+        skip_non_uniform (bool): True to skip non uniform distributions
         skip_channels_copy (bool): True to skip the copy pasting
             of the neuroml channel files
     """
