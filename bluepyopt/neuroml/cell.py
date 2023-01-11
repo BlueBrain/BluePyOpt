@@ -27,7 +27,13 @@ from .morphology import create_morph_nml
 logger = logging.getLogger(__name__)
 
 
-def create_neuroml_cell(bpo_cell, release_params, skip_channels_copy=False):
+def create_neuroml_cell(
+    bpo_cell,
+    release_params,
+    skip_channels_copy=False,
+    custom_channel_ion=None,
+    custom_ion_erevs=None,
+):
     """Create the cell.
 
     Arguments:
@@ -35,6 +41,8 @@ def create_neuroml_cell(bpo_cell, release_params, skip_channels_copy=False):
         release_params (dict): the optimized parameters
         skip_channels_copy (bool): True to skip the copy pasting
             of the neuroml channel files
+        custom_channel_ion (dict): dict mapping channel to ion
+        custom_ion_erevs (dict): dict mapping ion to erev (reversal potential)
 
     :returns: name of the cell nml file
     """
@@ -74,6 +82,8 @@ def create_neuroml_cell(bpo_cell, release_params, skip_channels_copy=False):
         release_params,
         skip_non_uniform=True,
         skip_channels_copy=skip_channels_copy,
+        custom_channel_ion=custom_channel_ion,
+        custom_ion_erevs=custom_ion_erevs,
     )
 
     # Append biophys to cell
