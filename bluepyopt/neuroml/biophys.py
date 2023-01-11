@@ -209,7 +209,7 @@ def add_nml_channel_to_nml_cell_file(
 
 def get_channel_ion(channel, custom_channel_ion=None):
     """Get ion name given channel name.
-    
+
     Arguments:
         channel (str): ion channel (e.g. StochKv)
         custom_channel_ion (dict): dict mapping channel to ion
@@ -218,14 +218,16 @@ def get_channel_ion(channel, custom_channel_ion=None):
     if ion is None and custom_channel_ion is not None:
         ion = custom_channel_ion.get(channel, None)
     if ion is None:
-        raise KeyError(f"Ion not found for channel {channel}."
-        " Please set channel-ion mapping using custom_channel_ion.")
+        raise KeyError(
+            f"Ion not found for channel {channel}."
+            " Please set channel-ion mapping using custom_channel_ion."
+        )
     return ion
 
 
 def get_erev(ion, custom_ion_erevs=None):
     """Get reversal potential as str given ion name.
-    
+
     Arguments:
         ion (str): ion name (e.g. na)
         custom_ion_erevs (dict): dict mapping ion to erev (reversal potential)
@@ -234,8 +236,10 @@ def get_erev(ion, custom_ion_erevs=None):
     if erev is None and custom_ion_erevs is not None:
         erev = custom_ion_erevs.get(ion, None)
     if erev is None:
-        raise KeyError(f"Reversal potentail not found for ion {ion}."
-        " Please set ion-erev mapping using custom_ion_erevs.")
+        raise KeyError(
+            f"Reversal potentail not found for ion {ion}."
+            " Please set ion-erev mapping using custom_ion_erevs."
+        )
     return erev
 
 
