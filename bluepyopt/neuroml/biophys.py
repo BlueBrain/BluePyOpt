@@ -237,7 +237,7 @@ def get_erev(ion, custom_ion_erevs=None):
         erev = custom_ion_erevs.get(ion, None)
     if erev is None:
         raise KeyError(
-            f"Reversal potentail not found for ion {ion}."
+            f"Reversal potential not found for ion {ion}."
             " Please set ion-erev mapping using custom_ion_erevs."
         )
     return erev
