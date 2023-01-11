@@ -207,6 +207,38 @@ def add_nml_channel_to_nml_cell_file(
         included_channels.append(channel_nml2_file)
 
 
+def get_channel_ion(channel, custom_channel_ion=None):
+    """Get ion name given channel name.
+    
+    Arguments:
+        channel (str): ion channel (e.g. StochKv)
+        custom_channel_ion (dict): dict mapping channel to ion
+    """
+    ion = channel_ions.get(channel, None)
+    if ion is None and custom_channel_ion is not None:
+        ion = custom_channel_ion.get(channel, None)
+    if ion is None:
+        raise KeyError(f"Ion not found for channel {channel}."
+        " Please set channel-ion mapping using custom_channel_ion.")
+    return ion
+
+
+def get_erev(ion, custom_ion_erevs=None):
+    """Get reversal potential as str given ion name.
+    
+    Arguments:
+        ion (str): ion name (e.g. na)
+        custom_ion_erevs (dict): dict mapping ion to erev (reversal potential)
+    """
+    erev = ion_erevs.get(ion, None)
+    if erev is None and custom_ion_erevs is not None:
+        erev = custom_ion_erevs.get(ion, None)
+    if erev is None:
+        raise KeyError(f"Reversal potentail not found for ion {ion}."
+        " Please set ion-erev mapping using custom_ion_erevs.")
+    return erev
+
+
 def get_arguments(
     params,
     parameter_name,
@@ -216,6 +248,8 @@ def get_arguments(
     variable_parameters,
     cond_density,
     release_params,
+    custom_channel_ion=None,
+    custom_ion_erevs=None,
 ):
     """Get arguments for channel density function.
 
@@ -230,11 +264,13 @@ def get_arguments(
             parameters for non-uniform distributions
         cond_density (str): conductance density
         release_params (dict): optimized parameters
+        custom_channel_ion (dict): dict mapping channel to ion
+        custom_ion_erevs (dict): dict mapping ion to erev (reversal potential)
     """
     arguments = {}
 
-    arguments["ion"] = channel_ions[channel]
-    erev = ion_erevs[arguments["ion"]]
+    arguments["ion"] = get_channel_ion(channel, custom_channel_ion)
+    erev = get_erev(arguments["ion"], custom_ion_erevs)
 
     channel_class = "ChannelDensity"
 
@@ -331,6 +367,8 @@ def get_density(
     skip_non_uniform,
     release_params,
     skip_channels_copy,
+    custom_channel_ion=None,
+    custom_ion_erevs=None,
 ):
     """Return density.
 
@@ -345,6 +383,8 @@ def get_density(
         release_params (dict): optimized parameters
         skip_channels_copy (bool): True to skip the copy pasting
             of the neuroml channel files
+        custom_channel_ion (dict): dict mapping channel to ion
+        custom_ion_erevs (dict): dict mapping ion to erev (reversal potential)
     """
     channel = get_channel_from_param_name(parameter.param_name)
 
@@ -375,6 +415,8 @@ def get_density(
         variable_parameters=variable_parameters,
         cond_density=cond_density,
         release_params=release_params,
+        custom_channel_ion=custom_channel_ion,
+        custom_ion_erevs=custom_ion_erevs,
     )
 
     density = getattr(neuroml, channel_class)(**arguments)
@@ -413,6 +455,8 @@ def get_biophys(
     release_params,
     skip_non_uniform=False,
     skip_channels_copy=False,
+    custom_channel_ion=None,
+    custom_ion_erevs=None,
 ):
     """Get biophys in neuroml format.
 
@@ -423,6 +467,8 @@ def get_biophys(
         skip_non_uniform (bool): True to skip non uniform distributions
         skip_channels_copy (bool): True to skip the copy pasting
             of the neuroml channel files
+        custom_channel_ion (dict): dict mapping channel to ion
+        custom_ion_erevs (dict): dict mapping ion to erev (reversal potential)
     """
     concentrationModels = {}
 
@@ -458,6 +504,8 @@ def get_biophys(
                         skip_non_uniform,
                         release_params,
                         skip_channels_copy,
+                        custom_channel_ion,
+                        custom_ion_erevs,
                     )
 
                     if density is not None:
