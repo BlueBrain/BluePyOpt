@@ -36,11 +36,20 @@ config_dir = os.path.join(script_dir, 'config')
 def define_mechanisms():
     """Define mechanisms"""
 
-    mech_definitions = json.load(
+    mech_definitions = load_mechanisms()
+    return create_mechanisms(mech_definitions)
+
+
+def load_mechanisms():
+
+    return json.load(
         open(
             os.path.join(
                 config_dir,
                 'mechanisms.json')))
+
+
+def create_mechanisms(mech_definitions):
 
     mechanisms = []
     for sectionlist, channels in mech_definitions.items():
@@ -61,7 +70,15 @@ def define_mechanisms():
 def define_parameters():
     """Define parameters"""
 
-    param_configs = json.load(open(os.path.join(config_dir, 'parameters.json')))
+    param_configs = load_parameters()
+    return create_parameters(param_configs)
+
+
+def load_parameters():
+    return json.load(open(os.path.join(config_dir, 'parameters.json')))
+
+
+def create_parameters(param_configs):
     parameters = []
 
     for param_config in param_configs:
@@ -127,22 +144,22 @@ def define_parameters():
     return parameters
 
 
-def define_morphology():
+def define_morphology(do_replace_axon):
     """Define morphology"""
 
     return ephys.morphologies.NrnFileMorphology(
         os.path.join(
             script_dir,
             'morphology/C060114A7.asc'),
-        do_replace_axon=True)
+        do_replace_axon=do_replace_axon)
 
 
-def create():
+def create(do_replace_axon=True):
     """Create cell model"""
 
     cell = ephys.models.CellModel(
         'l5pc',
-        morph=define_morphology(),
+        morph=define_morphology(do_replace_axon),
         mechs=define_mechanisms(),
         params=define_parameters())
 

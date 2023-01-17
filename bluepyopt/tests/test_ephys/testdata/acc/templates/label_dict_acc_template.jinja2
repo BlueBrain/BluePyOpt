@@ -1,0 +1,7 @@
+(arbor-component
+  (meta-data (version "0.1-dev"))
+  (meta-data (info "test-label-dict"))
+  (label-dict
+  {%- for loc, label in label_dict.items() %}{# this is a comment #}
+    {{ label.defn }}
+  {%- endfor %}))

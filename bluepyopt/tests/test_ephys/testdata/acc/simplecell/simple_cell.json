@@ -1,0 +1,11 @@
+{ 
+  "cell_model_name": "simple_cell",
+  "produced_by": "Created by BluePyOpt(1.12.113) at 2022-11-06 18:29:03.845296", 
+  "morphology": {
+     "original": "simple.swc",
+     "replace_axon": "simple_axon_replacement.acc",
+     "modified": "simple_modified.acc"
+  },
+  "label_dict": "simple_cell_label_dict.acc",
+  "decor": "simple_cell_decor.acc"
+}

@@ -43,7 +43,7 @@ class NrnParameter(bluepyopt.parameters.Parameter):
             frozen=False,
             bounds=None,
             param_dependencies=None):
-        """Contructor"""
+        """Constructor"""
 
         super(NrnParameter, self).__init__(
             name,
@@ -132,7 +132,7 @@ class NrnGlobalParameter(NrnParameter, DictMixin):
             bounds=None,
             param_name=None,
             param_dependencies=None):
-        """Contructor
+        """Constructor
 
         Args:
             name (str): name of this object
@@ -183,7 +183,7 @@ class NrnSectionParameter(NrnParameter, DictMixin):
             value_scaler=None,
             locations=None,
             param_dependencies=None):
-        """Contructor
+        """Constructor
 
         Args:
             name (str): name of the Parameter
@@ -332,7 +332,7 @@ class NrnRangeParameter(NrnParameter, DictMixin):
             value_scaler=None,
             locations=None,
             param_dependencies=None):
-        """Contructor
+        """Constructor
 
         Args:
             name (str): name of the Parameter

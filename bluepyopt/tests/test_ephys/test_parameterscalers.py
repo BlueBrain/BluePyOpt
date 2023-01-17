@@ -72,3 +72,58 @@ def test_serialize():
         deserialized = instantiator(serialized)
         assert isinstance(deserialized, ps.__class__)
         assert deserialized.name == ps.__class__.__name__
+
+
+@pytest.mark.unit
+def test_parameterscalers_iexpr_generator():
+    """ephys.parameterscalers: Test iexpr generation from python expression"""
+
+    value = 2.125
+    value_scaler = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
+        name='soma_distance_scaler',
+        distribution='(0.62109375 - math.log( math.pi ) * math.exp('
+                     '({distance}) / 0.421875)) * {value}')
+
+    iexpr = value_scaler.acc_scale_iexpr(
+        value=value, constant_formatter=lambda v: '%.9g' % v)
+
+    assert iexpr == '(sub (scalar 0.62109375) ' \
+                    '(mul (log (pi) ) ' \
+                    '(exp (div (distance (region "soma")) ' \
+                    '(scalar 0.421875) ) ) ) )'
+
+
+@pytest.mark.unit
+def test_parameterscalers_iexpr_generator_non_existent_op():
+    """ephys.parameterscalers: Test iexpr generation from python expression
+    with invalid node"""
+
+    value = 2.125
+    value_scaler = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
+        name='soma_distance_scaler',
+        distribution='(0.62109375 - math.log( math.pi ) * non_existent_func('
+                     '({distance}) / 0.421875)) * {value}')
+
+    with pytest.raises(ValueError,
+                       match='Arbor iexpr generation failed - '
+                             'unsupported function non_existent_func.'):
+        iexpr = value_scaler.acc_scale_iexpr(
+            value=value, constant_formatter=lambda v: '%.9g' % v)
+
+
+@pytest.mark.unit
+def test_parameterscalers_iexpr_generator_unsupported_attr():
+    """ephys.parameterscalers: Test iexpr generation from python expression
+    with invalid node"""
+
+    value = 2.125
+    value_scaler = ephys.parameterscalers.NrnSegmentSomaDistanceScaler(
+        name='soma_distance_scaler',
+        distribution='(0.62109375 - math.log( math.pi )* math.tau.hex('
+                     '({distance}) / 0.421875)) * {value}')
+
+    with pytest.raises(ValueError,
+                       match='Arbor iexpr generation failed - '
+                             'unsupported attribute tau.'):
+        iexpr = value_scaler.acc_scale_iexpr(
+            value=value, constant_formatter=lambda v: '%.9g' % v)

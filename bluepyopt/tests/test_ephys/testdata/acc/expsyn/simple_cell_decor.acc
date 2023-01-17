@@ -1,0 +1,6 @@
+(arbor-component
+  (meta-data (version "0.1-dev"))
+  (decor
+    (paint (region "soma") (membrane-capacitance 0.01))
+    (paint (region "soma") (density (mechanism "default::pas")))
+    (place (locset "somacenter") (synapse (mechanism "default::expsyn" ("tau" 10))) "expsyn")))

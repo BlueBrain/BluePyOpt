@@ -107,6 +107,7 @@ We are providing support using a chat channel on `Gitter <https://gitter.im/Blue
 
 News
 ====
+- 2023/01: BluePyOpt now supports the Arbor simulator.
 - 2022/12: Support for LFPy models merged into master. Examples and preprint: https://github.com/alejoe91/multimodalfitting, https://www.biorxiv.org/content/10.1101/2022.08.03.502468v1.full
 - 2022/12: BluePyOpt now has the ability to write out NeuroML files: https://github.com/BlueBrain/BluePyOpt/tree/master/bluepyopt/neuroml
 - 2021/08/30: BluePyOpt dropped Python 2.7 support.
@@ -141,6 +142,11 @@ And then bluepyopt itself:
 
     pip install bluepyopt
 
+Support for simulators other than NEURON is optional and not installed by default. If you want to use [Arbor](https://arbor-sim.org/) to run your models, use the following line instead to install bluepyopt.
+
+.. code-block:: bash
+
+    pip install bluepyopt[arbor]
 
 Cloud infrastructure
 ====================
@@ -158,7 +164,8 @@ Single compartmental model
 An iPython notebook with an introductory optimisation of a one compartmental
 model with 2 HH channels can be found at
 
-https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/simplecell.ipynb
+https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/simplecell.ipynb (NEURON)
+https://github.com/BlueBrain/BluePyOpt/blob/master/examples/simplecell/simplecell_arbor.ipynb (Arbor)
 
 
 |landscape_example|
@@ -173,7 +180,8 @@ Scripts for a more complex neocortical L5PC are in
 
 With a notebook:
 
-https://github.com/BlueBrain/BluePyOpt/blob/master/examples/l5pc/L5PC.ipynb
+https://github.com/BlueBrain/BluePyOpt/blob/master/examples/l5pc/L5PC.ipynb (NEURON)
+https://github.com/BlueBrain/BluePyOpt/blob/master/examples/l5pc/L5PC_arbor.ipynb (Arbor)
 
 Thalamocortical Cells
 ---------------------

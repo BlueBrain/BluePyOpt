@@ -282,11 +282,11 @@ class TestNrnTrunkSomaDistanceCompLocation(object):
         self.loc = ephys.locations.NrnTrunkSomaDistanceCompLocation(
             'test',
             soma_distance=150,
-            sec_name='testdend')
+            seclist_name='testdend')
         self.loc_other = ephys.locations.NrnTrunkSomaDistanceCompLocation(
             'test',
             soma_distance=350,
-            sec_name='testdend')
+            seclist_name='testdend')
 
         assert self.loc.name == 'test'
         self.sim = ephys.simulators.NrnSimulator()
