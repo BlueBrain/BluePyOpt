@@ -38,6 +38,17 @@ def test__generate_channels_by_location():
 
 
 @pytest.mark.unit
+def test_generate_parameters():
+    """ephys.create_hoc: Test generate_parameters"""
+    parameters = utils.make_parameters()
+
+    assert create_hoc.generate_parameters(parameters) == \
+        create_hoc._generate_parameters(parameters,
+                                        DEFAULT_LOCATION_ORDER,
+                                        create_hoc._loc_desc)
+
+
+@pytest.mark.unit
 def test__generate_parameters():
     """ephys.create_hoc: Test _generate_parameters"""
     parameters = utils.make_parameters()
