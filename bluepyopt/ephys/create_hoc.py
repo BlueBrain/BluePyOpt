@@ -125,6 +125,19 @@ def _loc_desc(location, param_or_mech):
                                  type(param_or_mech).__name__)
 
 
+def generate_parameters(parameters):
+    """Create a list of parameters that need to be added to the hoc template
+
+    Args:
+        parameters (list of bluepyopt.Parameters): parameters in hoc template
+
+    Returns: tuple of global, section, range, pprocess and location order
+    """
+    location_order = DEFAULT_LOCATION_ORDER
+    loc_desc = _loc_desc
+    return _generate_parameters(parameters, location_order, loc_desc)
+
+
 def _generate_parameters(parameters, location_order, loc_desc):
     """Create a list of parameters that need to be added to the hoc template"""
     param_locations = defaultdict(list)
