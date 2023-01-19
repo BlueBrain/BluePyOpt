@@ -21,6 +21,19 @@ DEFAULT_LOCATION_ORDER = [
 
 
 @pytest.mark.unit
+def test_generate_channels_by_location():
+    """ephys.create_hoc: Test generate_channels_by_location"""
+    mech = utils.make_mech()
+    public_res = create_hoc.generate_channels_by_location(
+        [mech], DEFAULT_LOCATION_ORDER,
+    )
+    private_res = create_hoc._generate_channels_by_location(
+        [mech], DEFAULT_LOCATION_ORDER, create_hoc._loc_desc
+    )
+    assert public_res == private_res
+
+
+@pytest.mark.unit
 def test__generate_channels_by_location():
     """ephys.create_hoc: Test _generate_channels_by_location"""
     mech = utils.make_mech()

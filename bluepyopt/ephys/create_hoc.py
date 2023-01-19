@@ -49,6 +49,19 @@ DEFAULT_LOCATION_ORDER = [
     'myelinated']
 
 
+def generate_channels_by_location(mechs, location_order):
+    """Create a OrderedDictionary of all channel mechs for hoc template.
+
+    Args:
+        mechs (list of bluepyopt.ephys.mechanisms.Mechanism): mechanisms
+        location_order (list of str): order of locations
+
+    Returns: tuple of channels, point_channels and location order
+    """
+    loc_desc = _loc_desc
+    return _generate_channels_by_location(mechs, location_order, loc_desc)
+
+
 def _generate_channels_by_location(mechs, location_order, loc_desc):
     """Create a OrderedDictionary of all channel mechs for hoc template."""
     channels = OrderedDict((location, []) for location in location_order)
