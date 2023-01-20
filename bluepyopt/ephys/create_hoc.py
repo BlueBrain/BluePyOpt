@@ -76,7 +76,7 @@ def _generate_channels_by_location(mechs, location_order, loc_desc):
     return channels, point_channels
 
 
-def _generate_reinitrng(mechs):
+def generate_reinitrng(mechs) -> str:
     """Create re_init_rng function"""
 
     for mech in mechs:
@@ -333,7 +333,7 @@ def create_hoc(mechs,
     template_params['range_params'] = _range_exprs_to_hoc(
         template_params['range_params']
     )
-    re_init_rng = _generate_reinitrng(mechs)
+    re_init_rng = generate_reinitrng(mechs)
 
     if custom_jinja_params is None:
         custom_jinja_params = {}

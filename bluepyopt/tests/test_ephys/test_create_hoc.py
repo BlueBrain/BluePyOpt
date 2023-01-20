@@ -118,3 +118,12 @@ def test_create_hoc_filename():
     assert 'endtemplate' in hoc
     assert 'Test template' in hoc
     assert custom_param_val in hoc
+
+
+@pytest.mark.unit
+def test_generate_reinitrng():
+    """ephys.create_hoc: Test generate_reinitrng"""
+    mech = utils.make_mech()
+    re_init_rng = create_hoc.generate_reinitrng([mech])
+    assert 'func hash_str() {localobj sf strdef right' in re_init_rng
+    assert ' hash = (hash * 31 + char_int) % (2 ^ 31 - 1)' in re_init_rng
