@@ -4,12 +4,14 @@
 
 import os
 
+from bluepyopt.ephys.acc import ArbLabel
+from bluepyopt.ephys.parameterscalers import NrnSegmentSomaDistanceScaler
+
 from . import utils
-from bluepyopt.ephys import create_hoc
+from bluepyopt.ephys import create_acc, create_hoc
 
 
 import pytest
-import numpy
 
 DEFAULT_LOCATION_ORDER = [
     'all',
@@ -18,6 +20,19 @@ DEFAULT_LOCATION_ORDER = [
     'basal',
     'somatic',
     'myelinated']
+
+
+@pytest.mark.unit
+def test_generate_channels_by_location():
+    """ephys.create_hoc: Test generate_channels_by_location"""
+    mech = utils.make_mech()
+    public_res = create_hoc.generate_channels_by_location(
+        [mech], DEFAULT_LOCATION_ORDER,
+    )
+    private_res = create_hoc._generate_channels_by_location(
+        [mech], DEFAULT_LOCATION_ORDER, create_hoc._loc_desc
+    )
+    assert public_res == private_res
 
 
 @pytest.mark.unit
@@ -105,3 +120,34 @@ def test_create_hoc_filename():
     assert 'endtemplate' in hoc
     assert 'Test template' in hoc
     assert custom_param_val in hoc
+
+
+@pytest.mark.unit
+def test_generate_reinitrng():
+    """ephys.create_hoc: Test generate_reinitrng"""
+    mech = utils.make_mech()
+    re_init_rng = create_hoc.generate_reinitrng([mech])
+    assert 'func hash_str() {localobj sf strdef right' in re_init_rng
+    assert ' hash = (hash * 31 + char_int) % (2 ^ 31 - 1)' in re_init_rng
+
+
+@pytest.mark.unit
+def test_range_exprs_to_hoc():
+    """ephys.create_hoc: Test range_exprs_to_hoc"""
+    apical_region = ArbLabel("region", "apic", "(tag 4)")
+    param_scaler = NrnSegmentSomaDistanceScaler(
+        name='soma-distance-scaler',
+        distribution='(-0.8696 + 2.087*math.exp(({distance})*0.0031))*{value}'
+    )
+
+    range_expr = create_acc.RangeExpr(
+        location=apical_region,
+        name="gkbar_hh",
+        value=0.025,
+        value_scaler=param_scaler
+    )
+
+    hoc = create_hoc.range_exprs_to_hoc([range_expr])
+    assert hoc[0].param_name == 'gkbar_hh'
+    val_gt = '(-0.8696 + 2.087*exp((%.17g)*0.0031))*0.025000000000000001'
+    assert hoc[0].value == val_gt

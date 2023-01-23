@@ -399,7 +399,7 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
     """Compartment on a section defined both by a section index and distance
        from the soma """
 
-    SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'sec_name',
+    SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'seclist_name',
                          'sec_index', )
 
     def __init__(
@@ -416,7 +416,7 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
             name (str): name of this object
             soma_distance (float): distance from soma to this compartment
             sec_index (int): index of the section  to consider
-            sec_name (str): name of Neuron sections (ex: 'apic')
+            seclist_name (str): name of Neuron sections (ex: 'apic')
         """
         super(NrnSecSomaDistanceCompLocation, self).__init__(
             name,

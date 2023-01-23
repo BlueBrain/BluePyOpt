@@ -49,6 +49,19 @@ DEFAULT_LOCATION_ORDER = [
     'myelinated']
 
 
+def generate_channels_by_location(mechs, location_order):
+    """Create a OrderedDictionary of all channel mechs for hoc template.
+
+    Args:
+        mechs (list of bluepyopt.ephys.mechanisms.Mechanism): mechanisms
+        location_order (list of str): order of locations
+
+    Returns: tuple of channels, point_channels and location order
+    """
+    loc_desc = _loc_desc
+    return _generate_channels_by_location(mechs, location_order, loc_desc)
+
+
 def _generate_channels_by_location(mechs, location_order, loc_desc):
     """Create a OrderedDictionary of all channel mechs for hoc template."""
     channels = OrderedDict((location, []) for location in location_order)
@@ -63,7 +76,7 @@ def _generate_channels_by_location(mechs, location_order, loc_desc):
     return channels, point_channels
 
 
-def _generate_reinitrng(mechs):
+def generate_reinitrng(mechs) -> str:
     """Create re_init_rng function"""
 
     for mech in mechs:
@@ -85,7 +98,7 @@ def _generate_reinitrng(mechs):
     return reinitrng_content
 
 
-def _range_exprs_to_hoc(range_params):
+def range_exprs_to_hoc(range_params):
     """Process raw range parameters to hoc strings"""
 
     ret = []
@@ -317,10 +330,10 @@ def create_hoc(mechs,
     del template_params['pprocess_params']
     del template_params['point_channels']
 
-    template_params['range_params'] = _range_exprs_to_hoc(
+    template_params['range_params'] = range_exprs_to_hoc(
         template_params['range_params']
     )
-    re_init_rng = _generate_reinitrng(mechs)
+    re_init_rng = generate_reinitrng(mechs)
 
     if custom_jinja_params is None:
         custom_jinja_params = {}
