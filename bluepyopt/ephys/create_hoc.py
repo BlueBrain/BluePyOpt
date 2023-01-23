@@ -98,7 +98,7 @@ def generate_reinitrng(mechs) -> str:
     return reinitrng_content
 
 
-def _range_exprs_to_hoc(range_params):
+def range_exprs_to_hoc(range_params):
     """Process raw range parameters to hoc strings"""
 
     ret = []
@@ -330,7 +330,7 @@ def create_hoc(mechs,
     del template_params['pprocess_params']
     del template_params['point_channels']
 
-    template_params['range_params'] = _range_exprs_to_hoc(
+    template_params['range_params'] = range_exprs_to_hoc(
         template_params['range_params']
     )
     re_init_rng = generate_reinitrng(mechs)
