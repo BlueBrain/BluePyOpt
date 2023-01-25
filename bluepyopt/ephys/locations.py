@@ -25,7 +25,13 @@ import itertools
 
 from bluepyopt.ephys.base import BaseEPhys
 from bluepyopt.ephys.serializer import DictMixin
+from bluepyopt.ephys.parameterscalers import format_float
+from bluepyopt.ephys.acc import ArbLabel
+from bluepyopt.ephys.morphologies import ArbFileMorphology
 import numpy as np
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Location(BaseEPhys):
@@ -104,6 +110,16 @@ class NrnSeclistCompLocation(Location, DictMixin):
 
         return icomp
 
+    def acc_label(self):
+        """Arbor label"""
+        raise EPhysLocAccException(
+            '%s not supported in Arbor' % type(self).__name__ +
+            ' (uses branches instead of NEURON sections).'
+            ' Use ArbBranchRelLocation/ArbSegmentRelLocation/'
+            'ArbLocsetLocation instead (consider using the'
+            ' Arbor GUI to identify the precise branch/segment index'
+            ' and relative position).')
+
     def __str__(self):
         """String representation"""
 
@@ -150,6 +166,16 @@ class NrnSectionCompLocation(Location, DictMixin):
         icomp = isection(self.comp_x)
         return icomp
 
+    def acc_label(self):
+        """Arbor label"""
+        raise EPhysLocAccException(
+            '%s not supported in Arbor' % type(self).__name__ +
+            ' (uses branches instead of NEURON sections).'
+            ' Use ArbBranchRelLocation/ArbSegmentRelLocation/'
+            'ArbLocsetLocation instead (consider using the'
+            ' Arbor GUI to identify the precise branch/segment index'
+            ' and relative position).')
+
     def __str__(self):
         return '%s(%s)' % (self.sec_name, self.comp_x)
 
@@ -177,6 +203,10 @@ class NrnPointProcessLocation(Location):
         """Find the instantiated point processes"""
 
         return self.pprocess_mech.pprocesses
+
+    def acc_label(self):
+        """Arbor label"""
+        return [loc.acc_label() for loc in self.pprocess_mech.locations]
 
     def __str__(self):
         """String representation"""
@@ -211,6 +241,10 @@ class NrnSeclistLocation(Location, DictMixin):
         isectionlist = getattr(icell, self.seclist_name)
 
         return (isection for isection in isectionlist)
+
+    def acc_label(self):
+        """Arbor label"""
+        return ArbFileMorphology.region_labels[self.seclist_name]
 
     def __str__(self):
         """String representation"""
@@ -248,6 +282,15 @@ class NrnSeclistSecLocation(Location, DictMixin):
         isectionlist = getattr(icell, self.seclist_name)
         isection = _nth_isectionlist(isectionlist, self.sec_index)
         return isection
+
+    def acc_label(self):
+        """Arbor label"""
+        raise EPhysLocAccException(
+            '%s not supported in Arbor' % type(self).__name__ +
+            ' (uses branches instead of NEURON sections).'
+            ' Use ArbBranchLocation/ArbSegmentLocation/ArbRegionLocation'
+            ' instead (consider using the Arbor GUI to identify the'
+            ' precise branch/segment index).')
 
     def __str__(self):
         """String representation"""
@@ -320,6 +363,30 @@ class NrnSomaDistanceCompLocation(Location, DictMixin):
 
         return self.find_icomp(sim, iseclist)
 
+    def acc_label(self):
+        """Arbor label"""
+        # Potentially non-unique location - in that case to be refined in the
+        # Arbor GUI (create ArbLocsetLocation directly).
+        # Alternatives to (on-components 0.5 (region "soma")) are
+        #  - '(segment <id>)'
+        #  - '(proximal (region %s)))' % self.seclist_name
+        # If outer restrict results in non-unique location (cf. GUI) use
+        # specific branch or similar instead of seclist_name, e.g.
+        #  - (proximal-interval (distal (branch <id>)))
+        # for a branch distally from the desired location
+        acc_label = ArbLabel(
+            'locset', self.name,
+            '(restrict (distal-translate (on-components 0.5 %s) %s) %s)' %
+            (ArbFileMorphology.region_labels['somatic'].ref,
+             format_float(self.soma_distance),
+             ArbFileMorphology.region_labels[self.seclist_name].ref))
+        logger.warning(
+            'Make sure that ACC label %s' % acc_label.loc +
+            ' for NrnSomaDistanceCompLocation (%s) ' % str(self) +
+            ' instantiates to a unique location on the morphology.'
+            ' Use the Arbor GUI to validate/refine the location expression.')
+        return acc_label
+
     def __str__(self):
         """String representation"""
 
@@ -332,7 +399,7 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
     """Compartment on a section defined both by a section index and distance
        from the soma """
 
-    SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'sec_name',
+    SERIALIZED_FIELDS = ('name', 'comment', 'soma_distance', 'seclist_name',
                          'sec_index', )
 
     def __init__(
@@ -340,7 +407,7 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
         name,
         soma_distance=None,
         sec_index=None,
-        sec_name=None,
+        seclist_name=None,
         comment=""
     ):
         """Constructor
@@ -349,12 +416,12 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
             name (str): name of this object
             soma_distance (float): distance from soma to this compartment
             sec_index (int): index of the section  to consider
-            sec_name (str): name of Neuron sections (ex: 'apic')
+            seclist_name (str): name of Neuron sections (ex: 'apic')
         """
         super(NrnSecSomaDistanceCompLocation, self).__init__(
             name,
             soma_distance=soma_distance,
-            seclist_name=sec_name,
+            seclist_name=seclist_name,
             comment=comment,
         )
         self.sec_index = sec_index
@@ -392,6 +459,11 @@ class NrnSecSomaDistanceCompLocation(NrnSomaDistanceCompLocation):
 
         return self.find_icomp(sim, branches)
 
+    def acc_label(self):
+        """Arbor label"""
+        raise EPhysLocAccException('%s not supported in Arbor.' %
+                                   type(self).__name__)
+
 
 class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
     """Location at a distance from soma along a main direction.
@@ -411,7 +483,7 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
         name,
         soma_distance=None,
         sec_index=None,
-        sec_name=None,
+        seclist_name=None,
         direction=None,
         comment=""
     ):
@@ -429,7 +501,7 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
             name,
             soma_distance=soma_distance,
             sec_index=sec_index,
-            sec_name=sec_name,
+            seclist_name=seclist_name,
             comment=comment
         )
 
@@ -460,12 +532,128 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
             self.set_sec_index(icell=icell)
         return super().instantiate(sim=sim, icell=icell)
 
+    def acc_label(self):
+        """Arbor label"""
+        raise EPhysLocAccException('%s not supported in Arbor.' %
+                                   type(self).__name__)
+
+
+class ArbLocation(Location):
+    """Arbor Location"""
+
+    def instantiate(self, sim=None, icell=None):  # pylint: disable=W0613
+        """Find the instantiate compartment (default implementation)"""
+        raise EPhysLocInstantiateException(
+            '%s not supported in NEURON.' % type(self).__name__)
+
+    def __str__(self):
+        """String representation"""
+        return '%s \'%s\'' % (type(self).__name__, self.acc_label().defn)
+
+
+class ArbSegmentLocation(ArbLocation):
+    """Segment in an Arbor morphology.
+    """
+
+    def __init__(self, name, segment, comment=''):
+        super().__init__(name, comment)
+        self.segment = segment
+
+    def acc_label(self):
+        """Arbor label"""
+        return ArbLabel('region', self.name, '(segment %s)' % (self.segment))
+
+
+class ArbBranchLocation(ArbLocation):
+    """Branch in an Arbor morphology.
+
+    Arbor's counterpart of NrnSeclistSecLocation.
+    """
+
+    def __init__(self, name, branch, comment=''):
+        super().__init__(name, comment)
+        self.branch = branch
+
+    def acc_label(self):
+        """Arbor label"""
+        return ArbLabel('region', self.name, '(branch %s)' % (self.branch))
+
+
+class ArbSegmentRelLocation(ArbLocation):
+    """Relative position on a segment in an Arbor morphology.
+    """
+
+    def __init__(self, name, segment, pos, comment=''):
+        super().__init__(name, comment)
+        self.segment = segment
+        self.pos = pos
+
+    def acc_label(self):
+        """Arbor label"""
+        return ArbLabel('locset', self.name,
+                        '(on-components %s (segment %s))' %
+                        (format_float(self.pos), self.segment))
+
+
+class ArbBranchRelLocation(ArbLocation):
+    """Relative position on a branch in an Arbor morphology.
+
+    Arbor's counterpart of NrnSeclistCompLocation.
+    """
+
+    def __init__(self, name, branch, pos, comment=''):
+        super().__init__(name, comment)
+        self.branch = branch
+        self.pos = pos
+
+    def acc_label(self):
+        """Arbor label"""
+        return ArbLabel('locset', self.name,
+                        '(location %s %s)' %
+                        (self.branch, format_float(self.pos)))
+
+
+class ArbLocsetLocation(ArbLocation):
+    """Arbor location set defined by a user-supplied string (S-expression).
+    """
+
+    def __init__(self, name, locset, comment=''):
+        super().__init__(name, comment)
+        self.locset = locset
+
+    def acc_label(self):
+        """Arbor label"""
+        return ArbLabel('locset', self.name, self.locset)
+
+
+class ArbRegionLocation(ArbLocation):
+    """Arbor region defined by a user-supplied string (S-expression).
+    """
+
+    def __init__(self, name, region, comment=''):
+        super().__init__(name, comment)
+        self.region = region
+
+    def acc_label(self):
+        """Arbor label"""
+        return ArbLabel('region', self.name, self.region)
+
 
 class EPhysLocInstantiateException(Exception):
 
-    """All exception generated by location instantiation"""
+    """All exceptions generated by location instantiation"""
 
     def __init__(self, message):
         """Constructor"""
 
         super(EPhysLocInstantiateException, self).__init__(message)
+
+
+class EPhysLocAccException(Exception):
+
+    """All exceptions generated by ACC label creation"""
+
+    def __init__(self, message):
+        """Constructor"""
+
+        super(EPhysLocAccException, self).__init__(message)

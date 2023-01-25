@@ -1,0 +1,6 @@
+(arbor-component
+  (meta-data (version "0.1-dev"))
+  (label-dict
+  {%- for loc, label in label_dict.items() %}
+    {{ label.defn }}
+  {%- endfor %}))

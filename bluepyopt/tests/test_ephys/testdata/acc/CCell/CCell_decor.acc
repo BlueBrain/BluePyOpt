@@ -1,0 +1,10 @@
+(arbor-component
+  (meta-data (version "0.1-dev"))
+  (decor
+    (default (gSKv3_1bar_SKv3_1 65))
+    (paint (region "soma") (gSKv3_1bar_SKv3_1 65))
+    (paint (region "soma") (gSKv3_1bar_SKv3_1 65))
+    (paint (region "dend") (density (mechanism "BBP::Ih")))
+    (paint (region "apic") (gSKv3_1bar_SKv3_1 65))
+    (paint (region "apic") (gSKv3_1bar_SKv3_1 65))
+    (paint (region "apic") (density (mechanism "BBP::Ih")))))

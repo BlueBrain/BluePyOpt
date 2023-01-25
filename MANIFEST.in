@@ -1,6 +1,10 @@
 include versioneer.py
 include bluepyopt/_version.py
+include bluepyopt/ephys/static/arbor_mechanisms.json
 include bluepyopt/ephys/templates/cell_template.jinja2
+include bluepyopt/ephys/templates/acc/_json_template.jinja2
+include bluepyopt/ephys/templates/acc/decor_acc_template.jinja2
+include bluepyopt/ephys/templates/acc/label_dict_acc_template.jinja2
 
 include.txt
 include AUTHORS.txt

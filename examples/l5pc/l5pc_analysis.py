@@ -68,7 +68,7 @@ def get_responses(cell_evaluator, individuals, filename):
 
     responses = []
     if filename and os.path.exists(filename):
-        with open(filename) as fd:
+        with open(filename, 'rb') as fd:
             return pickle.load(fd)
 
     for individual in individuals:
@@ -79,19 +79,19 @@ def get_responses(cell_evaluator, individuals, filename):
                 param_values=individual_dict))
 
     if filename:
-        with open(filename, 'w') as fd:
+        with open(filename, 'wb') as fd:
             pickle.dump(responses, fd)
 
     return responses
 
 
 @set_rcoptions
-def analyse_cp(opt, cp_filename, responses_filename, figs):
+def analyse_cp(opt, cp_filename, responses_filename, figs, sim='nrn'):
     """Analyse optimisation results"""
     (model_fig, model_box), (objectives_fig, objectives_box), (
         evol_fig, evol_box) = figs
 
-    cp = pickle.load(open(cp_filename, "r"))
+    cp = pickle.load(open(cp_filename, "rb"))
     hof = cp['halloffame']
 
     responses = get_responses(opt.evaluator, hof, responses_filename)
@@ -102,13 +102,18 @@ def analyse_cp(opt, cp_filename, responses_filename, figs):
     fitness_protocols = opt.evaluator.fitness_protocols
     responses = {}
 
-    nrn = ephys.simulators.NrnSimulator()
+    if sim == 'nrn':
+        simulator = ephys.simulators.NrnSimulator()
+    elif sim == 'arb':
+        simulator = ephys.simulators.ArbSimulator()
+    else:
+        raise ValueError('sim must be either \'nrn\' or \'arb\'.')
 
     for protocol in fitness_protocols.values():
         response = protocol.run(
             cell_model=opt.evaluator.cell_model,
             param_values=parameter_values,
-            sim=nrn)
+            sim=simulator)
         responses.update(response)
 
     objectives = opt.evaluator.fitness_calculator.calculate_scores(responses)
@@ -349,9 +354,9 @@ def plot_validation(opt, parameters):
                 [validation_protocol],
                 param_values=paramset)
 
-        pickle.dump(validation_responses, open('validation_response.pkl', 'w'))
+        pickle.dump(validation_responses, open('validation_response.pkl', 'wb'))
     else:
-        validation_responses = pickle.load(open('validation_response.pkl'))
+        validation_responses = pickle.load(open('validation_response.pkl', 'rb'))
     # print validation_responses['validation.soma.v']['time']
 
     peaktimes = {}
@@ -445,21 +450,26 @@ def plot_validation(opt, parameters):
 
 
 @set_rcoptions
-def analyse_releasecircuit_model(opt, figs, box=None):
+def analyse_releasecircuit_model(opt, figs, box=None, sim='nrn'):
     """Analyse L5PC model from release circuit"""
     (release_responses_fig, response_box), (
         release_objectives_fig, objectives_box) = figs
 
     fitness_protocols = opt.evaluator.fitness_protocols
 
-    nrn = ephys.simulators.NrnSimulator()
+    if sim == 'nrn':
+        simulator = ephys.simulators.NrnSimulator()
+    elif sim == 'arb':
+        simulator = ephys.simulators.ArbSimulator()
+    else:
+        raise ValueError('sim must be either \'nrn\' or \'arb\'.')
 
     responses = {}
     for protocol in fitness_protocols.values():
         response = protocol.run(
             cell_model=opt.evaluator.cell_model,
             param_values=release_params,
-            sim=nrn)
+            sim=simulator)
         responses.update(response)
 
     plot_multiple_responses([responses], fig=release_responses_fig)
@@ -555,7 +565,7 @@ def plot_diversity(opt, checkpoint_file, fig, param_names):
     from a unpickled checkpoint
     '''
     import matplotlib.pyplot as plt
-    checkpoint = pickle.load(open(checkpoint_file, "r"))
+    checkpoint = pickle.load(open(checkpoint_file, "rb"))
 
     ax = fig.add_subplot(1, 1, 1)
 

@@ -74,7 +74,7 @@ def create():
 
     l5pc_cell = ephys.models.LFPyCellModel(
         "l5pc_lfpy",
-        morph=l5pc_model.define_morphology(),
+        morph=l5pc_model.define_morphology(do_replace_axon=True),
         mechs=l5pc_model.define_mechanisms(),
         params=l5pc_model.define_parameters(),
         electrode=define_electrode()

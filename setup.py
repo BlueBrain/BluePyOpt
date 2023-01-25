@@ -33,7 +33,11 @@ EXTRA_NEUROML = [
 ]
 
 EXTRA_LFP = [
-    'LFPy @ git+https://github.com/LFPy/LFPy.git@master',
+    'LFPy>=2.3',
+]
+
+EXTRA_ARBOR = [
+    'arbor>=0.7',
 ]
 
 setuptools.setup(
@@ -52,11 +56,12 @@ setuptools.setup(
         'Pebble>=4.3.10',
         ],
     extras_require={
-        'all': EXTRA_SCOOP + EXTRA_NEUROML + EXTRA_LFP,
-        'tests': EXTRA_NEUROML + EXTRA_LFP,
+        'all': EXTRA_SCOOP + EXTRA_NEUROML + EXTRA_LFP + EXTRA_ARBOR,
+        'tests': EXTRA_NEUROML + EXTRA_LFP + EXTRA_ARBOR,
         'scoop': EXTRA_SCOOP,
         'neuroml': EXTRA_NEUROML,
         'lfpy': EXTRA_LFP,
+        'arbor': EXTRA_ARBOR,
         },
     packages=setuptools.find_packages(
         exclude=(
@@ -93,6 +98,11 @@ setuptools.setup(
     },
     package_data={
         'bluepyopt': [
+            'ephys/static/arbor_mechanisms.json',
             'ephys/templates/cell_template.jinja2',
-            'ephys/examples/simplecell/simple.swc'],
+            'ephys/templates/acc/_json_template.jinja2',
+            'ephys/templates/acc/decor_acc_template.jinja2',
+            'ephys/templates/acc/label_dict_acc_template.jinja2',
+            'ephys/examples/simplecell/simple.swc',
+            'neuroml/NeuroML2_mechanisms/*.nml'],
     })

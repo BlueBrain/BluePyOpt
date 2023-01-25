@@ -31,7 +31,7 @@ import os
 import collections
 import string
 
-from . import create_hoc
+from . import create_hoc, create_acc
 from . import morphologies
 
 import logging
@@ -102,6 +102,7 @@ class CellModel(Model):
 
         # Cell instantiation in simulator
         self.icell = None
+        self.icell_existing_secs = None
 
         self.param_values = None
         self.gid = gid
@@ -222,8 +223,8 @@ class CellModel(Model):
 
         return template_function()
 
-    def instantiate(self, sim=None):
-        """Instantiate model in simulator"""
+    def instantiate_morphology(self, sim=None):
+        """Instantiate morphology in simulator"""
 
         # TODO replace this with the real template name
         if not hasattr(sim.neuron.h, self.name):
@@ -238,6 +239,21 @@ class CellModel(Model):
         self.icell.gid = self.gid
 
         self.morphology.instantiate(sim=sim, icell=self.icell)
+
+        self.icell_existing_secs = [
+            sec for sec in self.secarray_names
+            if sim.neuron.h.section_exists(sec, self.icell)]
+
+    def instantiate_morphology_3d(self, sim=None):
+        """Instantiate morphology and fill in 3d pts for stylized geometry"""
+
+        self.instantiate_morphology(sim=sim)
+        sim.neuron.h.define_shape()
+
+    def instantiate(self, sim=None):
+        """Instantiate model in simulator"""
+
+        self.instantiate_morphology(sim)
 
         if self.mechanisms is not None:
             for mechanism in self.mechanisms:
@@ -263,6 +279,7 @@ class CellModel(Model):
         sim.neuron.h.Vector().size()
 
         self.icell = None
+        self.icell_existing_secs = None
 
         self.morphology.destroy(sim=sim)
         for mechanism in self.mechanisms:
@@ -280,11 +297,13 @@ class CellModel(Model):
                     'set before simulation' %
                     param_name)
 
-    def create_hoc(self, param_values,
-                   ignored_globals=(), template='cell_template.jinja2',
-                   disable_banner=False,
-                   template_dir=None):
-        """Create hoc code for this model"""
+    def _create_sim_desc(self, param_values,
+                         ignored_globals=(), template=None,
+                         disable_banner=False,
+                         template_dir=None,
+                         extra_params=None,
+                         sim_desc_creator=None):
+        """Create simulator description for this model"""
 
         to_unfreeze = []
         for param in self.params.values():
@@ -294,40 +313,119 @@ class CellModel(Model):
 
         template_name = self.name
         morphology = os.path.basename(self.morphology.morphology_path)
-        if self.morphology.do_replace_axon:
-            replace_axon = self.morphology.replace_axon_hoc
+
+        if sim_desc_creator is create_hoc.create_hoc:
+            if self.morphology.do_replace_axon:
+                replace_axon = self.morphology.replace_axon_hoc
+            else:
+                replace_axon = None
+
+            if (
+                self.morphology.morph_modifiers is not None
+                and self.morphology.morph_modifiers_hoc is None
+            ):
+                logger.warning('You have provided custom morphology'
+                               ' modifiers, but no corresponding hoc files.')
+            elif (
+                self.morphology.morph_modifiers is not None
+                and self.morphology.morph_modifiers_hoc is not None
+            ):
+                if replace_axon is None:
+                    replace_axon = ''
+                for morph_modifier_hoc in self.morphology.morph_modifiers_hoc:
+                    replace_axon += '\n'
+                    replace_axon += morph_modifier_hoc
+        elif sim_desc_creator is create_acc.create_acc:
+            if self.morphology.do_replace_axon:
+
+                replace_axon = morphologies.\
+                    ArbFileMorphology.extract_nrn_seclists(
+                        self.icell, [sl for sl in ['axon', 'myelin']
+                                     if sl in self.icell_existing_secs])
+
+            else:
+                replace_axon = None
         else:
-            replace_axon = None
+            raise ValueError('Unsupported sim_desc_creator %s '
+                             '(choose either create_hoc.create_hoc or '
+                             'create_acc.create_acc)', str(sim_desc_creator))
 
-        if (
-            self.morphology.morph_modifiers is not None
-            and self.morphology.morph_modifiers_hoc is None
-        ):
-            logger.warning('You have provided custom morphology modifiers, \
-                            but no corresponding hoc files.')
-        elif (
-            self.morphology.morph_modifiers is not None
-            and self.morphology.morph_modifiers_hoc is not None
-        ):
-            if replace_axon is None:
-                replace_axon = ''
-            for morph_modifier_hoc in self.morphology.morph_modifiers_hoc:
-                replace_axon += '\n'
-                replace_axon += morph_modifier_hoc
+        if extra_params is None:
+            extra_params = dict()
 
-        ret = create_hoc.create_hoc(mechs=self.mechanisms,
-                                    parameters=self.params.values(),
-                                    morphology=morphology,
-                                    ignored_globals=ignored_globals,
-                                    replace_axon=replace_axon,
-                                    template_name=template_name,
-                                    template_filename=template,
-                                    template_dir=template_dir,
-                                    disable_banner=disable_banner)
+        ret = sim_desc_creator(mechs=self.mechanisms,
+                               parameters=self.params.values(),
+                               morphology=morphology,
+                               ignored_globals=ignored_globals,
+                               replace_axon=replace_axon,
+                               template_name=template_name,
+                               template_filename=template,
+                               template_dir=template_dir,
+                               disable_banner=disable_banner,
+                               **extra_params)
 
         self.unfreeze(to_unfreeze)
 
         return ret
+
+    def create_hoc(self, param_values,
+                   ignored_globals=(), template='cell_template.jinja2',
+                   disable_banner=False,
+                   template_dir=None):
+        """Create hoc code for this model"""
+        return self._create_sim_desc(param_values,
+                                     ignored_globals, template,
+                                     disable_banner,
+                                     template_dir,
+                                     sim_desc_creator=create_hoc.create_hoc)
+
+    def create_acc(self, param_values,
+                   ignored_globals=(), template='acc/*_template.jinja2',
+                   disable_banner=False,
+                   template_dir=None,
+                   ext_catalogues=None,
+                   create_mod_morph=False,
+                   sim=None):
+        """Create JSON/ACC-description for this model"""
+        destroy_cell = False
+        if self.morphology.do_replace_axon:
+            if self.icell is None:
+                if sim is None:
+                    raise ValueError('Need an instance of NrnSimulator in sim'
+                                     ' to instantiate morphology in order to'
+                                     ' create JSON/ACC-description with'
+                                     ' axon replacement.')
+                self.instantiate_morphology_3d(sim=sim)
+                destroy_cell = True
+
+        extra_params = dict(
+            morphology_dir=os.path.dirname(self.morphology.morphology_path),
+            create_mod_morph=create_mod_morph,
+            ext_catalogues=ext_catalogues
+        )
+
+        ret = self._create_sim_desc(param_values,
+                                    ignored_globals, template,
+                                    disable_banner,
+                                    template_dir,
+                                    extra_params=extra_params,
+                                    sim_desc_creator=create_acc.create_acc)
+
+        if destroy_cell:
+            self.destroy(sim=sim)
+        return ret
+
+    def write_acc(self, output_dir, param_values,
+                  template_filename='acc/*_template.jinja2',
+                  ext_catalogues=None,
+                  create_mod_morph=False,
+                  sim=None):
+        """Write JSON/ACC-description for this model to output directory"""
+        create_acc.write_acc(output_dir, self, param_values,
+                             template_filename=template_filename,
+                             ext_catalogues=ext_catalogues,
+                             create_mod_morph=create_mod_morph,
+                             sim=sim)
 
     def __str__(self):
         """Return string representation"""

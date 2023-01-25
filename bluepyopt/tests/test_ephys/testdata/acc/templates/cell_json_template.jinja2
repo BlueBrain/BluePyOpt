@@ -1,0 +1,23 @@
+{ 
+  "cell_model_name": "{{template_name}}",
+  {%- if banner %}
+  "produced_by": "{{banner}} (from {{ custom_param }})",
+  {%- endif %}
+  {%- if morphology %} {# feed morphology separately as a SWC/ASC file #}
+  {%- if replace_axon is not none %}
+  "morphology": {
+     "original": "{{morphology}}",
+     "replace_axon": {{replace_axon}},
+     "modified": "{{modified_morphology}}"
+  },
+  {%- else %}
+  "morphology": {
+     "original": "{{morphology}}"
+  },
+  {%- endif %}
+  {%- else %}
+    execerror("Template {{template_name}} requires morphology name to instantiate")
+  {%- endif %}
+  "label_dict": "{{filenames['label_dict.acc']}}",
+  "decor": "{{filenames['decor.acc']}}"
+}

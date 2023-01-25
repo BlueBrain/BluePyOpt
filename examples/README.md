@@ -15,6 +15,8 @@ They can be used to learn the concepts behind the package, and also as a startin
 
 * tsodyksmarkramstp: optimizing parameters of the Tsodyks-Markram model of short-term synaptic plasticity
 
+The expsyn, l5pc and simplecell examples contain an implementation for [Arbor](https://arbor-sim.org/) as an alternative simulator backend to NEURON.
+
 # Documentation
 
 [Parallelization with ipyparallel](BluePyOpt-ipyparallel.md)

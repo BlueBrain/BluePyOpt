@@ -1,0 +1,5 @@
+(arbor-component
+  (meta-data (version "0.1-dev"))
+  (decor
+    (paint (region "soma") (membrane-capacitance 0.01))
+    (paint (region "soma") (density (mechanism "default::hh" ("gnabar" 0.10299326453483033) ("gkbar" 0.027124836082684685))))))

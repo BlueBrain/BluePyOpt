@@ -201,7 +201,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
         # import deap_efel_eval1
         self.toolbox.register(
             "evaluate",
-            self.evaluator.set_neuron_variables_and_evaluate_with_lists
+            self.evaluator.init_simulator_and_evaluate_with_lists
         )
 
         # Register the mate operator

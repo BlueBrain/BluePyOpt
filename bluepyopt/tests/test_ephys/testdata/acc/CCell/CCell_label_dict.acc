@@ -1,0 +1,9 @@
+(arbor-component
+  (meta-data (version "0.1-dev"))
+  (label-dict 
+    (region-def "all" (all)) 
+    (region-def "apic" (tag 4)) 
+    (region-def "axon" (tag 2)) 
+    (region-def "dend" (tag 3)) 
+    (region-def "soma" (tag 1)) 
+    (region-def "myelin" (tag 5))))

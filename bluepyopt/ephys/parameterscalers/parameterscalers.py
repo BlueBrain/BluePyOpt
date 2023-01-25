@@ -24,8 +24,9 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 import string
 
 from bluepyopt.ephys.base import BaseEPhys
+from bluepyopt.ephys.parameterscalers.acc_iexpr import generate_acc_scale_iexpr
 from bluepyopt.ephys.serializer import DictMixin
-
+from bluepyopt.ephys.morphologies import ArbFileMorphology
 
 FLOAT_FORMAT = '%.17g'
 
@@ -178,7 +179,7 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
 
         # find section
         target_sec = None
-        for sec in sim.neuron.h.allsec():
+        for sec in segment.sec.wholetree():
             if "." in sec.name():  # deal with templates
                 sec_name = sec.name().split(".")[1]
             else:
@@ -202,6 +203,12 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
         # This eval is unsafe (but is it ever dangerous ?)
         # pylint: disable=W0123
         return eval(self.eval_dist(values, distance))
+
+    def acc_scale_iexpr(self, value, constant_formatter=format_float):
+        """Generate Arbor scale iexpr for a given value"""
+        raise ValueError(
+            "Parameter scaling based on general Neuron segment/section"
+            " distances not supported in Arbor.")
 
     def __str__(self):
         """String representation"""
@@ -242,3 +249,15 @@ class NrnSegmentSomaDistanceScaler(NrnSegmentSectionDistanceScaler,
         super(NrnSegmentSomaDistanceScaler, self).__init__(
             name, distribution, comment, dist_param_names,
             ref_section='soma[0]', ref_location=soma_ref_location)
+
+    def acc_scale_iexpr(self, value, constant_formatter=format_float):
+        """Generate Arbor scale iexpr for a given value"""
+
+        iexpr = self.inst_distribution
+
+        variables = dict(
+            value=value,
+            distance='(distance %s)' %  # could be a ctor param if required
+            ArbFileMorphology.region_labels['somatic'].ref
+        )
+        return generate_acc_scale_iexpr(iexpr, variables, constant_formatter)

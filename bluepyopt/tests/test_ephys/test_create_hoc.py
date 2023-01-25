@@ -4,12 +4,14 @@
 
 import os
 
+from bluepyopt.ephys.acc import ArbLabel
+from bluepyopt.ephys.parameterscalers import NrnSegmentSomaDistanceScaler
+
 from . import utils
-from bluepyopt.ephys import create_hoc
+from bluepyopt.ephys import create_acc, create_hoc
 
 
 import pytest
-import numpy
 
 DEFAULT_LOCATION_ORDER = [
     'all',
@@ -21,11 +23,24 @@ DEFAULT_LOCATION_ORDER = [
 
 
 @pytest.mark.unit
+def test_generate_channels_by_location():
+    """ephys.create_hoc: Test generate_channels_by_location"""
+    mech = utils.make_mech()
+    public_res = create_hoc.generate_channels_by_location(
+        [mech], DEFAULT_LOCATION_ORDER,
+    )
+    private_res = create_hoc._generate_channels_by_location(
+        [mech], DEFAULT_LOCATION_ORDER, create_hoc._loc_desc
+    )
+    assert public_res == private_res
+
+
+@pytest.mark.unit
 def test__generate_channels_by_location():
     """ephys.create_hoc: Test _generate_channels_by_location"""
     mech = utils.make_mech()
-    channels = create_hoc._generate_channels_by_location(
-        [mech, ], DEFAULT_LOCATION_ORDER)
+    channels, point_channels = create_hoc._generate_channels_by_location(
+        [mech, ], DEFAULT_LOCATION_ORDER, create_hoc._loc_desc)
 
     assert len(channels['apical']) == 1
     assert len(channels['basal']) == 1
@@ -33,21 +48,41 @@ def test__generate_channels_by_location():
     assert channels['apical'] == ['Ih']
     assert channels['basal'] == ['Ih']
 
+    for loc in point_channels:
+        assert len(point_channels[loc]) == 0
+
+
+@pytest.mark.unit
+def test_generate_parameters():
+    """ephys.create_hoc: Test generate_parameters"""
+    parameters = utils.make_parameters()
+
+    assert create_hoc.generate_parameters(parameters) == \
+        create_hoc._generate_parameters(parameters,
+                                        DEFAULT_LOCATION_ORDER,
+                                        create_hoc._loc_desc)
+
 
 @pytest.mark.unit
 def test__generate_parameters():
     """ephys.create_hoc: Test _generate_parameters"""
     parameters = utils.make_parameters()
 
-    global_params, section_params, range_params, location_order = \
-        create_hoc._generate_parameters(parameters)
+    global_params, section_params, range_params, \
+        pprocess_params, location_order = \
+        create_hoc._generate_parameters(parameters,
+                                        DEFAULT_LOCATION_ORDER,
+                                        create_hoc._loc_desc)
 
-    assert global_params == {'NrnGlobalParameter': 65}
+    assert global_params == {'gSKv3_1bar_SKv3_1': 65}
     assert len(section_params[1]) == 2
     assert len(section_params[4]) == 2
     assert section_params[4][0] == 'somatic'
     assert len(section_params[4][1]) == 2
     assert range_params == []
+    for loc, pparams in pprocess_params:
+        assert loc in DEFAULT_LOCATION_ORDER
+        assert len(pparams) == 0
     assert location_order == DEFAULT_LOCATION_ORDER
 
 
@@ -85,3 +120,34 @@ def test_create_hoc_filename():
     assert 'endtemplate' in hoc
     assert 'Test template' in hoc
     assert custom_param_val in hoc
+
+
+@pytest.mark.unit
+def test_generate_reinitrng():
+    """ephys.create_hoc: Test generate_reinitrng"""
+    mech = utils.make_mech()
+    re_init_rng = create_hoc.generate_reinitrng([mech])
+    assert 'func hash_str() {localobj sf strdef right' in re_init_rng
+    assert ' hash = (hash * 31 + char_int) % (2 ^ 31 - 1)' in re_init_rng
+
+
+@pytest.mark.unit
+def test_range_exprs_to_hoc():
+    """ephys.create_hoc: Test range_exprs_to_hoc"""
+    apical_region = ArbLabel("region", "apic", "(tag 4)")
+    param_scaler = NrnSegmentSomaDistanceScaler(
+        name='soma-distance-scaler',
+        distribution='(-0.8696 + 2.087*math.exp(({distance})*0.0031))*{value}'
+    )
+
+    range_expr = create_acc.RangeExpr(
+        location=apical_region,
+        name="gkbar_hh",
+        value=0.025,
+        value_scaler=param_scaler
+    )
+
+    hoc = create_hoc.range_exprs_to_hoc([range_expr])
+    assert hoc[0].param_name == 'gkbar_hh'
+    val_gt = '(-0.8696 + 2.087*exp((%.17g)*0.0031))*0.025000000000000001'
+    assert hoc[0].value == val_gt
