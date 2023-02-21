@@ -21,6 +21,8 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 """
 
 import setuptools
+import sys
+
 import versioneer
 
 
@@ -39,6 +41,9 @@ EXTRA_LFP = [
 EXTRA_ARBOR = [
     'arbor>=0.7',
 ]
+
+if sys.version_info < (3, 8):
+    sys.exit("Python version >= 3.8 is required.")
 
 setuptools.setup(
     name="bluepyopt",
