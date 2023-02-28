@@ -26,15 +26,16 @@
   langid = {english}
 }
 
-@article{appukuttanSoftwareFrameworkValidating,
-  title = {A {{Software Framework}} for {{Validating Neuroscience Models}}},
-  author = {Appukuttan, Shailesh and Sharma, Lungsi and {Garcia-Rodriguez}, Pedro and Davison, Andrew},
-  langid = {english}
-}
-
-@article{awileModernizingNEURONSimulator,
+@article{awileModernizingNEURONSimulator2022a,
   title = {Modernizing the {{NEURON Simulator}} for {{Sustainability}}, {{Portability}}, and {{Performance}}},
-  author = {Awile, Omar and Kumbhar, Pramod and Cornu, Nicolas and {Dura-Bernal}, Salvador and King, James Gonzalo and Lupton, Olli and Magkanaris, Ioannis and McDougal, Robert A. and Newton, Adam J.H. and Pereira, Fernando and S{\u a}vulescu, Alexandru and Carnevale, Nicholas T. and Lytton, William W. and Hines, Michael L. and Sch{\"u}rmann, Felix},
+  author = {Awile, Omar and Kumbhar, Pramod and Cornu, Nicolas and {Dura-Bernal}, Salvador and King, James Gonzalo and Lupton, Olli and Magkanaris, Ioannis and McDougal, Robert A. and Newton, Adam J. H. and Pereira, Fernando and S{\u a}vulescu, Alexandru and Carnevale, Nicholas T. and Lytton, William W. and Hines, Michael L. and Sch{\"u}rmann, Felix},
+  year = {2022},
+  month = jun,
+  journal = {Frontiers in Neuroinformatics},
+  volume = {16},
+  pages = {884046},
+  issn = {1662-5196},
+  doi = {10.3389/fninf.2022.884046},
   abstract = {The need for reproducible, credible, multiscale biological modeling has led to the development of standardized simulation platforms, such as the widely-used NEURON environment for computational neuroscience. Developing and maintaining NEURON over several decades has required attention to the competing needs of backwards compatibility, evolving computer architectures, the addition of new scales and physical processes, accessibility to new users, and efficiency and flexibility for specialists. In order to meet these challenges, we have now substantially modernized NEURON, providing continuous integration, an improved build system and release workflow, and better documentation. With the help of a new source-to-source compiler of the NMODL domain-specific language we have enhanced NEURON's ability to run efficiently, via the CoreNEURON simulation engine, on a variety of hardware platforms, including GPUs. Through the implementation of an optimized in-memory transfer mechanism this performance optimized backend is made easily accessible to users, providing training and model-development paths from laptop to workstation to supercomputer and cloud platform. Similarly, we have been able to accelerate NEURON's reaction-diffusion simulation performance through the use of just-in-time compilation. We show that these efforts have led to a growing developer base, a simpler and more robust software distribution, a wider range of supported computer architectures, a better integration of NEURON with other scientific workflows, and substantially improved performance for the simulation of biophysical and biochemical models.},
   langid = {english}
 }
@@ -295,13 +296,6 @@
   langid = {english}
 }
 
-@article{jedlickaParetoOptimalityEconomy,
-  title = {Pareto Optimality, Economy\textendash Effectiveness Trade-Offs and Ion Channel Degeneracy: Improving Population Modelling for Single Neurons},
-  author = {Jedlicka, Peter and Bird, Alexander D and Cuntz, Hermann},
-  pages = {12},
-  langid = {english}
-}
-
 @article{jedrzejewski-szmekParameterOptimizationUsing2018,
   title = {Parameter {{Optimization Using Covariance Matrix Adaptation}}\textemdash{{Evolutionary Strategy}} ({{CMA-ES}}), an {{Approach}} to {{Investigate Differences}} in {{Channel Properties Between Neuron Subtypes}}},
   author = {{J{\c e}drzejewski-Szmek}, Zbigniew and Abrahao, Karina P. and {J{\c e}drzejewska-Szmek}, Joanna and Lovinger, David M. and Blackwell, Kim T.},
@@ -372,13 +366,6 @@
   issn = {17427835},
   doi = {10.1111/bcpt.13075},
   abstract = {Neuroinformatics is an area of science that aims to integrate neuroscience data and develop modern computational tools to increase our understanding of the functions of the nervous system in health and disease. Neuroinformatics tools include, among others, databases for storing and sharing data, repositories for managing documents and source code, and software tools for analysing, modelling and simulating signals and images. This MiniReview aims to present the state of the art in neuroinformatics and computational in silico modelling of neurobiological processes and neuroscientific phenomena as well as to discuss the use of in silico models in neurotoxicology research. In silico modelling can be considered a new, complementary tool in chemical design to predict potential neurotoxicity and in neurotoxicity testing to help clarify initial hypothesis obtained in in vitro and in vivo. Validated in silico models can be used to identify pharmacological targets, to help bridge in vitro and in vivo studies and, ultimately, to develop safer chemicals and efficient therapeutic strategies.},
-  langid = {english}
-}
-
-@article{lueckmannLikelihoodfreeInferenceEmulator,
-  title = {Likelihood-Free Inference with Emulator Networks},
-  author = {Lueckmann, Jan-Matthis and Bassetto, Giacomo and Karaletsos, Theofanis and Macke, Jakob H},
-  abstract = {Approximate Bayesian Computation (ABC) provides methods for Bayesian inference in simulation-based models which do not permit tractable likelihoods. We present a new ABC method which uses probabilistic neural emulator networks to learn synthetic likelihoods on simulated data \textendash{} both `local' emulators which approximate the likelihood for specific observed data, as well as `global' ones which are applicable to a range of data. Simulations are chosen adaptively using an acquisition function which takes into account uncertainty about either the posterior distribution of interest, or the parameters of the emulator. Our approach does not rely on user-defined rejection thresholds or distance functions. We illustrate inference with emulator networks on synthetic examples and on a biophysical neuron model, and show that emulators allow accurate and efficient inference even on problems which are challenging for conventional ABC approaches.},
   langid = {english}
 }
 
