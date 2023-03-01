@@ -83,6 +83,40 @@ class WSListIndividual(list):
         super(WSListIndividual, self).__init__(*args, **kwargs)
 
 
+def generate_starters(
+    problem_size,
+    ind_size,
+    lambda_,
+    clip=True,
+    clip_threshold=0.8
+):
+    """Generate a new set of starter individual uniformly distributed in a
+    hypercube centered at zero and of length 2 * clip_threshold. Used by SO
+    and MO-CMA
+
+    Args:
+         problem_size (int): dimension of the parameter space
+         ind_size (int): number of objectives
+         lambda_ (map): population size.
+         clip (bool): should the value be clipped to the clip_threshold value
+         clip_threshold (float): value to clip the parameters to in the
+            normalized space [-1;1]
+    """
+
+    ubound = clip_threshold if clip else 1.
+    lbound = - ubound
+
+    starters = [
+        WSListIndividual(
+            numpy.random.uniform(lbound, ubound, problem_size),
+            obj_size=ind_size
+        )
+        for i in range(lambda_)
+    ]
+
+    return starters
+
+
 def update_history_and_hof(halloffame, history, population):
     """Update the hall of fame with the generated individuals
     Note: History and Hall-of-Fame behave like dictionaries

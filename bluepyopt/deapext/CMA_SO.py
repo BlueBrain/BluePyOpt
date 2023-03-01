@@ -56,7 +56,8 @@ class CMA_SO(cma.Strategy):
         sigma,
         max_ngen,
         IndCreator,
-        RandIndCreator,
+        problem_size,
+        ind_size,
         map_function=None,
         use_scoop=False,
     ):
@@ -70,19 +71,20 @@ class CMA_SO(cma.Strategy):
              sigma (float): initial standard deviation of the distribution
              max_ngen (int): total number of generation to run
              IndCreator (fcn): function returning an individual of the pop
-             RandIndCreator (fcn): function creating a random individual.
+             problem_size (int): dimension of the parameter space
+             ind_size (int): number of objectives
              map_function (map): function used to map (parallelize) the
                  evaluation function calls
              use_scoop (bool): use scoop map for parallel computation
         """
 
         if offspring_size is None:
-            lambda_ = int(4 + 3 * log(len(RandIndCreator())))
+            lambda_ = int(4 + 3 * log(ind_size))
         else:
             lambda_ = offspring_size
 
         if centroids is None:
-            starter = RandIndCreator()
+            starter = utils.generate_starters(ind_size, obj_size, lambda_)
         else:
             starter = centroids[0]
 

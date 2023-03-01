@@ -86,7 +86,8 @@ class CMA_MO(cma.StrategyMultiObjective):
         sigma,
         max_ngen,
         IndCreator,
-        RandIndCreator,
+        problem_size,
+        ind_size,
         weight_hv=0.5,
         map_function=None,
         use_scoop=False,
@@ -101,7 +102,8 @@ class CMA_MO(cma.StrategyMultiObjective):
             sigma (float): initial standard deviation of the distribution
             max_ngen (int): total number of generation to run
             IndCreator (fcn): function returning an individual of the pop
-            RandIndCreator (fcn): function creating a random individual.
+            problem_size (int): dimension of the parameter space
+            ind_size (int): number of objectives
             weight_hv (float): between 0 and 1. Weight given to the
                 hypervolume contribution when computing the score of an
                 individual in MO-CMA. The weight of the fitness contribution
@@ -112,12 +114,12 @@ class CMA_MO(cma.StrategyMultiObjective):
         """
 
         if offspring_size is None:
-            lambda_ = int(4 + 3 * log(len(RandIndCreator())))
+            lambda_ = int(4 + 3 * log(ind_size))
         else:
             lambda_ = offspring_size
 
         if centroids is None:
-            starters = [RandIndCreator() for i in range(lambda_)]
+            starters = utils.generate_starters(problem_size, ind_size, lambda_)
         else:
             if len(centroids) != lambda_:
                 from itertools import cycle

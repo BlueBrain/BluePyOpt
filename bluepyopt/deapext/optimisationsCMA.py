@@ -56,7 +56,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         seed=1,
         offspring_size=None,
         centroids=None,
-        sigma=0.4,
+        sigma=0.3,
         map_function=None,
         hof=None,
         selector_name="single_objective",
@@ -284,7 +284,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 sigma=self.sigma,
                 max_ngen=max_ngen,
                 IndCreator=self.toolbox.Individual,
-                RandIndCreator=self.toolbox.RandomInd,
+                problem_size=self.problem_size,
+                ind_size=self.ind_size,
                 map_function=self.map_function,
                 use_scoop=self.use_scoop,
             )
