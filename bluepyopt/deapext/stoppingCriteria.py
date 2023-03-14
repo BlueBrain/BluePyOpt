@@ -121,11 +121,7 @@ class Stagnationv2(bluepyopt.stoppingCriteria.StoppingCriteria):
 
         self.lambda_ = lambda_
         self.problem_size = problem_size
-        self.stagnation_iter = int(
-            numpy.ceil(
-                0.2 * ngen + 120 + 30.0 * self.problem_size / self.lambda_
-            )
-        )
+        self.stagnation_iter = None
         self.threshold = threshold
         self.std_threshold = std_threshold
 
@@ -143,6 +139,12 @@ class Stagnationv2(bluepyopt.stoppingCriteria.StoppingCriteria):
         # condition to avoid duplicates when re-starting
         if len(self.best) < ngen:
             self.best.append(fitness[0])
+
+        self.stagnation_iter = int(
+            numpy.ceil(
+                0.2 * ngen + 120 + 30.0 * self.problem_size / self.lambda_
+            )
+        )
 
         crit1 = len(self.best) > self.stagnation_iter
         crit2 = numpy.median(self.best[-20:]) * (1 + self.threshold) \
