@@ -106,7 +106,7 @@ class Stagnationv2(bluepyopt.stoppingCriteria.StoppingCriteria):
         self, lambda_, problem_size, threshold=0.01, std_threshold=0.02
     ):
         """Constructor
-        
+
         Args:
             lambda_ (int): offspring size
             problem_size (int): problem size
