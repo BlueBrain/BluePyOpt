@@ -75,8 +75,10 @@ class Stagnation(bluepyopt.stoppingCriteria.StoppingCriteria):
         fitness = [ind.fitness.reduce for ind in population]
         fitness.sort()
 
-        self.best.append(fitness[0])
-        self.median.append(fitness[int(round(len(fitness) / 2.0))])
+        # condition to avoid duplicates when re-starting
+        if len(self.best) < ngen:
+            self.best.append(fitness[0])
+            self.median.append(fitness[int(round(len(fitness) / 2.0))])
         self.stagnation_iter = int(
             numpy.ceil(
                 0.2 * ngen + 120 + 30.0 * self.problem_size / self.lambda_
@@ -95,6 +97,64 @@ class Stagnation(bluepyopt.stoppingCriteria.StoppingCriteria):
             self.criteria_met = True
 
 
+class Stagnationv2(bluepyopt.stoppingCriteria.StoppingCriteria):
+    """Stagnation stopping criteria class"""
+
+    name = "Stagnationv2"
+
+    def __init__(
+        self, lambda_, problem_size, threshold=0.01, std_threshold=0.02
+    ):
+        """Constructor
+        
+        Args:
+            lambda_ (int): offspring size
+            problem_size (int): problem size
+            threshold (float): 1st criterion is triggered if best fitness
+                improves less than this threshold for 100 generations
+            std_threshold (float): 2nd criterion is triggered if
+                standard deviation of the best fitness over
+                the last 20 generations is below the best fitness multiplied
+                by this threshold
+        """
+        super(Stagnationv2, self).__init__()
+
+        self.lambda_ = lambda_
+        self.problem_size = problem_size
+        self.stagnation_iter = int(
+            numpy.ceil(
+                0.2 * ngen + 120 + 30.0 * self.problem_size / self.lambda_
+            )
+        )
+        self.threshold = threshold
+        self.std_threshold = std_threshold
+
+        self.best = []
+
+    def check(self, kwargs):
+        """Check if best model fitness does not improve over 1% over 100 gens
+            and is not noisy in the last 20 generations
+        """
+        ngen = kwargs.get("gen")
+        population = kwargs.get("population")
+        fitness = [ind.fitness.reduce for ind in population]
+        fitness.sort()
+
+        # condition to avoid duplicates when re-starting
+        if len(self.best) < ngen:
+            self.best.append(fitness[0])
+
+        crit1 = len(self.best) > self.stagnation_iter
+        crit2 = numpy.median(self.best[-20:]) * (1 + self.threshold) \
+            > numpy.median(self.best[-120:-100])
+        crit3 = numpy.std(self.best[-20:]) < (
+            self.std_threshold * self.best[-1]
+        )
+
+        if crit1 and crit2 and crit3:
+            self.criteria_met = True
+
+
 class TolHistFun(bluepyopt.stoppingCriteria.StoppingCriteria):
     """TolHistFun stopping criteria class"""
 
@@ -105,8 +165,7 @@ class TolHistFun(bluepyopt.stoppingCriteria.StoppingCriteria):
         super(TolHistFun, self).__init__()
         self.tolhistfun = 10 ** -12
         self.mins = deque(
-            maxlen=10 + int(numpy.ceil(30.0 * problem_size / lambda_))
-        )
+            maxlen=10 + int(numpy.ceil(30.0 * problem_size / lambda_)))
 
     def check(self, kwargs):
         """Check if the range of the best values is smaller than

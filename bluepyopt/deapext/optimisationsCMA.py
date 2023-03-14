@@ -41,7 +41,6 @@ logger = logging.getLogger("__main__")
 def _ind_convert_space(ind, convert_fcn):
     """util function to pass the individual from normalized to real space and
     inversely"""
-
     return [f(x) for f, x in zip(convert_fcn, ind)]
 
 
@@ -359,7 +358,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 pickle.dump(cp, open(cp_filename_tmp, "wb"))
                 if os.path.isfile(cp_filename_tmp):
                     shutil.copy(cp_filename_tmp, cp_filename)
-                    logger.debug('Wrote checkpoint to %s', cp_filename)
+                    logger.debug("Wrote checkpoint to %s", cp_filename)
 
                 CMA_es.map_function = temp_mf
 

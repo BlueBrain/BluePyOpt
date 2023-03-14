@@ -30,7 +30,7 @@ import deap
 from deap import base
 from deap import cma
 
-from .stoppingCriteria import MaxNGen
+from .stoppingCriteria import MaxNGen, Stagnationv2
 from . import utils
 from . import hype
 
@@ -160,10 +160,13 @@ class CMA_MO(cma.StrategyMultiObjective):
         self.active = True
         if max_ngen <= 0:
             max_ngen = 100 + 50 * (self.problem_size + 3) ** 2 / numpy.sqrt(
-                self.lambda_
+                lambda_
             )
 
-        self.stopping_conditions = [MaxNGen(max_ngen)]
+        self.stopping_conditions = [
+            MaxNGen(max_ngen),
+            Stagnationv2(lambda_, self.problem_size),
+        ]
 
     def _select(self, candidates):
         """Select the best candidates of the population
@@ -242,6 +245,6 @@ class CMA_MO(cma.StrategyMultiObjective):
             if c.criteria_met:
                 logger.info(
                     "CMA stopped because of termination criteria: " +
-                    " ".join(c.name)
+                    "" + " ".join(c.name)
                 )
                 self.active = False
