@@ -527,9 +527,9 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
             else:
                 self.sec_index = int(np.argmax(points.dot(self.direction)))
         else:
-            raise EPhysLocInstantiateException("Empty seclist: %s", self.seclist_name)
-
-
+            raise EPhysLocInstantiateException(
+                "Empty seclist: %s" % self.seclist_name
+            )
 
     def instantiate(self, sim=None, icell=None):
         """ """
