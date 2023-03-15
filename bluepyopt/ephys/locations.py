@@ -521,7 +521,7 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
                 for section in getattr(icell, self.seclist_name)
             ]
         )
-        if len(points):
+        if len(points) > 0:
             if self.direction == 'radial':
                 self.sec_index = int(np.argmax(np.linalg.norm(points, axis=1)))
             else:
