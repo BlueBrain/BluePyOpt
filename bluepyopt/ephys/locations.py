@@ -521,10 +521,15 @@ class NrnTrunkSomaDistanceCompLocation(NrnSecSomaDistanceCompLocation):
                 for section in getattr(icell, self.seclist_name)
             ]
         )
-        if self.direction == 'radial':
-            self.sec_index = int(np.argmax(np.linalg.norm(points, axis=1)))
+        if len(points) > 0:
+            if self.direction == 'radial':
+                self.sec_index = int(np.argmax(np.linalg.norm(points, axis=1)))
+            else:
+                self.sec_index = int(np.argmax(points.dot(self.direction)))
         else:
-            self.sec_index = int(np.argmax(points.dot(self.direction)))
+            raise EPhysLocInstantiateException(
+                "Empty seclist: %s" % self.seclist_name
+            )
 
     def instantiate(self, sim=None, icell=None):
         """ """
