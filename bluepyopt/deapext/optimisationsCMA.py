@@ -41,7 +41,6 @@ logger = logging.getLogger("__main__")
 def _ind_convert_space(ind, convert_fcn):
     """util function to pass the individual from normalized to real space and
     inversely"""
-
     return [f(x) for f, x in zip(convert_fcn, ind)]
 
 
@@ -62,6 +61,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         selector_name="single_objective",
         weight_hv=0.5,
         fitness_reduce=numpy.sum,
+        use_stagnation_criterion=True,
     ):
         """Constructor
 
@@ -86,6 +86,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 is computed as 1 - weight_hv.
             fitness_reduce (fcn): function used to reduce the objective values
                 to a single fitness score
+            use_stagnation_criterion (bool): whether to use the stagnation
+                stopping criterion on top of the maximum generation criterion
         """
 
         super(DEAPOptimisationCMA, self).__init__(evaluator=evaluator)
@@ -119,6 +121,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 "or 'multi_objective'. Not "
                 "{}".format(self.selector_name)
             )
+
+        self.use_stagnation_criterion = use_stagnation_criterion
 
         # Number of objective values
         self.problem_size = len(self.evaluator.params)
@@ -287,6 +291,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 RandIndCreator=self.toolbox.RandomInd,
                 map_function=self.map_function,
                 use_scoop=self.use_scoop,
+                use_stagnation_criterion=self.use_stagnation_criterion,
             )
 
             if self.selector_name == "multi_objective":
@@ -359,7 +364,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 pickle.dump(cp, open(cp_filename_tmp, "wb"))
                 if os.path.isfile(cp_filename_tmp):
                     shutil.copy(cp_filename_tmp, cp_filename)
-                    logger.debug('Wrote checkpoint to %s', cp_filename)
+                    logger.debug("Wrote checkpoint to %s", cp_filename)
 
                 CMA_es.map_function = temp_mf
 
