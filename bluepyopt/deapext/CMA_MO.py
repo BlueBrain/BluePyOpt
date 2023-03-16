@@ -90,6 +90,7 @@ class CMA_MO(cma.StrategyMultiObjective):
         weight_hv=0.5,
         map_function=None,
         use_scoop=False,
+        use_stagnation_criterion=True,
     ):
         """Constructor
 
@@ -109,6 +110,8 @@ class CMA_MO(cma.StrategyMultiObjective):
             map_function (map): function used to map (parallelize) the
                  evaluation function calls
             use_scoop (bool): use scoop map for parallel computation
+            use_stagnation_criterion (bool): whether to use the stagnation
+                stopping criterion on top of the maximum generation criterion
         """
 
         if offspring_size is None:
@@ -165,8 +168,11 @@ class CMA_MO(cma.StrategyMultiObjective):
 
         self.stopping_conditions = [
             MaxNGen(max_ngen),
-            Stagnationv2(lambda_, self.problem_size),
         ]
+        if use_stagnation_criterion:
+            self.stopping_conditions.append(
+                Stagnationv2(lambda_, self.problem_size)
+            )
 
     def _select(self, candidates):
         """Select the best candidates of the population

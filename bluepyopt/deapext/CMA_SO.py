@@ -59,6 +59,7 @@ class CMA_SO(cma.Strategy):
         RandIndCreator,
         map_function=None,
         use_scoop=False,
+        use_stagnation_criterion=True,
     ):
         """Constructor
 
@@ -74,6 +75,8 @@ class CMA_SO(cma.Strategy):
             map_function (map): function used to map (parallelize) the
                 evaluation function calls
             use_scoop (bool): use scoop map for parallel computation
+            use_stagnation_criterion (bool): whether to use the stagnation
+                stopping criterion on top of the maximum generation criterion
         """
 
         if offspring_size is None:
@@ -108,7 +111,6 @@ class CMA_SO(cma.Strategy):
 
         self.stopping_conditions = [
             MaxNGen(max_ngen),
-            Stagnationv2(lambda_, self.problem_size),
             TolHistFun(lambda_, self.problem_size),
             EqualFunVals(lambda_, self.problem_size),
             NoEffectAxis(self.problem_size),
@@ -117,6 +119,10 @@ class CMA_SO(cma.Strategy):
             ConditionCov(),
             NoEffectCoor(),
         ]
+        if use_stagnation_criterion:
+            self.stopping_conditions.append(
+                Stagnationv2(lambda_, self.problem_size)
+            )
 
     def update(self, population):
         """Update the current covariance matrix strategy from the
