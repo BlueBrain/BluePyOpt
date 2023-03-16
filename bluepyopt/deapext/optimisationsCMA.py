@@ -121,7 +121,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                 "or 'multi_objective'. Not "
                 "{}".format(self.selector_name)
             )
-        
+
         self.use_stagnation_criterion = use_stagnation_criterion
 
         # Number of objective values
