@@ -1,7 +1,7 @@
 """bluepyopt.optimisations tests"""
 
 import numpy
-import mock
+from unittest import mock
 
 import deap.creator
 import deap.benchmarks
@@ -75,7 +75,7 @@ def test_eaAlphaMuPlusLambdaCheckpoint_with_checkpoint():
 
     with mock.patch('pickle.dump'):
         with mock.patch('bluepyopt.deapext.algorithms.open',
-                        return_value=None):
+                        mock.mock_open()):
             population, hof, logbook, history = \
                 bluepyopt.deapext.algorithms.eaAlphaMuPlusLambdaCheckpoint(
                     population=population,
@@ -99,7 +99,7 @@ def test_eaAlphaMuPlusLambdaCheckpoint_with_checkpoint():
                                                  'rndstate': random.getstate(),
                                                  'generation': 1}):
         with mock.patch('bluepyopt.deapext.algorithms.open',
-                        return_value=None):
+                        mock.mock_open()):
             new_population, hof, logbook, history = \
                 bluepyopt.deapext.algorithms.eaAlphaMuPlusLambdaCheckpoint(
                     population=population,
