@@ -195,7 +195,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
             if os.path.isfile(cp_filename_tmp):
                 shutil.copy(cp_filename_tmp, cp_filename)
                 logger.debug('Wrote checkpoint to %s', cp_filename)
-            
+
             time_last_save = time.time()
 
         gen += 1
