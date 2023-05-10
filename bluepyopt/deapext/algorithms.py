@@ -26,6 +26,7 @@ import random
 import logging
 import shutil
 import os
+import time
 
 import deap.algorithms
 import deap.tools
@@ -92,6 +93,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
         stats=None,
         halloffame=None,
         cp_frequency=1,
+        cp_period=None,
         cp_filename=None,
         continue_cp=False,
         terminator=None,
@@ -108,6 +110,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         stats(deap.tools.Statistics): generation of statistics
         halloffame(deap.tools.HallOfFame): hall of fame
         cp_frequency(int): generations between checkpoints
+        cp_period(float): minimum time (in s) between checkpoint.
+            None to save checkpoint independently of the time between them
         cp_filename(string): path to checkpoint filename
         continue_cp(bool): whether to continue
         terminator (multiprocessing.Event): exit loop when is set.
@@ -159,6 +163,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
     # Begin the generational process
     gen = start_gen + 1
     stopping_params = {"gen": gen}
+    time_last_save = time.time()
     while utils.run_next_gen(
             not (_check_stopping_criteria(stopping_criteria, stopping_params)),
             terminator):
@@ -176,7 +181,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
         logger.info(logbook.stream)
 
         if (cp_filename and cp_frequency and
-           gen % cp_frequency == 0):
+           gen % cp_frequency == 0 and
+           (cp_period is None or time.time() - time_last_save > cp_period)):
             cp = dict(population=population,
                       generation=gen,
                       parents=parents,
@@ -189,6 +195,8 @@ def eaAlphaMuPlusLambdaCheckpoint(
             if os.path.isfile(cp_filename_tmp):
                 shutil.copy(cp_filename_tmp, cp_filename)
                 logger.debug('Wrote checkpoint to %s', cp_filename)
+            
+            time_last_save = time.time()
 
         gen += 1
         stopping_params["gen"] = gen
