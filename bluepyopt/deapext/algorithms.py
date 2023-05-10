@@ -123,8 +123,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
 
     if continue_cp:
         # A file name has been given, then load the data from the file
-        with open(cp_filename, "rb") as f:
-            cp = pickle.load(f)
+        cp = pickle.load(open(cp_filename, "rb"))
         population = cp["population"]
         parents = cp["parents"]
         start_gen = cp["generation"]
@@ -186,8 +185,7 @@ def eaAlphaMuPlusLambdaCheckpoint(
                       logbook=logbook,
                       rndstate=random.getstate(),
                       param_names=param_names)
-            with open(cp_filename_tmp, "wb") as f:
-                pickle.dump(cp, f)
+            pickle.dump(cp, open(cp_filename_tmp, "wb"))
             if os.path.isfile(cp_filename_tmp):
                 shutil.copy(cp_filename_tmp, cp_filename)
                 logger.debug('Wrote checkpoint to %s', cp_filename)
