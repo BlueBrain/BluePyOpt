@@ -82,3 +82,7 @@ class TsodyksMarkramEvaluator(bpop.evaluators.Evaluator):
         errors = [np.linalg.norm(self.v[t0:t1] - candidate_v[t0:t1])
                   for t0, t1 in self.split_idx]
         return errors
+
+    def init_simulator_and_evaluate_with_lists(self, individual):
+        """Calls evaluate_with_lists. Is called during IBEA optimisation."""
+        return self.evaluate_with_lists(individual)
