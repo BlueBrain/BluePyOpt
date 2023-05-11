@@ -256,6 +256,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             continue_cp=False,
             cp_filename=None,
             cp_frequency=1,
+            cp_period=None,
             parent_population=None,
             terminator=None):
         """Run optimisation"""
@@ -315,6 +316,7 @@ class DEAPOptimisation(bluepyopt.optimisations.Optimisation):
             stats=stats,
             halloffame=self.hof,
             cp_frequency=cp_frequency,
+            cp_period=None,
             continue_cp=continue_cp,
             cp_filename=cp_filename,
             terminator=terminator,
