@@ -69,3 +69,7 @@ class TsodyksMarkramEvaluator(bpop.evaluators.Evaluator):
             candidate_amps, _ = self.generate_model(freq, individual)
             errors.extend(np.power(self.amplitudes[freq] - candidate_amps, 2).tolist())
         return errors
+
+    def init_simulator_and_evaluate_with_lists(self, individual):
+        """Calls evaluate_with_lists. Is called during IBEA optimisation."""
+        return self.evaluate_with_lists(individual)

@@ -9,7 +9,21 @@
   pages = {103279},
   issn = {25890042},
   doi = {10.1016/j.isci.2021.103279},
+  urldate = {2023-02-28},
   abstract = {Preclinical drug candidates are screened for their ability to ameliorate in vitro neuronal electrophysiology, and go/no-go decisions progress drugs to clinical trials based on population means across cells and animals. However, these measures do not mitigate clinical endpoint risk. Population-based modeling captures variability across multiple electrophysiological measures from healthy, disease, and drug phenotypes. We pursued optimizing therapeutic targets by identifying coherent sets of ion channel target modulations for recovering heterogeneous wild-type (WT) population excitability profiles from a heterogeneous Huntington's disease (HD) population. Our approach combines mechanistic simulations with population modeling of striatal neurons using evolutionary optimization algorithms to design `virtual drugs'. We introduce efficacy metrics to score populations and rank virtual drug candidates. We found virtual drugs using heuristic approaches that performed better than single target modulators and standard classification methods. We compare a real drug to virtual candidates and demonstrate a novel in silico triaging method.},
+  langid = {english}
+}
+
+@techreport{arnaudonControllingMorphoelectrophysiologicalVariability2023,
+  type = {Preprint},
+  title = {Controlling Morpho-Electrophysiological Variability of Neurons with Detailed Biophysical Models},
+  author = {Arnaudon, Alexis and Reva, Maria and Zbili, Mickael and Markram, Henry and Van Geit, Werner and Kanari, Lida},
+  year = {2023},
+  month = apr,
+  institution = {{Neuroscience}},
+  doi = {10.1101/2023.04.06.535923},
+  urldate = {2023-05-24},
+  abstract = {Variability is a universal feature among biological units such as neuronal cells as they enable a robust encoding of a high volume of information in neuronal circuits and prevent hyper synchronizations such as epileptic seizures. While most computational studies on electrophysiological variability in neuronal circuits were done with simplified neuron models, we instead focus on the variability of detailed biophysical models of neurons. With measures of experimental variability, we leverage a Markov chain Monte Carlo method to generate populations of electrical models able to reproduce the variability from sets of experimental recordings. By matching input resistances of soma and axon initial segments with the one of dendrites, we produce a compatible set of morphologies and electrical models that faithfully represent a given morpho-electrical type. We demonstrate our approach on layer 5 pyramidal cells with continuous adapting firing type and show that morphological variability is insufficient to reproduce electrical variability. Overall, this approach provides a strong statistical basis to create detailed models of neurons with controlled variability.},
   langid = {english}
 }
 
@@ -24,6 +38,7 @@
   pages = {109400},
   issn = {01650270},
   doi = {10.1016/j.jneumeth.2021.109400},
+  urldate = {2023-02-28},
   abstract = {Background: The membrane potential of individual neurons depends on a large number of interacting biophysical processes operating on spatial-temporal scales spanning several orders of magnitude. The multi-scale nature of these processes dictates that accurate prediction of membrane potentials in specific neurons requires the utili\- zation of detailed simulations. Unfortunately, constraining parameters within biologically detailed neuron models can be difficult, leading to poor model fits. This obstacle can be overcome partially by numerical opti\- mization or detailed exploration of parameter space. However, these processes, which currently rely on central processing unit (CPU) computation, often incur orders of magnitude increases in computing time for marginal improvements in model behavior. As a result, model quality is often compromised to accommodate compute resources. New Method: Here, we present a simulation environment, NeuroGPU, that takes advantage of the inherent parallelized structure of the graphics processing unit (GPU) to accelerate neuronal simulation. Results \& comparison with existing methods: NeuroGPU can simulate most biologically detailed models 10\textendash 200 times faster than NEURON simulation running on a single core and 5 times faster than GPU simulators (Cor\- eNEURON). NeuroGPU is designed for model parameter tuning and best performs when the GPU is fully utilized by running multiple ({$>$} 100) instances of the same model with different parameters. When using multiple GPUs, NeuroGPU can reach to a speed-up of 800 fold compared to single core simulations, especially when simulating the same model morphology with different parameters. We demonstrate the power of NeuoGPU through largescale parameter exploration to reveal the response landscape of a neuron. Finally, we accelerate numerical optimization of biophysically detailed neuron models to achieve highly accurate fitting of models to simulation and experimental data. Conclusions: Thus, NeuroGPU is the fastest available platform that enables rapid simulation of multicompartment, biophysically detailed neuron models on commonly used computing systems accessible by many scientists.},
   langid = {english}
 }
@@ -39,6 +54,7 @@
   pages = {514--525},
   issn = {0364-5134, 1531-8249},
   doi = {10.1002/ana.25438},
+  urldate = {2023-02-28},
   langid = {english}
 }
 
@@ -53,6 +69,7 @@
   pages = {991609},
   issn = {1662-5196},
   doi = {10.3389/fninf.2022.991609},
+  urldate = {2023-02-28},
   abstract = {In the last decades, brain modeling has been established as a fundamental tool for understanding neural mechanisms and information processing in individual cells and circuits at different scales of observation. Building data-driven brain models requires the availability of experimental data and analysis tools as well as neural simulation environments and, often, large scale computing facilities. All these components are rarely found in a comprehensive framework and usually require               ad hoc               programming. To address this, we developed the EBRAINS Hodgkin-Huxley Neuron Builder (HHNB), a web resource for building single cell neural models via the extraction of activity features from electrophysiological traces, the optimization of the model parameters via a genetic algorithm executed on high performance computing facilities and the simulation of the optimized model in an interactive framework. Thanks to its inherent characteristics, the HHNB facilitates the data-driven model building workflow and its reproducibility, hence fostering a collaborative approach to brain modeling.},
   langid = {english}
 }
@@ -68,6 +85,7 @@
   pages = {3192--3202},
   issn = {0027-8424, 1091-6490},
   doi = {10.1073/pnas.1906369117},
+  urldate = {2023-02-28},
   abstract = {Significance                            GABA ({$\gamma$}-aminobutyric acid) is the brain's predominant inhibitory neurotransmitter and exerts a strong inhibitory influence through extrasynaptic GABA               A               receptors. This form of neurotransmission is known as tonic inhibition. Tonic inhibition is usually thought to reduce the excitability of all neurons, but here we show that it can selectively modulate the excitability of different types of neurons. Surprisingly, tonic inhibition can increase excitability in a common subtype of interneuron, and modeling results suggest this is achieved through the neuron's electrophysiological, or functional, properties. These results provide insight into the impact of tonic inhibition upon neural activity and suggest a mechanism through which GABA may modulate the excitability of neurons in a selective manner.                        ,                             The binding of GABA ({$\gamma$}-aminobutyric acid) to extrasynaptic GABA               A               receptors generates tonic inhibition that acts as a powerful modulator of cortical network activity. Despite GABA being present throughout the extracellular space of the brain, previous work has shown that GABA may differentially modulate the excitability of neuron subtypes according to variation in chloride gradient. Here, using biophysically detailed neuron models, we predict that tonic inhibition can differentially modulate the excitability of neuron subtypes according to variation in electrophysiological properties. Surprisingly, tonic inhibition increased the responsiveness (or gain) in models with features typical for somatostatin interneurons but decreased gain in models with features typical for parvalbumin interneurons. Patch-clamp recordings from cortical interneurons supported these predictions, and further in silico analysis was then performed to seek a putative mechanism underlying gain modulation. We found that gain modulation in models was dependent upon the magnitude of tonic current generated at depolarized membrane potential\textemdash a property associated with outward rectifying GABA               A               receptors. Furthermore, tonic inhibition produced two biophysical changes in models of relevance to neuronal excitability: 1) enhanced action potential repolarization via increased current flow into the dendritic compartment, and 2) reduced activation of voltage-dependent potassium channels. Finally, we show theoretically that reduced potassium channel activation selectively increases gain in models possessing action potential dynamics typical for somatostatin interneurons. Potassium channels in parvalbumin-type models deactivate rapidly and are unavailable for further modulation. These findings show that GABA can differentially modulate interneuron excitability and suggest a mechanism through which this occurs in silico via differences of intrinsic electrophysiological properties.},
   langid = {english}
 }
@@ -80,6 +98,7 @@
   month = aug,
   institution = {{Neuroscience}},
   doi = {10.1101/2022.08.03.502468},
+  urldate = {2023-02-28},
   abstract = {In computational neuroscience, multicompartment models are among the most biophysically realistic representations of single neurons. Constructing such models usually involves the use of the patch-clamp technique to record somatic voltage signals under different experimental conditions. The experimental data are then used to fit the many parameters of the model. While patching of the soma is currently the gold-standard approach to build multicompartment models, several studies have also evidenced a richness of dynamics in dendritic and axonal sections. Recording from the soma alone makes it hard to observe and correctly parameterize the activity of non-somatic compartments.},
   langid = {english}
 }
@@ -92,7 +111,21 @@
   month = apr,
   institution = {{Neuroscience}},
   doi = {10.1101/2020.04.24.060178},
+  urldate = {2022-06-07},
   abstract = {Temporal lobe epilepsy is the fourth most common neurological disorder with about 40\% of patients not responding to pharmacological treatment. Increased cellular loss in the hippocampus is linked to disease severity and pathological phenotypes such as heightened seizure propensity. While the hippocampus is the target of therapeutic interventions such as temporal lobe resection, the impact of the disease at the cellular level remains unclear in humans. Here we show that properties of hippocampal granule cells change with disease progression as measured in living, resected hippocampal tissue excised from epilepsy patients. We show that granule cells increase excitability and shorten response latency while also enlarging in cellular volume, surface area and spine density. Single-cell RNA sequencing combined with simulations ascribe the observed electrophysiological changes to gradual modification in three key ion channel conductances: BK, Cav2.2 and Kir2.1. In a bio-realistic computational network model, we show that the changes related to disease progression bring the circuit into a more excitable state. In turn, we observe that by reversing these changes in the three key conductances produces a less excitable, ``early disease-like'' state. These results provide mechanistic understanding of epilepsy in humans and will inform future therapies such as viral gene delivery to reverse the course of the disorder.},
+  langid = {english}
+}
+
+@techreport{cavarrettaModelingSynapticIntegration2023,
+  type = {Preprint},
+  title = {Modeling Synaptic Integration of Bursty and Beta Oscillatory Inputs in Ventromedial Motor Thalamic Neurons in Normal and Parkinsonian States},
+  author = {Cavarretta, Francesco and Jaeger, Dieter},
+  year = {2023},
+  month = apr,
+  institution = {{Neuroscience}},
+  doi = {10.1101/2023.04.14.536959},
+  urldate = {2023-05-24},
+  abstract = {Abstract           The Ventromedial Motor Thalamus (VM) is implicated in multiple motor functions and occupies a central position in the cortico-basal ganglia-thalamocortical loop. It integrates glutamatergic inputs from motor cortex (MC) and motor-related subcortical areas, and it is a major recipient of inhibition from basal ganglia. Previous experiments in vitro showed that dopamine depletion enhances the excitability of thalamocortical cells (TC) in VM due to reduced M-type potassium currents. To understand how these excitability changes impact synaptic integration in vivo, we constructed biophysically detailed VM TC models fit to normal and dopamine-depleted conditions, using the NEURON simulator. These models allowed us to assess the influence of excitability changes with dopamine depletion on the integration of synaptic inputs expected in vivo. We found that VM TCs in the dopamine-depleted state showed increased firing rates with the same synaptic inputs. Synchronous bursting in inhibitory input from the substantia nigra pars reticulata (SNR), as observed in parkinsonian conditions, evoked a post-inhibitory firing rate increase with a longer duration in dopamine-depleted than control conditions, due to different M-type potassium channel densities. With beta oscillations in the inhibitory inputs from SNR and the excitatory inputs from drivers and modulators, we observed spike-phase locking in the activity of the models in normal and dopamine-depleted states, which relayed and amplified the oscillations of the inputs, suggesting that the increased beta oscillations observed in VM of parkinsonian animals are predominantly a consequence of changes in the presynaptic activity rather than changes in intrinsic properties.                        Significance Statement             The Ventromedial Motor Thalamus is implicated in multiple motor functions. Experiments in vitro showed this area undergoes homeostatic changes following dopamine depletion (parkinsonian state). Here we studied the impact of these changes in vivo, using biophysically detailed modeling. We found that dopamine depletion increased firing rate in the ventromedial thalamocortical neurons and changed their responses to synchronous inhibitory inputs from substantia nigra reticulata. All thalamocortical neuron models relayed and amplified beta oscillations from substantia nigra reticulata and cortical/subcortical inputs, suggesting that increased beta oscillations observed in parkinsonian animals predominantly reflect changes in presynaptic activity.},
   langid = {english}
 }
 
@@ -107,6 +140,7 @@
   pages = {3038},
   issn = {2041-1723},
   doi = {10.1038/s41467-022-30214-w},
+  urldate = {2023-02-28},
   abstract = {Abstract             Pyramidal cells (PCs) form the backbone of the layered structure of the neocortex, and plasticity of their synapses is thought to underlie learning in the brain. However, such long-term synaptic changes have been experimentally characterized between only a few types of PCs, posing a significant barrier for studying neocortical learning mechanisms. Here we introduce a model of synaptic plasticity based on data-constrained postsynaptic calcium dynamics, and show in a neocortical microcircuit model that a single parameter set is sufficient to unify the available experimental findings on long-term potentiation (LTP) and long-term depression (LTD) of PC connections. In particular, we find that the diverse plasticity outcomes across the different PC types can be explained by cell-type-specific synaptic physiology, cell morphology and innervation patterns, without requiring type-specific plasticity. Generalizing the model to in vivo extracellular calcium concentrations, we predict qualitatively different plasticity dynamics from those observed in vitro. This work provides a first comprehensive null model for LTP/LTD between neocortical PC types in vivo, and an open framework for further developing models of cortical synaptic plasticity.},
   langid = {english}
 }
@@ -121,6 +155,7 @@
   publisher = {{ACM}},
   address = {{Canc\'un Mexico}},
   doi = {10.1145/3377929.3398161},
+  urldate = {2023-02-28},
   isbn = {978-1-4503-7127-8},
   langid = {english}
 }
@@ -135,6 +170,7 @@
   publisher = {{ACM}},
   address = {{Anchorage AK USA}},
   doi = {10.1145/3292500.3330886},
+  urldate = {2023-02-28},
   abstract = {Scientific computational models are crucial for analyzing and understanding complex real-life systems that are otherwise difficult for experimentation. However, the complex behavior and the vast inputoutput space of these models often make them opaque, slowing the discovery of novel phenomena. In this work, we present Hint (Hessian INTerestingness) \textendash{} a new algorithm that can automatically and systematically explore black-box models and highlight local nonlinear interactions in the input-output space of the model. This tool aims to facilitate the discovery of interesting model behaviors that are unknown to the researchers. Using this simple yet powerful tool, we were able to correctly rank all pairwise interactions in known benchmark models and do so faster and with greater accuracy than state-of-the-art methods. We further applied Hint to existing computational neuroscience models, and were able to reproduce important scientific discoveries that were published years after the creation of those models. Finally, we ran Hint on two real-world models (in neuroscience and earth science) and found new behaviors of the model that were of value to domain experts.},
   isbn = {978-1-4503-6201-6},
   langid = {english}
@@ -152,6 +188,7 @@
   pages = {1129--1145},
   issn = {1050-9631, 1098-1063},
   doi = {10.1002/hipo.23220},
+  urldate = {2023-02-28},
   abstract = {The anatomy and physiology of monosynaptic connections in rodent hippocampal CA1 have been extensively studied in recent decades. Yet, the resulting knowledge remains disparate and difficult to reconcile. Here, we present a data-driven approach to integrate the current state-of-the-art knowledge on the synaptic anatomy and physiology of rodent hippocampal CA1, including axo-dendritic innervation patterns, number of synapses per connection, quantal conductances, neurotransmitter release probability, and short-term plasticity into a single coherent resource. First, we undertook an extensive literature review of paired recordings of hippocampal neurons and compiled experimental data on their synaptic anatomy and physiology. The data collected in this manner is sparse and inhomogeneous due to the diversity of experimental techniques used by different groups, which necessitates the need for an integrative framework to unify these data. To this end, we extended a previously developed workflow for the neocortex to constrain a unifying in silico reconstruction of the synaptic physiology of CA1 connections. Our work identifies gaps in the existing knowledge and provides a complementary resource toward a more complete quantification of synaptic anatomy and physiology in the rodent hippocampal CA1 region.},
   langid = {english}
 }
@@ -166,6 +203,7 @@
   pages = {e71850},
   issn = {2050-084X},
   doi = {10.7554/eLife.71850},
+  urldate = {2023-02-28},
   abstract = {Hippocampal place cells are activated sequentially as an animal explores its environment. These activity sequences are internally recreated (`replayed'), either in the same or reversed order, during bursts of activity (sharp wave-r\-ipples [SWRs]) that occur in sleep and awake rest. SWR-\- associated replay is thought to be critical for the creation and maintenance of long-\-term memory. In order to identify the cellular and network mechanisms of SWRs and replay, we constructed and simulated a data-\-driven model of area CA3 of the hippocampus. Our results show that the chain-\-like structure of recurrent excitatory interactions established during learning not only determines the content of replay, but is essential for the generation of the SWRs as well. We find that bidirectional replay requires the interplay of the experimentally confirmed, temporally symmetric plasticity rule, and cellular adaptation. Our model provides a unifying framework for diverse phenomena involving hippocampal plasticity, representations, and dynamics, and suggests that the structured neural codes induced by learning may have greater influence over cortical network states than previously appreciated.},
   langid = {english}
 }
@@ -181,6 +219,7 @@
   pages = {2135--2148},
   issn = {0953-816X, 1460-9568},
   doi = {10.1111/ejn.14854},
+  urldate = {2022-06-07},
   abstract = {The striatum is the main input stage of the basal ganglia receiving extrinsic input from cortex and thalamus. The striatal projection neurons (SPN) constitute 95\% of the neurons in the striatum in mice while the remaining 5\% are cholinergic and GABAergic interneurons. The cholinergic (ChIN) and low-threshold spiking interneurons (LTS) are spontaneously active and form a striatal subnetwork involved in salience detection and goal-directed learning. Activation of ChINs has been shown to inhibit LTS via muscarinic receptor type 4 (M4R) and LTS in turn can modulate ChINs via nitric oxide (NO) causing a prolonged depolarization. Thalamic input prefentially excites ChINs, whereas input from motor cortex favours LTS, but can also excite ChINs. This varying extrinsic input with intrinsic reciprocal, yet opposing, effects raises the possibility of a slow input-dependent modulatory subnetwork. Here, we simulate this subnetwork using multicompartmental neuron models that incorporate data regarding known ion channels and detailed morphological reconstructions. The modelled connections replicate the experimental data on muscarinic (M4R) and nitric oxide modulation onto LTS and ChIN, respectively, and capture their physiological interaction. Finally, we show that the cortical and thalamic inputs triggering the opposing modulation within the network induce periods of increased and decreased spiking activity in ChINs and LTS. This could provide different temporal windows for selective modulation by acetylcholine and nitric oxide, and the possibility of interaction with the wider striatal microcircuit.},
   langid = {english}
 }
@@ -194,6 +233,7 @@
   month = jun,
   institution = {{Neuroscience}},
   doi = {10.1101/665331},
+  urldate = {2023-02-28},
   abstract = {Validating a quantitative scientific model requires comparing its predictions against many experimental observations, ideally from many labs, using transparent, robust, statistical comparisons. Unfortunately, in rapidly-growing fields like neuroscience, this is becoming increasingly untenable, even for the most conscientious scientists. Thus the merits and limitations of existing models, or whether a new model is an improvement on the state-of-the-art, is often unclear.},
   langid = {english}
 }
@@ -208,7 +248,24 @@
   pages = {e56261},
   issn = {2050-084X},
   doi = {10.7554/eLife.56261},
+  urldate = {2022-06-07},
   abstract = {Mechanistic modeling in neuroscience aims to explain observed phenomena in terms of underlying causes. However, determining which model parameters agree with complex and stochastic neural data presents a significant challenge. We address this challenge with a machine learning tool which uses deep neural density estimators\textemdash trained using model simulations\textemdash to carry out Bayesian inference and retrieve the full space of parameters compatible with raw data or selected data features. Our method is scalable in parameters and data features and can rapidly analyze new data after initial training. We demonstrate the power and flexibility of our approach on receptive fields, ion channels, and Hodgkin\textendash Huxley models. We also characterize the space of circuit configurations giving rise to rhythmic activity in the crustacean stomatogastric ganglion, and use these results to derive hypotheses for underlying compensation mechanisms. Our approach will help close the gap between data-driven and theory-driven models of neural dynamics.},
+  langid = {english}
+}
+
+@article{guet-mccreightAgedependentIncreasedSag2023,
+  title = {Age-Dependent Increased Sag Amplitude in Human Pyramidal Neurons Dampens Baseline Cortical Activity},
+  author = {{Guet-McCreight}, Alexandre and Chameh, Homeira Moradi and Mahallati, Sara and Wishart, Margaret and Tripathy, Shreejoy J and Valiante, Taufik A and Hay, Etay},
+  year = {2023},
+  month = apr,
+  journal = {Cerebral Cortex},
+  volume = {33},
+  number = {8},
+  pages = {4360--4373},
+  issn = {1047-3211, 1460-2199},
+  doi = {10.1093/cercor/bhac348},
+  urldate = {2023-05-24},
+  abstract = {Abstract             Aging involves various neurobiological changes, although their effect on brain function in humans remains poorly understood. The growing availability of human neuronal and circuit data provides opportunities for uncovering age-dependent changes of brain networks and for constraining models to predict consequences on brain activity. Here we found increased sag voltage amplitude in human middle temporal gyrus layer 5 pyramidal neurons from older subjects and captured this effect in biophysical models of younger and older pyramidal neurons. We used these models to simulate detailed layer 5 microcircuits and found lower baseline firing in older pyramidal neuron microcircuits, with minimal effect on response. We then validated the predicted reduced baseline firing using extracellular multielectrode recordings from human brain slices of different ages. Our results thus report changes in human pyramidal neuron input integration properties and provide fundamental insights into the neuronal mechanisms of altered cortical excitability and resting-state activity in human aging.},
   langid = {english}
 }
 
@@ -220,6 +277,7 @@
   month = feb,
   institution = {{Neuroscience}},
   doi = {10.1101/2023.02.22.529541},
+  urldate = {2023-02-28},
   abstract = {Reduced inhibition by somatostatin-expressing interneurons is associated with depression. Administration of positive allosteric modulators of {$\alpha$}5 subunit-containing GABAA receptor ({$\alpha$}5PAM) that selectively target this lost inhibition exhibit antidepressant and pro-cognitive effects in rodent models of chronic stress. However, the functional effects of {$\alpha$}5-PAM on the human brain in vivo are unknown, and currently cannot be assessed experimentally. We modeled the effects of {$\alpha$}5-PAM on tonic inhibition as measured in human neurons, and tested in silico {$\alpha$}5-PAM effects on detailed models of human cortical microcircuits in health and depression. We found that {$\alpha$}5PAM effectively recovered impaired cortical processing as quantified by stimulus detection metrics, and also recovered the power spectral density profile of the microcircuit EEG signals. We performed an {$\alpha$}5-PAM dose response and identified simulated EEG biomarkers. Our results serve to de-risk and facilitate {$\alpha$}5-PAM translation and provide biomarkers in non-invasive brain signals for monitoring target engagement and drug efficacy.},
   langid = {english}
 }
@@ -235,6 +293,7 @@
   pages = {685--701},
   issn = {1539-2791, 1559-0089},
   doi = {10.1007/s12021-021-09531-w},
+  urldate = {2022-06-07},
   abstract = {Simulation of large-scale networks of neurons is an important approach to understanding and interpreting experimental data from healthy and diseased brains. Owing to the rapid development of simulation software and the accumulation of quantitative data of different neuronal types, it is possible to predict both computational and dynamical properties of local microcircuits in a `bottomup' manner. Simulated data from these models can be compared with experiments and `top-down' modelling approaches, successively bridging the scales. Here we describe an open source pipeline, using the software Snudda, for predicting microcircuit connectivity and for setting up simulations using the NEURON simulation environment in a reproducible way. We also illustrate how to further `curate' data on single neuron morphologies acquired from public databases. This model building pipeline was used to set up a first version of a full-scale cellular level model of mouse dorsal striatum. Model components from that work are here used to illustrate the different steps that are needed when modelling subcortical nuclei, such as the basal ganglia.},
   langid = {english}
 }
@@ -248,6 +307,7 @@
   pages = {bhac246},
   issn = {1047-3211, 1460-2199},
   doi = {10.1093/cercor/bhac246},
+  urldate = {2023-02-28},
   abstract = {Abstract             Synaptic transmission constitutes the primary mode of communication between neurons. It is extensively studied in rodent but not human neocortex. We characterized synaptic transmission between pyramidal neurons in layers 2 and 3 using neurosurgically resected human middle temporal gyrus (MTG, Brodmann area 21), which is part of the distributed language circuitry. We find that local connectivity is comparable with mouse layer 2/3 connections in the anatomical homologue (temporal association area), but synaptic connections in human are 3-fold stronger and more reliable (0\% vs 25\% failure rates, respectively). We developed a theoretical approach to quantify properties of spinous synapses showing that synaptic conductance and voltage change in human dendritic spines are 3\textendash 4-folds larger compared with mouse, leading to significant NMDA receptor activation in human unitary connections. This model prediction was validated experimentally by showing that NMDA receptor activation increases the amplitude and prolongs decay of unitary excitatory postsynaptic potentials in human but not in mouse connections. Since NMDA-dependent recurrent excitation facilitates persistent activity (supporting working memory), our data uncovers cortical microcircuit properties in human that may contribute to language processing in MTG.},
   langid = {english}
 }
@@ -264,6 +324,7 @@
   pages = {e1006753},
   issn = {1553-7358},
   doi = {10.1371/journal.pcbi.1006753},
+  urldate = {2023-02-28},
   langid = {english}
 }
 
@@ -275,7 +336,22 @@
   month = mar,
   institution = {{Neuroscience}},
   doi = {10.1101/2022.02.28.482273},
+  urldate = {2022-06-07},
   abstract = {Thalamoreticular circuitry is known to play a key role in attention, cognition and the generation of sleep spindles, and is implicated in numerous brain disorders, but the cellular and synaptic mechanisms remain intractable. Therefore, we developed the first detailed computational model of mouse thalamus and thalamic reticular nucleus microcircuitry that captures morphological and biophysical properties of \textasciitilde 14,000 neurons connected via \textasciitilde 6M synapses, and recreates biological synaptic and gap junction connectivity. Simulations recapitulate multiple independent network-level experimental findings across different brain states, providing a novel unifying cellular and synaptic account of spontaneous and evoked activity in both wakefulness and sleep. Furthermore, we found that: 1.) inhibitory rebound produces frequency-selective enhancement of thalamic responses during wakefulness, in addition to its role in spindle generation; 2.) thalamic interactions generate the characteristic waxing and waning of spindle oscillations; and 3.) changes in thalamic excitability (e.g. due to neuromodulation) control spindle frequency and occurrence. The model is openly available and provides a new tool to interpret spindle oscillations and test hypotheses of thalamoreticular circuit function and dysfunction across different network states in health and disease.},
+  langid = {english}
+}
+
+@techreport{isbisterModelingSimulationNeocortical2023,
+  type = {Preprint},
+  title = {Modeling and {{Simulation}} of {{Neocortical Micro-}} and {{Mesocircuitry}}. {{Part II}}: {{Physiology}} and {{Experimentation}}},
+  shorttitle = {Modeling and {{Simulation}} of {{Neocortical Micro-}} and {{Mesocircuitry}}. {{Part II}}},
+  author = {Isbister, James B and Ecker, Andr{\'a}s and Pokorny, Christoph and {Bola{\~n}os-Puchet}, Sirio and Egas Santander, Daniela and Arnaudon, Alexis and Awile, Omar and {Barros-Zulaica}, Natali and Blanco Alonso, Jorge and Boci, Elvis and Chindemi, Giuseppe and Courcol, Jean-Denis and Damart, Tanguy and Delemontex, Thomas and Dietz, Alexander and Ficarelli, Gianluca and Gevaert, Mike and Herttuainen, Joni and Ivaska, Genrich and Ji, Weina and Keller, Daniel and King, James and Kumbhar, Pramod and Lapere, Samuel and Litvak, Polina and Mandge, Darshan and Muller, Eilif B. and Pereira, Fernando and Planas, Judit and Ranjan, Rajnish and Reva, Maria and Romani, Armando and R{\"o}ssert, Christian and Sch{\"u}rmann, Felix and Sood, Vishal and Teska, Aleksandra and Tuncel, Anil and Van Geit, Werner and Wolf, Matthias and Markram, Henry and Ramaswamy, Srikanth and Reimann, Michael W.},
+  year = {2023},
+  month = may,
+  institution = {{Neuroscience}},
+  doi = {10.1101/2023.05.17.541168},
+  urldate = {2023-05-24},
+  abstract = {In recent years, large-scale computational models of the cortex have emerged as a powerful way to study the multi-scale mechanisms of neural processing. However, due to computational costs and difficulty of parameterization, detailed biophysical reconstructions have so far been restricted to small volumes of tissue, where the study of macro- and meso-scale interactions that are central to cortical function is not possible. We describe here, and in a companion paper, an approach to address the scaling challenges and provide a model of multiple interacting cortical regions at a subcellular level of detail. The model consists of 4.2 million morphologically detailed neurons in 8 sub-regions and connected with 13.2 billion synapses through local and long-range connectivity. Its anatomical aspects are described in the companion paper; here, we introduce physiological models of neuronal activity and synaptic transmission that integrate a large number of literature sources and were built using previously published algorithms. Biological neuronal diversity was captured in 208 morpho-electrical neuron types, five types of synaptic short-term dynamics, and pathway-specificity of synaptic parameters. A representation of synaptic input from cortical regions not present in the model was added and efficiently calibrated to reference firing rates. The model exhibits a spectrum of dynamical states differing in the degree to which they are internally versus externally driven. We characterized which parts of the spectrum are compatible with available experimental data on layer-specific delays and amplitudes of responses to simple stimuli, and found an in vivo-like regime at the edge of a transition from asynchronous to synchronous spontaneous activity. We developed a rich set of simulation tools to recreate a diverse set of laboratory experiments in silico, providing further validation and demonstrating the utility of the model in a variety of paradigms. Finally, we found that the large spatial scale of the model, that incorporates multiple cortical regions, led to the emergence of multiple independent computational units interacting through long-range synaptic pathways. The model provides a framework for the continued integration of experimental findings, for challenging hypotheses and making testable predictions, and provides a foundation for further simulation-based studies of cortical processing and learning.},
   langid = {english}
 }
 
@@ -290,6 +366,7 @@
   pages = {1194-1208.e5},
   issn = {08966273},
   doi = {10.1016/j.neuron.2018.10.012},
+  urldate = {2023-02-28},
   abstract = {Gene expression studies suggest that differential ion channel expression contributes to differences in rodent versus human neuronal physiology. We tested whether h-channels more prominently contribute to the physiological properties of human compared to mouse supragranular pyramidal neurons. Singlecell/nucleus RNA sequencing revealed ubiquitous HCN1-subunit expression in excitatory neurons in human, but not mouse, supragranular layers. Using patch-clamp recordings, we found stronger h-channel-related membrane properties in supragranular pyramidal neurons in human temporal cortex, compared to mouse supragranular pyramidal neurons in temporal association area. The magnitude of these differences depended upon cortical depth and was largest in pyramidal neurons in deep L3. Additionally, pharmacologically blocking h-channels produced a larger change in membrane properties in human compared to mouse neurons. Finally, using biophysical modeling, we provide evidence that h-channels promote the transfer of theta frequencies from dendrite-to-soma in human L3 pyramidal neurons. Thus, h-channels contribute to between-species differences in a fundamental neuronal property.},
   langid = {english}
 }
@@ -304,6 +381,7 @@
   pages = {882552},
   issn = {1662-5196},
   doi = {10.3389/fninf.2022.882552},
+  urldate = {2023-02-28},
   abstract = {Single neuron models are fundamental for computational modeling of the brain's neuronal networks, and understanding how ion channel dynamics mediate neural function. A challenge in defining such models is determining biophysically realistic channel distributions. Here, we present an efficient, highly parallel evolutionary algorithm for developing such models, named NeuroGPU-EA. NeuroGPU-EA uses CPUs and GPUs concurrently to simulate and evaluate neuron membrane potentials with respect to multiple stimuli. We demonstrate a logarithmic cost for scaling the stimuli used in the fitting procedure. NeuroGPU-EA outperforms the typically used CPU based evolutionary algorithm by a factor of 10 on a series of scaling benchmarks. We report observed performance bottlenecks and propose mitigation strategies. Finally, we also discuss the potential of this method for efficient simulation and evaluation of electrophysiological waveforms.},
   langid = {english}
 }
@@ -320,6 +398,7 @@
   pages = {e1010071},
   issn = {1553-7358},
   doi = {10.1371/journal.pcbi.1010071},
+  urldate = {2023-02-28},
   abstract = {The transformation of synaptic input into action potential output is a fundamental single-cell computation resulting from the complex interaction of distinct cellular morphology and the unique expression profile of ion channels that define the cellular phenotype. Experimental studies aimed at uncovering the mechanisms of the transfer function have led to important insights, yet are limited in scope by technical feasibility, making biophysical simulations an attractive complementary approach to push the boundaries in our understanding of cellular computation. Here we take a data-driven approach by utilizing high-resolution morphological reconstructions and patch-clamp electrophysiology data together with a multi-objective optimization algorithm to build two populations of biophysically detailed models of murine hippocampal CA3 pyramidal neurons based on the two principal cell types that comprise this region. We evaluated the performance of these models and find that our approach quantitatively matches the cell type-specific firing phenotypes and recapitulate the intrinsic population-level variability in the data. Moreover, we confirm that the conductance values found by the optimization algorithm are consistent with differentially expressed ion channel genes in single-cell transcriptomic data for the two cell types. We then use these models to investigate the cell type-specific biophysical properties involved in the generation of complex-spiking output driven by synaptic input through an information-theoretic treatment of their respective transfer functions. Our simulations identify a host of cell type-specific biophysical mechanisms that define the morpho-functional phenotype to shape the cellular transfer function and place these findings in the context of a role for bursting in CA3 recurrent network synchronization dynamics.},
   langid = {english}
 }
@@ -334,6 +413,7 @@
   publisher = {{IEEE}},
   address = {{Seville, Spain}},
   doi = {10.1109/ISCAS45731.2020.9180633},
+  urldate = {2023-02-28},
   abstract = {In recent years, a novel approach based on multiobjective optimization has been developed to automatically tune biophysically realistic, multi-compartmental neuron models starting from electrophysiological recordings. Here, we apply this methodology to the optimization of model neurons capable of reproducing the reduced excitability observed in experiments carried out in cortical pyramidal cells in a rodent model of fetal alcohol spectrum disorder. We find that both control and ethanol-exposed model cells present an excellent match with the experiments in terms of membrane voltage dynamics, with the latter group displaying a small but significant rightward shift of their current-frequency relationship. We identify a possible interplay between model parameters and cellular morphology and suggest future improvements to better capture the features of dendritic voltage dynamics.},
   isbn = {978-1-72813-320-1},
   langid = {english}
@@ -350,6 +430,7 @@
   pages = {8799--8815},
   issn = {0270-6474, 1529-2401},
   doi = {10.1523/JNEUROSCI.3028-19.2020},
+  urldate = {2023-02-28},
   abstract = {Signal propagation in the dendrites of many neurons, including cortical pyramidal neurons in sensory cortex, is characterized by strong attenuation toward the soma. In contrast, using dual whole-cell recordings from the apical dendrite and soma of layer 5 (L5) pyramidal neurons in the anterior cingulate cortex (ACC) of adult male mice we found good coupling, particularly of slow subthreshold potentials like NMDA spikes or trains of EPSPs from dendrite to soma. Only the fastest EPSPs in the ACC were reduced to a similar degree as in primary somatosensory cortex, revealing differential low-pass filtering capabilities. Furthermore, L5 pyramidal neurons in the ACC did not exhibit dendritic Ca               2+               spikes as prominently found in the apical dendrite of S1 (somatosensory cortex) pyramidal neurons. Fitting the experimental data to a NEURON model revealed that the specific distribution of               I               leak               ,               I               ir               ,                                I                 m                              , and               I               h               was sufficient to explain the electrotonic dendritic structure causing a leaky distal dendritic compartment with correspondingly low input resistance and a compact perisomatic region, resulting in a decoupling of distal tuft branches from each other while at the same time efficiently connecting them to the soma. Our results give a biophysically plausible explanation of how a class of prefrontal cortical pyramidal neurons achieve efficient integration of subthreshold distal synaptic inputs compared with the same cell type in sensory cortices.                                         SIGNIFICANCE STATEMENT               Understanding cortical computation requires the understanding of its fundamental computational subunits. Layer 5 pyramidal neurons are the main output neurons of the cortex, integrating synaptic inputs across different cortical layers. Their elaborate dendritic tree receives, propagates, and transforms synaptic inputs into action potential output. We found good coupling of slow subthreshold potentials like NMDA spikes or trains of EPSPs from the distal apical dendrite to the soma in pyramidal neurons in the ACC, which was significantly better compared with S1. This suggests that frontal pyramidal neurons use a different integration scheme compared with the same cell type in somatosensory cortex, which has important implications for our understanding of information processing across different parts of the neocortex.},
   langid = {english}
 }
@@ -366,6 +447,7 @@
   pages = {e1007937},
   issn = {1553-7358},
   doi = {10.1371/journal.pcbi.1007937},
+  urldate = {2023-02-28},
   abstract = {The Golgi cells are the main inhibitory interneurons of the cerebellar granular layer. Although recent works have highlighted the complexity of their dendritic organization and synaptic inputs, the mechanisms through which these neurons integrate complex input patterns remained unknown. Here we have used 8 detailed morphological reconstructions to develop multicompartmental models of Golgi cells, in which Na, Ca, and K channels were distributed along dendrites, soma, axonal initial segment and axon. The models faithfully reproduced a rich pattern of electrophysiological and pharmacological properties and predicted the operating mechanisms of these neurons. Basal dendrites turned out to be more tightly electrically coupled to the axon initial segment than apical dendrites. During synaptic transmission, parallel fibers caused slow Ca-dependent depolarizations in apical dendrites that boosted the axon initial segment encoder and Na-spike backpropagation into basal dendrites, while inhibitory synapses effectively shunted backpropagating currents. This oriented dendritic processing set up a coincidence detector controlling voltage-dependent NMDA receptor unblock in basal dendrites, which, by regulating local calcium influx, may provide the basis for spike-timing dependent plasticity anticipated by theory.},
   langid = {english}
 }
@@ -378,6 +460,7 @@
   month = mar,
   institution = {{Neuroscience}},
   doi = {10.1101/2023.03.08.531672},
+  urldate = {2023-03-14},
   abstract = {Purkinje cells (PC) of the cerebellum are amongst the largest neurons of the brain and have been extensively investigated in rodents. However, their morphological and physiological properties in humans are still poorly understood. Here, we have taken advantage of high-resolution morphological reconstructions and of unique electrophysiological recordings of human PCs ex vivo to generate computational models and estimate computational capacity. An inter-species comparison showed that human PCs had similar fractal structure but were bigger than mouse PCs. Consequently, given a similar spine density (2/micrometer), human PCs hosted about 5 times more dendritic spines. Moreover, human had higher dendritic complexity than mouse PCs and usually emitted 2-3 main dendritic trunks instead than 1. Intrinsic electroresponsiveness was similar in the two species but model simulations revealed that the dendrites generated \textasciitilde 6.5 times (n=51 vs. n=8) more combinations of independent input patterns in human than mouse PCs leading to an exponential 2n increase in Shannon information. Thus, while during evolution human PCs maintained similar patterns of spike discharge as in rodents, they developed more complex dendrites enhancing computational capacity up to the limit of 10 billion times.},
   langid = {english}
 }
@@ -393,6 +476,7 @@
   pages = {222},
   issn = {2399-3642},
   doi = {10.1038/s42003-020-0953-x},
+  urldate = {2023-02-28},
   abstract = {Abstract             The cerebellar granule cells (GrCs) are classically described as a homogeneous neuronal population discharging regularly without adaptation. We show that GrCs in fact generate diverse response patterns to current injection and synaptic activation, ranging from adaptation to acceleration of firing. Adaptation was predicted by parameter optimization in detailed computational models based on available knowledge on GrC ionic channels. The models also predicted that acceleration required additional mechanisms. We found that yet unrecognized TRPM4 currents specifically accounted for firing acceleration and that adapting GrCs outperformed accelerating GrCs in transmitting high-frequency mossy fiber (MF) bursts over a background discharge. This implied that GrC subtypes identified by their electroresponsiveness corresponded to specific neurotransmitter release probability values. Simulations showed that fine-tuning of pre- and post-synaptic parameters generated effective MF-GrC transmission channels, which could enrich the processing of input spike patterns and enhance spatio-temporal recoding at the cerebellar input stage.},
   langid = {english}
 }
@@ -407,6 +491,7 @@
   volume = {11},
   issn = {1662-5102},
   doi = {10.3389/fncel.2017.00071},
+  urldate = {2022-06-07},
   abstract = {In realistic neuronal modeling, once the ionic channel complement has been defined, the maximum ionic conductance (Gi-max) values need to be tuned in order to match the firing pattern revealed by electrophysiological recordings. Recently, selection/mutation genetic algorithms have been proposed to efficiently and automatically tune these parameters. Nonetheless, since similar firing patterns can be achieved through different combinations of Gi-max values, it is not clear how well these algorithms approximate the corresponding properties of real cells. Here we have evaluated the issue by exploiting a unique opportunity offered by the cerebellar granule cell (GrC), which is electrotonically compact and has therefore allowed the direct experimental measurement of ionic currents. Previous models were constructed using empirical tuning of Gi-max values to match the original data set. Here, by using repetitive discharge patterns as a template, the optimization procedure yielded models that closely approximated the experimental Gi-max values. These models, in addition to repetitive firing, captured additional features, including inward rectification, near-threshold oscillations, and resonance, which were not used as features. Thus, parameter optimization using genetic algorithms provided an efficient modeling strategy for reconstructing the biophysical properties of neurons and for the subsequent reconstruction of large-scale neuronal network models.},
   langid = {english}
 }
@@ -419,6 +504,7 @@
   month = feb,
   institution = {{Neuroscience}},
   doi = {10.1101/2020.02.04.933697},
+  urldate = {2023-02-28},
   abstract = {Electrophysiology data acquisition of single neurons represents a key factor for the understanding of neuronal dynamics. However, the traditional method to acquire this data is through patch-clamp technology, which presents serious scalability flaws due to its slowness and complexity to record at fine-grained spatial precision (dendrites and axon).},
   langid = {english}
 }
@@ -435,6 +521,7 @@
   pages = {e1006423},
   issn = {1553-7358},
   doi = {10.1371/journal.pcbi.1006423},
+  urldate = {2022-06-07},
   abstract = {Every neuron is part of a network, exerting its function by transforming multiple spatiotemporal synaptic input patterns into a single spiking output. This function is specified by the particular shape and passive electrical properties of the neuronal membrane, and the composition and spatial distribution of ion channels across its processes. For a variety of physiological or pathological reasons, the intrinsic input/output function may change during a neuron's lifetime. This process results in high variability in the peak specific conductance of ion channels in individual neurons. The mechanisms responsible for this variability are not well understood, although there are clear indications from experiments and modeling that degeneracy and correlation among multiple channels may be involved. Here, we studied this issue in biophysical models of hippocampal CA1 pyramidal neurons and interneurons. Using a unified data-driven simulation workflow and starting from a set of experimental recordings and morphological reconstructions obtained from rats, we built and analyzed several ensembles of morphologically and biophysically accurate single cell models with intrinsic electrophysiological properties consistent with experimental findings. The results suggest that the set of conductances expressed in any given hippocampal neuron may be considered as belonging to two groups: one subset is responsible for the major characteristics of the firing behavior in each population and the other is responsible for a robust degeneracy. Analysis of the model neurons suggests several experimentally testable predictions related to the combination and relative proportion of the different conductances that should be expressed on the membrane of different types of neurons for them to fulfill their role in the hippocampus circuitry.},
   langid = {english}
 }
@@ -449,6 +536,7 @@
   publisher = {{IEEE}},
   address = {{Glasgow, United Kingdom}},
   doi = {10.1109/IJCNN48605.2020.9206692},
+  urldate = {2023-02-28},
   abstract = {Automated parameter search has become a standard method in the modeling of neural systems. These studies could potentially take advantage of recent developments in nonlinear optimization, and the availability of software packages containing high-quality implementations of algorithms that proved useful in other domains. However, a systematic comparison of the available algorithms for problems that are typical in neuroscience has not been performed.},
   isbn = {978-1-72816-926-2},
   langid = {english}
@@ -465,6 +553,7 @@
   pages = {3536-3551.e6},
   issn = {22111247},
   doi = {10.1016/j.celrep.2020.02.027},
+  urldate = {2023-02-28},
   abstract = {Determining cell types is critical for understanding neural circuits but remains elusive in the living human brain. Current approaches discriminate units into putative cell classes using features of the extracellular action potential (EAP); in absence of ground truth data, this remains a problematic procedure. We find that EAPs in deep structures of the brain exhibit robust and systematic variability during the cardiac cycle. These cardiac-related features refine neural classification. We use these features to link bio-realistic models generated from in vitro human wholecell recordings of morphologically classified neurons to in vivo recordings. We differentiate aspiny inhibitory and spiny excitatory human hippocampal neurons and, in a second stage, demonstrate that cardiac-motion features reveal two types of spiny neurons with distinct intrinsic electrophysiological properties and phase-locking characteristics to endogenous oscillations. This multi-modal approach markedly improves cell classification in humans, offers interpretable cell classes, and is applicable to other brain areas and species.},
   langid = {english}
 }
@@ -480,6 +569,7 @@
   pages = {2249-2261.e7},
   issn = {22111247},
   doi = {10.1016/j.celrep.2019.04.078},
+  urldate = {2022-06-07},
   abstract = {Channelrhodopsin2 (ChR2) optogenetic excitation is widely used to study neurons, astrocytes, and circuits. Using complementary approaches in situ and in vivo, we found that ChR2 stimulation leads to significant transient elevation of extracellular potassium ions by \$5 mM. Such elevations were detected in ChR2-expressing mice, following local in vivo expression of ChR2(H134R) with adeno-associated viruses (AAVs), in different brain areas and when ChR2 was expressed in neurons or astrocytes. In particular, ChR2-mediated excitation of striatal astrocytes was sufficient to increase medium spiny neuron (MSN) excitability and immediate early gene expression. The effects on MSN excitability were recapitulated in silico with a computational MSN model and detected in vivo as increased action potential firing in awake, behaving mice. We show that transient, physiologically consequential increases in extracellular potassium ions accompany ChR2 optogenetic excitation. This coincidental effect may be important to consider during astrocyte studies employing ChR2 to interrogate neural circuits and animal behavior.},
   langid = {english}
 }
@@ -492,6 +582,7 @@
   month = dec,
   institution = {{Neuroscience}},
   doi = {10.1101/2022.12.13.520234},
+  urldate = {2023-02-28},
   abstract = {Detailed single neuron modeling is widely used to study neuronal functions. While cellular and functional diversity across the mammalian cortex is vast, most of the available computational tools are dedicated to the reproduction of a small set of specific features characteristic of a single neuron. Here, we present a generalized automated workflow for the creation of robust electrical models and illustrate its performance by building cell models for the rat somatosensory cortex (SSCx). Each model is based on a 3D morphological reconstruction and a set of ionic mechanisms specific to the cell type. We use an evolutionary algorithm to optimize passive and active ionic parameters to match the electrophysiological features extracted from whole-cell patch-clamp recordings. To shed light on which parameters are constrained by experimental data and which could be degenerate, we perform a parameter sensitivity analysis. We also validate the optimized models against additional experimental stimuli and assess their generalizability on a population of morphologies with the same morphological type. With this workflow, we generate SSCx neuronal models producing the variability of neuronal responses. Due to its versatility, our workflow can be used to build robust biophysical models of any neuronal type.},
   langid = {english}
 }
@@ -507,7 +598,21 @@
   pages = {3873},
   issn = {2045-2322},
   doi = {10.1038/s41598-021-83209-w},
+  urldate = {2023-02-28},
   abstract = {Abstract             The functional properties of cerebellar stellate cells and the way they regulate molecular layer activity are still unclear. We have measured stellate cells electroresponsiveness and their activation by parallel fiber bursts. Stellate cells showed intrinsic pacemaking, along with characteristic responses to depolarization and hyperpolarization, and showed a marked short-term facilitation during repetitive parallel fiber transmission. Spikes were emitted after a lag and only at high frequency, making stellate cells to operate as delay-high-pass filters. A detailed computational model summarizing these physiological properties allowed to explore different functional configurations of the parallel fiber\textemdash stellate cell\textemdash Purkinje cell circuit. Simulations showed that, following parallel fiber stimulation, Purkinje cells almost linearly increased their response with input frequency, but such an increase was inhibited by stellate cells, which leveled the Purkinje cell gain curve to its 4~Hz value. When reciprocal inhibitory connections between stellate cells were activated, the control of stellate cells over Purkinje cell discharge was maintained only at very high frequencies. These simulations thus predict a new role for stellate cells, which could endow the molecular layer with low-pass and band-pass filtering properties regulating Purkinje cell gain and, along with this, also burst delay and the burst-pause responses pattern.},
+  langid = {english}
+}
+
+@techreport{romaniCommunitybasedReconstructionSimulation2023,
+  type = {Preprint},
+  title = {Community-Based {{Reconstruction}} and {{Simulation}} of a {{Full-scale Model}} of {{Region CA1}} of {{Rat Hippocampus}}},
+  author = {Romani, Armando and Antonietti, Alberto and Bella, Davide and Budd, Julian and Giacalone, Elisabetta and Kurban, Kerem and S{\'a}ray, S{\'a}ra and Abdellah, Marwan and Arnaudon, Alexis and Boci, Elvis and Colangelo, Cristina and Courcol, Jean-Denis and Delemontex, Thomas and Ecker, Andr{\'a}s and Falck, Joanne and Favreau, Cyrille and Gevaert, Michael and Hernando, Juan B. and Herttuainen, Joni and Ivaska, Genrich and Kanari, Lida and Kaufmann, Anna-Kristin and King, James Gonzalo and Kumbhar, Pramod and Lange, Sigrun and Lu, Huanxiang and Lupascu, Carmen Alina and Migliore, Rosanna and Petitjean, Fabien and Planas, Judit and Rai, Pranav and Ramaswamy, Srikanth and Reimann, Michael W. and Riquelme, Juan Luis and Guerrero, Nadir Rom{\'a}n and Shi, Ying and Sood, Vishal and Sy, Mohameth Fran{\c c}ois and Geit, Werner Van and Vanherpe, Liesbeth and Freund, Tam{\'a}s F. and Mercer, Audrey and Muller, Eilif and Sch{\"u}rmann, Felix and Thomson, Alex M. and Migliore, Michele and K{\'a}li, Szabolcs and Markram, Henry},
+  year = {2023},
+  month = may,
+  institution = {{Neuroscience}},
+  doi = {10.1101/2023.05.17.541167},
+  urldate = {2023-05-24},
+  abstract = {Abstract                        The CA1 region of the hippocampus is one of the most studied regions of the rodent brain, thought to play an important role in cognitive functions such as memory and spatial navigation. Despite a wealth of experimental data on its structure and function, it can be challenging to reconcile information obtained from diverse experimental approaches. To address this challenge, we present a community-driven, full-scale             in silico             model of the rat CA1 that integrates a broad range of experimental data, from synapse to network, including the reconstruction of its principal afferents, the Schaffer collaterals, and a model of the effects that acetylcholine has on the system. We have tested and validated each model component and the final network model, and made input data, assumptions, and strategies explicit and transparent. The flexibility of the model allows scientists to address a range of scientific questions. In this article, we describe the methods used to set up simulations that reproduce and extend             in vitro             and             in vivo             experiments. Among several applications in the article, we focus on theta rhythm, a prominent hippocampal oscillation associated with various behavioral correlates and use our computer model to reproduce and reconcile experimental findings. Finally, we make data, code and model available through the hippocampushub.eu portal, which also provides an extensive set of analyses of the model and a user-friendly interface to facilitate adoption and usage. This neuroscience community-driven model represents a valuable tool for integrating diverse experimental data and provides a foundation for further research into the complex workings of the hippocampal CA1 region.},
   langid = {english}
 }
 
@@ -522,6 +627,7 @@
   publisher = {{Springer International Publishing}},
   address = {{Cham}},
   doi = {10.1007/978-3-030-89439-9_11},
+  urldate = {2023-02-28},
   abstract = {The hippocampus is a widely studied brain region thought to play an important role in higher cognitive functions such as learning, memory, and navigation. The amount of data on this region increases every day and delineates a complex and fragmented picture, but an integrated understanding of hippocampal function remains elusive. Computational methods can help to move the research forward, and reconstructing a full-scale model of the hippocampus is a challenging yet feasible task that the research community should undertake.},
   isbn = {978-3-030-89438-2 978-3-030-89439-9},
   langid = {english}
@@ -539,6 +645,7 @@
   pages = {e1007375},
   issn = {1553-7358},
   doi = {10.1371/journal.pcbi.1007375},
+  urldate = {2023-02-28},
   abstract = {Dopaminergic neurons (DAs) of the rodent substantia nigra pars compacta (SNc) display varied electrophysiological properties in vitro. Despite this, projection patterns and functional inputs from DAs to other structures are conserved, so in vivo delivery of consistent, well-timed dopamine modulation to downstream circuits must be coordinated. Here we show robust coordination by linear parameter controllers, discovered through powerful mathematical analyses of data and models, and from which consistent control of DA subthreshold oscillations (STOs) and spontaneous firing emerges. These units of control represent coordinated intracellular variables, sufficient to regulate complex cellular properties with radical simplicity. Using an evolutionary algorithm and dimensionality reduction, we discovered metaparameters, which when regressed against STO features, revealed a 2dimensional control plane for the neuron's 22-dimensional parameter space that fully maps the natural range of DA subthreshold electrophysiology. This plane provided a basis for spiking currents to reproduce a large range of the naturally occurring spontaneous firing characteristics of SNc DAs. From it we easily produced a unique population of models, derived using unbiased parameter search, that show good generalization to channel blockade and compensatory intracellular mechanisms. From this population of models, we then discovered low-dimensional controllers for regulating spontaneous firing properties, and gain insight into how currents active in different voltage regimes interact to produce the emergent activity of SNc DAs. Our methods therefore reveal simple regulators of neuronal function lurking in the complexity of combined ion channel dynamics.},
   langid = {english}
 }
@@ -556,6 +663,7 @@
   pages = {e1008114},
   issn = {1553-7358},
   doi = {10.1371/journal.pcbi.1008114},
+  urldate = {2023-02-28},
   abstract = {Anatomically and biophysically detailed data-driven neuronal models have become widely used tools for understanding and predicting the behavior and function of neurons. Due to the increasing availability of experimental data from anatomical and electrophysiological measurements as well as the growing number of computational and software tools that enable accurate neuronal modeling, there are now a large number of different models of many cell types available in the literature. These models were usually built to capture a few important or interesting properties of the given neuron type, and it is often unknown how they would behave outside their original context. In addition, there is currently no simple way of quantitatively comparing different models regarding how closely they match specific experimental observations. This limits the evaluation, re-use and further development of the existing models. Further, the development of new models could also be significantly facilitated by the ability to rapidly test the behavior of model candidates against the relevant collection of experimental data. We address these problems for the representative case of the CA1 pyramidal cell of the rat hippocampus by developing an open-source Python test suite, which makes it possible to automatically and systematically test multiple properties of models by making quantitative comparisons between the models and electrophysiological data. The tests cover various aspects of somatic behavior, and signal propagation and integration in apical dendrites. To demonstrate the utility of our approach, we applied our tests to compare the behavior of several different rat hippocampal CA1 pyramidal cell models from the ModelDB database against electrophysiological data available in the literature, and evaluated how well these models match experimental observations in different domains. We also show how we employed the test suite to aid the development of models within the European Human Brain Project (HBP), and describe the integration of the tests into the validation framework developed in the HBP, with the aim of facilitating more reproducible and transparent model building in the neuroscience community.},
   langid = {english}
 }
@@ -568,6 +676,7 @@
   month = apr,
   institution = {{Neuroscience}},
   doi = {10.1101/2020.03.31.018952},
+  urldate = {2023-02-28},
   abstract = {The activity and connectivity of inhibitory cells has a profound impact on the operation of neuronal networks. While the average connectivity of many inhibitory cell types has been characterized, we still lack an understanding of how individual interneurons distribute their synapses onto their targets and how heterogeneous the inhibition is onto different individual excitatory neurons. Here, we use large-scale volumetric electron microscopy (EM) and functional imaging to address this question for chandelier cells in layer 2/3 of mouse visual cortex. Using dense morphological reconstructions from EM, we mapped the complete chandelier input onto 153 pyramidal neurons. We find that the number of input synapses is highly variable across the population, but the variability is correlated with structural features of the target neuron: soma depth, soma size, and the number of perisomatic synapses received. Functionally, we found that chandelier cell activity in vivo was highly correlated and tracks pupil diameter, a proxy for arousal state. We propose that chandelier cells provide a global signal whose strength is individually adjusted for each target neuron. This approach, combining comprehensive structural analysis with functional recordings of identified cell types, will be a powerful tool to uncover the wiring rules across the diversity of cortical cell types.},
   langid = {english}
 }
@@ -582,6 +691,7 @@
   pages = {e73783},
   issn = {2050-084X},
   doi = {10.7554/eLife.73783},
+  urldate = {2022-06-07},
   abstract = {Inhibitory neurons in mammalian cortex exhibit diverse physiological, morphological, molecular, and connectivity signatures. While considerable work has measured the average connectivity of several interneuron classes, there remains a fundamental lack of understanding of the connectivity distribution of distinct inhibitory cell types with synaptic resolution, how it relates to properties of target cells, and how it affects function. Here, we used large-\-scale electron microscopy and functional imaging to address these questions for chandelier cells in layer 2/3 of the mouse visual cortex. With dense reconstructions from electron microscopy, we mapped the complete chandelier input onto 153 pyramidal neurons. We found that synapse number is highly variable across the population and is correlated with several structural features of the target neuron. This variability in the number of axo-a\- xonic ChC synapses is higher than the variability seen in perisomatic inhibition. Biophysical simulations show that the observed pattern of axo-a\- xonic inhibition is particularly effective in controlling excitatory output when excitation and inhibition are co-\-active. Finally, we measured chandelier cell activity in awake animals using a cell-t\-ype-s\- pecific calcium imaging approach and saw highly correlated activity across chandelier cells. In the same experiments, in vivo chandelier population activity correlated with pupil dilation, a proxy for arousal. Together, these results suggest that chandelier cells provide a circuit-\-wide signal whose strength is adjusted relative to the properties of target neurons.},
   langid = {english}
 }
@@ -597,6 +707,7 @@
   publisher = {{Springer International Publishing}},
   address = {{Cham}},
   doi = {10.1007/978-3-030-89439-9_10},
+  urldate = {2023-02-28},
   abstract = {Abstract             It has previously been shown that it is possible to derive a new class of biophysically detailed brain tissue models when one computationally analyzes and exploits the interdependencies or the multi-modal and multi-scale organization of the brain. These reconstructions, sometimes referred to as digital twins, enable a spectrum of scientific investigations. Building such models has become possible because of increase in quantitative data but also advances in computational capabilities, algorithmic and methodological innovations. This chapter presents the computational science concepts that provide the foundation to the data-driven approach to reconstructing and simulating brain tissue as developed by the EPFL Blue Brain Project, which was originally applied to neocortical microcircuitry and extended to other brain regions. Accordingly, the chapter covers aspects such as a knowledge graph-based data organization and the importance of the concept of a dataset release. We illustrate algorithmic advances in finding suitable parameters for electrical models of neurons or how spatial constraints can be exploited for predicting synaptic connections. Furthermore, we explain how in silico experimentation with such models necessitates specific addressing schemes or requires strategies for an efficient simulation. The entire data-driven approach relies on the systematic validation of the model. We conclude by discussing complementary strategies that not only enable judging the fidelity of the model but also form the basis for its systematic refinements.},
   isbn = {978-3-030-89438-2 978-3-030-89439-9},
   langid = {english}
@@ -612,6 +723,7 @@
   pages = {277},
   issn = {1662-5102},
   doi = {10.3389/fncel.2020.00277},
+  urldate = {2023-02-28},
   langid = {english}
 }
 
@@ -626,6 +738,7 @@
   pages = {789962},
   issn = {2624-909X},
   doi = {10.3389/fdata.2022.789962},
+  urldate = {2022-06-07},
   abstract = {Many scientific systems are studied using computer codes that simulate the phenomena of interest. Computer simulation enables scientists to study a broad range of possible conditions, generating large quantities of data at a faster rate than the laboratory. Computer models are widespread in neuroscience, where they are used to mimic brain function at different levels. These models offer a variety of new possibilities for the neuroscientist, but also numerous challenges, such as: where to sample the input space for the simulator, how to make sense of the data that is generated, and how to estimate unknown parameters in the model. Statistical emulation can be a valuable complement to simulator-based research. Emulators are able to mimic the simulator, often with a much smaller computational burden and they are especially valuable for parameter estimation, which may require many simulator evaluations. This work compares different statistical models that address these challenges, and applies them to simulations of neocortical L2/3 large basket cells, created and run with the NEURON simulator in the context of the European Human Brain Project. The novelty of our approach is the use of fast empirical emulators, which have the ability to accelerate the optimization process for the simulator and to identify which inputs (in this case, different membrane ion channels) are most influential in affecting simulated features. These contributions are complementary, as knowledge of the important features can further improve the optimization process. Subsequent research, conducted after the process is completed, will gain efficiency by focusing on these inputs.},
   langid = {english}
 }
@@ -638,6 +751,7 @@
   month = oct,
   institution = {{Neuroscience}},
   doi = {10.1101/2022.10.20.513073},
+  urldate = {2023-02-28},
   abstract = {ABSTRACT                        Conductance-based models have played an important role in the development of modern neuroscience. These mathematical models are powerful ``tools'' that enable theoretical explorations in experimentally untenable situations, and can lead to the development of novel hypotheses and predictions. With advances in cell imaging and computational power, multi-compartment models with morphological accuracy are becoming common practice. However, as more biological details are added, they make extensive explorations and analyses more challenging largely due to their huge computational expense. Here, we focus on oriens-lacunosum/moleculare (OLM) cell models. OLM cells can contribute to functionally relevant theta rhythms in the hippocampus by virtue of their ability to express spiking resonance at theta frequencies, but what characteristics underlie this is far from clear. We converted a previously developed detailed multi-compartment OLM cell model into a reduced single compartment model that retained biophysical fidelity with its underlying ion currents. We showed that the reduced OLM cell model can capture complex output that includes spiking resonance in             in vivo             -like scenarios as previously obtained with the multi-compartment model. Using the reduced model, we were able to greatly expand our             in vivo             -like scenarios. Applying spike-triggered average analyses, we were thus able to to determine that it is a combination of hyperpolarization-activated cation and muscarinic type potassium currents that specifically allow OLM cells to exhibit spiking resonance at theta frequencies. Further, we developed a robust Kalman Filtering (KF) method to estimate parameters of the reduced model in real-time. We showed that it may be possible to directly estimate conductance parameters from experiments since this KF method can reliably extract parameter values from model voltage recordings. Overall, our work showcases how the contribution of cellular biophysical current details could be determined and assessed for spiking resonance. As well, our work shows that it may be possible to directly extract these parameters from current clamp voltage recordings.},
   langid = {english}
 }
@@ -650,6 +764,7 @@
   month = nov,
   institution = {{Neuroscience}},
   doi = {10.1101/2022.11.29.518193},
+  urldate = {2023-02-28},
   abstract = {Word count 150) In rodent cortical networks, fast spiking interneurons (FSINs) provide fast inhibition that synchronizes neuronal activity and is critical for cognitive function. Fast synchronization frequencies are evolutionary conserved in the expanded human neocortex, despite larger neuron-to-neuron distances that challenge fast input-output transfer functions of FSINs. Here, we test which mechanistic specializations of large human FSINs explain their fast-signaling properties in human cortex. With morphological reconstructions, multi-patch recordings, and biophysical modeling we find that despite three-fold longer dendritic path lengths, human FSINs maintain fast inhibition between connected pyramidal neurons through several mechanisms: stronger synapse strength of excitatory inputs, larger dendrite diameter with reduced complexity, faster AP initiation, and faster and larger inhibitory output, while Na+ current activation /inactivation properties are similar. These adaptations underlie short input-output delays in fast inhibition of human pyramidal neurons through FSINs, explaining how cortical synchronization frequencies are conserved despite expanded and sparse network topology of human cortex.},
   langid = {english}
 }
@@ -664,6 +779,7 @@
   pages = {e60936},
   issn = {2050-084X},
   doi = {10.7554/eLife.60936},
+  urldate = {2023-02-28},
   abstract = {Dendrites shape information flow in neurons. Yet, there is little consensus on the level of spatial complexity at which they operate. Through carefully chosen parameter fits, solvable in the least-squares sense, we obtain accurate reduced compartmental models at any level of complexity. We show that (back-propagating) action potentials, Ca2+ spikes, and N-methyl-Daspartate spikes can all be reproduced with few compartments. We also investigate whether afferent spatial connectivity motifs admit simplification by ablating targeted branches and grouping affected synapses onto the next proximal dendrite. We find that voltage in the remaining branches is reproduced if temporal conductance fluctuations stay below a limit that depends on the average difference in input resistance between the ablated branches and the next proximal dendrite.},
   langid = {english}
 }
@@ -679,6 +795,7 @@
   pages = {110232},
   issn = {22111247},
   doi = {10.1016/j.celrep.2021.110232},
+  urldate = {2022-06-07},
   abstract = {Cortical processing depends on finely tuned excitatory and inhibitory connections in neuronal microcircuits. Reduced inhibition by somatostatin-expressing interneurons is a key component of altered inhibition associated with treatment-resistant major depressive disorder (depression), which is implicated in cognitive deficits and rumination, but the link remains to be better established mechanistically in humans. Here we test the effect of reduced somatostatin interneuron-mediated inhibition on cortical processing in human neuronal microcircuits using a data-driven computational approach. We integrate human cellular, circuit, and gene expression data to generate detailed models of human cortical microcircuits in health and depression. We simulate microcircuit baseline and response activity and find a reduced signal-to-noise ratio and increased false/failed detection of stimuli due to a higher baseline activity in depression. We thus apply models of human cortical microcircuits to demonstrate mechanistically how reduced inhibition impairs cortical processing in depression, providing quantitative links between altered inhibition and cognitive deficits.},
   langid = {english}
 }

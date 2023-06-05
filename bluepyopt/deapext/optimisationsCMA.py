@@ -26,6 +26,7 @@ import random
 import functools
 import shutil
 import os
+import time
 
 import deap.tools
 
@@ -243,6 +244,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         self,
         max_ngen=0,
         cp_frequency=1,
+        cp_period=None,
         continue_cp=False,
         cp_filename=None,
         terminator=None,
@@ -252,6 +254,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         Args:
             max_ngen(int): Total number of generation to run
             cp_frequency(int): generations between checkpoints
+            cp_period(float): minimum time (in s) between checkpoint.
+                None to save checkpoint independently of the time between them
             continue_cp(bool): whether to continue
             cp_filename(string): path to checkpoint filename
             terminator (multiprocessing.Event): exit loop when is set.
@@ -309,6 +313,7 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
         if hasattr(self.evaluator, "param_names"):
             param_names = self.evaluator.param_names
 
+        time_last_save = time.time()
         # Run until a termination criteria is met
         while utils.run_next_gen(CMA_es.active, terminator):
             logger.info("Generation {}".format(gen))
@@ -343,8 +348,12 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
             # termination conditions were reached
             CMA_es.update_strategy()
             CMA_es.check_termination(gen)
-
-            if cp_filename and cp_frequency and gen % cp_frequency == 0:
+            if (
+                cp_filename and
+                cp_frequency and
+                gen % cp_frequency == 0 and
+                (cp_period is None or time.time() - time_last_save > cp_period)
+            ):
 
                 # Map function shouldn't be pickled
                 temp_mf = CMA_es.map_function
@@ -367,6 +376,8 @@ class DEAPOptimisationCMA(bluepyopt.optimisations.Optimisation):
                     logger.debug("Wrote checkpoint to %s", cp_filename)
 
                 CMA_es.map_function = temp_mf
+
+                time_last_save = time.time()
 
             gen += 1
 

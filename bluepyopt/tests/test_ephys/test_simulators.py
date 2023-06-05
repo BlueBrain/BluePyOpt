@@ -27,7 +27,7 @@ import types
 import pytest
 import numpy
 
-import mock
+from unittest import mock
 import numpy
 
 import bluepyopt.ephys as ephys
