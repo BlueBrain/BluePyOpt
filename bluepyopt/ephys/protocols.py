@@ -268,6 +268,12 @@ class SweepProtocol(Protocol):
             # Spwan context would reset NEURON properties, such as dt.
             if sys.platform == 'win32':
                 multiprocessing_context = multiprocessing.get_context('spawn')
+                if (
+                    sim is not None and not sim.cvode_active and
+                    sim.dt != 0.025
+                ):
+                    logger.warning("On Windows, evaluation might break when"
+                                   "using non-default fixed time steps.")
             else:
                 multiprocessing_context = multiprocessing.get_context('fork')
 
