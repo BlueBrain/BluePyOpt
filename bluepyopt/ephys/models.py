@@ -26,7 +26,6 @@ Copyright (c) 2016-2020, EPFL/Blue Brain Project
 # machines
 # TODO rename this to 'CellModel' -> definitely
 
-import sys
 import os
 import collections
 import string
@@ -125,11 +124,7 @@ class CellModel(Model):
         """Check if name complies with requirements"""
 
         allowed_chars = string.ascii_letters + string.digits + '_'
-
-        if sys.version_info[0] < 3:
-            translate_args = [None, allowed_chars]
-        else:
-            translate_args = [str.maketrans('', '', allowed_chars)]
+        translate_args = [str.maketrans('', '', allowed_chars)]
 
         if self.name == '' \
                 or self.name[0] not in string.ascii_letters \
@@ -655,11 +650,7 @@ class LFPyCellModel(Model):
         """Check if name complies with requirements"""
 
         allowed_chars = string.ascii_letters + string.digits + "_"
-
-        if sys.version_info[0] < 3:
-            translate_args = [None, allowed_chars]
-        else:
-            translate_args = [str.maketrans("", "", allowed_chars)]
+        translate_args = [str.maketrans("", "", allowed_chars)]
 
         if (
             self.name == ""

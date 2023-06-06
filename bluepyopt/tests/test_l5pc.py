@@ -5,10 +5,8 @@ import os
 import sys
 
 from contextlib import contextmanager
-if sys.version_info[0] < 3:
-    from StringIO import StringIO
-else:
-    from io import StringIO
+
+from io import StringIO
 
 
 import pytest
@@ -161,11 +159,8 @@ def test_exec():
             # When using import instead of execfile this doesn't work
             # Probably because multiprocessing doesn't work correctly during
             # import
-            if sys.version_info[0] < 3:
-                execfile('L5PC.py')  # NOQA
-            else:
-                with open('L5PC.py') as l5pc_file:
-                    exec(compile(l5pc_file.read(), 'L5PC.py', 'exec'))  # NOQA
+            with open('L5PC.py') as l5pc_file:
+                exec(compile(l5pc_file.read(), 'L5PC.py', 'exec'))  # NOQA
         stdout = output.getvalue()
         # first and last values of optimal individual
         assert '0.001017834439738432' in stdout
@@ -189,15 +184,12 @@ def test_l5pc_validate_neuron_arbor():
             # When using import instead of execfile this doesn't work
             # Probably because multiprocessing doesn't work correctly during
             # import
-            if sys.version_info[0] < 3:
-                execfile('l5pc_validate_neuron_arbor_somatic.py')  # NOQA
-            else:
-                with open('l5pc_validate_neuron_arbor_somatic.py') \
-                        as l5pc_file:
-                    l5pc_globals = {}
-                    exec(compile(l5pc_file.read(),
-                                 'l5pc_validate_neuron_arbor_somatic.py',
-                                 'exec'), l5pc_globals, l5pc_globals)  # NOQA
+            with open('l5pc_validate_neuron_arbor_somatic.py') \
+                    as l5pc_file:
+                l5pc_globals = {}
+                exec(compile(l5pc_file.read(),
+                                'l5pc_validate_neuron_arbor_somatic.py',
+                                'exec'), l5pc_globals, l5pc_globals)  # NOQA
         stdout = output.getvalue()
         # mean relative L1-deviation between Arbor and Neuron below tolerance
         assert 'Default dt ({:,.3g}): test_l5pc OK!'.format(0.025) + \

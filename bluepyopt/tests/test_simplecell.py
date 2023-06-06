@@ -28,11 +28,8 @@ class TestSimpleCellClass(object):
         # When using import instead of execfile this doesn't work
         # Probably because multiprocessing doesn't work correctly during
         # import
-        if sys.version_info[0] < 3:
-            execfile('simplecell.py')  # NOQA
-        else:
-            with open('simplecell.py') as sc_file:
-                exec(compile(sc_file.read(), 'simplecell.py', 'exec'))  # NOQA
+        with open('simplecell.py') as sc_file:
+            exec(compile(sc_file.read(), 'simplecell.py', 'exec'))  # NOQA
 
     def teardown(self):
         """Tear down"""
@@ -59,12 +56,9 @@ class TestSimpleCellArborClass(object):
         # When using import instead of execfile this doesn't work
         # Probably because multiprocessing doesn't work correctly during
         # import
-        if sys.version_info[0] < 3:
-            execfile('simplecell_arbor.py')  # NOQA
-        else:
-            with open('simplecell_arbor.py') as sc_file:
-                exec(compile(sc_file.read(),
-                    'simplecell_arbor.py', 'exec'))  # NOQA
+        with open('simplecell_arbor.py') as sc_file:
+            exec(compile(sc_file.read(),
+                'simplecell_arbor.py', 'exec'))  # NOQA
 
     def teardown(self):
         """Tear down"""
