@@ -199,6 +199,7 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
 
         # Find something to generalise this
         import math  # pylint:disable=W0611 #NOQA
+        import numpy
 
         # This eval is unsafe (but is it ever dangerous ?)
         # pylint: disable=W0123
