@@ -201,10 +201,10 @@ Copyright (c) 2016-2022 Blue Brain Project/EPFL
                :alt: latest documentation
 
 .. |license| image:: https://img.shields.io/pypi/l/bluepyopt.svg
-                  :target: https://github.com/BlueBrain/bluepyopt/blob/main/LICENSE.txt
+                  :target: https://github.com/BlueBrain/bluepyopt/blob/master/LICENSE.txt
                   :alt: license
 
-.. |build| image:: https://github.com/BlueBrain/BluePyOpt/workflows/Build/badge.svg?branch=main
+.. |build| image:: https://github.com/BlueBrain/BluePyOpt/workflows/Build/badge.svg?branch=master
                 :target: https://github.com/BlueBrain/BluePyOpt/actions
                 :alt: actions build status
 
