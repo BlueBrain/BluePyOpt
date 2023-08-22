@@ -208,7 +208,7 @@ Copyright (c) 2016-2022 Blue Brain Project/EPFL
                 :target: https://github.com/BlueBrain/BluePyOpt/actions
                 :alt: actions build status
 
-.. |coverage| image:: https://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=main
+.. |coverage| image:: https://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=master
                    :target: https://codecov.io/gh/BlueBrain/bluepyopt
                    :alt: coverage
 
