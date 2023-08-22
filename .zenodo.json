@@ -1,0 +1,48 @@
+{
+  "title" : "BluePyOpt",
+  "license": "LGPLv3",
+  "upload_type": "software",
+  "description": "The Blue Brain Python Optimisation Library (BluePyOpt) is an extensible framework for data-driven model parameter optimisation that wraps and standardises several existing open-source tools. It simplifies the task of creating and sharing these optimisations, and the associated techniques and knowledge. This is achieved by abstracting the optimisation and evaluation tasks into various reusable and flexible discrete elements according to established best-practices. Further, BluePyOpt provides methods for setting up both small- and large-scale optimisations on a variety of platforms, ranging from laptops to Linux clusters and cloud-based compute infrastructures.",
+  "creators": [
+    {
+      "affiliation": "Blue Brain Project, EPFL",
+      "name": "Van Geit, Werner",
+      "orcid": "0000-0002-2915-720X"
+    },
+    {
+      "affiliation": "Blue Brain Project, EPFL",
+      "name": "Gevaert, Michael",
+      "orcid": "0000-0002-7547-3297"
+    },
+    {
+      "affiliation": "Blue Brain Project, EPFL",
+      "name": "Damart, Tanguy",
+      "orcid": "0000-0003-2175-7304"
+    },
+    {
+      "affiliation": "Blue Brain Project, EPFL",
+      "name": "Rössert, Christian",
+      "orcid": "0000-0002-4839-2424"
+    },
+    {
+      "affiliation": "Blue Brain Project, EPFL",
+      "name": "Courcol, Jean-Denis",
+      "orcid": "0000-0002-9351-1461"
+    },
+    {
+      "affiliation": "Blue Brain Project, EPFL",
+      "name": "Chindemi, Guiseppe",
+      "orcid": "0000-0001-6872-2366"
+    },
+    {
+      "affiliation": "Blue Brain Project, EPFL",
+      "name": "Jaquier, Aurélien",
+      "orcid": "0000-0001-6202-6175"
+    },
+    {
+      "affiliation": "Blue Brain Project, EPFL",
+      "name": "Muller, Eilif",
+      "orcid": "0000-0003-4309-8266"
+    }
+  ]
+}
