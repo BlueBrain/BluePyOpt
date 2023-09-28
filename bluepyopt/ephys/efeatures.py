@@ -426,6 +426,12 @@ class extraFELFeature(EFeature, DictMixin):
         from .extra_features_utils import calculate_features
 
         """Calculate feature value"""
+        if peak_times is None:
+            if return_waveforms:
+                return None, None
+            else:
+                return None
+            
         peak_times = self._get_peak_times(
             responses, raise_warnings=raise_warnings
         )
@@ -439,7 +445,10 @@ class extraFELFeature(EFeature, DictMixin):
         if responses[self.recording_names[""]] is not None:
             response = responses[self.recording_names[""]]
         else:
-            return None
+            if return_waveforms:
+                return None, None
+            else:
+                return None
 
         if np.std(np.diff(response["time"])) > 0.001 * np.mean(
                 np.diff(response["time"])
