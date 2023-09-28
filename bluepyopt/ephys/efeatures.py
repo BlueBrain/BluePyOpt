@@ -431,7 +431,7 @@ class extraFELFeature(EFeature, DictMixin):
                 return None, None
             else:
                 return None
-            
+
         peak_times = self._get_peak_times(
             responses, raise_warnings=raise_warnings
         )
