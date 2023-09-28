@@ -431,7 +431,6 @@ class extraFELFeature(EFeature, DictMixin):
                 return None, None
             else:
                 return None
-
         peak_times = self._get_peak_times(
             responses, raise_warnings=raise_warnings
         )
@@ -449,7 +448,6 @@ class extraFELFeature(EFeature, DictMixin):
                 return None, None
             else:
                 return None
-
         if np.std(np.diff(response["time"])) > 0.001 * np.mean(
                 np.diff(response["time"])
         ):
