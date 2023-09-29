@@ -434,7 +434,7 @@ class extraFELFeature(EFeature, DictMixin):
                 return None, None
             else:
                 return None
-                
+
         if len(peak_times) > 1 and self.skip_first_spike:
             peak_times = peak_times[1:]
 
@@ -448,6 +448,7 @@ class extraFELFeature(EFeature, DictMixin):
                 return None, None
             else:
                 return None
+
         if np.std(np.diff(response["time"])) > 0.001 * np.mean(
                 np.diff(response["time"])
         ):
