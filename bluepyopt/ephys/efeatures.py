@@ -426,15 +426,15 @@ class extraFELFeature(EFeature, DictMixin):
         from .extra_features_utils import calculate_features
 
         """Calculate feature value"""
+        peak_times = self._get_peak_times(
+            responses, raise_warnings=raise_warnings
+        )
         if peak_times is None:
             if return_waveforms:
                 return None, None
             else:
                 return None
-        peak_times = self._get_peak_times(
-            responses, raise_warnings=raise_warnings
-        )
-
+                
         if len(peak_times) > 1 and self.skip_first_spike:
             peak_times = peak_times[1:]
 
