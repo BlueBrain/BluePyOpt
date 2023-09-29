@@ -429,6 +429,11 @@ class extraFELFeature(EFeature, DictMixin):
         peak_times = self._get_peak_times(
             responses, raise_warnings=raise_warnings
         )
+        if peak_times is None:
+            if return_waveforms:
+                return None, None
+            else:
+                return None
 
         if len(peak_times) > 1 and self.skip_first_spike:
             peak_times = peak_times[1:]
@@ -439,7 +444,10 @@ class extraFELFeature(EFeature, DictMixin):
         if responses[self.recording_names[""]] is not None:
             response = responses[self.recording_names[""]]
         else:
-            return None
+            if return_waveforms:
+                return None, None
+            else:
+                return None
 
         if np.std(np.diff(response["time"])) > 0.001 * np.mean(
                 np.diff(response["time"])
