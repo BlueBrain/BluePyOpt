@@ -105,6 +105,7 @@ def range_exprs_to_hoc(range_params):
     for param in range_params:
         value = param.value_scaler.inst_distribution
         value = re.sub(r'math\.', '', value)
+        value = re.sub(r'\&', '&&', value)
         value = re.sub('{distance}', FLOAT_FORMAT, value)
         value = re.sub('{value}', format_float(param.value), value)
         ret.append(Range(param.location, param.name, value))
