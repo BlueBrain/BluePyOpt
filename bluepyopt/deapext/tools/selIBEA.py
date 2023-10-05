@@ -1,7 +1,5 @@
 """IBEA selector"""
 
-from __future__ import division
-
 from past.builtins import xrange  # pylint: disable=W0622
 
 """
