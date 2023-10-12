@@ -1,7 +1,5 @@
 """IBEA selector"""
 
-from past.builtins import xrange  # pylint: disable=W0622
-
 """
 Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
@@ -75,7 +73,7 @@ def _calc_fitness_components(population, kappa):
     box_ranges[box_ranges == 0] = 1.0
 
     components_matrix = numpy.zeros((pop_len, pop_len))
-    for i in xrange(0, pop_len):
+    for i in range(0, pop_len):
         diff = population_matrix - population_matrix[i, :]
         components_matrix[i, :] = numpy.max(
             numpy.divide(diff, box_ranges),
@@ -113,9 +111,9 @@ def _mating_selection(population, mu, tournament_n):
     """Returns the n_of_parents individuals with the best fitness"""
 
     parents = []
-    for _ in xrange(mu):
+    for _ in range(mu):
         winner = _choice(population)
-        for _ in xrange(tournament_n - 1):
+        for _ in range(tournament_n - 1):
             individual = _choice(population)
             # Save winner is element with smallest fitness
             if individual.ibea_fitness < winner.ibea_fitness:
