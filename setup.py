@@ -52,7 +52,6 @@ setuptools.setup(
         'ipyparallel',
         'pickleshare>=0.7.3',
         'Jinja2>=2.8',
-        'future',
         'Pebble>=4.6.0',
         ],
     extras_require={
