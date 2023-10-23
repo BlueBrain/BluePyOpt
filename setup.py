@@ -53,6 +53,7 @@ setuptools.setup(
         'pickleshare>=0.7.3',
         'Jinja2>=2.8',
         'Pebble>=4.6.0',
+        'NEURON>=7.8',
         ],
     extras_require={
         'all': EXTRA_SCOOP + EXTRA_NEUROML + EXTRA_LFP + EXTRA_ARBOR,
