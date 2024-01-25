@@ -162,7 +162,7 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
         return string.Formatter().vformat(self.distribution, (), dist_dict)
 
     def scale_dict(self, values, distance):
-        """Create scale disctionary"""
+        """Create scale dictionary"""
         scale_dict = {}
         if isinstance(values, dict):
             for k, v in values.items():
@@ -204,7 +204,6 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
 
         # Find something to generalise this
         import math  # pylint:disable=W0611 #NOQA
-        import numpy
 
         # This eval is unsafe (but is it ever dangerous ?)
         # pylint: disable=W0123
@@ -290,7 +289,7 @@ class NrnSegmentSomaDistanceStepScaler(NrnSegmentSomaDistanceScaler,
             distribution (str): distribution of parameter dependent on distance
                 from soma. string can contain `distance` and/or `value` as
                 placeholders for the distance to the soma and parameter value
-                respectivily
+                respectivily. It can also contain step_begin and step_end.
             dist_param_names (list): list of names of parameters that
                 parametrise the distribution. These names will become
                 attributes of this object.
