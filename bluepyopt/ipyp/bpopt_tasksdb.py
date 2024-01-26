@@ -1,7 +1,5 @@
 """Get stats out of ipyparallel's tasks.db"""
 
-from __future__ import print_function
-
 """
 Copyright (c) 2016-2020, EPFL/Blue Brain Project
 

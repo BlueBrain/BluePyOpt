@@ -2,8 +2,6 @@
 
 # pylint: disable=R0914
 
-from __future__ import print_function
-
 import pickle
 import bluepyopt as bpop
 import matplotlib.pyplot as plt
