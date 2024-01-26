@@ -120,7 +120,7 @@ proc distribute_distance(){local x localobj sl
   this.soma[0] distance(0, 0.5)
   sprint(distfunc, "%%s %s(%%f) = %s", mech, distfunc)
   forsec sl for(x, 0) {
-    sprint(stmp, distfunc, secname(), x, distance(x))
+    sprint(stmp, distfunc, secname(), x, distance(x), distance(x))
     execute(stmp)
   }
 }
