@@ -49,7 +49,7 @@ def test_NrnSegmentSectionDistanceScaler_eval_dist_with_dict():
 
     assert (scaler.eval_dist(values=_values, distance=10)
             == '0.5 + (1 - (abs(10 - 8) / 4)) * 1')
-    
+
 
 @pytest.mark.unit
 def test_NrnSegmentSomaDistanceStepScaler_eval_dist_with_dict():
