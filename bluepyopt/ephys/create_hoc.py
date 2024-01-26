@@ -109,8 +109,14 @@ def range_exprs_to_hoc(range_params):
         value = re.sub('{distance}', FLOAT_FORMAT, value)
         value = re.sub('{value}', format_float(param.value), value)
         if hasattr(param.value_scaler, "step_begin"):
-            value = re.sub('{step_begin}', format_float(param.value_scaler.step_begin), value)
-            value = re.sub('{step_end}', format_float(param.value_scaler.step_end), value)
+            value = re.sub(
+                '{step_begin}',
+                format_float(param.value_scaler.step_begin),
+                value
+            )
+            value = re.sub(
+                '{step_end}', format_float(param.value_scaler.step_end), value
+            )
         ret.append(Range(param.location, param.name, value))
     return ret
 
