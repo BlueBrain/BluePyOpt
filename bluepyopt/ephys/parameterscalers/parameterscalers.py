@@ -289,7 +289,7 @@ class NrnSegmentSomaDistanceStepScaler(NrnSegmentSomaDistanceScaler,
             distribution (str): distribution of parameter dependent on distance
                 from soma. string can contain `distance` and/or `value` as
                 placeholders for the distance to the soma and parameter value
-                respectivily. It can also contain step_begin and step_end.
+                respectively. It can also contain step_begin and step_end.
             dist_param_names (list): list of names of parameters that
                 parametrise the distribution. These names will become
                 attributes of this object.
