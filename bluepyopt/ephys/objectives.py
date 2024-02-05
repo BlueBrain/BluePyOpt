@@ -87,7 +87,7 @@ class SingletonObjective(EFeatureObjective):
         return '( %s )' % self.features[0]
 
 
-class SingletonWeightObjective(EFeatureObjective):
+class SingletonWeightObjective(SingletonObjective):
 
     """Single EPhys feature"""
 
