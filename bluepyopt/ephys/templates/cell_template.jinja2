@@ -42,6 +42,10 @@ begintemplate {{template_name}}
   public all, somatic, apical, axonal, basal, myelinated, APC
   objref all, somatic, apical, axonal, basal, myelinated, APC
 
+obfunc getCell(){
+        return this
+}
+
 proc init(/* args: morphology_dir, morphology_name */) {
   all = new SectionList()
   apical = new SectionList()
@@ -120,6 +124,7 @@ proc distribute_distance(){local x localobj sl
   this.soma[0] distance(0, 0.5)
   sprint(distfunc, "%%s %s(%%f) = %s", mech, distfunc)
   forsec sl for(x, 0) {
+    // use distance(x) twice for the step distribution case, e.g. for calcium hotspot
     sprint(stmp, distfunc, secname(), x, distance(x), distance(x))
     execute(stmp)
   }
