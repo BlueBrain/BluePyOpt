@@ -99,7 +99,7 @@ class SingletonWeightObjective(SingletonObjective):
             weight (float): weight to scale to the efeature with
         """
 
-        super(SingletonWeightObjective, self).__init__(name, [feature])
+        super(SingletonWeightObjective, self).__init__(name, feature)
         self.weight = weight
 
     def calculate_score(self, responses):
