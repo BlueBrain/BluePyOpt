@@ -87,7 +87,7 @@ class SingletonObjective(EFeatureObjective):
         return '( %s )' % self.features[0]
 
 
-class SingletonWeightObjective(EFeatureObjective):
+class SingletonWeightObjective(SingletonObjective):
 
     """Single EPhys feature"""
 
@@ -99,7 +99,7 @@ class SingletonWeightObjective(EFeatureObjective):
             weight (float): weight to scale to the efeature with
         """
 
-        super(SingletonWeightObjective, self).__init__(name, [feature])
+        super(SingletonWeightObjective, self).__init__(name, feature)
         self.weight = weight
 
     def calculate_score(self, responses):
