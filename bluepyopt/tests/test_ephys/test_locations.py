@@ -21,8 +21,8 @@ Copyright (c) 2016-2022, EPFL/Blue Brain Project
 
 # pylint:disable=W0612, W0201
 import json
-import numpy as np
 
+import numpy as np
 import pytest
 
 from bluepyopt import ephys
@@ -33,27 +33,24 @@ from bluepyopt.ephys.serializer import instantiator
 def test_location_init():
     """ephys.locations: test if Location works"""
 
-    loc = ephys.locations.Location('test')
+    loc = ephys.locations.Location("test")
     assert isinstance(loc, ephys.locations.Location)
-    assert loc.name == 'test'
+    assert loc.name == "test"
 
 
 @pytest.mark.unit
 class TestNrnSectionCompLocation(object):
-
     """Test class for NrnSectionCompLocation"""
 
-    def setup(self):
+    def setup_method(self):
         """Setup"""
         self.loc = ephys.locations.NrnSectionCompLocation(
-            name='test',
-            sec_name='soma[0]',
-            comp_x=0.5)
+            name="test", sec_name="soma[0]", comp_x=0.5
+        )
         self.loc_dend = ephys.locations.NrnSectionCompLocation(
-            name='test',
-            sec_name='dend[1]',
-            comp_x=0.5)
-        assert self.loc.name == 'test'
+            name="test", sec_name="dend[1]", comp_x=0.5
+        )
+        assert self.loc.name == "test"
         self.sim = ephys.simulators.NrnSimulator()
 
     def test_instantiate(self):
@@ -61,13 +58,14 @@ class TestNrnSectionCompLocation(object):
 
         # Create a little test class with a soma and two dendritic sections
         class Cell(object):
-
             """Cell class"""
+
             pass
+
         cell = Cell()
         soma = self.sim.neuron.h.Section()
-        dend1 = self.sim.neuron.h.Section(name='dend1')
-        dend2 = self.sim.neuron.h.Section(name='dend2')
+        dend1 = self.sim.neuron.h.Section(name="dend1")
+        dend2 = self.sim.neuron.h.Section(name="dend2")
 
         cell.soma = [soma]
         cell.dend = [dend1, dend2]
@@ -81,22 +79,17 @@ class TestNrnSectionCompLocation(object):
 
 @pytest.mark.unit
 class TestNrnSeclistCompLocation(object):
-
     """Test class for NrnSectionCompLocation"""
 
-    def setup(self):
+    def setup_method(self):
         """Setup"""
         self.loc = ephys.locations.NrnSeclistCompLocation(
-            name='test',
-            seclist_name='somatic',
-            sec_index=0,
-            comp_x=0.5)
+            name="test", seclist_name="somatic", sec_index=0, comp_x=0.5
+        )
         self.loc_dend = ephys.locations.NrnSeclistCompLocation(
-            name='test',
-            seclist_name='basal',
-            sec_index=1,
-            comp_x=0.5)
-        assert self.loc.name == 'test'
+            name="test", seclist_name="basal", sec_index=1, comp_x=0.5
+        )
+        assert self.loc.name == "test"
         self.sim = ephys.simulators.NrnSimulator()
 
     def test_instantiate(self):
@@ -105,12 +98,13 @@ class TestNrnSeclistCompLocation(object):
         # Create a little test class with a soma and two dendritic sections
         class Cell(object):
             """Cell class"""
+
             pass
 
         cell = Cell()
         soma = self.sim.neuron.h.Section()
-        dend1 = self.sim.neuron.h.Section(name='dend1')
-        dend2 = self.sim.neuron.h.Section(name='dend2')
+        dend1 = self.sim.neuron.h.Section(name="dend1")
+        dend2 = self.sim.neuron.h.Section(name="dend2")
 
         cell.somatic = self.sim.neuron.h.SectionList()
         cell.somatic.append(soma)
@@ -130,20 +124,17 @@ class TestNrnSeclistCompLocation(object):
 
 @pytest.mark.unit
 class TestNrnSeclistSecLocation(object):
-
     """Test class for NrnSeclistSecLocation"""
 
-    def setup(self):
+    def setup_method(self):
         """Setup"""
         self.loc = ephys.locations.NrnSeclistSecLocation(
-            name='test',
-            seclist_name='somatic',
-            sec_index=0)
+            name="test", seclist_name="somatic", sec_index=0
+        )
         self.loc_dend = ephys.locations.NrnSeclistSecLocation(
-            name='test',
-            seclist_name='basal',
-            sec_index=1)
-        assert self.loc.name == 'test'
+            name="test", seclist_name="basal", sec_index=1
+        )
+        assert self.loc.name == "test"
         self.sim = ephys.simulators.NrnSimulator()
 
     def test_instantiate(self):
@@ -152,12 +143,13 @@ class TestNrnSeclistSecLocation(object):
         # Create a little test class with a soma and two dendritic sections
         class Cell(object):
             """Cell class"""
+
             pass
 
         cell = Cell()
         soma = self.sim.neuron.h.Section()
-        dend1 = self.sim.neuron.h.Section(name='dend1')
-        dend2 = self.sim.neuron.h.Section(name='dend2')
+        dend1 = self.sim.neuron.h.Section(name="dend1")
+        dend2 = self.sim.neuron.h.Section(name="dend2")
 
         cell.somatic = self.sim.neuron.h.SectionList()
         cell.somatic.append(soma)
@@ -174,16 +166,14 @@ class TestNrnSeclistSecLocation(object):
 
 @pytest.mark.unit
 class TestNrnSomaDistanceCompLocation(object):
-
     """Test class for NrnSomaDistanceCompLocation"""
 
-    def setup(self):
+    def setup_method(self):
         """Setup"""
         self.loc = ephys.locations.NrnSomaDistanceCompLocation(
-            'test',
-            125,
-            'testdend')
-        assert self.loc.name == 'test'
+            "test", 125, "testdend"
+        )
+        assert self.loc.name == "test"
         self.sim = ephys.simulators.NrnSimulator()
 
     def test_instantiate(self):
@@ -191,23 +181,26 @@ class TestNrnSomaDistanceCompLocation(object):
 
         # Create a little test class with a soma and two dendritic sections
         class Cell(object):
-
             """Cell class"""
+
             pass
+
         cell = Cell()
         soma = self.sim.neuron.h.Section()
         cell.soma = [soma]
         cell.testdend = self.sim.neuron.h.SectionList()
-        dend1 = self.sim.neuron.h.Section(name='dend1')
-        dend2 = self.sim.neuron.h.Section(name='dend2')
+        dend1 = self.sim.neuron.h.Section(name="dend1")
+        dend2 = self.sim.neuron.h.Section(name="dend2")
 
         cell.testdend.append(sec=dend1)
         cell.testdend.append(sec=dend2)
 
-        pytest.raises(ephys.locations.EPhysLocInstantiateException,
-                      self.loc.instantiate,
-                      sim=self.sim,
-                      icell=cell)
+        pytest.raises(
+            ephys.locations.EPhysLocInstantiateException,
+            self.loc.instantiate,
+            sim=self.sim,
+            icell=cell,
+        )
 
         dend1.connect(soma(0.5), 0.0)
         dend2.connect(dend1(1.0), 0.0)
@@ -218,22 +211,17 @@ class TestNrnSomaDistanceCompLocation(object):
 
 @pytest.mark.unit
 class TestNrnSecSomaDistanceCompLocation(object):
-
     """Test class for NrnSecSomaDistanceCompLocation"""
 
-    def setup(self):
+    def setup_method(self):
         """Setup"""
         self.loc = ephys.locations.NrnSecSomaDistanceCompLocation(
-            'test',
-            125,
-            1,
-            'testdend')
+            "test", 125, 1, "testdend"
+        )
         self.loc_other = ephys.locations.NrnSecSomaDistanceCompLocation(
-            'test',
-            250,
-            4,
-            'testdend')
-        assert self.loc.name == 'test'
+            "test", 250, 4, "testdend"
+        )
+        assert self.loc.name == "test"
         self.sim = ephys.simulators.NrnSimulator()
 
     def test_instantiate(self):
@@ -241,18 +229,19 @@ class TestNrnSecSomaDistanceCompLocation(object):
 
         # Create a little test class with a soma and two dendritic sections
         class Cell(object):
-
             """Cell class"""
+
             pass
+
         cell = Cell()
         soma = self.sim.neuron.h.Section(name="soma[0]")
         cell.soma = [soma]
         cell.testdend = self.sim.neuron.h.SectionList()
-        dend1 = self.sim.neuron.h.Section(name='dend[0]')
-        dend2 = self.sim.neuron.h.Section(name='dend[1]')
-        dend3 = self.sim.neuron.h.Section(name='dend[2]')
-        dend4 = self.sim.neuron.h.Section(name='dend[3]')
-        dend5 = self.sim.neuron.h.Section(name='dend[4]')
+        dend1 = self.sim.neuron.h.Section(name="dend[0]")
+        dend2 = self.sim.neuron.h.Section(name="dend[1]")
+        dend3 = self.sim.neuron.h.Section(name="dend[2]")
+        dend4 = self.sim.neuron.h.Section(name="dend[3]")
+        dend5 = self.sim.neuron.h.Section(name="dend[4]")
 
         cell.testdend.append(sec=dend1)
         cell.testdend.append(sec=dend2)
@@ -274,21 +263,18 @@ class TestNrnSecSomaDistanceCompLocation(object):
 
 @pytest.mark.unit
 class TestNrnTrunkSomaDistanceCompLocation(object):
-
     """Test class for NrnTrunkSomaDistanceCompLocation"""
 
-    def setup(self):
+    def setup_method(self):
         """Setup"""
         self.loc = ephys.locations.NrnTrunkSomaDistanceCompLocation(
-            'test',
-            soma_distance=150,
-            seclist_name='testdend')
+            "test", soma_distance=150, seclist_name="testdend"
+        )
         self.loc_other = ephys.locations.NrnTrunkSomaDistanceCompLocation(
-            'test',
-            soma_distance=350,
-            seclist_name='testdend')
+            "test", soma_distance=350, seclist_name="testdend"
+        )
 
-        assert self.loc.name == 'test'
+        assert self.loc.name == "test"
         self.sim = ephys.simulators.NrnSimulator()
 
     def test_instantiate(self):
@@ -296,18 +282,19 @@ class TestNrnTrunkSomaDistanceCompLocation(object):
 
         # Create a little test class with a soma and two dendritic sections
         class Cell(object):
-
             """Cell class"""
+
             pass
+
         cell = Cell()
         soma = self.sim.neuron.h.Section(name="soma[0]")
         cell.soma = [soma]
         cell.testdend = self.sim.neuron.h.SectionList()
-        dend1 = self.sim.neuron.h.Section(name='dend[0]')
-        dend2 = self.sim.neuron.h.Section(name='dend[1]')
-        dend3 = self.sim.neuron.h.Section(name='dend[2]')
-        dend4 = self.sim.neuron.h.Section(name='dend[3]')
-        dend5 = self.sim.neuron.h.Section(name='dend[4]')
+        dend1 = self.sim.neuron.h.Section(name="dend[0]")
+        dend2 = self.sim.neuron.h.Section(name="dend[1]")
+        dend3 = self.sim.neuron.h.Section(name="dend[2]")
+        dend4 = self.sim.neuron.h.Section(name="dend[3]")
+        dend5 = self.sim.neuron.h.Section(name="dend[4]")
 
         cell.testdend.append(sec=dend1)
         cell.testdend.append(sec=dend2)
@@ -348,18 +335,22 @@ def test_serialize():
         NrnSeclistCompLocation,
         NrnSeclistLocation,
         NrnSeclistSecLocation,
-        NrnSomaDistanceCompLocation)
+        NrnSomaDistanceCompLocation,
+    )
 
-    seclist_name, sec_index, comp_x, soma_distance = 'somatic', 0, 0.5, 800
+    seclist_name, sec_index, comp_x, soma_distance = "somatic", 0, 0.5, 800
     locations = (
-        NrnSeclistCompLocation('NrnSeclistCompLocation',
-                               seclist_name, sec_index, comp_x),
-        NrnSeclistLocation(
-            'NrnSeclistLocation', seclist_name),
+        NrnSeclistCompLocation(
+            "NrnSeclistCompLocation", seclist_name, sec_index, comp_x
+        ),
+        NrnSeclistLocation("NrnSeclistLocation", seclist_name),
         NrnSeclistSecLocation(
-            'NrnSeclistSecLocation', seclist_name, sec_index),
+            "NrnSeclistSecLocation", seclist_name, sec_index
+        ),
         NrnSomaDistanceCompLocation(
-            'NrnSomaDistanceCompLocation', soma_distance, seclist_name),)
+            "NrnSomaDistanceCompLocation", soma_distance, seclist_name
+        ),
+    )
 
     for loc in locations:
         serialized = loc.to_dict()
