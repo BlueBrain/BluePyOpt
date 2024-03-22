@@ -640,7 +640,7 @@ def test_cell_model_create_acc_replace_axon_without_instantiate():
 
 
 def check_acc_dir(test_dir, ref_dir):
-    assert os.listdir(ref_dir) == os.listdir(test_dir)
+    assert sorted(os.listdir(ref_dir)) == sorted(os.listdir(test_dir))
 
     ref_dir_ver_suffix = "_py" + "".join(sys.version.split(".")[:2])
     ref_dir_ver = ref_dir.parent / (ref_dir.name + ref_dir_ver_suffix)
@@ -699,8 +699,7 @@ def test_write_acc_simple():
             )
 
             check_acc_dir(test_dir, ref_dir)
-    except Exception as e:  # fail with an older Arbor version
-        assert isinstance(e, NotImplementedError)
+    except NotImplementedError as e:  # fail with an older Arbor version
         assert (
             len(e.args) == 1
             and e.args[0]
