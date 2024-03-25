@@ -1,4 +1,4 @@
-'''create JSON/ACC files for Arbor from a set of BluePyOpt.ephys parameters'''
+"""create JSON/ACC files for Arbor from a set of BluePyOpt.ephys parameters"""
 
 # pylint: disable=R0914
 
@@ -14,14 +14,18 @@ import shutil
 
 from bluepyopt.ephys.acc import arbor
 from bluepyopt.ephys.morphologies import ArbFileMorphology
-from bluepyopt.ephys.create_hoc import \
-    Location, RangeExpr, PointExpr, \
-    _get_template_params, format_float
+from bluepyopt.ephys.create_hoc import (
+    Location,
+    RangeExpr,
+    PointExpr,
+    _get_template_params,
+    format_float,
+)
 
 logger = logging.getLogger(__name__)
 
 # Inhomogeneous expression for scaled parameter in Arbor
-RangeIExpr = namedtuple('RangeIExpr', 'name, value, scale')
+RangeIExpr = namedtuple("RangeIExpr", "name, value, scale")
 
 
 class ArbVar:
@@ -39,25 +43,32 @@ class ArbVar:
         self.conv = conv
 
     def __repr__(self):
-        return 'ArbVar(%s, %s)' % (self.name, self.conv)
+        return "ArbVar(%s, %s)" % (self.name, self.conv)
 
 
 class Nrn2ArbParamAdapter:
     """Converts a Neuron parameter to Arbor format (name and value)"""
 
     _mapping = dict(
-        v_init=ArbVar(name='membrane-potential'),
-        celsius=ArbVar(name='temperature-kelvin',
-                       conv=lambda celsius: celsius + 273.15),
-        Ra=ArbVar(name='axial-resistivity'),
-        cm=ArbVar(name='membrane-capacitance',
-                  conv=lambda cm: cm / 100.),  # NEURON: uF/cm^2, Arbor: F/m^2
-        **{species + loc[0]:
-            ArbVar(name='ion-%sternal-concentration \"%s\"' % (loc, species))
-            for species in ['na', 'k', 'ca'] for loc in ['in', 'ex']},
-        **{'e' + species:
-            ArbVar(name='ion-reversal-potential \"%s\"' % species)
-            for species in ['na', 'k', 'ca']}
+        v_init=ArbVar(name="membrane-potential"),
+        celsius=ArbVar(
+            name="temperature-kelvin", conv=lambda celsius: celsius + 273.15
+        ),
+        Ra=ArbVar(name="axial-resistivity"),
+        cm=ArbVar(
+            name="membrane-capacitance", conv=lambda cm: cm / 100.0
+        ),  # NEURON: uF/cm^2, Arbor: F/m^2
+        **{
+            species + loc[0]: ArbVar(
+                name='ion-%sternal-concentration "%s"' % (loc, species)
+            )
+            for species in ["na", "k", "ca"]
+            for loc in ["in", "ex"]
+        },
+        **{
+            "e" + species: ArbVar(name='ion-reversal-potential "%s"' % species)
+            for species in ["na", "k", "ca"]
+        },
     )
 
     @classmethod
@@ -77,13 +88,19 @@ class Nrn2ArbParamAdapter:
             param (): A Neuron parameter with a value in Neuron units
         """
 
-        if param.name in cls._mapping and \
-                cls._mapping[param.name].conv is not None:
+        if (
+            param.name in cls._mapping
+            and cls._mapping[param.name].conv is not None
+        ):
             return format_float(
-                cls._mapping[param.name].conv(float(param.value)))
+                cls._mapping[param.name].conv(float(param.value))
+            )
         else:
-            return param.value if isinstance(param.value, str) else \
-                format_float(param.value)
+            return (
+                param.value
+                if isinstance(param.value, str)
+                else format_float(param.value)
+            )
 
     @classmethod
     def _conv_param(cls, param, name):
@@ -95,20 +112,26 @@ class Nrn2ArbParamAdapter:
         """
 
         if isinstance(param, Location):
-            return Location(name=cls._param_name(name),
-                            value=cls._param_value(param))
+            return Location(
+                name=cls._param_name(name), value=cls._param_value(param)
+            )
         elif isinstance(param, RangeExpr):
-            return RangeExpr(location=param.location,
-                             name=cls._param_name(name),
-                             value=cls._param_value(param),
-                             value_scaler=param.value_scaler)
+            return RangeExpr(
+                location=param.location,
+                name=cls._param_name(name),
+                value=cls._param_value(param),
+                value_scaler=param.value_scaler,
+            )
         elif isinstance(param, PointExpr):
-            return PointExpr(name=cls._param_name(name),
-                             point_loc=param.point_loc,
-                             value=cls._param_value(param))
+            return PointExpr(
+                name=cls._param_name(name),
+                point_loc=param.point_loc,
+                value=cls._param_value(param),
+            )
         else:
             raise CreateAccException(
-                'Unsupported parameter expression type %s.' % type(param))
+                "Unsupported parameter expression type %s." % type(param)
+            )
 
     @classmethod
     def format(cls, param, mechs):
@@ -123,12 +146,16 @@ class Nrn2ArbParamAdapter:
             parameter in Arbor format
         """
         if not isinstance(param, PointExpr):
-            mech_matches = [i for i, mech in enumerate(mechs)
-                            if param.name.endswith("_" + mech)]
+            mech_matches = [
+                i
+                for i, mech in enumerate(mechs)
+                if param.name.endswith("_" + mech)
+            ]
         else:
             param_pprocesses = [loc.pprocess_mech for loc in param.point_loc]
-            mech_matches = [i for i, mech in enumerate(mechs)
-                            if mech in param_pprocesses]
+            mech_matches = [
+                i for i, mech in enumerate(mechs) if mech in param_pprocesses
+            ]
 
         if len(mech_matches) == 0:
             return None, cls._conv_param(param, name=param.name)
@@ -136,15 +163,17 @@ class Nrn2ArbParamAdapter:
         elif len(mech_matches) == 1:
             mech = mechs[mech_matches[0]]
             if not isinstance(param, PointExpr):
-                name = param.name[:-(len(mech) + 1)]
+                name = param.name[: -(len(mech) + 1)]
             else:
                 name = param.name
             return mech, cls._conv_param(param, name=name)
 
         else:
-            raise CreateAccException("Parameter name %s matches" % param.name +
-                                     " multiple mechanisms %s" %
-                                     [repr(mechs[i]) for i in mech_matches])
+            raise CreateAccException(
+                "Parameter name %s matches" % param.name
+                + " multiple mechanisms %s"
+                % [repr(mechs[i]) for i in mech_matches]
+            )
 
 
 class Nrn2ArbMechGrouper:
@@ -159,14 +188,21 @@ class Nrn2ArbMechGrouper:
             param (): A parameter in Arbor format (name and units)
         """
 
-        return loc == ArbFileMorphology.region_labels['all'] and (
-            param.name in ['membrane-potential',
-                           'temperature-kelvin',
-                           'axial-resistivity',
-                           'membrane-capacitance'] or
-            param.name.split(' ')[0] in ['ion-internal-concentration',
-                                         'ion-external-concentration',
-                                         'ion-reversal-potential'])
+        return loc == ArbFileMorphology.region_labels["all"] and (
+            param.name
+            in [
+                "membrane-potential",
+                "temperature-kelvin",
+                "axial-resistivity",
+                "membrane-capacitance",
+            ]
+            or param.name.split(" ")[0]
+            in [
+                "ion-internal-concentration",
+                "ion-external-concentration",
+                "ion-reversal-potential",
+            ]
+        )
 
     @classmethod
     def _separate_global_properties(cls, loc, mechs):
@@ -187,7 +223,6 @@ class Nrn2ArbMechGrouper:
         global_properties = []
 
         for mech, params in mechs.items():
-
             if mech is None:
                 local_properties = []
                 for param in params:
@@ -213,8 +248,9 @@ class Nrn2ArbMechGrouper:
             Mapping of Arbor mechanism name to list of parameters in Arbor
             format
         """
-        mech_params = [Nrn2ArbParamAdapter.format(
-                       param, channels) for param in params]
+        mech_params = [
+            Nrn2ArbParamAdapter.format(param, channels) for param in params
+        ]
         mechs = {mech: [] for mech, _ in mech_params}
         for mech in channels:
             if mech not in mechs:
@@ -236,9 +272,11 @@ class Nrn2ArbMechGrouper:
             (mechanism name is None for non-mechanism parameters).
         """
         return cls._format_params_and_group_by_mech(
-            [Location(name=name, value=value)
-             for name, value in params.items()],
-            []  # no default mechanisms
+            [
+                Location(name=name, value=value)
+                for name, value in params.items()
+            ],
+            [],  # no default mechanisms
         )
 
     @classmethod
@@ -261,16 +299,19 @@ class Nrn2ArbMechGrouper:
         global_properties = dict()
         for loc, loc_params in params:
             mechs = cls._format_params_and_group_by_mech(
-                loc_params, channels[loc])
+                loc_params, channels[loc]
+            )
 
             # move Arbor global properties to global_params
             mechs, global_props = cls._separate_global_properties(loc, mechs)
             if global_props.keys() != {None}:
                 raise CreateAccException(
-                    'Support for Arbor default mechanisms not implemented.')
+                    "Support for Arbor default mechanisms not implemented."
+                )
             # iterate over global_props items if above exception triggers
-            global_properties[None] = \
+            global_properties[None] = (
                 global_properties.get(None, []) + global_props[None]
+            )
             local_mechs[loc] = mechs
         return local_mechs, global_properties
 
@@ -289,8 +330,11 @@ def _arb_filter_point_proc_locs(pprocess_mechs):
         for mech, point_exprs in mechs.items():
             result[loc][mech.name] = dict(
                 mech=mech.suffix,
-                params=[Location(point_expr.name, point_expr.value)
-                        for point_expr in point_exprs])
+                params=[
+                    Location(point_expr.name, point_expr.value)
+                    for point_expr in point_exprs
+                ],
+            )
 
     return result
 
@@ -300,18 +344,21 @@ def _arb_append_scaled_mechs(mechs, scaled_mechs):
     for mech, scaled_params in scaled_mechs.items():
         if mech is None and len(scaled_params) > 0:
             raise CreateAccException(
-                'Non-mechanism parameters cannot have inhomogeneous'
-                ' expressions in Arbor %s' % scaled_params)
-        mechs[mech] = mechs.get(mech, []) + \
-            [RangeIExpr(
+                "Non-mechanism parameters cannot have inhomogeneous"
+                " expressions in Arbor %s" % scaled_params
+            )
+        mechs[mech] = mechs.get(mech, []) + [
+            RangeIExpr(
                 name=p.name,
                 value=p.value,
-                scale=p.value_scaler.acc_scale_iexpr(p.value))
-                for p in scaled_params]
+                scale=p.value_scaler.acc_scale_iexpr(p.value),
+            )
+            for p in scaled_params
+        ]
 
 
 # An mechanism's NMODL GLOBAL and RANGE variables in Arbor
-MechMetaData = namedtuple('MechMetaData', 'globals, ranges')
+MechMetaData = namedtuple("MechMetaData", "globals, ranges")
 
 
 class ArbNmodlMechFormatter:
@@ -338,37 +385,42 @@ class ArbNmodlMechFormatter:
         """
         # used to generate arbor_mechanisms.json on NMODL from arbor/mechanisms
 
-        nmodl_pattern = '^\s*%s\s+((?:\w+\,\s*)*?\w+)\s*?$'  # NOQA
-        suffix_pattern = nmodl_pattern % 'SUFFIX'
-        globals_pattern = nmodl_pattern % 'GLOBAL'
-        ranges_pattern = nmodl_pattern % 'RANGE'
+        nmodl_pattern = r"^\s*%s\s+((?:\w+\,\s*)*?\w+)\s*?$"  # NOQA
+        suffix_pattern = nmodl_pattern % "SUFFIX"
+        globals_pattern = nmodl_pattern % "GLOBAL"
+        ranges_pattern = nmodl_pattern % "RANGE"
 
         def process_nmodl(nmodl_str):
             """Extract global and range params from Arbor-conforming NMODL"""
             try:
-                nrn = re.search(r'NEURON\s+{([^}]+)}', nmodl_str,
-                                flags=re.MULTILINE).group(1)
-                suffix_ = re.search(suffix_pattern, nrn,
-                                    flags=re.MULTILINE)
+                nrn = re.search(
+                    r"NEURON\s+{([^}]+)}", nmodl_str, flags=re.MULTILINE
+                ).group(1)
+                suffix_ = re.search(suffix_pattern, nrn, flags=re.MULTILINE)
                 suffix_ = suffix_ if suffix_ is None else suffix_.group(1)
-                globals_ = re.search(globals_pattern, nrn,
-                                     flags=re.MULTILINE)
-                globals_ = globals_ if globals_ is None \
-                    else re.findall(r'\w+', globals_.group(1))
-                ranges_ = re.search(ranges_pattern, nrn,
-                                    flags=re.MULTILINE)
-                ranges_ = ranges_ if ranges_ is None \
-                    else re.findall(r'\w+', ranges_.group(1))
+                globals_ = re.search(globals_pattern, nrn, flags=re.MULTILINE)
+                globals_ = (
+                    globals_
+                    if globals_ is None
+                    else re.findall(r"\w+", globals_.group(1))
+                )
+                ranges_ = re.search(ranges_pattern, nrn, flags=re.MULTILINE)
+                ranges_ = (
+                    ranges_
+                    if ranges_ is None
+                    else re.findall(r"\w+", ranges_.group(1))
+                )
             except Exception as e:
                 raise CreateAccException(
-                    'NMODL-inspection for %s failed.' % nmodl_file) from e
+                    "NMODL-inspection for %s failed." % nmodl_file
+                ) from e
 
             # skipping suffix_
             return MechMetaData(globals=globals_, ranges=ranges_)
 
         mechs = dict()
         cat_dir = pathlib.Path(cat_dir)
-        for nmodl_file in cat_dir.glob('*.mod'):
+        for nmodl_file in cat_dir.glob("*.mod"):
             with open(cat_dir.joinpath(nmodl_file)) as f:
                 mechs[nmodl_file.stem] = process_nmodl(f.read())
 
@@ -393,18 +445,23 @@ class ArbNmodlMechFormatter:
         if ext_catalogues is not None:
             for cat, cat_nmodl in ext_catalogues.items():
                 arb_cats[cat] = cls._load_catalogue_meta(
-                    pathlib.Path(cat_nmodl).resolve())
+                    pathlib.Path(cat_nmodl).resolve()
+                )
 
-        builtin_catalogues = pathlib.Path(__file__).parent.joinpath(
-            'static/arbor_mechanisms.json').resolve()
+        builtin_catalogues = (
+            pathlib.Path(__file__)
+            .parent.joinpath("static/arbor_mechanisms.json")
+            .resolve()
+        )
         with open(builtin_catalogues) as f:
             builtin_arb_cats = json.load(f)
 
-        for cat in ['BBP', 'default', 'allen']:
+        for cat in ["BBP", "default", "allen"]:
             if cat not in arb_cats:
                 arb_cats[cat] = {
                     mech: MechMetaData(**meta)
-                    for mech, meta in builtin_arb_cats[cat].items()}
+                    for mech, meta in builtin_arb_cats[cat].items()
+                }
 
         return arb_cats
 
@@ -415,7 +472,7 @@ class ArbNmodlMechFormatter:
         Args:
             name (): A Neuron mechanism name
         """
-        if name in ['Exp2Syn', 'ExpSyn']:
+        if name in ["Exp2Syn", "ExpSyn"]:
             return name.lower()
         else:
             return name
@@ -441,51 +498,64 @@ class ArbNmodlMechFormatter:
         for cat in arb_cats:  # in order of precedence
             if arb_mech_name in arb_cats[cat]:
                 arb_mech = arb_cats[cat][arb_mech_name]
-                mech_name = cat + '::' + arb_mech_name
+                mech_name = cat + "::" + arb_mech_name
                 break
 
         if arb_mech is None:  # not Arbor built-in mech, no qualifier added
             if mech_name is not None:
                 logger.warn(
-                    'create_acc: Could not find Arbor mech for %s (%s).'
-                    % (mech_name, mech_params))
+                    "create_acc: Could not find Arbor mech for %s (%s)."
+                    % (mech_name, mech_params)
+                )
             return (mech_name, mech_params)
         else:
             if arb_mech.globals is None:  # only Arbor range params
                 for param in mech_params:
                     if param.name not in arb_mech.ranges:
                         raise CreateAccException(
-                            '%s not a GLOBAL or RANGE parameter of %s' %
-                            (param.name, mech_name))
+                            "%s not a GLOBAL or RANGE parameter of %s"
+                            % (param.name, mech_name)
+                        )
                 return (mech_name, mech_params)
             else:
                 for param in mech_params:
-                    if param.name not in arb_mech.globals and \
-                            param.name not in arb_mech.ranges:
+                    if (
+                        param.name not in arb_mech.globals
+                        and param.name not in arb_mech.ranges
+                    ):
                         raise CreateAccException(
-                            '%s not a GLOBAL or RANGE parameter of %s' %
-                            (param.name, mech_name))
+                            "%s not a GLOBAL or RANGE parameter of %s"
+                            % (param.name, mech_name)
+                        )
                 mech_name_suffix = []
                 remaining_mech_params = []
                 for mech_param in mech_params:
                     if mech_param.name in arb_mech.globals:
-                        mech_name_suffix.append(mech_param.name + '=' +
-                                                mech_param.value)
+                        mech_name_suffix.append(
+                            mech_param.name + "=" + mech_param.value
+                        )
                         if isinstance(mech_param, RangeIExpr):
                             remaining_mech_params.append(
-                                RangeIExpr(name=mech_param.name,
-                                           value=None,
-                                           scale=mech_param.scale))
+                                RangeIExpr(
+                                    name=mech_param.name,
+                                    value=None,
+                                    scale=mech_param.scale,
+                                )
+                            )
                     else:
                         remaining_mech_params.append(mech_param)
                 if len(mech_name_suffix) > 0:
-                    mech_name += '/' + ','.join(mech_name_suffix)
+                    mech_name += "/" + ",".join(mech_name_suffix)
                 return (mech_name, remaining_mech_params)
 
     def translate_density(self, mechs):
         """Translate all density mechanisms in a specific region"""
-        return dict([self._translate_mech(mech, params, self.cats)
-                    for mech, params in mechs.items()])
+        return dict(
+            [
+                self._translate_mech(mech, params, self.cats)
+                for mech, params in mechs.items()
+            ]
+        )
 
     def translate_points(self, mechs):
         """Translate all point mechanisms for a specific locset"""
@@ -493,9 +563,9 @@ class ArbNmodlMechFormatter:
 
         for synapse_name, mech_desc in mechs.items():
             mech, params = self._translate_mech(
-                mech_desc['mech'], mech_desc['params'], self.cats)
-            result[synapse_name] = dict(mech=mech,
-                                        params=params)
+                mech_desc["mech"], mech_desc["params"], self.cats
+            )
+            result[synapse_name] = dict(mech=mech, params=params)
 
         return result
 
@@ -527,13 +597,16 @@ def _arb_populate_label_dict(local_mechs, local_scaled_mechs, pprocess_mechs):
     acc_labels = ChainMap(local_mechs, local_scaled_mechs, pprocess_mechs)
 
     for acc_label in acc_labels:
-        if acc_label.name in label_dict and \
-                acc_label != label_dict[acc_label.name]:
+        if (
+            acc_label.name in label_dict
+            and acc_label != label_dict[acc_label.name]
+        ):
             raise CreateAccException(
-                'Label %s already exists in' % acc_label.name +
-                ' label_dict with different s-expression: '
-                ' %s != %s.' % (label_dict[acc_label.name].loc,
-                                acc_label.loc))
+                "Label %s already exists in"
+                % acc_label.name
+                + " label_dict with different s-expression: "
+                " %s != %s." % (label_dict[acc_label.name].loc, acc_label.loc)
+            )
         elif acc_label.name not in label_dict:
             label_dict[acc_label.name] = acc_label
 
@@ -542,10 +615,11 @@ def _arb_populate_label_dict(local_mechs, local_scaled_mechs, pprocess_mechs):
 
 def _read_templates(template_dir, template_filename):
     """Expand Jinja2 template filepath with glob and
-     return dict of target filename -> parsed template"""
+    return dict of target filename -> parsed template"""
     if template_dir is None:
-        template_dir = \
-            pathlib.Path(__file__).parent.joinpath('templates').resolve()
+        template_dir = (
+            pathlib.Path(__file__).parent.joinpath("templates").resolve()
+        )
 
     template_paths = pathlib.Path(template_dir).glob(template_filename)
 
@@ -554,17 +628,18 @@ def _read_templates(template_dir, template_filename):
         with open(template_path) as template_file:
             template = template_file.read()
             name = template_path.name
-            if name.endswith('.jinja2'):
+            if name.endswith(".jinja2"):
                 name = name[:-7]
-            if name.endswith('_template'):
+            if name.endswith("_template"):
                 name = name[:-9]
-            if '_' in name:
-                name = '.'.join(name.rsplit('_', 1))
+            if "_" in name:
+                name = ".".join(name.rsplit("_", 1))
             templates[name] = jinja2.Template(template)
 
     if templates == {}:
         raise FileNotFoundError(
-            f'No templates found for JSON/ACC-export in {template_dir}')
+            f"No templates found for JSON/ACC-export in {template_dir}"
+        )
 
     return templates
 
@@ -574,20 +649,22 @@ def _arb_loc_desc(location, param_or_mech):
     return location.acc_label()
 
 
-def create_acc(mechs,
-               parameters,
-               morphology=None,
-               morphology_dir=None,
-               ext_catalogues=None,
-               ignored_globals=(),
-               replace_axon=None,
-               create_mod_morph=False,
-               template_name='CCell',
-               template_filename='acc/*_template.jinja2',
-               disable_banner=None,
-               template_dir=None,
-               custom_jinja_params=None):
-    '''return a dict with strings containing the rendered JSON/ACC templates
+def create_acc(
+    mechs,
+    parameters,
+    morphology=None,
+    morphology_dir=None,
+    ext_catalogues=None,
+    ignored_globals=(),
+    replace_axon=None,
+    create_mod_morph=False,
+    template_name="CCell",
+    template_filename="acc/*_template.jinja2",
+    disable_banner=None,
+    template_dir=None,
+    custom_jinja_params=None,
+):
+    """return a dict with strings containing the rendered JSON/ACC templates
 
     Args:
         mechs (): All the mechs for the decor template
@@ -604,39 +681,45 @@ def create_acc(mechs,
         template_dir (str): dir name of the jinja2 templates
         custom_jinja_params (dict): dict of additional jinja2 params in case
         of a custom template
-    '''
+    """
 
     if custom_jinja_params is None:
         custom_jinja_params = {}
 
-    if pathlib.Path(morphology).suffix.lower() not in ['.swc', '.asc']:
-        raise CreateAccException("Morphology file %s not supported in Arbor "
-                                 " (only supported types are .swc and .asc)."
-                                 % morphology)
+    if pathlib.Path(morphology).suffix.lower() not in [".swc", ".asc"]:
+        raise CreateAccException(
+            "Morphology file %s not supported in Arbor "
+            " (only supported types are .swc and .asc)." % morphology
+        )
 
     if replace_axon is not None:
-        if not hasattr(arbor.segment_tree, 'tag_roots'):
-            raise NotImplementedError("Need a newer version of Arbor"
-                                      " for axon replacement.")
-        logger.debug("Obtain axon replacement by applying "
-                     "ArbFileMorphology.replace_axon after loading "
-                     "morphology in Arbor.")
-        replace_axon_path = \
-            pathlib.Path(morphology).stem + '_axon_replacement.acc'
+        if not hasattr(arbor.segment_tree, "tag_roots"):
+            raise NotImplementedError(
+                "Need a newer version of Arbor" " for axon replacement."
+            )
+        logger.debug(
+            "Obtain axon replacement by applying "
+            "ArbFileMorphology.replace_axon after loading "
+            "morphology in Arbor."
+        )
+        replace_axon_path = (
+            pathlib.Path(morphology).stem + "_axon_replacement.acc"
+        )
         replace_axon_acc = io.StringIO()
         arbor.write_component(replace_axon, replace_axon_acc)
         replace_axon_acc.seek(0)
 
         if create_mod_morph:
-            modified_morphology_path = \
-                pathlib.Path(morphology).stem + '_modified.acc'
+            modified_morphology_path = (
+                pathlib.Path(morphology).stem + "_modified.acc"
+            )
             modified_morpho = ArbFileMorphology.load(
                 pathlib.Path(morphology_dir).joinpath(morphology),
-                replace_axon_acc)
+                replace_axon_acc,
+            )
             replace_axon_acc.seek(0)
             modified_morphology_acc = io.StringIO()
-            arbor.write_component(
-                modified_morpho, modified_morphology_acc)
+            arbor.write_component(modified_morpho, modified_morphology_acc)
             modified_morphology_acc.seek(0)
             modified_morphology_acc = modified_morphology_acc.read()
         else:
@@ -652,47 +735,49 @@ def create_acc(mechs,
 
     default_location_order = list(ArbFileMorphology.region_labels.values())
 
-    template_params = _get_template_params(mechs,
-                                           parameters,
-                                           ignored_globals,
-                                           disable_banner,
-                                           default_location_order,
-                                           _arb_loc_desc)
+    template_params = _get_template_params(
+        mechs,
+        parameters,
+        ignored_globals,
+        disable_banner,
+        default_location_order,
+        _arb_loc_desc,
+    )
 
     filenames = {
-        name: template_name + (name if name.startswith('.') else "_" + name)
-        for name in templates.keys()}
+        name: template_name + (name if name.startswith(".") else "_" + name)
+        for name in templates.keys()
+    }
 
     # postprocess template parameters for Arbor
-    channels = template_params['channels']
-    point_channels = template_params['point_channels']
-    banner = template_params['banner']
+    channels = template_params["channels"]
+    point_channels = template_params["point_channels"]
+    banner = template_params["banner"]
 
     # global_mechs refer to default density mechs/params in Arbor
     # [mech -> param] (params under mech == None)
-    global_mechs = \
-        Nrn2ArbMechGrouper.process_global(
-            template_params['global_params'])
+    global_mechs = Nrn2ArbMechGrouper.process_global(
+        template_params["global_params"]
+    )
 
     # local_mechs refer to locally painted density mechs/params in Arbor
     # [label -> mech -> param.name/.value] (params under mech == None)
-    local_mechs, additional_global_mechs = \
-        Nrn2ArbMechGrouper.process_local(
-            template_params['section_params'], channels)
+    local_mechs, additional_global_mechs = Nrn2ArbMechGrouper.process_local(
+        template_params["section_params"], channels
+    )
     for mech, params in additional_global_mechs.items():
-        global_mechs[mech] = \
-            global_mechs.get(mech, []) + params
+        global_mechs[mech] = global_mechs.get(mech, []) + params
 
     # scaled_mechs refer to iexpr params of scaled density mechs in Arbor
     # [label -> mech -> param.location/.name/.value/.value_scaler]
     range_params = {loc: [] for loc in default_location_order}
-    for param in template_params['range_params']:
+    for param in template_params["range_params"]:
         range_params[param.location].append(param)
     range_params = list(range_params.items())
 
-    local_scaled_mechs, global_scaled_mechs = \
-        Nrn2ArbMechGrouper.process_local(
-            range_params, channels)
+    local_scaled_mechs, global_scaled_mechs = Nrn2ArbMechGrouper.process_local(
+        range_params, channels
+    )
 
     # join each mech's constant params with inhomogeneous ones on mechanisms
     _arb_append_scaled_mechs(global_mechs, global_scaled_mechs)
@@ -701,12 +786,13 @@ def create_acc(mechs,
 
     # pprocess_mechs refer to locally placed mechs/params in Arbor
     # [label -> mech -> param.name/.value]
-    pprocess_mechs, global_pprocess_mechs = \
-        Nrn2ArbMechGrouper.process_local(
-            template_params['pprocess_params'], point_channels)
+    pprocess_mechs, global_pprocess_mechs = Nrn2ArbMechGrouper.process_local(
+        template_params["pprocess_params"], point_channels
+    )
     if any(len(params) > 0 for params in global_pprocess_mechs.values()):
-        raise CreateAccException('Point process mechanisms cannot be'
-                                 ' placed globally in Arbor.')
+        raise CreateAccException(
+            "Point process mechanisms cannot be" " placed globally in Arbor."
+        )
 
     # Evaluate synapse locations
     # (no new labels introduced, but locations explicitly defined)
@@ -720,36 +806,43 @@ def create_acc(mechs,
     global_mechs = nmodl_formatter.translate_density(global_mechs)
     local_mechs = {
         loc: nmodl_formatter.translate_density(mechs)
-        for loc, mechs in local_mechs.items()}
+        for loc, mechs in local_mechs.items()
+    }
     pprocess_mechs = {
         loc: nmodl_formatter.translate_points(mechs)
-        for loc, mechs in pprocess_mechs.items()}
+        for loc, mechs in pprocess_mechs.items()
+    }
 
     # get iexpr parameters of scaled density mechs
     global_scaled_mechs = _arb_project_scaled_mechs(global_mechs)
-    local_scaled_mechs = {loc: _arb_project_scaled_mechs(mechs)
-                          for loc, mechs in local_mechs.items()}
+    local_scaled_mechs = {
+        loc: _arb_project_scaled_mechs(mechs)
+        for loc, mechs in local_mechs.items()
+    }
 
     # populate label dict
-    label_dict = _arb_populate_label_dict(local_mechs,
-                                          local_scaled_mechs,
-                                          pprocess_mechs)
+    label_dict = _arb_populate_label_dict(
+        local_mechs, local_scaled_mechs, pprocess_mechs
+    )
 
-    ret = {filenames[name]:
-           template.render(template_name=template_name,
-                           banner=banner,
-                           morphology=morphology,
-                           replace_axon=replace_axon_path,
-                           modified_morphology=modified_morphology_path,
-                           filenames=filenames,
-                           label_dict=label_dict,
-                           global_mechs=global_mechs,
-                           global_scaled_mechs=global_scaled_mechs,
-                           local_mechs=local_mechs,
-                           local_scaled_mechs=local_scaled_mechs,
-                           pprocess_mechs=pprocess_mechs,
-                           **custom_jinja_params)
-           for name, template in templates.items()}
+    ret = {
+        filenames[name]: template.render(
+            template_name=template_name,
+            banner=banner,
+            morphology=morphology,
+            replace_axon=replace_axon_path,
+            modified_morphology=modified_morphology_path,
+            filenames=filenames,
+            label_dict=label_dict,
+            global_mechs=global_mechs,
+            global_scaled_mechs=global_scaled_mechs,
+            local_mechs=local_mechs,
+            local_scaled_mechs=local_scaled_mechs,
+            pprocess_mechs=pprocess_mechs,
+            **custom_jinja_params,
+        )
+        for name, template in templates.items()
+    }
 
     if replace_axon is not None:
         ret[replace_axon_path] = replace_axon_acc
@@ -759,12 +852,16 @@ def create_acc(mechs,
     return ret
 
 
-def write_acc(output_dir, cell, parameters,
-              template_filename='acc/*_template.jinja2',
-              ext_catalogues=None,
-              create_mod_morph=False,
-              sim=None):
-    '''Output mixed JSON/ACC format for Arbor cable cell to files
+def write_acc(
+    output_dir,
+    cell,
+    parameters,
+    template_filename="acc/*_template.jinja2",
+    ext_catalogues=None,
+    create_mod_morph=False,
+    sim=None,
+):
+    """Output mixed JSON/ACC format for Arbor cable cell to files
 
     Args:
         output_dir (str): Output directory. If not exists, will be created
@@ -777,18 +874,24 @@ def write_acc(output_dir, cell, parameters,
         create_mod_morph (str): Output ACC with axon replacement
         sim (): Neuron simulator instance (only used used with axon
         replacement if morphology has not yet been instantiated)
-    '''
-    output = cell.create_acc(parameters, template=template_filename,
-                             ext_catalogues=ext_catalogues,
-                             create_mod_morph=create_mod_morph,
-                             sim=sim)
+    """
+    output = cell.create_acc(
+        parameters,
+        template=template_filename,
+        ext_catalogues=ext_catalogues,
+        create_mod_morph=create_mod_morph,
+        sim=sim,
+    )
 
-    cell_json = [comp_rendered
-                 for comp, comp_rendered in output.items()
-                 if pathlib.Path(comp).suffix == '.json']
+    cell_json = [
+        comp_rendered
+        for comp, comp_rendered in output.items()
+        if pathlib.Path(comp).suffix == ".json"
+    ]
     if len(cell_json) != 1:
         raise CreateAccException(
-            'JSON file from create_acc is non-unique: %s' % cell_json)
+            "JSON file from create_acc is non-unique: %s" % cell_json
+        )
 
     cell_json = json.loads(cell_json[0])
 
@@ -799,10 +902,10 @@ def write_acc(output_dir, cell, parameters,
         comp_filename = output_dir.joinpath(comp)
         if comp_filename.exists():
             raise CreateAccException("%s already exists!" % comp_filename)
-        with open(output_dir.joinpath(comp), 'w') as f:
+        with open(output_dir.joinpath(comp), "w") as f:
             f.write(comp_rendered)
 
-    morpho_filename = output_dir.joinpath(cell_json['morphology']['original'])
+    morpho_filename = output_dir.joinpath(cell_json["morphology"]["original"])
     if morpho_filename.exists():
         raise CreateAccException("%s already exists!" % morpho_filename)
     shutil.copy2(cell.morphology.morphology_path, morpho_filename)
@@ -810,12 +913,12 @@ def write_acc(output_dir, cell, parameters,
 
 # Read the mixed JSON/ACC-output, to be moved to Arbor in future release
 def read_acc(cell_json_filename):
-    '''Return constituents to build an Arbor cable cell from create_acc-export
+    """Return constituents to build an Arbor cable cell from create_acc-export
 
     Args:
         cell_json_filename (str): The path to the JSON file containing
         meta-information on morphology, label-dict and decor of exported cell
-    '''
+    """
 
     with open(cell_json_filename) as cell_json_file:
         cell_json = json.load(cell_json_file)
@@ -823,22 +926,24 @@ def read_acc(cell_json_filename):
     cell_json_dir = pathlib.Path(cell_json_filename).parent
 
     morpho_filename = cell_json_dir.joinpath(
-        cell_json['morphology']['original'])
-    replace_axon = cell_json['morphology'].get('replace_axon', None)
+        cell_json["morphology"]["original"]
+    )
+    replace_axon = cell_json["morphology"].get("replace_axon", None)
     if replace_axon is not None:
         replace_axon = cell_json_dir.joinpath(replace_axon)
     morpho = ArbFileMorphology.load(morpho_filename, replace_axon)
 
     decor = arbor.load_component(
-        cell_json_dir.joinpath(cell_json['decor'])).component
+        cell_json_dir.joinpath(cell_json["decor"])
+    ).component
     labels = arbor.load_component(
-        cell_json_dir.joinpath(cell_json['label_dict'])).component
+        cell_json_dir.joinpath(cell_json["label_dict"])
+    ).component
 
     return cell_json, morpho, decor, labels
 
 
 class CreateAccException(Exception):
-
     """Exceptions generated by create_acc module"""
 
     def __init__(self, message):
