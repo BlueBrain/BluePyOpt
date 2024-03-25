@@ -64,9 +64,8 @@ setuptools.setup(
         'arbor': EXTRA_ARBOR,
         },
     packages=setuptools.find_packages(
-        exclude=(
-            'examples',
-        )),
+        exclude=['examples*'],
+        ),
     author="BlueBrain Project, EPFL",
     author_email="werner.vangeit@epfl.ch",
     description="Bluebrain Python Optimisation Library (bluepyopt)",
