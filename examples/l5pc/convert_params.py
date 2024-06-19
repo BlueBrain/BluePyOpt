@@ -1,7 +1,5 @@
 """Convert params.json and fixed_params.json to parameters.json format"""
 
-from __future__ import print_function
-
 import json
 
 

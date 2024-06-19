@@ -3,59 +3,22 @@
 BluePyOpt
 =========
 
-.. raw:: html
 
-	<table>
-	<tr>
-	  <td>Latest Release</td>
-	  <td>
-	    <a href="https://pypi.org/project/bluepyopt/">
-	    <img src="https://img.shields.io/pypi/v/bluepyopt.svg" alt="latest release" />
-	    </a>
-	  </td>
-	</tr>
-	<tr>
-	  <td>Documentation</td>
-	  <td>
-	    <a href="https://bluepyopt.readthedocs.io/">
-	    <img src="https://readthedocs.org/projects/bluepyopt/badge/?version=latest" alt="latest documentation" />
-	    </a>
-	  </td>
-	</tr>
-	<tr>
-	  <td>License</td>
-	  <td>
-	    <a href="https://github.com/BlueBrain/bluepyopt/blob/master/LICENSE.txt">
-	    <img src="https://img.shields.io/pypi/l/bluepyopt.svg" alt="license" />
-	    </a>
-	</td>
-	</tr>
-	<tr>
-	  <td>Build Status</td>
-	  <td>
-	    <a href="https://github.com/BlueBrain/BluePyOpt/actions">
-	    <img src="https://github.com/BlueBrain/BluePyOpt/workflows/Build/badge.svg?branch=master" alt="Actions build status" />
-	    </a>
-	  </td>
-	</tr>
-	<tr>
-	  <td>Coverage</td>
-	  <td>
-	    <a href="https://codecov.io/gh/BlueBrain/bluepyopt">
-	    <img src="https://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=master" alt="coverage" />
-	    </a>
-	  </td>
-	</tr>
-	<tr>
-		<td>Gitter</td>
-		<td>
-			<a href="https://gitter.im/bluebrain/bluepyopt">
-			<img src="https://badges.gitter.im/Join%20Chat.svg"
-		</a>
-		</td>
-	</tr>
-	</table>
-
++----------------+------------+
+| Latest Release | |pypi|     |
++----------------+------------+
+| Documentation  | |docs|     |
++----------------+------------+
+| License        | |license|  |
++----------------+------------+
+| Build Status 	 | |build|    |
++----------------+------------+
+| Coverage       | |coverage| |
++----------------+------------+
+| Gitter         | |gitter|   |
++----------------+------------+
+| Zenodo         | |zenodo|   |
++----------------+------------+
 
 
 Introduction
@@ -228,6 +191,33 @@ Copyright (c) 2016-2022 Blue Brain Project/EPFL
     The following location is used for the github README
     The index.rst location is used for the docs README; index.rst also defined an end-marker, 
     to skip content after the marker 'substitutions'.
+
+.. |pypi| image:: https://img.shields.io/pypi/v/bluepyopt.svg
+               :target: https://pypi.org/project/bluepyopt/
+               :alt: latest release
+
+.. |docs| image:: https://readthedocs.org/projects/bluepyopt/badge/?version=latest
+               :target: https://bluepyopt.readthedocs.io/
+               :alt: latest documentation
+
+.. |license| image:: https://img.shields.io/pypi/l/bluepyopt.svg
+                  :target: https://github.com/BlueBrain/bluepyopt/blob/master/LICENSE.txt
+                  :alt: license
+
+.. |build| image:: https://github.com/BlueBrain/BluePyOpt/workflows/Build/badge.svg?branch=master
+                :target: https://github.com/BlueBrain/BluePyOpt/actions
+                :alt: actions build status
+
+.. |coverage| image:: https://codecov.io/github/BlueBrain/BluePyOpt/coverage.svg?branch=master
+                   :target: https://codecov.io/gh/BlueBrain/bluepyopt
+                   :alt: coverage
+
+.. |gitter| image:: https://badges.gitter.im/Join%20Chat.svg
+                 :target: https://gitter.im/BlueBrain/blueptopt
+                 :alt: Join the chat at https://gitter.im/BlueBrain/BluePyOpt
+
+.. |zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.8135890.svg
+                :target: https://doi.org/10.5281/zenodo.8135890
 
 .. substitutions
 .. |banner| image:: docs/source/logo/BluePyOptBanner.png

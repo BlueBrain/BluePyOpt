@@ -5,7 +5,9 @@
 import os
 
 from bluepyopt.ephys.acc import ArbLabel
+from bluepyopt.ephys.locations import NrnSomaDistanceCompLocation
 from bluepyopt.ephys.parameterscalers import NrnSegmentSomaDistanceScaler
+from bluepyopt.ephys.parameterscalers import NrnSegmentSomaDistanceStepScaler
 
 from . import utils
 from bluepyopt.ephys import create_acc, create_hoc
@@ -150,4 +152,34 @@ def test_range_exprs_to_hoc():
     hoc = create_hoc.range_exprs_to_hoc([range_expr])
     assert hoc[0].param_name == 'gkbar_hh'
     val_gt = '(-0.8696 + 2.087*exp((%.17g)*0.0031))*0.025000000000000001'
+    assert hoc[0].value == val_gt
+
+
+@pytest.mark.unit
+def test_range_exprs_to_hoc_step_scaler():
+    """ephys.create_hoc: Test range_exprs_to_hoc with step scaler"""
+    # apical_region = ArbLabel("region", "apic", "(tag 4)")
+    apical_location = NrnSomaDistanceCompLocation(
+        name='apic100',
+        soma_distance=100,
+        seclist_name='apical',
+    )
+    param_scaler = NrnSegmentSomaDistanceStepScaler(
+        name='soma-distance-step-scaler',
+        distribution='{value} * (0.1 + 0.9 * int('
+                     '({distance} > {step_begin}) & ('
+                     '{distance} < {step_end})))',
+        step_begin=300,
+        step_end=500)
+
+    range_expr = create_hoc.RangeExpr(
+        location=apical_location,
+        name="gCa_LVAstbar_Ca_LVAst",
+        value=1,
+        value_scaler=param_scaler
+    )
+
+    hoc = create_hoc.range_exprs_to_hoc([range_expr])
+    assert hoc[0].param_name == 'gCa_LVAstbar_Ca_LVAst'
+    val_gt = '1 * (0.1 + 0.9 * int((%.17g > 300) && (%.17g < 500)))'
     assert hoc[0].value == val_gt

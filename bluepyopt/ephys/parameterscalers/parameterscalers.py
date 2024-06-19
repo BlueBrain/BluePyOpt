@@ -161,9 +161,8 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
         # Use this special formatting to bypass missing keys
         return string.Formatter().vformat(self.distribution, (), dist_dict)
 
-    def eval_dist(self, values, distance):
-        """Create the final dist string"""
-
+    def scale_dict(self, values, distance):
+        """Create scale dictionary"""
         scale_dict = {}
         if isinstance(values, dict):
             for k, v in values.items():
@@ -171,6 +170,12 @@ class NrnSegmentSectionDistanceScaler(ParameterScaler, DictMixin):
         else:
             scale_dict["value"] = format_float(values)
         scale_dict["distance"] = format_float(distance)
+
+        return scale_dict
+
+    def eval_dist(self, values, distance):
+        """Create the final dist string"""
+        scale_dict = self.scale_dict(values, distance)
 
         return self.inst_distribution.format(**scale_dict)
 
@@ -261,3 +266,51 @@ class NrnSegmentSomaDistanceScaler(NrnSegmentSectionDistanceScaler,
             ArbFileMorphology.region_labels['somatic'].ref
         )
         return generate_acc_scale_iexpr(iexpr, variables, constant_formatter)
+
+
+class NrnSegmentSomaDistanceStepScaler(NrnSegmentSomaDistanceScaler,
+                                       ParameterScaler, DictMixin):
+
+    """Scaler based on distance from soma with a step function"""
+    SERIALIZED_FIELDS = ('name', 'comment', 'distribution', )
+
+    def __init__(
+            self,
+            name=None,
+            distribution=None,
+            comment='',
+            dist_param_names=None,
+            soma_ref_location=0.5,
+            step_begin=None,
+            step_end=None):
+        """Constructor
+        Args:
+            name (str): name of this object
+            distribution (str): distribution of parameter dependent on distance
+                from soma. string can contain `distance` and/or `value` as
+                placeholders for the distance to the soma and parameter value
+                respectively. It can also contain step_begin and step_end.
+            dist_param_names (list): list of names of parameters that
+                parametrise the distribution. These names will become
+                attributes of this object.
+                The distribution string should contain these names, and they
+                will be replaced by values of the corresponding attributes
+            soma_ref_location (float): location along the soma used as origin
+                from which to compute the distances. Expressed as a fraction
+                (between 0.0 and 1.0).
+            step_begin (float): distance at which the step begins
+            step_end (float): distance at which the step ends
+        """
+
+        super(NrnSegmentSomaDistanceStepScaler, self).__init__(
+            name, distribution, comment, dist_param_names,
+            soma_ref_location=soma_ref_location)
+        self.step_begin = step_begin
+        self.step_end = step_end
+
+    def scale_dict(self, values, distance):
+        scale_dict = super().scale_dict(values, distance)
+        scale_dict["step_begin"] = self.step_begin
+        scale_dict["step_end"] = self.step_end
+
+        return scale_dict
