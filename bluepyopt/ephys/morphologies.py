@@ -196,7 +196,8 @@ class NrnFileMorphology(Morphology, DictMixin):
 
             for section in icell.axonal:
                 # If distance to soma is larger than 60, store diameter
-                if sim.neuron.h.distance(1, 0.5, sec=section) > axon_stump_length:
+                if sim.neuron.h.distance(1, 0.5, sec=section) \
+                        > axon_stump_length:
                     ais_diams[1] = section.diam
                     break
 
@@ -208,7 +209,7 @@ class NrnFileMorphology(Morphology, DictMixin):
 
         for index, section in enumerate(icell.axon):
             section.nseg = 1
-            section.L = axon_stump_length/n_sections
+            section.L = axon_stump_length / n_sections
             section.diam = ais_diams[index]
             icell.axonal.append(sec=section)
             icell.all.append(sec=section)
@@ -217,9 +218,10 @@ class NrnFileMorphology(Morphology, DictMixin):
             if index == 0:
                 icell.axon[0].connect(icell.soma[0], 1.0, 0.0)
             else:
-                icell.axon[index].connect(icell.axon[index-1], 1.0, 0.0)
+                icell.axon[index].connect(icell.axon[index - 1], 1.0, 0.0)
 
-        logger.debug(f"Replace axon with AIS {axon_stump_length = }, {n_sections =}")
+        logger.debug(f"Replace axon with AIS {axon_stump_length = }, "
+                     f"{n_sections =}")
 
     default_replace_axon_hoc = \
         '''
