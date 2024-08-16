@@ -57,6 +57,8 @@ class NrnFileMorphology(Morphology, DictMixin):
             do_set_nseg=True,
             comment='',
             replace_axon_hoc=None,
+            axon_stump_length=60,
+            axon_stump_nsec=2,
             nseg_frequency=40,
             morph_modifiers=None,
             morph_modifiers_hoc=None,
@@ -74,6 +76,8 @@ class NrnFileMorphology(Morphology, DictMixin):
                 python, replace_axon is used instead. Must include
                 'proc replace_axon(){ ... }
                 If None,the default replace_axon is used
+            axon_stump_length (float): Length of replacement axon
+            axon_stump_nsec (int): Number of sections in replacement axon
             nseg_frequency (float): frequency of nseg
             do_set_nseg (bool): if True, it will use nseg_frequency
             morph_modifiers (list): list of functions to modify the icell
@@ -90,6 +94,8 @@ class NrnFileMorphology(Morphology, DictMixin):
             morphology_path = str(morphology_path)
         self.morphology_path = morphology_path
         self.do_replace_axon = do_replace_axon
+        self.axon_stump_length = axon_stump_length
+        self.axon_stump_nsec = axon_stump_nsec
         self.do_set_nseg = do_set_nseg
         self.nseg_frequency = nseg_frequency
         self.morph_modifiers = morph_modifiers
@@ -155,7 +161,9 @@ class NrnFileMorphology(Morphology, DictMixin):
             self.set_nseg(icell)
 
         if self.do_replace_axon:
-            self.replace_axon(sim=sim, icell=icell)
+            self.replace_axon(sim=sim, icell=icell,
+                              axon_stump_length=self.axon_stump_length,
+                              n_sections=self.axon_stump_nsec)
 
         if self.morph_modifiers is not None:
             for morph_modifier in self.morph_modifiers:
@@ -172,7 +180,7 @@ class NrnFileMorphology(Morphology, DictMixin):
             section.nseg = 1 + 2 * int(section.L / self.nseg_frequency)
 
     @staticmethod
-    def replace_axon(sim=None, icell=None):
+    def replace_axon(sim=None, icell=None, axon_stump_length=60, n_sections=2):
         """Replace axon"""
 
         nsec = len([sec for sec in icell.axonal])
@@ -188,7 +196,7 @@ class NrnFileMorphology(Morphology, DictMixin):
 
             for section in icell.axonal:
                 # If distance to soma is larger than 60, store diameter
-                if sim.neuron.h.distance(1, 0.5, sec=section) > 60:
+                if sim.neuron.h.distance(1, 0.5, sec=section) > axon_stump_length:
                     ais_diams[1] = section.diam
                     break
 
@@ -196,19 +204,22 @@ class NrnFileMorphology(Morphology, DictMixin):
             sim.neuron.h.delete_section(sec=section)
 
         # Create new axon array
-        sim.neuron.h.execute('create axon[2]', icell)
+        sim.neuron.h.execute(f"create axon[{n_sections}]", icell)
 
         for index, section in enumerate(icell.axon):
             section.nseg = 1
-            section.L = 30
+            section.L = axon_stump_length/n_sections
             section.diam = ais_diams[index]
             icell.axonal.append(sec=section)
             icell.all.append(sec=section)
 
-        icell.axon[0].connect(icell.soma[0], 1.0, 0.0)
-        icell.axon[1].connect(icell.axon[0], 1.0, 0.0)
+        for index in enumerate(icell.axon):
+            if index == 0:
+                icell.axon[0].connect(icell.soma[0], 1.0, 0.0)
+            else:
+                icell.axon[index].connect(icell.axon[index-1], 1.0, 0.0)
 
-        logger.debug('Replace axon with AIS')
+        logger.debug(f"Replace axon with AIS {axon_stump_length = }, {n_sections =}")
 
     default_replace_axon_hoc = \
         '''
