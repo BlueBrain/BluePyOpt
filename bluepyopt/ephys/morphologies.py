@@ -185,21 +185,32 @@ class NrnFileMorphology(Morphology, DictMixin):
 
         nsec = len([sec for sec in icell.axonal])
 
+        print(f"In replace_axon {nsec = }")
+
         if nsec == 0:
-            ais_diams = [1, 1]
+            ais_diams = [1] * n_sections
         elif nsec == 1:
-            ais_diams = [icell.axon[0].diam, icell.axon[0].diam]
+            sec_x = [min(1, x/n_sections * axon_stump_length/icell.axon[0].L)
+                     for x in range(0, n_sections)]
+            ais_diams = [icell.axon[0](sx).diam for sx in sec_x]
         else:
-            ais_diams = [icell.axon[0].diam, icell.axon[0].diam]
+            ais_diams = [icell.axon[0].diam] * n_sections
             # Define origin of distance function
             sim.neuron.h.distance(0, 0.5, sec=icell.soma[0])
 
+            end_point_dist = np.arange(1, n_sections+1) \
+                * axon_stump_length / n_sections
+
+            idx = 1
+
             for section in icell.axonal:
-                # If distance to soma is larger than 60, store diameter
-                if sim.neuron.h.distance(1, 0.5, sec=section) \
-                        > axon_stump_length:
-                    ais_diams[1] = section.diam
+                if idx >= len(ais_diams):
                     break
+                if sim.neuron.h.distance(1, 0.5, sec=section)\
+                        < end_point_dist[idx]:
+                    ais_diams[idx:] = section.diam
+                else:
+                    idx += 1
 
         for section in icell.axonal:
             sim.neuron.h.delete_section(sec=section)
@@ -214,7 +225,7 @@ class NrnFileMorphology(Morphology, DictMixin):
             icell.axonal.append(sec=section)
             icell.all.append(sec=section)
 
-        for index in enumerate(icell.axon):
+        for index in range(len(icell.axon)):
             if index == 0:
                 icell.axon[0].connect(icell.soma[0], 1.0, 0.0)
             else:
@@ -222,6 +233,7 @@ class NrnFileMorphology(Morphology, DictMixin):
 
         logger.debug(f"Replace axon with AIS {axon_stump_length = }, "
                      f"{n_sections =}")
+
 
     default_replace_axon_hoc = \
         '''
