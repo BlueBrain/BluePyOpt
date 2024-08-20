@@ -77,7 +77,7 @@ class NrnFileMorphology(Morphology, DictMixin):
                 'proc replace_axon(){ ... }
                 If None,the default replace_axon is used
             axon_stump_length (float): Length of replacement axon
-            axon_stump_nsec (int): Number of sections in replacement axon
+            axon_nseg_frequency (int): frequency of nseg, for axon
             nseg_frequency (float): frequency of nseg
             do_set_nseg (bool): if True, it will use nseg_frequency
             morph_modifiers (list): list of functions to modify the icell
@@ -180,7 +180,8 @@ class NrnFileMorphology(Morphology, DictMixin):
             section.nseg = 1 + 2 * int(section.L / self.nseg_frequency)
 
     @staticmethod
-    def replace_axon(sim=None, icell=None, axon_stump_length=60, axon_nseg_frequency=40):
+    def replace_axon(sim=None, icell=None,
+                     axon_stump_length=60, axon_nseg_frequency=40):
         """Replace axon"""
 
         nsec = len([sec for sec in icell.axonal])
