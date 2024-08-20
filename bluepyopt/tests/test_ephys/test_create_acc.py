@@ -537,7 +537,7 @@ def run_short_sim(cable_cell):
     arb_cell_model.properties.catalogue.extend(arbor.bbp_catalogue(), "BBP::")
 
     # Run a very short simulation to test mechanism instantiation
-    arb_cell_model.run(tfinal=0.1 *arbor.units.ms)
+    arb_cell_model.run(tfinal=0.1 * arbor.units.ms)
 
 
 @pytest.mark.unit
