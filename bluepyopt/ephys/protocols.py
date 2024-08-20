@@ -602,7 +602,12 @@ class ArbSweepProtocol(Protocol):
         for i, stim in enumerate(self.stimuli):
             if not isinstance(stim, stimuli.SynapticStimulus):
                 if hasattr(stim, 'envelope'):
-                    arb_iclamp = arbor.iclamp(stim.envelope())
+                    envelope = stim.envelope()
+                    envelope = [
+                        (t * arbor.units.ms, curr * arbor.units.nA)
+                        for (t, curr) in envelope
+                    ]
+                    arb_iclamp = arbor.iclamp(envelope)
                 else:
                     raise ValueError('Stimulus must provide envelope method '
                                      ' or be of type NrnNetStimStimulus to be'
@@ -631,7 +636,7 @@ class ArbSweepProtocol(Protocol):
         """Instantiate recordings"""
 
         # Attach voltage probe sampling at 10 kHz (every 0.1 ms)
-        for i, rec in enumerate(self.recordings):
+        for _, rec in enumerate(self.recordings):
             # alternatively arbor.cable_probe_membrane_voltage
             arb_loc = rec.location.acc_label()
             if isinstance(arb_loc, list) and len(arb_loc) != 1:
@@ -648,7 +653,9 @@ class ArbSweepProtocol(Protocol):
 
             cell_model.probe('voltage',
                              arb_loc.ref if use_labels else arb_loc.loc,
-                             frequency=10)  # could be a parameter
+                             "0",  # tag: default is '0'
+                             # frequency could be a parameter
+                             frequency=10 * arbor.units.kHz)
 
         return cell_model
 
