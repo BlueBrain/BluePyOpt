@@ -1,5 +1,5 @@
 (arbor-component
-  (meta-data (version "0.1-dev"))
+  (meta-data (version "0.9-dev"))
   (decor
     (default (gSKv3_1bar_SKv3_1 65))
     (paint (region "soma") (gSKv3_1bar_SKv3_1 65))

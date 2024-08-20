@@ -1,5 +1,5 @@
 (arbor-component
-  (meta-data (version "0.1-dev"))
+  (meta-data (version "0.9-dev"))
   (label-dict
     (region-def "all" (all))
     (region-def "soma" (tag 1))

@@ -1,5 +1,5 @@
 (arbor-component
-  (meta-data (version "0.1-dev"))
+  (meta-data (version "0.9-dev"))
   (decor
     (default (membrane-potential -65))
     (default (temperature-kelvin 307.14999999999998))
