@@ -1,7 +1,9 @@
 """Test ephys.parameterscalers"""
 
 import json
-
+import pathlib
+import tempfile
+import arbor
 
 import pytest
 
@@ -143,3 +145,42 @@ def test_parameterscalers_iexpr_generator_unsupported_attr():
                              'unsupported attribute tau.'):
         iexpr = value_scaler.acc_scale_iexpr(
             value=value, constant_formatter=lambda v: '%.9g' % v)
+
+
+@pytest.mark.unit
+def test_parameterscalers_iexpr():
+    """ephys.parameterscalers: Test iexpr"""
+    # iexpr from bluepyopt/tests/test_ephys/test_parameterscalers.py
+    iexpr = '(sub (scalar 0.62109375) ' \
+            '(mul (log (pi) ) ' \
+            '(exp (div (distance (region "soma")) ' \
+            '(scalar 0.421875) ) ) ) )'
+
+    # modified decor as in
+    # bluepyopt/tests/test_ephys/testdata/acc/simplecell/simple_cell_decor.acc
+    simple_cell_decor_with_iexpr = \
+        '(arbor-component\n' \
+        '  (meta-data (version "0.9-dev"))\n' \
+        '  (decor\n' \
+        '    (paint (region "soma") ' \
+        '(membrane-capacitance 0.01 (scalar 1.0)))\n' \
+        '    (paint (region "soma") ' \
+        '(scaled-mechanism (density (mechanism "default::hh" ' \
+        '("gnabar" 0.10299326453483033) ("gkbar" 0.027124836082684685))) ' \
+        f'("gkbar" {iexpr})))))'
+
+    with tempfile.TemporaryDirectory() as test_dir:
+        decor_filename = pathlib.Path(test_dir).joinpath("decor.acc")
+        with open(decor_filename, "w") as f:
+            f.write(simple_cell_decor_with_iexpr)
+        test_decor = arbor.load_component(decor_filename).component
+        assert test_decor.defaults() == []
+        assert str(test_decor.paintings()) == \
+            """[('(region "soma")', Cm=0.01), """ \
+            """('(region "soma")', <arbor.scaled_mechanism<density> """ \
+            "(mechanism('default::hh', " \
+            '{"gkbar": 0.0271248, "gnabar": 0.102993}), ' \
+            '{"gkbar": (sub (scalar 0.621094) (mul (log (scalar 3.14159)) ' \
+            '(exp (div (distance 1 (region "soma")) ' \
+            '(scalar 0.421875)))))})>)]'
+        assert test_decor.placements() == []
