@@ -211,7 +211,7 @@ class NrnFileMorphology(Morphology, DictMixin):
 
         for index, section in enumerate(icell.axon):
             section.L = axon_stub_length / 2
-            section.nseg = 1 + 2 * int(section.L/axon_nseg_frequency)
+            section.nseg = 1 + 2 * int(section.L / axon_nseg_frequency)
             section.diam = ais_diams[index]
             icell.axonal.append(sec=section)
             icell.all.append(sec=section)
