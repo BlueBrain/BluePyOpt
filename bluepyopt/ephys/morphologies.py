@@ -219,7 +219,7 @@ class NrnFileMorphology(Morphology, DictMixin):
         icell.axon[0].connect(icell.soma[0], 1.0, 0.0)
         icell.axon[1].connect(icell.axon[0], 1.0, 0.0)
 
-        logger.debug(f"Replace axon with AIS, {axon_stub_length = }")
+        logger.debug(f"Replace axon with AIS, {axon_stub_length=}")
 
     default_replace_axon_hoc = \
         '''
