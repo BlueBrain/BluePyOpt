@@ -308,7 +308,7 @@ class ArbFileMorphology(Morphology, DictMixin):
         elif morpho_suffix == '.swc':
             morpho = arbor.load_swc_arbor(morpho_filename)
             # turn loaded_morphology into morphology type
-            morpho = arbor.morphology(morpho.segment_tree)
+            morpho = morpho.morphology
         elif morpho_suffix == '.asc':
             morpho = arbor.load_asc(morpho_filename).morphology
         else:

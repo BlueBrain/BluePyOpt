@@ -636,7 +636,7 @@ class ArbSweepProtocol(Protocol):
         """Instantiate recordings"""
 
         # Attach voltage probe sampling at 10 kHz (every 0.1 ms)
-        for _, rec in enumerate(self.recordings):
+        for i, rec in enumerate(self.recordings):
             # alternatively arbor.cable_probe_membrane_voltage
             arb_loc = rec.location.acc_label()
             if isinstance(arb_loc, list) and len(arb_loc) != 1:
@@ -653,7 +653,7 @@ class ArbSweepProtocol(Protocol):
 
             cell_model.probe('voltage',
                              arb_loc.ref if use_labels else arb_loc.loc,
-                             "0",  # tag: default is '0'
+                             f"probe-{i}",
                              # frequency could be a parameter
                              frequency=10 * arbor.units.kHz)
 
