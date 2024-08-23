@@ -1,5 +1,5 @@
 (arbor-component
-  (meta-data (version "0.1-dev"))
+  (meta-data (version "0.9-dev"))
   (decor
     {%- for mech, params in global_mechs.items() %}
     {%- if mech is not none %}
@@ -10,7 +10,7 @@
     {%- endif %}
     {%- else %}
     {%- for param in params %}
-    (default ({{ param.name }} {{ param.value }}))
+    (default ({{ param.name }} {{ param.value }} (scalar 1.0)))
     {%- endfor %}
     {%- endif %}
     {%- endfor %}
@@ -27,13 +27,13 @@
     {%- endif %}
     {%- else %}
     {%- for param in params %}
-    (paint {{loc.ref}} ({{ param.name }} {{ param.value }}))
+    (paint {{loc.ref}} ({{ param.name }} {{ param.value }} (scalar 1.0)))
     {%- endfor %}
     {%- endif %}
     {%- endfor %}
 
     {%- for synapse_name, mech_params in pprocess_mechs[loc].items() %}
-    (place {{loc.ref}} (synapse (mechanism "{{ mech_params.mech }}" {%- for param in mech_params.params %} ("{{ param.name }}" {{ param.value }}){%- endfor %})) "{{ synapse_name }}")
+    (place {{loc.ref}} (synapse (mechanism "{{ mech_params.mech }}" {%- for param in mech_params.params %} ("{{ param.name }}" {{ param.value }} (scalar 1.0)){%- endfor %})) "{{ synapse_name }}")
     {%- endfor %}
 
     {%- endfor %}))

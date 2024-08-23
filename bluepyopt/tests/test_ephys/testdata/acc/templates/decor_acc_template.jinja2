@@ -1,5 +1,5 @@
 (arbor-component
-  (meta-data (version "0.1-dev"))
+  (meta-data (version "0.9-dev"))
   (meta-data (info "test-decor"))
   (decor
     {%- for mech, params in global_mechs.items() %}
@@ -11,7 +11,7 @@
     {%- endif %}
     {%- else %}
     {%- for param in params %}
-    (default ({{ param.name }} {{ param.value }}))
+    (default ({{ param.name }} {{ param.value }} (scalar 1.0)))
     {%- endfor %}
     {%- endif %}
     {%- endfor %}
@@ -26,7 +26,7 @@
     {%- endif %}
     {%- else %}
     {%- for param in params %}
-    (paint {{loc.ref}} ({{ param.name }} {{ param.value }}))
+    (paint {{loc.ref}} ({{ param.name }} {{ param.value }} (scalar 1.0)))
     {%- endfor %}
     {%- endif %}
     {%- endfor %}
