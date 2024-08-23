@@ -537,7 +537,7 @@ def run_short_sim(cable_cell):
     arb_cell_model.properties.catalogue.extend(arbor.bbp_catalogue(), "BBP::")
 
     # Run a very short simulation to test mechanism instantiation
-    arb_cell_model.run(tfinal=0.1)
+    arb_cell_model.run(tfinal=0.1 * arbor.units.ms)
 
 
 @pytest.mark.unit
@@ -665,6 +665,10 @@ def check_acc_dir(test_dir, ref_dir):
             with open(ref_dir_file / file) as f:
                 ref_file = f.read()
             assert ref_file == test_file
+            # check that load_component is not raising any error here
+            fpath = pathlib.Path(test_dir) / file
+            if fpath.suffix == "acc":
+                arbor.load_component(fpath).component
 
 
 @pytest.mark.unit

@@ -372,9 +372,11 @@ class ArbSimulator(object):
         dt = dt if dt is not None else self.dt
 
         if dt is not None:
-            return arb_cell_model.run(tfinal=tstop, dt=dt)
+            return arb_cell_model.run(
+                tfinal=tstop * arbor.units.ms, dt=dt * arbor.units.ms
+            )
         else:
-            return arb_cell_model.run(tfinal=tstop)
+            return arb_cell_model.run(tfinal=tstop * arbor.units.ms)
 
 
 class ArbSimulatorException(Exception):

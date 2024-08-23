@@ -37,7 +37,7 @@ EXTRA_LFP = [
 ]
 
 EXTRA_ARBOR = [
-    'arbor>=0.7',
+    'arbor>=0.10',
 ]
 
 setuptools.setup(
