@@ -20,11 +20,6 @@ Copyright (c) 2016-2022, EPFL/Blue Brain Project
 """
 
 # pylint: disable=W0611
-
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
-
 from . import tools  # NOQA
 
 from .api import *  # NOQA
