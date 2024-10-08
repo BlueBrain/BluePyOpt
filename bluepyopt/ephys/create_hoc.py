@@ -4,7 +4,6 @@
 
 import os
 import re
-import setuptools_scm
 
 from collections import defaultdict, namedtuple, OrderedDict
 from datetime import datetime
@@ -285,7 +284,7 @@ def _get_template_params(
 
     if not disable_banner:
         banner = 'Created by BluePyOpt(%s) at %s' % (
-            setuptools_scm.get_version(), datetime.now())
+            bluepyopt.__version__, datetime.now())
     else:
         banner = None
 

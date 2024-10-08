@@ -20,6 +20,10 @@ Copyright (c) 2016-2022, EPFL/Blue Brain Project
 """
 
 # pylint: disable=W0611
+import setuptools_scm
+
+__version__ = setuptools_scm.get_version()
+
 from . import tools  # NOQA
 
 from .api import *  # NOQA
