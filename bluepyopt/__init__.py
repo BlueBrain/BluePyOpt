@@ -20,10 +20,9 @@ Copyright (c) 2016-2022, EPFL/Blue Brain Project
 """
 
 # pylint: disable=W0611
+from importlib.metadata import version
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+__version__ = version("bluepyopt")
 
 from . import tools  # NOQA
 

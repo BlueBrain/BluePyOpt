@@ -36,8 +36,8 @@ jobs:
 
       - name: Build a source tarball and wheel
         run: |
-            pip install wheel
-            python setup.py sdist bdist_wheel
+            pip install build
+            python -m build
 
       - name: Get and store tag from 'Bump version and push tag' step
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
