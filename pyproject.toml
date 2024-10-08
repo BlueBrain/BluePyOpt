@@ -22,7 +22,6 @@ dependencies = [
     "Jinja2>=2.8",
     "Pebble>=4.6.0",
     "NEURON>=7.8",
-    "setuptools_scm>=8.0",
 ]
 classifiers = [
    "Development Status :: 5 - Production/Stable",
