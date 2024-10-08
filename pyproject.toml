@@ -7,7 +7,7 @@ name = "bluepyopt"
 authors = [
     {name = "Blue Brain Project, EPFL", email = "werner.vangeit@epfl.ch"},
 ]
-description=Bluebrain Python Optimisation Library (bluepyopt)"
+description="Bluebrain Python Optimisation Library (bluepyopt)"
 readme = "README.rst"
 license = {file = "LICENSE.txt"}
 requires-python = ">= 3.9"
