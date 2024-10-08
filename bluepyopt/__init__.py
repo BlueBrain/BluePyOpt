@@ -20,9 +20,9 @@ Copyright (c) 2016-2022, EPFL/Blue Brain Project
 """
 
 # pylint: disable=W0611
-import setuptools_scm
+from importlib.metadata import version
 
-__version__ = setuptools_scm.get_version()
+__version__ = version("bluepyopt")
 
 from . import tools  # NOQA
 
